@@ -31,5 +31,11 @@
         "name": "Home health check"
       }
     }
+  },
+  "issues": {
+    "unavailable_entity": {
+      "title": "{entity_id} needs attention",
+      "description": "`{entity_id}` has been unavailable for {unavailable_for}. Gut Check thinks it is worth fixing. Nothing will be changed automatically, and ignoring this card keeps it hidden on later checks."
+    }
   }
 }

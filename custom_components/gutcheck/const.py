@@ -25,6 +25,9 @@ MAX_RETRY_DELAY: Final = 60.0  # seconds
 RECIPE_HEALTH: Final = "health"
 RECIPE_INTERVAL: Final = timedelta(days=7)
 
+ISSUE_UNAVAILABLE_ENTITY: Final = "unavailable_entity"
+HEALTH_ISSUE_PREFIX: Final = "unavailable_"
+
 BLOCKED_DOMAINS: Final = frozenset(
     {
         Platform.LOCK,

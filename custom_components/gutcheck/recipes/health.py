@@ -10,9 +10,20 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 
-from ..const import BLOCKED_DOMAINS, DOMAIN, HEALTH_CRITERIA, HEALTH_INSTRUCTIONS, HEALTH_OPTIONS, RECIPE_HEALTH
+from ..const import (
+    BLOCKED_DOMAINS,
+    DOMAIN,
+    HEALTH_CRITERIA,
+    HEALTH_INSTRUCTIONS,
+    HEALTH_ISSUE_PREFIX,
+    HEALTH_OPTIONS,
+    ISSUE_UNAVAILABLE_ENTITY,
+    OPTION_WORTH_FIXING,
+    RECIPE_HEALTH,
+)
 from ..describe import bucket_longer_than
 from ..models import ChoiceQuestion
+from ..repairs import async_sync_issues
 from .base import Batch, Item, RecipeResult
 
 _LOGGER = logging.getLogger(__name__)
@@ -74,12 +85,13 @@ class HealthRecipe:
         for index, (entry, state) in enumerate(selected):
             restored = bool(state.attributes.get(ATTR_RESTORED) is True)
             unavailable_days = int((dt_util.utcnow() - state.last_changed).total_seconds() // 86400)
+            unavailable_for = bucket_longer_than(unavailable_days)
             entities.append(
                 {
                     "domain": entry.domain,
                     "device_class": entry.device_class or entry.original_device_class,
                     "integration": entry.platform,
-                    "unavailable_for": bucket_longer_than(unavailable_days),
+                    "unavailable_for": unavailable_for,
                     "restored": restored,
                     "entity_category": entry.entity_category.value if entry.entity_category else None,
                     "device_other_entities_available": self._has_available_sibling(hass, registry, entry),
@@ -95,11 +107,20 @@ class HealthRecipe:
                 "entity_id": entry.entity_id,
                 "registry_id": entry.id,
                 "restored": restored,
+                "unavailable_for": unavailable_for,
             }
 
         _LOGGER.debug("health check selected=%s excluded_by_safety_rules=%s", len(selected), excluded_by_safety_rules)
         return Batch(state={"entities": entities}, questions=questions, subjects=subjects)
 
     async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:
-        """Log the run's counts. No entity, device or area names, ever."""
+        """Sync a Repairs issue per worth-fixing entity, then log the run's counts."""
+        wanted = {
+            f"{HEALTH_ISSUE_PREFIX}{item['registry_id']}": {
+                "entity_id": str(item["entity_id"]),
+                "unavailable_for": str(item["unavailable_for"]),
+            }
+            for item in result["items"].get(OPTION_WORTH_FIXING, [])
+        }
+        async_sync_issues(hass, HEALTH_ISSUE_PREFIX, ISSUE_UNAVAILABLE_ENTITY, wanted)
         _LOGGER.debug("health check run complete, counts=%s", result["counts"])
