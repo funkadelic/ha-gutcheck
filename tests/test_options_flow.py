@@ -21,6 +21,7 @@ from custom_components.gutcheck.const import (
     CONF_HEALTH_ENABLED,
     DEFAULT_DAILY_BUDGET,
     DOMAIN,
+    HEALTH_ISSUE_PREFIX,
     OPTION_EXPECTED,
     OPTION_WORTH_FIXING,
     RECIPE_HEALTH,
@@ -204,6 +205,39 @@ async def test_turning_health_back_on_restores_sensor_and_runs(
 
     assert _health_sensor_entity_id(hass, mock_config_entry) is not None
     assert len(posted_bodies(aioclient_mock)) == 1
+
+
+async def test_reenabling_within_the_week_restores_the_worth_fixing_issue(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
+) -> None:
+    """Disable then re-enable within the cadence window: the free restore must recreate the Repairs card too."""
+    entity_id = _register_one_unavailable_entity(hass)
+    registry_id = er.async_get(hass).async_get(entity_id).id
+    issue_id = f"{HEALTH_ISSUE_PREFIX}{registry_id}"
+    register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
+
+    result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
+    await hass.config_entries.options.async_configure(
+        result["flow_id"], {CONF_HEALTH_ENABLED: False, CONF_DAILY_BUDGET: DEFAULT_DAILY_BUDGET}
+    )
+    await hass.async_block_till_done(wait_background_tasks=True)
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
+
+    posted_before = len(posted_bodies(aioclient_mock))
+    result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
+    await hass.config_entries.options.async_configure(
+        result["flow_id"], {CONF_HEALTH_ENABLED: True, CONF_DAILY_BUDGET: DEFAULT_DAILY_BUDGET}
+    )
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    # Still within the 7-day cadence window: restored for free, no new API call.
+    assert len(posted_bodies(aioclient_mock)) == posted_before
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
 
 
 async def test_critical_label_excludes_and_clearing_restores(

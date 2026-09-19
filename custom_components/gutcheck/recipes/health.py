@@ -136,25 +136,29 @@ class HealthRecipe:
     async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:
         """Sync a Repairs issue per worth-fixing entity, re-arm recovery tracking, and log counts."""
         worth_fixing = result["items"].get(OPTION_WORTH_FIXING, [])
-        wanted = {
+        async_sync_issues(hass, HEALTH_ISSUE_PREFIX, ISSUE_UNAVAILABLE_ENTITY, self._wanted_issues(worth_fixing))
+        self._rearm_recovery(hass, worth_fixing)
+
+        _LOGGER.debug("health check run complete, counts=%s", result["counts"])
+
+    async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
+        """Re-sync issues and re-arm recovery tracking for a restored result, without calling the API.
+
+        A restore can follow a disable/re-enable, which deletes every issue under
+        HEALTH_ISSUE_PREFIX, so the restored result's issues must be recreated too.
+        """
+        worth_fixing = result["items"].get(OPTION_WORTH_FIXING, [])
+        async_sync_issues(hass, HEALTH_ISSUE_PREFIX, ISSUE_UNAVAILABLE_ENTITY, self._wanted_issues(worth_fixing))
+        self._rearm_recovery(hass, worth_fixing)
+
+    def _wanted_issues(self, worth_fixing: list[Item]) -> dict[str, dict[str, str]]:
+        return {
             f"{HEALTH_ISSUE_PREFIX}{item['registry_id']}": {
                 "entity_id": str(item["entity_id"]),
                 "unavailable_for": str(item["unavailable_for"]),
             }
             for item in worth_fixing
         }
-        async_sync_issues(hass, HEALTH_ISSUE_PREFIX, ISSUE_UNAVAILABLE_ENTITY, wanted)
-        self._rearm_recovery(hass, worth_fixing)
-
-        _LOGGER.debug("health check run complete, counts=%s", result["counts"])
-
-    async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
-        """Re-arm recovery tracking for a restored result, without syncing issues or calling the API.
-
-        The issues themselves are still in the registry: unloads never delete them.
-        """
-        worth_fixing = result["items"].get(OPTION_WORTH_FIXING, [])
-        self._rearm_recovery(hass, worth_fixing)
 
     def _rearm_recovery(self, hass: HomeAssistant, worth_fixing: list[Item]) -> None:
         self.shutdown()
