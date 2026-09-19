@@ -4,13 +4,15 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from datetime import timedelta
 from typing import TYPE_CHECKING, Any, Protocol, TypedDict
 
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 
-from ..budget import BudgetExceededError, BudgetGate
+from ..budget import BudgetExceededError, BudgetGate, RequestTooLargeError
 from ..client import GutCheckApiError, GutCheckAuthError
 from ..const import DOMAIN, MODEL, RECIPE_INTERVAL
 from ..models import ChoiceQuestion, SystemOneRequest
@@ -56,6 +58,13 @@ class Recipe(Protocol):
     async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:
         """Act on a completed result (logging, Repairs, and so on)."""
         ...
+
+
+def _seconds_until_budget_retry() -> float:
+    """Seconds until the next local midnight, plus a minute for the reset to land first."""
+    tomorrow = dt_util.now().date() + timedelta(days=1)
+    next_midnight = dt_util.start_of_local_day(tomorrow)
+    return (next_midnight - dt_util.now()).total_seconds() + 60
 
 
 def _empty_result() -> RecipeResult:
@@ -105,7 +114,11 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
                 response = await self.budget.async_ask(payload)
             except GutCheckAuthError as err:
                 raise ConfigEntryAuthFailed("api key rejected") from err
-            except (BudgetExceededError, GutCheckApiError) as err:
+            except BudgetExceededError as err:
+                raise UpdateFailed("daily budget reached", retry_after=_seconds_until_budget_retry()) from err
+            except RequestTooLargeError as err:
+                raise UpdateFailed("run was too large to send") from err
+            except GutCheckApiError as err:
                 raise UpdateFailed("recipe run failed") from err
             result = classify(batch, response, self.recipe.options, payload)
 

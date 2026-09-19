@@ -10,6 +10,7 @@ from homeassistant.const import STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
 from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMocker,
@@ -38,8 +39,6 @@ def _response(input_tokens: int) -> dict[str, Any]:
 
 
 def _client(hass: HomeAssistant) -> GutCheckClient:
-    from homeassistant.helpers.aiohttp_client import async_get_clientsession
-
     return GutCheckClient(async_get_clientsession(hass), "test-key")
 
 
@@ -250,7 +249,7 @@ async def test_budget_refused_run_makes_health_unavailable_and_retries_after_mid
     entry = registry.async_get_or_create("sensor", "test", "unique_selectable")
     hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
 
-    register_jev_responses(aioclient_mock, [_first_run_response()])
+    register_jev_responses(aioclient_mock, [_first_run_response(), _first_run_response()])
     mock_config_entry.add_to_hass(hass)
 
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
@@ -265,9 +264,12 @@ async def test_budget_refused_run_makes_health_unavailable_and_retries_after_mid
     first_payload = coordinator.data["last_payload"]
     assert first_payload is not None
 
-    # Exhaust the remaining budget so the next run is refused; there is no
-    # public setter for this, so the test sets the gate's cap directly.
-    coordinator.budget._daily_budget = coordinator.budget.spent_today  # noqa: SLF001
+    # Exhaust today's remaining budget so the next run is refused; there is no
+    # public setter for this, so the test pokes the gate's internal counter
+    # directly. This only maxes out *today's* count, the same shape a real
+    # day of runs would leave behind, so tomorrow's reset still restores the
+    # full daily_budget.
+    coordinator.budget._data["spent"] = coordinator.budget.daily_budget
 
     await coordinator.async_refresh()
     await hass.async_block_till_done()
@@ -284,7 +286,6 @@ async def test_budget_refused_run_makes_health_unavailable_and_retries_after_mid
     # Past local midnight, the budget resets and the coordinator's own
     # retry_after schedule (next local midnight plus a minute) fires by
     # itself, without anything re-triggering it from the test.
-    register_jev_responses(aioclient_mock, [_first_run_response()])
     freezer.move_to("2026-01-02T00:00:00-08:00")
     async_fire_time_changed(hass)
     await hass.async_block_till_done()

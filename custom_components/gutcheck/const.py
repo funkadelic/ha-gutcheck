@@ -25,6 +25,9 @@ SIGNAL_BUDGET_UPDATED: Final = f"{DOMAIN}_budget_updated"
 ATTR_DAILY_BUDGET: Final = "daily_budget"
 ATTR_REMAINING: Final = "remaining"
 
+REQUEST_TOKEN_LIMIT: Final = 64_000
+STATE_TOKEN_LIMIT: Final = 32_000
+
 MAX_RETRIES: Final = 3
 BACKOFF_BASE: Final = 1.0  # seconds
 MAX_RETRY_DELAY: Final = 60.0  # seconds

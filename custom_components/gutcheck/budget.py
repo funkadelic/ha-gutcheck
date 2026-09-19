@@ -16,7 +16,7 @@ from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
 from .client import GutCheckClient
-from .const import BUDGET_STORE_KEY, CHARS_PER_TOKEN, SIGNAL_BUDGET_UPDATED, STORE_VERSION
+from .const import BUDGET_STORE_KEY, CHARS_PER_TOKEN, REQUEST_TOKEN_LIMIT, SIGNAL_BUDGET_UPDATED, STATE_TOKEN_LIMIT, STORE_VERSION
 from .models import SystemOneRequest, SystemOneResponse
 
 _LOGGER = logging.getLogger(__name__)
@@ -24,6 +24,10 @@ _LOGGER = logging.getLogger(__name__)
 
 class BudgetExceededError(Exception):
     """Raised when a run would exceed what remains of the daily budget."""
+
+
+class RequestTooLargeError(Exception):
+    """Raised when a single request exceeds the per-request or per-state token cap."""
 
 
 class _BudgetData(TypedDict):
@@ -130,6 +134,16 @@ class BudgetGate:
     async def async_ask(self, payload: SystemOneRequest) -> SystemOneResponse:
         """Reserve an estimate, call the client, then reconcile to actual usage."""
         estimate = estimate_tokens(payload)
+        state_estimate = _estimate(payload["state"])
+        longest_question = max((_estimate(question) for question in payload["questions"].values()), default=0)
+        if estimate > REQUEST_TOKEN_LIMIT or state_estimate + longest_question > STATE_TOKEN_LIMIT:
+            _LOGGER.debug(
+                "request too large estimate=%s state_plus_longest_question=%s questions=%s",
+                estimate,
+                state_estimate + longest_question,
+                len(payload["questions"]),
+            )
+            raise RequestTooLargeError("request exceeds the per-request token cap")
 
         async with self._lock:
             self._roll()
