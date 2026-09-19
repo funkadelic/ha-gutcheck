@@ -46,7 +46,7 @@ def _async_remove_recipe_entities(hass: HomeAssistant, entry: ConfigEntry, recip
     registry = er.async_get(hass)
     prefix = f"{entry.entry_id}_{recipe_id}"
     for entity_entry in list(er.async_entries_for_config_entry(registry, entry.entry_id)):
-        if entity_entry.unique_id.startswith(prefix):
+        if entity_entry.unique_id == prefix or entity_entry.unique_id.startswith(f"{prefix}_"):
             registry.async_remove(entity_entry.entity_id)
 
 
