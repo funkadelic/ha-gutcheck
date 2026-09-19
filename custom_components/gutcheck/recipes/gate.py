@@ -21,7 +21,7 @@ def gate_choice(answer: object, allowed: tuple[str, ...], threshold: float) -> s
     if choice not in allowed:
         return None
     confidence = answer.get("confidence")
-    if confidence is None:
+    if isinstance(confidence, bool) or not isinstance(confidence, int | float):
         return None
     return choice if confidence >= threshold else None
 
@@ -29,7 +29,7 @@ def gate_choice(answer: object, allowed: tuple[str, ...], threshold: float) -> s
 def _raw_confidence(answer: object) -> float | None:
     if isinstance(answer, dict):
         confidence = answer.get("confidence")
-        if isinstance(confidence, int | float):
+        if not isinstance(confidence, bool) and isinstance(confidence, int | float):
             return float(confidence)
     return None
 
