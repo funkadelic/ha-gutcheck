@@ -1,0 +1,21 @@
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+.venv/
+venv/
+.env
+.DS_Store
+.coverage
+coverage.xml
+htmlcov/
+junit.xml
+.pytest_cache/
+.ruff_cache/
+mutants/
+
+# Local-only workflow aids (never commit)
+CLAUDE.md
+.planning/
+.envrc
+.claude/
