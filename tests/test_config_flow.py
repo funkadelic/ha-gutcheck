@@ -39,6 +39,22 @@ async def test_success_creates_one_entry_and_validates_key(hass: HomeAssistant, 
     assert aioclient_mock.mock_calls[0][3]["Authorization"] == "Bearer test-key"
 
 
+async def test_pasted_whitespace_is_stripped_from_key(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
+    """Whitespace copied along with the key is not sent or stored."""
+    response = {
+        "model": "jev-latest",
+        "answers": {"q": {"type": "noul", "noul": 0.9}},
+        "usage": {"input_tokens": 5, "output_tokens": 0},
+    }
+    register_jev_responses(aioclient_mock, [response])
+
+    result = await _start_flow(hass, " test-key \n")
+
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["data"][CONF_API_KEY] == "test-key"
+    assert aioclient_mock.mock_calls[0][3]["Authorization"] == "Bearer test-key"
+
+
 async def test_invalid_key_shows_invalid_auth_and_creates_no_entry(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
 ) -> None:

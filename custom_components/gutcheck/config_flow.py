@@ -51,9 +51,10 @@ class GutCheckConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Collect the API key and validate it before creating the entry."""
         errors: dict[str, str] = {}
         if user_input is not None:
-            error = await async_validate_api_key(self.hass, user_input[CONF_API_KEY])
+            api_key = user_input[CONF_API_KEY].strip()
+            error = await async_validate_api_key(self.hass, api_key)
             if error is None:
-                return self.async_create_entry(title="Gut Check", data=user_input)
+                return self.async_create_entry(title="Gut Check", data={CONF_API_KEY: api_key})
             errors["base"] = error
 
         return self.async_show_form(step_id="user", data_schema=STEP_USER_SCHEMA, errors=errors)
@@ -66,11 +67,12 @@ class GutCheckConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Validate a replacement key and update the existing entry with it."""
         errors: dict[str, str] = {}
         if user_input is not None:
-            error = await async_validate_api_key(self.hass, user_input[CONF_API_KEY])
+            api_key = user_input[CONF_API_KEY].strip()
+            error = await async_validate_api_key(self.hass, api_key)
             if error is None:
                 return self.async_update_reload_and_abort(
                     self._get_reauth_entry(),
-                    data_updates={CONF_API_KEY: user_input[CONF_API_KEY]},
+                    data_updates={CONF_API_KEY: api_key},
                 )
             errors["base"] = error
 
