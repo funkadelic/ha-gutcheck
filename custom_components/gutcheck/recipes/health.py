@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 
 from homeassistant.const import ATTR_RESTORED, STATE_UNAVAILABLE
-from homeassistant.core import HomeAssistant, State
+from homeassistant.core import CALLBACK_TYPE, HomeAssistant, State
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
@@ -23,7 +23,7 @@ from ..const import (
 )
 from ..describe import bucket_longer_than
 from ..models import ChoiceQuestion
-from ..repairs import async_sync_issues
+from ..repairs import async_sync_issues, async_track_recovery
 from .base import Batch, Item, RecipeResult
 
 _LOGGER = logging.getLogger(__name__)
@@ -38,6 +38,7 @@ class HealthRecipe:
     def __init__(self, critical_label: str | None) -> None:
         """Store the label that marks an entity or device as critical."""
         self._critical_label = critical_label
+        self._unsub_recovery: CALLBACK_TYPE | None = None
 
     def _is_critical(self, entry: er.RegistryEntry, device_registry: dr.DeviceRegistry) -> bool:
         if not self._critical_label:
@@ -114,13 +115,26 @@ class HealthRecipe:
         return Batch(state={"entities": entities}, questions=questions, subjects=subjects)
 
     async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:
-        """Sync a Repairs issue per worth-fixing entity, then log the run's counts."""
+        """Sync a Repairs issue per worth-fixing entity, re-arm recovery tracking, and log counts."""
+        worth_fixing = result["items"].get(OPTION_WORTH_FIXING, [])
         wanted = {
             f"{HEALTH_ISSUE_PREFIX}{item['registry_id']}": {
                 "entity_id": str(item["entity_id"]),
                 "unavailable_for": str(item["unavailable_for"]),
             }
-            for item in result["items"].get(OPTION_WORTH_FIXING, [])
+            for item in worth_fixing
         }
         async_sync_issues(hass, HEALTH_ISSUE_PREFIX, ISSUE_UNAVAILABLE_ENTITY, wanted)
+
+        self.shutdown()
+        watched = {str(item["entity_id"]): f"{HEALTH_ISSUE_PREFIX}{item['registry_id']}" for item in worth_fixing}
+        if watched:
+            self._unsub_recovery = async_track_recovery(hass, watched)
+
         _LOGGER.debug("health check run complete, counts=%s", result["counts"])
+
+    def shutdown(self) -> None:
+        """Cancel the recovery subscription, if any."""
+        if self._unsub_recovery is not None:
+            self._unsub_recovery()
+            self._unsub_recovery = None

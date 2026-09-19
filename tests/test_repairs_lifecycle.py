@@ -87,6 +87,17 @@ async def test_state_becoming_unknown_also_counts_as_recovered(hass: HomeAssista
     assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_a") is None
 
 
+async def test_entity_removed_from_the_state_machine_leaves_the_issue_alone(hass: HomeAssistant) -> None:
+    hass.states.async_set("sensor.a", STATE_UNAVAILABLE)
+    recipe = HealthRecipe(critical_label=None)
+    await recipe.async_act(hass, _result({OPTION_WORTH_FIXING: [_item("sensor.a", "reg_a")]}))
+
+    hass.states.async_remove("sensor.a")
+    await hass.async_block_till_done()
+
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_a") is not None
+
+
 async def test_already_recovered_before_the_next_run_is_cleared_at_once(hass: HomeAssistant) -> None:
     recipe = HealthRecipe(critical_label=None)
     hass.states.async_set("sensor.b", STATE_UNAVAILABLE)

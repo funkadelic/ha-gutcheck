@@ -15,6 +15,7 @@ from .client import GutCheckClient
 from .const import CONF_CRITICAL_LABEL, CONF_DAILY_BUDGET, DEFAULT_DAILY_BUDGET
 from .recipes.base import RecipeCoordinator
 from .recipes.health import HealthRecipe
+from .repairs import async_delete_issues
 
 PLATFORMS = [Platform.SENSOR]
 
@@ -43,6 +44,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
         budget=budget,
         coordinators={health_recipe.recipe_id: health_coordinator},
     )
+    entry.async_on_unload(health_recipe.shutdown)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
@@ -60,5 +62,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> bool:
-    """Unload a Gut Check config entry."""
+    """Unload a Gut Check config entry.
+
+    Deliberately does not delete any Repairs issue: unload also runs on every
+    reload (an options save, a reauth), and deleting there would discard the
+    user's ignores. Issues are only swept on removal, in async_remove_entry.
+    """
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> None:
+    """Delete every Gut Check Repairs issue when the entry is removed."""
+    async_delete_issues(hass)
