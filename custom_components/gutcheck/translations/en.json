@@ -29,6 +29,12 @@
     "sensor": {
       "health": {
         "name": "Home health check"
+      },
+      "tokens_today": {
+        "name": "Tokens used today"
+      },
+      "cost_today": {
+        "name": "Cost today"
       }
     }
   },

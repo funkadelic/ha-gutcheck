@@ -18,6 +18,13 @@ DEFAULT_DAILY_BUDGET: Final = 100_000
 CHARS_PER_TOKEN: Final = 4
 REQUEST_TIMEOUT: Final = 30  # seconds
 
+PRICE_PER_MTOK_USD: Final = 0.042
+STORE_VERSION: Final = 1
+BUDGET_STORE_KEY: Final = f"{DOMAIN}.budget"
+SIGNAL_BUDGET_UPDATED: Final = f"{DOMAIN}_budget_updated"
+ATTR_DAILY_BUDGET: Final = "daily_budget"
+ATTR_REMAINING: Final = "remaining"
+
 MAX_RETRIES: Final = 3
 BACKOFF_BASE: Final = 1.0  # seconds
 MAX_RETRY_DELAY: Final = 60.0  # seconds

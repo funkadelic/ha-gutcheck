@@ -8,16 +8,34 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_API_KEY, Platform
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.start import async_at_started
+from homeassistant.helpers.storage import Store
 
 from .budget import BudgetGate
 from .client import GutCheckClient
-from .const import CONF_CRITICAL_LABEL, CONF_DAILY_BUDGET, DEFAULT_DAILY_BUDGET
+from .const import (
+    BUDGET_STORE_KEY,
+    CONF_CRITICAL_LABEL,
+    CONF_DAILY_BUDGET,
+    DEFAULT_DAILY_BUDGET,
+    DOMAIN,
+    STORE_VERSION,
+)
 from .recipes.base import RecipeCoordinator
 from .recipes.health import HealthRecipe
 from .repairs import async_delete_issues
 
 PLATFORMS = [Platform.SENSOR]
+
+
+def device_info(entry: ConfigEntry) -> DeviceInfo:
+    """The single Gut Check service device every entity attaches to."""
+    return DeviceInfo(
+        identifiers={(DOMAIN, entry.entry_id)},
+        name="Gut Check",
+        entry_type=DeviceEntryType.SERVICE,
+    )
 
 
 @dataclass
@@ -35,7 +53,8 @@ type GutCheckConfigEntry = ConfigEntry[GutCheckData]
 async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> bool:
     """Set up Gut Check from a config entry."""
     client = GutCheckClient(async_get_clientsession(hass), entry.data[CONF_API_KEY])
-    budget = BudgetGate(client, entry.options.get(CONF_DAILY_BUDGET, DEFAULT_DAILY_BUDGET))
+    budget = BudgetGate(hass, client, entry.options.get(CONF_DAILY_BUDGET, DEFAULT_DAILY_BUDGET))
+    await budget.async_load()
     health_recipe = HealthRecipe(entry.options.get(CONF_CRITICAL_LABEL))
     health_coordinator = RecipeCoordinator(hass, entry, budget, health_recipe)
 
@@ -45,6 +64,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
         coordinators={health_recipe.recipe_id: health_coordinator},
     )
     entry.async_on_unload(health_recipe.shutdown)
+    entry.async_on_unload(budget.async_start())
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
@@ -72,5 +92,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) ->
 
 
 async def async_remove_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> None:
-    """Delete every Gut Check Repairs issue when the entry is removed."""
+    """Delete every Gut Check Repairs issue and the persisted budget Store."""
     async_delete_issues(hass)
+    await Store(hass, STORE_VERSION, BUDGET_STORE_KEY).async_remove()

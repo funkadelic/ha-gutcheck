@@ -279,7 +279,7 @@ async def test_budget_gate_reserves_once_and_reconciles_to_final_usage(
             {"status": 200, "json": _response(input_tokens=42)},
         ],
     )
-    gate = BudgetGate(_client(hass), daily_budget=1000)
+    gate = BudgetGate(hass, _client(hass), daily_budget=1000)
 
     with patch("custom_components.gutcheck.client.asyncio.sleep", new_callable=AsyncMock):
         await gate.async_ask(PAYLOAD)  # type: ignore[arg-type]
