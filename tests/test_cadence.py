@@ -6,6 +6,7 @@ import asyncio
 from datetime import timedelta
 from typing import Any
 
+import pytest
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, STATE_UNAVAILABLE
 from homeassistant.core import CoreState, HomeAssistant
 from homeassistant.helpers import entity_registry as er
@@ -161,11 +162,25 @@ async def test_restart_with_a_stale_stored_run_re_runs_at_startup(
     assert len(posted_bodies(aioclient_mock)) == 1
 
 
+@pytest.mark.parametrize(
+    "malformed_data",
+    [
+        pytest.param({"not": "a recipe result"}, id="missing_keys"),
+        pytest.param(
+            {"last_run": 12345, "counts": {}, "items": {}, "unsure": [], "last_payload": None}, id="non_string_last_run"
+        ),
+        pytest.param(
+            {"last_run": "not-a-timestamp", "counts": {}, "items": {}, "unsure": [], "last_payload": None},
+            id="unparseable_last_run",
+        ),
+    ],
+)
 async def test_malformed_stored_value_is_treated_as_never_run(
     hass: HomeAssistant,
     hass_storage: dict[str, Any],
     aioclient_mock: AiohttpClientMocker,
     mock_config_entry: MockConfigEntry,
+    malformed_data: dict[str, Any],
 ) -> None:
     """A stored value that isn't a proper RecipeResult is treated as never run."""
     hass.set_state(CoreState.not_running)
@@ -174,7 +189,7 @@ async def test_malformed_stored_value_is_treated_as_never_run(
         "version": STORE_VERSION,
         "minor_version": 1,
         "key": HEALTH_STORE_KEY,
-        "data": {"not": "a recipe result"},
+        "data": malformed_data,
     }
     register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     mock_config_entry.add_to_hass(hass)

@@ -6,11 +6,10 @@ from dataclasses import dataclass
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_API_KEY, Platform
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
-from homeassistant.helpers.start import async_at_started
 from homeassistant.helpers.storage import Store
 
 from .budget import BudgetGate
@@ -26,7 +25,7 @@ from .const import (
     RECIPE_HEALTH,
     STORE_VERSION,
 )
-from .recipes.base import RecipeCoordinator
+from .recipes.base import RecipeCoordinator, recipe_store_key
 from .recipes.health import HealthRecipe
 from .repairs import async_delete_issues
 
@@ -81,20 +80,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
     entry.runtime_data = GutCheckData(client=client, budget=budget, coordinators=coordinators)
     entry.async_on_unload(budget.async_start())
 
+    for coordinator in coordinators.values():
+        await coordinator.async_restore_or_schedule()
+
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
-    if coordinators:
-
-        @callback
-        def _start_first_run(_hass: HomeAssistant) -> None:
-            for coordinator in coordinators.values():
-                entry.async_create_background_task(
-                    hass,
-                    coordinator.async_refresh(),
-                    f"{entry.entry_id}_{coordinator.recipe.recipe_id}_first_refresh",
-                )
-
-        entry.async_on_unload(async_at_started(hass, _start_first_run))
 
     return True
 
@@ -110,6 +99,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) ->
 
 
 async def async_remove_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> None:
-    """Delete every Gut Check Repairs issue and the persisted budget Store."""
+    """Delete every Gut Check Repairs issue and the persisted budget and recipe Stores."""
     async_delete_issues(hass)
     await Store(hass, STORE_VERSION, BUDGET_STORE_KEY).async_remove()
+    await Store(hass, STORE_VERSION, recipe_store_key(RECIPE_HEALTH)).async_remove()

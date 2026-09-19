@@ -144,13 +144,23 @@ class HealthRecipe:
             for item in worth_fixing
         }
         async_sync_issues(hass, HEALTH_ISSUE_PREFIX, ISSUE_UNAVAILABLE_ENTITY, wanted)
+        self._rearm_recovery(hass, worth_fixing)
 
+        _LOGGER.debug("health check run complete, counts=%s", result["counts"])
+
+    async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
+        """Re-arm recovery tracking for a restored result, without syncing issues or calling the API.
+
+        The issues themselves are still in the registry: unloads never delete them.
+        """
+        worth_fixing = result["items"].get(OPTION_WORTH_FIXING, [])
+        self._rearm_recovery(hass, worth_fixing)
+
+    def _rearm_recovery(self, hass: HomeAssistant, worth_fixing: list[Item]) -> None:
         self.shutdown()
         watched = {str(item["entity_id"]): f"{HEALTH_ISSUE_PREFIX}{item['registry_id']}" for item in worth_fixing}
         if watched:
             self._unsub_recovery = async_track_recovery(hass, watched)
-
-        _LOGGER.debug("health check run complete, counts=%s", result["counts"])
 
     def shutdown(self) -> None:
         """Cancel the recovery subscription, if any."""

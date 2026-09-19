@@ -91,10 +91,7 @@ async def test_saving_new_budget_reloads_and_keeps_spent_tokens(
     _register_one_unavailable_entity(hass)
     register_jev_responses(
         aioclient_mock,
-        [
-            _api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}, input_tokens=1234),
-            _api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}, input_tokens=10),
-        ],
+        [_api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}, input_tokens=1234)],
     )
     mock_config_entry.add_to_hass(hass)
 
@@ -114,12 +111,13 @@ async def test_saving_new_budget_reloads_and_keeps_spent_tokens(
     assert result["type"] is FlowResultType.CREATE_ENTRY
     reload_spy.assert_called_once()
 
-    # The reload also runs the health check again (Plan 06 adds the
-    # once-a-week skip), adding its 10 tokens on top of the first run's 1234.
+    # The reload restores the run from less than a week ago for free (D-11)
+    # instead of sending another request, so only the first run's 1234 tokens
+    # are spent.
     tokens_state = _tokens_sensor_state(hass, mock_config_entry)
-    assert tokens_state.state == "1244"
+    assert tokens_state.state == "1234"
     assert tokens_state.attributes["daily_budget"] == 5000
-    assert tokens_state.attributes["remaining"] == 5000 - 1244
+    assert tokens_state.attributes["remaining"] == 5000 - 1234
 
 
 async def test_saving_identical_values_does_not_reload(hass: HomeAssistant, mock_config_entry: MockConfigEntry) -> None:
@@ -209,9 +207,15 @@ async def test_turning_health_back_on_restores_sensor_and_runs(
 
 
 async def test_critical_label_excludes_and_clearing_restores(
-    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
+    hass: HomeAssistant, freezer: Any, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
 ) -> None:
-    """Picking a critical label excludes the labelled entity; clearing it brings it back."""
+    """Picking a critical label excludes the labelled entity; clearing it brings it back.
+
+    Each reload jumps the clock past the weekly cadence window first, so the
+    restore-for-free path (D-11) doesn't hide the label's effect behind a
+    restored, pre-label result.
+    """
+    freezer.move_to("2026-01-01T00:00:00-08:00")
     label_registry = lr.async_get(hass)
     label = label_registry.async_create("Critical")
 
@@ -234,6 +238,7 @@ async def test_critical_label_excludes_and_clearing_restores(
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
+    freezer.move_to("2026-01-09T00:00:00-08:00")
     result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
     await hass.config_entries.options.async_configure(
         result["flow_id"],
@@ -250,6 +255,7 @@ async def test_critical_label_excludes_and_clearing_restores(
     assert len(bodies[1]["state"]["entities"]) == 1
     assert "entity_id" not in bodies[1]["state"]["entities"][0]
 
+    freezer.move_to("2026-01-17T00:00:00-08:00")
     result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
     await hass.config_entries.options.async_configure(
         result["flow_id"], {CONF_HEALTH_ENABLED: True, CONF_DAILY_BUDGET: DEFAULT_DAILY_BUDGET}

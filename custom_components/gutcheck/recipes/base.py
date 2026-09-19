@@ -4,17 +4,20 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any, Protocol, TypedDict
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.helpers.event import async_call_later
+from homeassistant.helpers.start import async_at_started
+from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
 from ..budget import BudgetExceededError, BudgetGate, RequestTooLargeError
 from ..client import GutCheckApiError, GutCheckAuthError
-from ..const import DOMAIN, MODEL, RECIPE_INTERVAL
+from ..const import DOMAIN, FAILED_RUN_RETRY, MODEL, RECIPE_INTERVAL, STORE_VERSION
 from ..models import ChoiceQuestion, SystemOneRequest
 from .gate import classify
 
@@ -59,6 +62,15 @@ class Recipe(Protocol):
         """Act on a completed result (logging, Repairs, and so on)."""
         ...
 
+    async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
+        """Re-arm a restored result's side effects, without calling the API."""
+        ...
+
+
+def recipe_store_key(recipe_id: str) -> str:
+    """The Store key holding one recipe's last run and result."""
+    return f"{DOMAIN}.recipe_{recipe_id}"
+
 
 def _seconds_until_budget_retry() -> float:
     """Seconds until the next local midnight, plus a minute for the reset to land first."""
@@ -69,12 +81,28 @@ def _seconds_until_budget_retry() -> float:
 
 def _empty_result() -> RecipeResult:
     return {
-        "last_run": "",
+        "last_run": dt_util.utcnow().isoformat(),
         "counts": {},
         "items": {},
         "unsure": [],
         "last_payload": None,
     }
+
+
+_RECIPE_RESULT_KEYS = frozenset({"last_run", "counts", "items", "unsure", "last_payload"})
+
+
+def _parse_stored_result(stored: object) -> tuple[RecipeResult, datetime] | None:
+    """Return the stored value and its parsed last_run only when both are valid."""
+    if not isinstance(stored, dict) or not stored.keys() >= _RECIPE_RESULT_KEYS:
+        return None
+    last_run = stored.get("last_run")
+    if not isinstance(last_run, str):
+        return None
+    parsed = dt_util.parse_datetime(last_run)
+    if parsed is None:
+        return None
+    return stored, parsed  # type: ignore[return-value]
 
 
 class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
@@ -97,6 +125,32 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
         )
         self.budget = budget
         self.recipe = recipe
+        self._store: Store[RecipeResult] = Store(hass, STORE_VERSION, recipe_store_key(recipe.recipe_id))
+
+    async def async_restore_or_schedule(self) -> None:
+        """Restore a fresh-enough stored result for free, or schedule the first run at startup."""
+        parsed = _parse_stored_result(await self._store.async_load())
+        if parsed is not None and dt_util.utcnow() - parsed[1] < RECIPE_INTERVAL:
+            result, last_run = parsed
+            self.async_set_updated_data(result)
+            await self.recipe.restore(self.hass, result)
+            remaining = (last_run + RECIPE_INTERVAL - dt_util.utcnow()).total_seconds()
+            self.config_entry.async_on_unload(async_call_later(self.hass, remaining, self._handle_scheduled_refresh))
+        else:
+            self.config_entry.async_on_unload(async_at_started(self.hass, self._handle_started_refresh))
+
+    async def _handle_scheduled_refresh(self, _now: datetime) -> None:
+        """Run the catch-up refresh scheduled 7 days after a restored last_run."""
+        await self.async_request_refresh()
+
+    @callback
+    def _handle_started_refresh(self, _hass: HomeAssistant) -> None:
+        """Run the first-ever (or overdue) refresh once Home Assistant has started."""
+        self.config_entry.async_create_background_task(
+            self.hass,
+            self.async_refresh(),
+            f"{self.config_entry.entry_id}_{self.recipe.recipe_id}_first_refresh",
+        )
 
     async def _async_update_data(self) -> RecipeResult:
         """Run one select/describe/ask/act cycle."""
@@ -119,8 +173,9 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
             except RequestTooLargeError as err:
                 raise UpdateFailed("run was too large to send") from err
             except GutCheckApiError as err:
-                raise UpdateFailed("recipe run failed") from err
+                raise UpdateFailed("recipe run failed", retry_after=FAILED_RUN_RETRY.total_seconds()) from err
             result = classify(batch, response, self.recipe.options, payload)
 
         await self.recipe.async_act(self.hass, result)
+        await self._store.async_save(result)
         return result
