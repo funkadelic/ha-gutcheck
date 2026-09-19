@@ -18,6 +18,10 @@ DEFAULT_DAILY_BUDGET: Final = 100_000
 CHARS_PER_TOKEN: Final = 4
 REQUEST_TIMEOUT: Final = 30  # seconds
 
+MAX_RETRIES: Final = 3
+BACKOFF_BASE: Final = 1.0  # seconds
+MAX_RETRY_DELAY: Final = 60.0  # seconds
+
 RECIPE_HEALTH: Final = "health"
 RECIPE_INTERVAL: Final = timedelta(days=7)
 

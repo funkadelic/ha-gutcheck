@@ -92,9 +92,7 @@ async def test_422_raises_validation_error(hass: HomeAssistant, aioclient_mock: 
 
 
 @pytest.mark.parametrize("status", [400, 500, 503])
-async def test_other_bad_status_raises_base_error(
-    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, status: int
-) -> None:
+async def test_other_bad_status_raises_base_error(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, status: int) -> None:
     """400, 500 and 503 raise the base class with the status set."""
     _queue_responses(aioclient_mock, [{"status": status, "json": {"error": "boom"}}])
 
@@ -177,6 +175,11 @@ def test_parse_retry_after_http_date_in_the_past() -> None:
         assert parse_retry_after("Wed, 31 Dec 2025 12:00:00 GMT") == 0.0
 
 
+def test_parse_retry_after_naive_http_date_is_treated_as_utc() -> None:
+    with freeze_time(datetime(2026, 1, 1, 12, 0, 0, tzinfo=UTC)):
+        assert parse_retry_after("01 Jan 2026 12:00:30") == 30.0
+
+
 async def test_retries_429_twice_then_succeeds_with_identical_bodies(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
 ) -> None:
@@ -203,9 +206,11 @@ async def test_529_four_times_raises_after_three_retries(hass: HomeAssistant, ai
     """529 four times raises GutCheckOverloadedError after sleeps of 1, 2 and 4 seconds."""
     _queue_responses(aioclient_mock, [{"status": 529, "json": {"error": "overloaded"}} for _ in range(4)])
 
-    with patch("custom_components.gutcheck.client.asyncio.sleep", new_callable=AsyncMock) as sleep_mock:
-        with pytest.raises(GutCheckOverloadedError):
-            await _client(hass).async_ask(PAYLOAD)  # type: ignore[arg-type]
+    with (
+        patch("custom_components.gutcheck.client.asyncio.sleep", new_callable=AsyncMock) as sleep_mock,
+        pytest.raises(GutCheckOverloadedError),
+    ):
+        await _client(hass).async_ask(PAYLOAD)  # type: ignore[arg-type]
 
     assert [call.args[0] for call in sleep_mock.await_args_list] == [1.0, 2.0, 4.0]
 
@@ -233,9 +238,11 @@ async def test_retry_after_over_60_raises_without_sleeping(hass: HomeAssistant, 
         [{"status": 429, "json": {"error": "slow down"}, "headers": {"Retry-After": "61"}}],
     )
 
-    with patch("custom_components.gutcheck.client.asyncio.sleep", new_callable=AsyncMock) as sleep_mock:
-        with pytest.raises(GutCheckRateLimitError):
-            await _client(hass).async_ask(PAYLOAD)  # type: ignore[arg-type]
+    with (
+        patch("custom_components.gutcheck.client.asyncio.sleep", new_callable=AsyncMock) as sleep_mock,
+        pytest.raises(GutCheckRateLimitError),
+    ):
+        await _client(hass).async_ask(PAYLOAD)  # type: ignore[arg-type]
 
     sleep_mock.assert_not_awaited()
 
@@ -252,9 +259,11 @@ async def test_retry_after_http_date_form_sleeps_for_the_date_delta(
         ],
     )
 
-    with freeze_time(datetime(2026, 1, 1, 12, 0, 0, tzinfo=UTC)):
-        with patch("custom_components.gutcheck.client.asyncio.sleep", new_callable=AsyncMock) as sleep_mock:
-            await _client(hass).async_ask(PAYLOAD)  # type: ignore[arg-type]
+    with (
+        freeze_time(datetime(2026, 1, 1, 12, 0, 0, tzinfo=UTC)),
+        patch("custom_components.gutcheck.client.asyncio.sleep", new_callable=AsyncMock) as sleep_mock,
+    ):
+        await _client(hass).async_ask(PAYLOAD)  # type: ignore[arg-type]
 
     assert [call.args[0] for call in sleep_mock.await_args_list] == [15.0]
 
@@ -291,9 +300,11 @@ async def test_api_key_never_appears_in_errors_or_logs(
         ],
     )
 
-    with patch("custom_components.gutcheck.client.asyncio.sleep", new_callable=AsyncMock):
-        with pytest.raises(GutCheckAuthError) as excinfo:
-            await _client(hass, api_key=secret_key).async_ask(PAYLOAD)  # type: ignore[arg-type]
+    with (
+        patch("custom_components.gutcheck.client.asyncio.sleep", new_callable=AsyncMock),
+        pytest.raises(GutCheckAuthError) as excinfo,
+    ):
+        await _client(hass, api_key=secret_key).async_ask(PAYLOAD)  # type: ignore[arg-type]
 
     assert secret_key not in str(excinfo.value)
     assert secret_key not in caplog.text
