@@ -7,6 +7,13 @@
         "data": {
           "api_key": "API key"
         }
+      },
+      "reauth_confirm": {
+        "title": "Update your API key",
+        "description": "The saved API key stopped working. Paste a new one to keep Gut Check running.",
+        "data": {
+          "api_key": "API key"
+        }
       }
     },
     "error": {
@@ -14,7 +21,8 @@
       "cannot_connect": "Could not reach the API to check the key. Try again in a moment."
     },
     "abort": {
-      "single_instance_allowed": "Gut Check is already set up. Only one instance is allowed."
+      "single_instance_allowed": "Gut Check is already set up. Only one instance is allowed.",
+      "reauth_successful": "The API key was updated."
     }
   },
   "entity": {

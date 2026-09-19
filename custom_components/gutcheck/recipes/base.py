@@ -7,10 +7,11 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Protocol, TypedDict
 
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from ..budget import BudgetExceededError, BudgetGate
-from ..client import GutCheckApiError
+from ..client import GutCheckApiError, GutCheckAuthError
 from ..const import DOMAIN, MODEL, RECIPE_INTERVAL
 from ..models import ChoiceQuestion, SystemOneRequest
 from .gate import classify
@@ -102,6 +103,8 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
             }
             try:
                 response = await self.budget.async_ask(payload)
+            except GutCheckAuthError as err:
+                raise ConfigEntryAuthFailed("api key rejected") from err
             except (BudgetExceededError, GutCheckApiError) as err:
                 raise UpdateFailed("recipe run failed") from err
             result = classify(batch, response, self.recipe.options, payload)
