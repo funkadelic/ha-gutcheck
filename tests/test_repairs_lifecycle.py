@@ -61,7 +61,7 @@ async def test_renaming_the_entity_keeps_the_same_issue_id_and_ignore(hass: Home
     assert issue is not None
     assert issue.dismissed_version is not None
     assert issue.translation_placeholders is not None
-    assert issue.translation_placeholders["entity_id"] == "sensor\\.a\\_renamed"
+    assert issue.translation_placeholders["entity_id"] == "sensor.a_renamed"
 
 
 async def test_state_becoming_available_deletes_the_issue_immediately(hass: HomeAssistant) -> None:

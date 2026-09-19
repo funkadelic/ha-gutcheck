@@ -64,7 +64,7 @@ async def test_only_worth_fixing_creates_an_issue(hass: HomeAssistant) -> None:
 
 async def test_placeholders_are_sanitized(hass: HomeAssistant) -> None:
     """A placeholder reaches the issue only after sanitize_placeholder."""
-    raw_entity_id = "sensor.under_score*bold"
+    raw_entity_id = "sensor.link[x](y)"
     result = _result({OPTION_WORTH_FIXING: [_item(raw_entity_id, "reg_x")]})
 
     await HealthRecipe(critical_label=None).async_act(hass, result)
@@ -76,8 +76,16 @@ async def test_placeholders_are_sanitized(hass: HomeAssistant) -> None:
     assert issue.translation_placeholders["entity_id"] != raw_entity_id
 
 
+def test_sanitize_placeholder_leaves_an_entity_id_unchanged() -> None:
+    assert sanitize_placeholder("sensor.home_123_1min_inverted") == "sensor.home_123_1min_inverted"
+
+
+def test_sanitize_placeholder_breaks_a_code_span() -> None:
+    assert sanitize_placeholder("a`b") == "a\\`b"
+
+
 def test_sanitize_placeholder_breaks_a_link() -> None:
-    assert "](http" not in sanitize_placeholder("[click here](http://evil.example)")
+    assert sanitize_placeholder("[click here](http://evil.example)") == r"\[click here\](http://evil.example)"
 
 
 def test_sanitize_placeholder_breaks_an_image() -> None:

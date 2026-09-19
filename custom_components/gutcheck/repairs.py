@@ -15,14 +15,14 @@ from .const import DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 _WHITESPACE_RE = re.compile(r"\s+")
-# Backslash-escape every Markdown-active character so a value cannot open a
-# link, image, emphasis or code span in a Repairs card.
-_MARKDOWN_ACTIVE_RE = re.compile(r"([\\`*_{}\[\]()#+\-.!|<>~])")
+# Escape only what can open a link, image, code span or raw HTML; escaping more
+# shows literal backslashes in the plain-text title and inside code spans.
+_MARKDOWN_ACTIVE_RE = re.compile(r"([\\`\[\]<>])")
 _MAX_PLACEHOLDER_LENGTH = 100
 
 
 def sanitize_placeholder(value: str) -> str:
-    """Collapse whitespace, escape Markdown-active characters, and cap length."""
+    """Collapse whitespace, escape link, code and HTML characters, and cap length."""
     collapsed = _WHITESPACE_RE.sub(" ", value)
     escaped = _MARKDOWN_ACTIVE_RE.sub(r"\\\1", collapsed)
     return escaped[:_MAX_PLACEHOLDER_LENGTH]
