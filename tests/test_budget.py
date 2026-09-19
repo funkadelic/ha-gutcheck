@@ -11,6 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.update_coordinator import UpdateFailed
 from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
 from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMocker,
@@ -20,6 +21,7 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
 from custom_components.gutcheck.budget import BudgetExceededError, BudgetGate, RequestTooLargeError, estimate_tokens
 from custom_components.gutcheck.client import GutCheckApiError, GutCheckClient
 from custom_components.gutcheck.const import API_URL, DOMAIN, OPTION_EXPECTED, RECIPE_HEALTH
+from custom_components.gutcheck.recipes.base import Batch, RecipeCoordinator
 
 from .conftest import choice_answer, posted_bodies, register_jev_responses
 
@@ -307,3 +309,67 @@ def _first_run_response() -> dict[str, Any]:
         "answers": {"e0": choice_answer(OPTION_EXPECTED, 0.9)},
         "usage": {"input_tokens": 10, "output_tokens": 0},
     }
+
+
+async def test_failed_call_crossing_midnight_leaves_the_new_day_untouched(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, freezer: Any
+) -> None:
+    """A failure settled after midnight changes nothing: the reservation belonged to the day that already reset."""
+    hold = asyncio.Event()
+    started = asyncio.Event()
+
+    async def _side_effect(method: str, url: Any, data: Any) -> AiohttpClientMockResponse:
+        started.set()
+        await hold.wait()
+        return AiohttpClientMockResponse(method=method, url=url, status=500, json={"error": "boom"})
+
+    aioclient_mock.post(API_URL, side_effect=_side_effect)
+
+    freezer.move_to("2026-01-01T23:59:59-08:00")
+    gate = BudgetGate(hass, _client(hass), daily_budget=100_000)
+    await gate.async_load()
+
+    task = asyncio.create_task(gate.async_ask(PAYLOAD))
+    await started.wait()
+
+    freezer.move_to("2026-01-02T00:00:01-08:00")
+    hold.set()
+
+    with pytest.raises(GutCheckApiError):
+        await task
+
+    assert gate.spent_today == 0
+
+
+class _OversizedRecipe:
+    """A stub recipe whose single question is deliberately over the state-plus-question cap."""
+
+    recipe_id = "oversized"
+    options: tuple[str, ...] = (OPTION_EXPECTED,)
+
+    async def async_prepare(self, hass: HomeAssistant) -> Batch:
+        return Batch(
+            state={"pad": "x" * 90_000},
+            questions={"q": {"type": "choice", "instructions": "x" * 90_000, "criteria": {"a": None}}},  # type: ignore[typeddict-item]
+            subjects={"q": {"entity_id": "sensor.oversized"}},
+        )
+
+    async def async_act(self, hass: HomeAssistant, result: Any) -> None:
+        return None
+
+
+async def test_oversized_request_maps_to_update_failed_without_reserving_or_sending(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
+) -> None:
+    """RequestTooLargeError becomes a plain UpdateFailed; nothing is reserved or sent."""
+    aioclient_mock.post(API_URL, status=200, json=_response(10))
+    mock_config_entry.add_to_hass(hass)
+    budget = BudgetGate(hass, _client(hass), daily_budget=1_000_000)
+    await budget.async_load()
+    coordinator = RecipeCoordinator(hass, mock_config_entry, budget, _OversizedRecipe())
+
+    with pytest.raises(UpdateFailed):
+        await coordinator._async_update_data()
+
+    assert budget.spent_today == 0
+    assert len(posted_bodies(aioclient_mock)) == 0

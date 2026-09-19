@@ -25,6 +25,22 @@
       "reauth_successful": "The API key was updated."
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Gut Check options",
+        "data": {
+          "health_enabled": "Run the weekly home health check",
+          "daily_budget": "Daily token budget (input tokens)",
+          "critical_label": "Critical label"
+        },
+        "data_description": {
+          "daily_budget": "A hard stop for the day. It resets at local midnight.",
+          "critical_label": "Entities or devices with this label are never sent or checked. Locks, alarms and covers never are, label or not."
+        }
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "health": {

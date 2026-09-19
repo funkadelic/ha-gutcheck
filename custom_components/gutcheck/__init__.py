@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_API_KEY, Platform
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.start import async_at_started
@@ -18,8 +19,11 @@ from .const import (
     BUDGET_STORE_KEY,
     CONF_CRITICAL_LABEL,
     CONF_DAILY_BUDGET,
+    CONF_HEALTH_ENABLED,
     DEFAULT_DAILY_BUDGET,
     DOMAIN,
+    HEALTH_ISSUE_PREFIX,
+    RECIPE_HEALTH,
     STORE_VERSION,
 )
 from .recipes.base import RecipeCoordinator
@@ -36,6 +40,15 @@ def device_info(entry: ConfigEntry) -> DeviceInfo:
         name="Gut Check",
         entry_type=DeviceEntryType.SERVICE,
     )
+
+
+def _async_remove_recipe_entities(hass: HomeAssistant, entry: ConfigEntry, recipe_id: str) -> None:
+    """Remove every entity this entry registered for a now-disabled recipe."""
+    registry = er.async_get(hass)
+    prefix = f"{entry.entry_id}_{recipe_id}"
+    for entity_entry in list(er.async_entries_for_config_entry(registry, entry.entry_id)):
+        if entity_entry.unique_id.startswith(prefix):
+            registry.async_remove(entity_entry.entity_id)
 
 
 @dataclass
@@ -55,28 +68,33 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
     client = GutCheckClient(async_get_clientsession(hass), entry.data[CONF_API_KEY])
     budget = BudgetGate(hass, client, entry.options.get(CONF_DAILY_BUDGET, DEFAULT_DAILY_BUDGET))
     await budget.async_load()
-    health_recipe = HealthRecipe(entry.options.get(CONF_CRITICAL_LABEL))
-    health_coordinator = RecipeCoordinator(hass, entry, budget, health_recipe)
 
-    entry.runtime_data = GutCheckData(
-        client=client,
-        budget=budget,
-        coordinators={health_recipe.recipe_id: health_coordinator},
-    )
-    entry.async_on_unload(health_recipe.shutdown)
+    coordinators: dict[str, RecipeCoordinator] = {}
+    if entry.options.get(CONF_HEALTH_ENABLED, True):
+        health_recipe = HealthRecipe(entry.options.get(CONF_CRITICAL_LABEL))
+        coordinators[health_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, health_recipe)
+        entry.async_on_unload(health_recipe.shutdown)
+    else:
+        async_delete_issues(hass, HEALTH_ISSUE_PREFIX)
+        _async_remove_recipe_entities(hass, entry, RECIPE_HEALTH)
+
+    entry.runtime_data = GutCheckData(client=client, budget=budget, coordinators=coordinators)
     entry.async_on_unload(budget.async_start())
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    @callback
-    def _start_first_run(_hass: HomeAssistant) -> None:
-        entry.async_create_background_task(
-            hass,
-            health_coordinator.async_refresh(),
-            f"{entry.entry_id}_health_first_refresh",
-        )
+    if coordinators:
 
-    entry.async_on_unload(async_at_started(hass, _start_first_run))
+        @callback
+        def _start_first_run(_hass: HomeAssistant) -> None:
+            for coordinator in coordinators.values():
+                entry.async_create_background_task(
+                    hass,
+                    coordinator.async_refresh(),
+                    f"{entry.entry_id}_{coordinator.recipe.recipe_id}_first_refresh",
+                )
+
+        entry.async_on_unload(async_at_started(hass, _start_first_run))
 
     return True
 

@@ -109,10 +109,6 @@ class BudgetGate:
 
         return async_track_time_change(self._hass, _handle_midnight, hour=0, minute=0, second=0)
 
-    async def async_remove(self) -> None:
-        """Delete the persisted Store, e.g. when the config entry is removed."""
-        await self._store.async_remove()
-
     def _release(self, reservation_date: str, estimate: int) -> None:
         """Undo a reservation on failure or cancellation."""
         self._roll()

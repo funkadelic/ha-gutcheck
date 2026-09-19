@@ -7,14 +7,15 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.config_entries import ConfigFlowResult
+from homeassistant.config_entries import ConfigEntry, ConfigFlowResult
 from homeassistant.const import CONF_API_KEY
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import TextSelector, TextSelectorConfig, TextSelectorType
 
 from .client import GutCheckApiError, GutCheckAuthError, GutCheckClient
 from .const import DOMAIN
+from .options_flow import GutCheckOptionsFlow
 
 STEP_USER_SCHEMA = vol.Schema(
     {
@@ -39,6 +40,12 @@ class GutCheckConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Gut Check."""
 
     VERSION = 1
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> GutCheckOptionsFlow:
+        """Return the options flow for a Gut Check config entry."""
+        return GutCheckOptionsFlow()
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Collect the API key and validate it before creating the entry."""

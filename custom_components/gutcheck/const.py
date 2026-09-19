@@ -13,6 +13,7 @@ MODEL: Final = "jev-latest"
 
 CONF_DAILY_BUDGET: Final = "daily_budget"
 CONF_CRITICAL_LABEL: Final = "critical_label"
+CONF_HEALTH_ENABLED: Final = "health_enabled"
 
 DEFAULT_DAILY_BUDGET: Final = 100_000
 CHARS_PER_TOKEN: Final = 4
