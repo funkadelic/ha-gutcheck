@@ -78,6 +78,28 @@ async def test_client_error_shows_cannot_connect_and_creates_no_entry(
     assert hass.config_entries.async_entries(DOMAIN) == []
 
 
+async def test_malformed_response_shape_shows_cannot_connect(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
+    """A 200 response missing the expected shape re-shows the form with cannot_connect."""
+    register_jev_responses(aioclient_mock, [{"model": "jev-latest"}])
+
+    result = await _start_flow(hass)
+
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == {"base": "cannot_connect"}
+    assert hass.config_entries.async_entries(DOMAIN) == []
+
+
+async def test_non_json_body_shows_cannot_connect(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
+    """A 200 response with a non-JSON body re-shows the form with cannot_connect."""
+    aioclient_mock.post("https://api.typesafe.ai/v1/systemone", status=200, text="not json")
+
+    result = await _start_flow(hass)
+
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == {"base": "cannot_connect"}
+    assert hass.config_entries.async_entries(DOMAIN) == []
+
+
 async def test_second_flow_aborts_single_instance_allowed(
     hass: HomeAssistant,
     aioclient_mock: AiohttpClientMocker,

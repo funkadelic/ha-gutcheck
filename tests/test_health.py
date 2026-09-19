@@ -10,7 +10,13 @@ from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import CONF_DAILY_BUDGET, DOMAIN, OPTION_WORTH_FIXING, RECIPE_HEALTH
+from custom_components.gutcheck.const import (
+    CONF_DAILY_BUDGET,
+    DEFAULT_DAILY_BUDGET,
+    DOMAIN,
+    OPTION_WORTH_FIXING,
+    RECIPE_HEALTH,
+)
 
 from .conftest import choice_answer, posted_bodies, register_jev_responses
 
@@ -90,6 +96,10 @@ async def test_one_batched_post_fills_the_sensor(
     assert state.state == "1"
     assert state.attributes["counts"][OPTION_WORTH_FIXING] == 1
     assert state.attributes["last_payload"] == body
+
+    budget = mock_config_entry.runtime_data.budget
+    assert budget.daily_budget == DEFAULT_DAILY_BUDGET
+    assert budget.spent_today == 10
 
 
 async def test_budget_refusal_leaves_sensor_unavailable_with_no_post(

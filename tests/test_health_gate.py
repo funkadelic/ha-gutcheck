@@ -96,3 +96,29 @@ def test_unsure_entity_is_absent_from_every_count_and_from_worth_fixing() -> Non
     assert sum(result["counts"].values()) == 0
     assert result["items"][OPTION_WORTH_FIXING] == []
     assert len(result["unsure"]) == 1
+
+
+def test_missing_answer_lands_in_unsure_with_no_confidence() -> None:
+    subjects = {"e0": {"entity_id": "sensor.a"}}
+    batch = Batch(state={}, questions={}, subjects=subjects)
+    response = {"model": "jev-latest", "answers": {}, "usage": {"input_tokens": 5, "output_tokens": 0}}
+    payload = {"state": {}, "model": "jev-latest", "questions": {}}
+
+    result = classify(batch, response, ALLOWED, payload)  # type: ignore[arg-type]
+
+    assert result["unsure"] == [{"entity_id": "sensor.a", "confidence": None}]
+
+
+def test_answer_with_malformed_confidence_lands_in_unsure_with_no_confidence() -> None:
+    subjects = {"e0": {"entity_id": "sensor.a"}}
+    batch = Batch(state={}, questions={}, subjects=subjects)
+    response = {
+        "model": "jev-latest",
+        "answers": {"e0": _answer(OPTION_WORTH_FIXING, "high")},
+        "usage": {"input_tokens": 5, "output_tokens": 0},
+    }
+    payload = {"state": {}, "model": "jev-latest", "questions": {}}
+
+    result = classify(batch, response, ALLOWED, payload)  # type: ignore[arg-type]
+
+    assert result["unsure"] == [{"entity_id": "sensor.a", "confidence": None}]
