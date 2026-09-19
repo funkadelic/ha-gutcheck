@@ -1,0 +1,27 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Gut Check",
+        "description": "Paste the API key from your TypeSafe account. One small test question is sent to check it before anything else happens.",
+        "data": {
+          "api_key": "API key"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "That API key was rejected. Check it and try again.",
+      "cannot_connect": "Could not reach the API to check the key. Try again in a moment."
+    },
+    "abort": {
+      "single_instance_allowed": "Gut Check is already set up. Only one instance is allowed."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "health": {
+        "name": "Home health check"
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "domain": "gutcheck",
+  "name": "Gut Check",
+  "codeowners": ["@funkadelic"],
+  "config_flow": true,
+  "documentation": "https://github.com/funkadelic/ha-gutcheck",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/funkadelic/ha-gutcheck/issues",
+  "requirements": [],
+  "single_config_entry": true,
+  "version": "0.1.0"
+}
