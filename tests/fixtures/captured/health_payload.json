@@ -1,0 +1,2764 @@
+{
+  "state": {
+    "entities": [
+      {
+        "domain": "binary_sensor",
+        "device_class": null,
+        "integration": "template",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": null,
+        "integration": "template",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": "connectivity",
+        "integration": "rainpoint",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": true,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": "connectivity",
+        "integration": "rainpoint",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": true,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": null,
+        "integration": "template",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": "motion",
+        "integration": "hikvision",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": "motion",
+        "integration": "hikvision",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": "motion",
+        "integration": "hikvision",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": "motion",
+        "integration": "hikvision",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": null,
+        "integration": "hikvision",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": null,
+        "integration": "hikvision",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": null,
+        "integration": "hikvision",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": null,
+        "integration": "hikvision",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": null,
+        "integration": "hikvision",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": null,
+        "integration": "hikvision",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": null,
+        "integration": "hikvision",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": null,
+        "integration": "hikvision",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": null,
+        "integration": "hikvision",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": null,
+        "integration": "hikvision",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": null,
+        "integration": "hikvision",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "binary_sensor",
+        "device_class": null,
+        "integration": "sonos",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "button",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "button",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "button",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "button",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "button",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "button",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "button",
+        "device_class": null,
+        "integration": "rainpoint",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": true,
+        "entity_category": "config",
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "button",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "button",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "button",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "button",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "camera",
+        "device_class": null,
+        "integration": "hikvision",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "camera",
+        "device_class": null,
+        "integration": "hikvision",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "fan",
+        "device_class": null,
+        "integration": "coway",
+        "unavailable_for": "1 to 6 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "fan",
+        "device_class": null,
+        "integration": "ha_blueair",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "fan",
+        "device_class": null,
+        "integration": "ha_blueair",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "input_boolean",
+        "device_class": null,
+        "integration": "input_boolean",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "input_select",
+        "device_class": null,
+        "integration": "input_select",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "light",
+        "device_class": null,
+        "integration": "ha_blueair",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "media_player",
+        "device_class": null,
+        "integration": "cast",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "media_player",
+        "device_class": "speaker",
+        "integration": "cast",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "media_player",
+        "device_class": "speaker",
+        "integration": "cast",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "media_player",
+        "device_class": null,
+        "integration": "cast",
+        "unavailable_for": "less than a day",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "media_player",
+        "device_class": null,
+        "integration": "dlna_dmr",
+        "unavailable_for": "less than a day",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "notify",
+        "device_class": null,
+        "integration": "ecobee",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "number",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": "config",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "number",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": "config",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "number",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": "config",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "number",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": "config",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "number",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": "config",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "number",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": "config",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "number",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": "config",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "select",
+        "device_class": null,
+        "integration": "coway",
+        "unavailable_for": "1 to 6 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "select",
+        "device_class": null,
+        "integration": "coway",
+        "unavailable_for": "1 to 6 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "select",
+        "device_class": null,
+        "integration": "coway",
+        "unavailable_for": "1 to 6 days",
+        "restored": true,
+        "entity_category": "config",
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "select",
+        "device_class": null,
+        "integration": "coway",
+        "unavailable_for": "1 to 6 days",
+        "restored": true,
+        "entity_category": "config",
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "select",
+        "device_class": null,
+        "integration": "rainpoint",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": true,
+        "entity_category": "config",
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "select",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": "config",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "select",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": "config",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "acwd",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "acwd",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": "water",
+        "integration": "acwd",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "acwd",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "acwd",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "coway",
+        "unavailable_for": "1 to 6 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": "illuminance",
+        "integration": "coway",
+        "unavailable_for": "1 to 6 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "coway",
+        "unavailable_for": "1 to 6 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": "pm25",
+        "integration": "coway",
+        "unavailable_for": "1 to 6 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "coway",
+        "unavailable_for": "1 to 6 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "coway",
+        "unavailable_for": "1 to 6 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": "energy",
+        "integration": "template",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": "energy",
+        "integration": "template",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": "power",
+        "integration": "template",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "foobot",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "foobot",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "foobot",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "foobot",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": "temperature",
+        "integration": "foobot",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "foobot",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": "power",
+        "integration": "energy",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "template",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": "temperature",
+        "integration": "template",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "template",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "template",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "template",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": "enum",
+        "integration": "rainpoint",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": "enum",
+        "integration": "rainpoint",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "template",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "template",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "template",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "rainpoint",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": true,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "rainpoint",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": true,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "rainpoint",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": true,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": "timestamp",
+        "integration": "rainpoint",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": true,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": "signal_strength",
+        "integration": "rainpoint",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": true,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "ha_blueair",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": "pm25",
+        "integration": "ha_blueair",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "mobile_app",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "midas",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "midas",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "midas",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "template",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "template",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "template",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "template",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "sensor",
+        "device_class": null,
+        "integration": "template",
+        "unavailable_for": "longer than 31 days",
+        "restored": true,
+        "entity_category": null,
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "switch",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "switch",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "switch",
+        "device_class": null,
+        "integration": "isy994",
+        "unavailable_for": "longer than 31 days",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "switch",
+        "device_class": null,
+        "integration": "rainpoint",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": true,
+        "entity_category": "config",
+        "device_other_entities_available": false
+      },
+      {
+        "domain": "switch",
+        "device_class": "switch",
+        "integration": "ha_blueair",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": false,
+        "entity_category": null,
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "update",
+        "device_class": "firmware",
+        "integration": "rainpoint",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": true,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "update",
+        "device_class": "firmware",
+        "integration": "rainpoint",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": true,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": true
+      },
+      {
+        "domain": "update",
+        "device_class": "firmware",
+        "integration": "rainpoint",
+        "unavailable_for": "1 to 4 weeks",
+        "restored": true,
+        "entity_category": "diagnostic",
+        "device_other_entities_available": false
+      }
+    ]
+  },
+  "model": "jev-latest",
+  "questions": {
+    "e0": {
+      "type": "choice",
+      "instructions": "`entities[0]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[0]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e1": {
+      "type": "choice",
+      "instructions": "`entities[1]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[1]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e2": {
+      "type": "choice",
+      "instructions": "`entities[2]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[2]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e3": {
+      "type": "choice",
+      "instructions": "`entities[3]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[3]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e4": {
+      "type": "choice",
+      "instructions": "`entities[4]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[4]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e5": {
+      "type": "choice",
+      "instructions": "`entities[5]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[5]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e6": {
+      "type": "choice",
+      "instructions": "`entities[6]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[6]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e7": {
+      "type": "choice",
+      "instructions": "`entities[7]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[7]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e8": {
+      "type": "choice",
+      "instructions": "`entities[8]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[8]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e9": {
+      "type": "choice",
+      "instructions": "`entities[9]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[9]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e10": {
+      "type": "choice",
+      "instructions": "`entities[10]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[10]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e11": {
+      "type": "choice",
+      "instructions": "`entities[11]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[11]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e12": {
+      "type": "choice",
+      "instructions": "`entities[12]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[12]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e13": {
+      "type": "choice",
+      "instructions": "`entities[13]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[13]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e14": {
+      "type": "choice",
+      "instructions": "`entities[14]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[14]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e15": {
+      "type": "choice",
+      "instructions": "`entities[15]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[15]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e16": {
+      "type": "choice",
+      "instructions": "`entities[16]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[16]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e17": {
+      "type": "choice",
+      "instructions": "`entities[17]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[17]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e18": {
+      "type": "choice",
+      "instructions": "`entities[18]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[18]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e19": {
+      "type": "choice",
+      "instructions": "`entities[19]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[19]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e20": {
+      "type": "choice",
+      "instructions": "`entities[20]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[20]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e21": {
+      "type": "choice",
+      "instructions": "`entities[21]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[21]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e22": {
+      "type": "choice",
+      "instructions": "`entities[22]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[22]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e23": {
+      "type": "choice",
+      "instructions": "`entities[23]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[23]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e24": {
+      "type": "choice",
+      "instructions": "`entities[24]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[24]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e25": {
+      "type": "choice",
+      "instructions": "`entities[25]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[25]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e26": {
+      "type": "choice",
+      "instructions": "`entities[26]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[26]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e27": {
+      "type": "choice",
+      "instructions": "`entities[27]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[27]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e28": {
+      "type": "choice",
+      "instructions": "`entities[28]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[28]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e29": {
+      "type": "choice",
+      "instructions": "`entities[29]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[29]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e30": {
+      "type": "choice",
+      "instructions": "`entities[30]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[30]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e31": {
+      "type": "choice",
+      "instructions": "`entities[31]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[31]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e32": {
+      "type": "choice",
+      "instructions": "`entities[32]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[32]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e33": {
+      "type": "choice",
+      "instructions": "`entities[33]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[33]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e34": {
+      "type": "choice",
+      "instructions": "`entities[34]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[34]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e35": {
+      "type": "choice",
+      "instructions": "`entities[35]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[35]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e36": {
+      "type": "choice",
+      "instructions": "`entities[36]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[36]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e37": {
+      "type": "choice",
+      "instructions": "`entities[37]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[37]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e38": {
+      "type": "choice",
+      "instructions": "`entities[38]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[38]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e39": {
+      "type": "choice",
+      "instructions": "`entities[39]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[39]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e40": {
+      "type": "choice",
+      "instructions": "`entities[40]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[40]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e41": {
+      "type": "choice",
+      "instructions": "`entities[41]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[41]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e42": {
+      "type": "choice",
+      "instructions": "`entities[42]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[42]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e43": {
+      "type": "choice",
+      "instructions": "`entities[43]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[43]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e44": {
+      "type": "choice",
+      "instructions": "`entities[44]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[44]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e45": {
+      "type": "choice",
+      "instructions": "`entities[45]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[45]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e46": {
+      "type": "choice",
+      "instructions": "`entities[46]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[46]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e47": {
+      "type": "choice",
+      "instructions": "`entities[47]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[47]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e48": {
+      "type": "choice",
+      "instructions": "`entities[48]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[48]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e49": {
+      "type": "choice",
+      "instructions": "`entities[49]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[49]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e50": {
+      "type": "choice",
+      "instructions": "`entities[50]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[50]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e51": {
+      "type": "choice",
+      "instructions": "`entities[51]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[51]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e52": {
+      "type": "choice",
+      "instructions": "`entities[52]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[52]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e53": {
+      "type": "choice",
+      "instructions": "`entities[53]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[53]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e54": {
+      "type": "choice",
+      "instructions": "`entities[54]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[54]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e55": {
+      "type": "choice",
+      "instructions": "`entities[55]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[55]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e56": {
+      "type": "choice",
+      "instructions": "`entities[56]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[56]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e57": {
+      "type": "choice",
+      "instructions": "`entities[57]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[57]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e58": {
+      "type": "choice",
+      "instructions": "`entities[58]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[58]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e59": {
+      "type": "choice",
+      "instructions": "`entities[59]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[59]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e60": {
+      "type": "choice",
+      "instructions": "`entities[60]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[60]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e61": {
+      "type": "choice",
+      "instructions": "`entities[61]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[61]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e62": {
+      "type": "choice",
+      "instructions": "`entities[62]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[62]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e63": {
+      "type": "choice",
+      "instructions": "`entities[63]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[63]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e64": {
+      "type": "choice",
+      "instructions": "`entities[64]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[64]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e65": {
+      "type": "choice",
+      "instructions": "`entities[65]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[65]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e66": {
+      "type": "choice",
+      "instructions": "`entities[66]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[66]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e67": {
+      "type": "choice",
+      "instructions": "`entities[67]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[67]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e68": {
+      "type": "choice",
+      "instructions": "`entities[68]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[68]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e69": {
+      "type": "choice",
+      "instructions": "`entities[69]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[69]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e70": {
+      "type": "choice",
+      "instructions": "`entities[70]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[70]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e71": {
+      "type": "choice",
+      "instructions": "`entities[71]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[71]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e72": {
+      "type": "choice",
+      "instructions": "`entities[72]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[72]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e73": {
+      "type": "choice",
+      "instructions": "`entities[73]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[73]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e74": {
+      "type": "choice",
+      "instructions": "`entities[74]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[74]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e75": {
+      "type": "choice",
+      "instructions": "`entities[75]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[75]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e76": {
+      "type": "choice",
+      "instructions": "`entities[76]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[76]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e77": {
+      "type": "choice",
+      "instructions": "`entities[77]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[77]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e78": {
+      "type": "choice",
+      "instructions": "`entities[78]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[78]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e79": {
+      "type": "choice",
+      "instructions": "`entities[79]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[79]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e80": {
+      "type": "choice",
+      "instructions": "`entities[80]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[80]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e81": {
+      "type": "choice",
+      "instructions": "`entities[81]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[81]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e82": {
+      "type": "choice",
+      "instructions": "`entities[82]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[82]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e83": {
+      "type": "choice",
+      "instructions": "`entities[83]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[83]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e84": {
+      "type": "choice",
+      "instructions": "`entities[84]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[84]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e85": {
+      "type": "choice",
+      "instructions": "`entities[85]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[85]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e86": {
+      "type": "choice",
+      "instructions": "`entities[86]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[86]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e87": {
+      "type": "choice",
+      "instructions": "`entities[87]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[87]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e88": {
+      "type": "choice",
+      "instructions": "`entities[88]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[88]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e89": {
+      "type": "choice",
+      "instructions": "`entities[89]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[89]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e90": {
+      "type": "choice",
+      "instructions": "`entities[90]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[90]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e91": {
+      "type": "choice",
+      "instructions": "`entities[91]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[91]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e92": {
+      "type": "choice",
+      "instructions": "`entities[92]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[92]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e93": {
+      "type": "choice",
+      "instructions": "`entities[93]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[93]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e94": {
+      "type": "choice",
+      "instructions": "`entities[94]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[94]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e95": {
+      "type": "choice",
+      "instructions": "`entities[95]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[95]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e96": {
+      "type": "choice",
+      "instructions": "`entities[96]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[96]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e97": {
+      "type": "choice",
+      "instructions": "`entities[97]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[97]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e98": {
+      "type": "choice",
+      "instructions": "`entities[98]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[98]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e99": {
+      "type": "choice",
+      "instructions": "`entities[99]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[99]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e100": {
+      "type": "choice",
+      "instructions": "`entities[100]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[100]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e101": {
+      "type": "choice",
+      "instructions": "`entities[101]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[101]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e102": {
+      "type": "choice",
+      "instructions": "`entities[102]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[102]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e103": {
+      "type": "choice",
+      "instructions": "`entities[103]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[103]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e104": {
+      "type": "choice",
+      "instructions": "`entities[104]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[104]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e105": {
+      "type": "choice",
+      "instructions": "`entities[105]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[105]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e106": {
+      "type": "choice",
+      "instructions": "`entities[106]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[106]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e107": {
+      "type": "choice",
+      "instructions": "`entities[107]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[107]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e108": {
+      "type": "choice",
+      "instructions": "`entities[108]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[108]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e109": {
+      "type": "choice",
+      "instructions": "`entities[109]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[109]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e110": {
+      "type": "choice",
+      "instructions": "`entities[110]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[110]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e111": {
+      "type": "choice",
+      "instructions": "`entities[111]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[111]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e112": {
+      "type": "choice",
+      "instructions": "`entities[112]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[112]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e113": {
+      "type": "choice",
+      "instructions": "`entities[113]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[113]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e114": {
+      "type": "choice",
+      "instructions": "`entities[114]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[114]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e115": {
+      "type": "choice",
+      "instructions": "`entities[115]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[115]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e116": {
+      "type": "choice",
+      "instructions": "`entities[116]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[116]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e117": {
+      "type": "choice",
+      "instructions": "`entities[117]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[117]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e118": {
+      "type": "choice",
+      "instructions": "`entities[118]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[118]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e119": {
+      "type": "choice",
+      "instructions": "`entities[119]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[119]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e120": {
+      "type": "choice",
+      "instructions": "`entities[120]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[120]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e121": {
+      "type": "choice",
+      "instructions": "`entities[121]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[121]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e122": {
+      "type": "choice",
+      "instructions": "`entities[122]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[122]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e123": {
+      "type": "choice",
+      "instructions": "`entities[123]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[123]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e124": {
+      "type": "choice",
+      "instructions": "`entities[124]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[124]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e125": {
+      "type": "choice",
+      "instructions": "`entities[125]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[125]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e126": {
+      "type": "choice",
+      "instructions": "`entities[126]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[126]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e127": {
+      "type": "choice",
+      "instructions": "`entities[127]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[127]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e128": {
+      "type": "choice",
+      "instructions": "`entities[128]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[128]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e129": {
+      "type": "choice",
+      "instructions": "`entities[129]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[129]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e130": {
+      "type": "choice",
+      "instructions": "`entities[130]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[130]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e131": {
+      "type": "choice",
+      "instructions": "`entities[131]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[131]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e132": {
+      "type": "choice",
+      "instructions": "`entities[132]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[132]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e133": {
+      "type": "choice",
+      "instructions": "`entities[133]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[133]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e134": {
+      "type": "choice",
+      "instructions": "`entities[134]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[134]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e135": {
+      "type": "choice",
+      "instructions": "`entities[135]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[135]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e136": {
+      "type": "choice",
+      "instructions": "`entities[136]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[136]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e137": {
+      "type": "choice",
+      "instructions": "`entities[137]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[137]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e138": {
+      "type": "choice",
+      "instructions": "`entities[138]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[138]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e139": {
+      "type": "choice",
+      "instructions": "`entities[139]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[139]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e140": {
+      "type": "choice",
+      "instructions": "`entities[140]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[140]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e141": {
+      "type": "choice",
+      "instructions": "`entities[141]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[141]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e142": {
+      "type": "choice",
+      "instructions": "`entities[142]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[142]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e143": {
+      "type": "choice",
+      "instructions": "`entities[143]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[143]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    },
+    "e144": {
+      "type": "choice",
+      "instructions": "`entities[144]` describes one Home Assistant entity that is unavailable right now. Using only the fields of `entities[144]`, decide what the user should do about it.",
+      "criteria": {
+        "expected": "Being unavailable is normal here and needs no action, for example its `entity_category` is \"diagnostic\" or \"config\" while its `device_other_entities_available` is true, or its domain and device class describe something that is often switched off or asleep.",
+        "worth_fixing": "It should be working and the user should look into it: its `restored` is false, so a loaded integration still provides it, and nothing suggests the outage is normal.",
+        "safe_to_remove": "It is left over: its `restored` is true, so no loaded integration provides it any more, and its `unavailable_for` is long.",
+        "none_of_these": "The fields do not clearly fit any of the other options."
+      }
+    }
+  }
+}
