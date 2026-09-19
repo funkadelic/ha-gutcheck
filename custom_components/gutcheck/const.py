@@ -34,6 +34,9 @@ BACKOFF_BASE: Final = 1.0  # seconds
 MAX_RETRY_DELAY: Final = 60.0  # seconds
 
 RECIPE_HEALTH: Final = "health"
+# Every recipe id this integration ships, so async_remove_entry can clean up
+# each one's Store without needing a line added by hand for each new recipe.
+ALL_RECIPE_IDS: Final = (RECIPE_HEALTH,)
 RECIPE_INTERVAL: Final = timedelta(days=7)
 FAILED_RUN_RETRY: Final = timedelta(hours=1)
 

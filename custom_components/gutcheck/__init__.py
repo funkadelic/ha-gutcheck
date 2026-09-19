@@ -15,6 +15,7 @@ from homeassistant.helpers.storage import Store
 from .budget import BudgetGate
 from .client import GutCheckClient
 from .const import (
+    ALL_RECIPE_IDS,
     BUDGET_STORE_KEY,
     CONF_CRITICAL_LABEL,
     CONF_DAILY_BUDGET,
@@ -102,4 +103,5 @@ async def async_remove_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) ->
     """Delete every Gut Check Repairs issue and the persisted budget and recipe Stores."""
     async_delete_issues(hass)
     await Store(hass, STORE_VERSION, BUDGET_STORE_KEY).async_remove()
-    await Store(hass, STORE_VERSION, recipe_store_key(RECIPE_HEALTH)).async_remove()
+    for recipe_id in ALL_RECIPE_IDS:
+        await Store(hass, STORE_VERSION, recipe_store_key(recipe_id)).async_remove()
