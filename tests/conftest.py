@@ -19,8 +19,19 @@ ALL_HEALTH_OPTIONS = (*HEALTH_OPTIONS, OPTION_NONE)
 
 
 @pytest.fixture(autouse=True)
-def auto_enable_custom_integrations(enable_custom_integrations: None) -> None:
-    """Allow this custom integration to load during every test."""
+def auto_enable_custom_integrations(request: pytest.FixtureRequest) -> None:
+    """Allow this custom integration to load during every test.
+
+    Skipped when the test also uses recorder_mock: enable_custom_integrations
+    pulls in hass directly, and being autouse it would otherwise win the race
+    to create hass before recorder_mock's own chain sets up the recorder's
+    database, which pytest-homeassistant-custom-component requires to happen
+    first. No recorder test here sets up the integration through a config
+    entry, so skipping this for them is safe.
+    """
+    if "recorder_mock" in request.fixturenames:
+        return
+    request.getfixturevalue("enable_custom_integrations")
 
 
 def choice_answer(choice: str, confidence: float) -> dict[str, Any]:

@@ -1,6 +1,7 @@
 {
   "domain": "gutcheck",
   "name": "Gut Check",
+  "after_dependencies": ["recorder"],
   "codeowners": ["@funkadelic"],
   "config_flow": true,
   "documentation": "https://github.com/funkadelic/ha-gutcheck",

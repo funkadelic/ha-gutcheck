@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime
 
 from homeassistant.const import ATTR_RESTORED, STATE_UNAVAILABLE
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, State
@@ -21,7 +22,8 @@ from ..const import (
     OPTION_WORTH_FIXING,
     RECIPE_HEALTH,
 )
-from ..describe import bucket_longer_than
+from ..describe import bucket_duration, bucket_longer_than
+from ..history import async_unavailable_since
 from ..models import ChoiceQuestion
 from ..repairs import async_sync_issues, async_track_recovery
 from .base import Batch, Item, RecipeResult
@@ -62,6 +64,22 @@ class HealthRecipe:
                 return True
         return False
 
+    def _unavailable_for(
+        self,
+        entity_id: str,
+        state: State,
+        history_result: tuple[int, dict[str, datetime | None]] | None,
+    ) -> str:
+        """Bucket a duration from recorder history, falling back to last_changed."""
+        if history_result is None or entity_id not in history_result[1]:
+            unavailable_days = int((dt_util.utcnow() - state.last_changed).total_seconds() // 86400)
+            return bucket_longer_than(unavailable_days)
+        keep_days, since_map = history_result
+        run_start = since_map[entity_id]
+        if run_start is None:
+            return bucket_longer_than(keep_days)
+        return bucket_duration((dt_util.utcnow() - run_start).total_seconds())
+
     async def async_prepare(self, hass: HomeAssistant) -> Batch:
         """Select unavailable, non-critical entities and build the request."""
         registry = er.async_get(hass)
@@ -80,13 +98,14 @@ class HealthRecipe:
             selected.append((entry, state))
         selected.sort(key=lambda pair: pair[0].entity_id)
 
+        history_result = await async_unavailable_since(hass, [entry.entity_id for entry, _ in selected])
+
         entities: list[Item] = []
         questions: dict[str, ChoiceQuestion] = {}
         subjects: dict[str, Item] = {}
         for index, (entry, state) in enumerate(selected):
             restored = bool(state.attributes.get(ATTR_RESTORED) is True)
-            unavailable_days = int((dt_util.utcnow() - state.last_changed).total_seconds() // 86400)
-            unavailable_for = bucket_longer_than(unavailable_days)
+            unavailable_for = self._unavailable_for(entry.entity_id, state, history_result)
             entities.append(
                 {
                     "domain": entry.domain,

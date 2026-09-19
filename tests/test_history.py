@@ -95,6 +95,18 @@ async def test_recorder_on_but_no_rows_for_an_entity_is_left_out_of_the_map(reco
     assert "sensor.never_recorded" not in since_map
 
 
+async def test_dict_shaped_rows_are_skipped(recorder_mock, hass: HomeAssistant) -> None:
+    """Defensive: a dict-shaped row (never returned with these kwargs) is skipped, not crashed on."""
+    hass.states.async_set("sensor.a", STATE_UNAVAILABLE)
+    await async_wait_recording_done(hass)
+
+    with patch.object(history, "get_significant_states", return_value={"sensor.a": [{"state": "unavailable"}]}):
+        keep_days, since_map = await async_unavailable_since(hass, ["sensor.a"])
+
+    assert keep_days == 10
+    assert since_map["sensor.a"] is None
+
+
 async def test_one_query_for_every_entity_in_one_run(recorder_mock, hass: HomeAssistant) -> None:
     hass.states.async_set("sensor.a", STATE_UNAVAILABLE)
     hass.states.async_set("sensor.b", STATE_UNAVAILABLE)
@@ -104,6 +116,20 @@ async def test_one_query_for_every_entity_in_one_run(recorder_mock, hass: HomeAs
         await async_unavailable_since(hass, ["sensor.a", "sensor.b"])
 
     assert mock_query.call_count == 1
+
+
+async def test_recipe_uses_longer_than_keep_days_when_beyond_the_window(recorder_mock, hass: HomeAssistant, freezer) -> None:
+    registry = er.async_get(hass)
+    entry = registry.async_get_or_create("sensor", "test", "unique_beyond")
+
+    freezer.move_to("2026-01-01T00:00:00+00:00")
+    hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
+    await async_wait_recording_done(hass)
+
+    freezer.move_to("2026-01-13T00:00:00+00:00")  # 12 days later, past the 10-day keep window
+    batch = await HealthRecipe(critical_label=None).async_prepare(hass)
+
+    assert batch.state["entities"][0]["unavailable_for"] == "longer than 10 days"
 
 
 async def test_recipe_uses_recorder_duration_within_a_week(recorder_mock, hass: HomeAssistant, freezer) -> None:
