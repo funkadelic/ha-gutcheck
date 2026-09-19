@@ -52,6 +52,11 @@
       "cost_today": {
         "name": "Cost today"
       }
+    },
+    "button": {
+      "health_run": {
+        "name": "Run home health check"
+      }
     }
   },
   "issues": {

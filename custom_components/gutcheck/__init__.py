@@ -30,7 +30,7 @@ from .recipes.base import RecipeCoordinator
 from .recipes.health import HealthRecipe
 from .repairs import async_delete_issues
 
-PLATFORMS = [Platform.SENSOR]
+PLATFORMS = [Platform.SENSOR, Platform.BUTTON]
 
 
 def device_info(entry: ConfigEntry) -> DeviceInfo:
