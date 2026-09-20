@@ -11,7 +11,7 @@ def bucket_duration(seconds: float) -> str:
         return "less than a day"
     if seconds < _WEEK:
         return "1 to 6 days"
-    if seconds < _FOUR_WEEKS:
+    if seconds <= _FOUR_WEEKS:
         return "1 to 4 weeks"
     return "more than 4 weeks"
 

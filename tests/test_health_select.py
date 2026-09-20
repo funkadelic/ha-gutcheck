@@ -33,7 +33,9 @@ def test_bucket_duration_boundaries() -> None:
     assert bucket_duration(7 * 86400 - 1) == "1 to 6 days"
     assert bucket_duration(7 * 86400) == "1 to 4 weeks"
     assert bucket_duration(28 * 86400 - 1) == "1 to 4 weeks"
-    assert bucket_duration(28 * 86400) == "more than 4 weeks"
+    # 28 days is exactly four weeks, so the bucket includes its upper bound.
+    assert bucket_duration(28 * 86400) == "1 to 4 weeks"
+    assert bucket_duration(28 * 86400 + 1) == "more than 4 weeks"
 
 
 def test_bucket_longer_than_boundaries() -> None:
