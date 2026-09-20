@@ -2,6 +2,12 @@
 
 Home Assistant is good at following rules you write. It isn't good at judgment calls like "is this a problem?", "is now a good time?", or "should I bother anyone about this?" Gut Check adds a fast AI that makes those small calls, tells you how sure it is, and asks you instead of guessing when it isn't sure.
 
+## What you need
+
+**An API key from TypeSafe.** Gut Check makes its judgment calls with TypeSafe's Jev model, and it will not set up without a key. Create an account and a key at [console.typesafe.ai/keys](https://console.typesafe.ai/keys), then paste it in when you add the integration.
+
+The key is the only setup. There is no add-on or local model to run, and a health check costs a fraction of a cent per run against a daily budget you control.
+
 ## What it does today
 
 **Weekly home health check.** Your unavailable entities get sorted into three buckets: expected (normal, no action needed), worth fixing (should be working, look into it), and safe to remove (a leftover from something no longer installed). Disabled entities and anything carrying the label you chose to exclude never reach the check at all, and anything the model is unsure about stays unsorted. The check runs on its own once a week and you can also press a button to run it on demand.
@@ -44,4 +50,6 @@ Add this repository to HACS as a custom repository (category: Integration), then
 
 ## Set up
 
-Add the integration from **Settings > Devices & services**, then paste an API key from a TypeSafe account. The key is validated with one cheap question before the entry is created.
+Add the integration from **Settings > Devices & services**, then paste the API key from [console.typesafe.ai/keys](https://console.typesafe.ai/keys). Gut Check tries the key with one cheap question before creating the entry, so a wrong one is caught right away rather than at the first run.
+
+If the key is ever rejected later, Home Assistant opens a repair prompting you for a new one, and the health check stays unavailable until you supply it.
