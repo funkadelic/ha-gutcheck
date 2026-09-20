@@ -16,6 +16,7 @@ from .conftest import posted_bodies, register_jev_responses
 
 
 async def _start_flow(hass: HomeAssistant, api_key: str = "test-key") -> dict:
+    """Run the user config flow to completion with the given key."""
     result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
     return await hass.config_entries.flow.async_configure(result["flow_id"], {CONF_API_KEY: api_key})
 

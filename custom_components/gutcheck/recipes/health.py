@@ -43,6 +43,7 @@ class HealthRecipe:
         self._unsub_recovery: CALLBACK_TYPE | None = None
 
     def _is_critical(self, entry: er.RegistryEntry, device_registry: dr.DeviceRegistry) -> bool:
+        """Whether the configured label sits on the entity or on the device behind it."""
         if not self._critical_label:
             return False
         if self._critical_label in entry.labels:
@@ -54,6 +55,7 @@ class HealthRecipe:
         return False
 
     def _has_available_sibling(self, hass: HomeAssistant, registry: er.EntityRegistry, entry: er.RegistryEntry) -> bool:
+        """Whether the same device still has an entity reporting, which separates a dead device from a dead entity."""
         if not entry.device_id:
             return False
         for sibling in er.async_entries_for_device(registry, entry.device_id):
@@ -171,6 +173,7 @@ class HealthRecipe:
         self._rearm_recovery(hass, worth_fixing)
 
     def _wanted_issues(self, worth_fixing: list[Item]) -> dict[str, dict[str, str]]:
+        """The issue id and placeholders for each worth-fixing finding, keyed by registry id."""
         return {
             f"{HEALTH_ISSUE_PREFIX}{item['registry_id']}": {
                 "entity_id": str(item["entity_id"]),
@@ -180,6 +183,7 @@ class HealthRecipe:
         }
 
     def _rearm_recovery(self, hass: HomeAssistant, worth_fixing: list[Item]) -> None:
+        """Point the recovery watcher at the current findings, dropping the previous subscription."""
         self.shutdown()
         watched = {str(item["entity_id"]): f"{HEALTH_ISSUE_PREFIX}{item['registry_id']}" for item in worth_fixing}
         if watched:

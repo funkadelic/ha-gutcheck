@@ -59,6 +59,7 @@ class _UsageSensorBase(SensorEntity):
 
     @callback
     def _handle_budget_updated(self) -> None:
+        """Rewrite state when the budget changes; the value is read from the gate."""
         self.async_write_ha_state()
 
 
@@ -127,6 +128,7 @@ class RecipeSummarySensor(CoordinatorEntity[RecipeCoordinator], SensorEntity):
 
     @property
     def _data(self) -> RecipeResult | None:
+        """The coordinator's latest result, or None before the first run completes."""
         return self._recipe_coordinator.data
 
     @property

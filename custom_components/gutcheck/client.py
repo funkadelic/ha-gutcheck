@@ -98,6 +98,7 @@ class GutCheckClient:
         self._api_key = api_key
 
     async def _post(self, payload: SystemOneRequest) -> SystemOneResponse:
+        """One POST to the API, with every failure mapped onto the error taxonomy."""
         headers = {"Authorization": f"Bearer {self._api_key}"}
         timeout = aiohttp.ClientTimeout(total=REQUEST_TIMEOUT)
         try:

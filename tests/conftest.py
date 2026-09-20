@@ -52,6 +52,7 @@ def register_jev_responses(aioclient_mock: AiohttpClientMocker, responses: list[
     registered = len(queue)
 
     async def _side_effect(method: str, url: Any, data: Any) -> AiohttpClientMockResponse:
+        """Pop the next queued response, or fail loudly once the queue runs out."""
         if not queue:
             # Retries and reschedules can outrun the queue; say so here rather
             # than letting an IndexError surface from inside the mocker.

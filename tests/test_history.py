@@ -21,12 +21,14 @@ async def test_recorder_off_returns_none(hass: HomeAssistant) -> None:
 
 
 async def test_recorder_on_with_no_entities_returns_keep_days_and_empty_map(recorder_mock, hass: HomeAssistant) -> None:
+    """An empty entity list still returns the retained-days window, with an empty map, not a query error."""
     keep_days, since_map = await async_unavailable_since(hass, [])
     assert keep_days == 10
     assert since_map == {}
 
 
 async def test_recorder_on_reports_when_the_entity_last_left_unavailable(recorder_mock, hass: HomeAssistant, freezer) -> None:
+    """The since_map reports the timestamp the entity last left an available state."""
     freezer.move_to("2026-01-01T00:00:00+00:00")
     hass.states.async_set("sensor.a", "on")
     await async_wait_recording_done(hass)
@@ -108,6 +110,7 @@ async def test_dict_shaped_rows_are_skipped(recorder_mock, hass: HomeAssistant) 
 
 
 async def test_one_query_for_every_entity_in_one_run(recorder_mock, hass: HomeAssistant) -> None:
+    """Every entity is batched into a single recorder query, never one query per entity."""
     hass.states.async_set("sensor.a", STATE_UNAVAILABLE)
     hass.states.async_set("sensor.b", STATE_UNAVAILABLE)
     await async_wait_recording_done(hass)
@@ -119,6 +122,7 @@ async def test_one_query_for_every_entity_in_one_run(recorder_mock, hass: HomeAs
 
 
 async def test_recipe_uses_longer_than_keep_days_when_beyond_the_window(recorder_mock, hass: HomeAssistant, freezer) -> None:
+    """Beyond the recorder's retained window, the recipe reports "longer than N days", not a guess."""
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "unique_beyond")
 
@@ -152,6 +156,7 @@ async def test_recipe_uses_recorder_duration_within_a_week(recorder_mock, hass: 
 
 
 async def test_recipe_uses_recorder_duration_under_a_day(recorder_mock, hass: HomeAssistant, freezer) -> None:
+    """A recorder-derived duration under 24 hours buckets to "less than a day"."""
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "unique_hour")
 
@@ -170,6 +175,7 @@ async def test_recipe_uses_recorder_duration_under_a_day(recorder_mock, hass: Ho
 
 
 async def test_recipe_falls_back_to_last_changed_without_a_recorder(hass: HomeAssistant, freezer) -> None:
+    """With no recorder at all, the recipe falls back to bucketing by last_changed."""
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "unique_no_recorder")
 
@@ -183,6 +189,7 @@ async def test_recipe_falls_back_to_last_changed_without_a_recorder(hass: HomeAs
 
 
 async def test_recipe_falls_back_to_unknown_when_recently_changed_without_a_recorder(hass: HomeAssistant, freezer) -> None:
+    """With no recorder and a change under a day old, the fallback reports "unknown", not a false precision."""
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "unique_recent")
 

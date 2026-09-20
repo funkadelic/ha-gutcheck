@@ -17,15 +17,18 @@ FIXTURES = Path(__file__).parent / "fixtures" / "captured"
 
 
 def _load(name: str) -> dict[str, Any]:
+    """The captured fixture JSON at `name`, parsed."""
     return json.loads((FIXTURES / name).read_text())
 
 
 def test_health_response_passes_validate_response() -> None:
+    """A real captured health-recipe response satisfies validate_response's documented shape."""
     response = _load("health_response.json")
     assert validate_response(response) == response
 
 
 def test_validate_response_fixture_passes_validate_response() -> None:
+    """A real captured noul response satisfies validate_response's documented shape."""
     response = _load("validate_response.json")
     assert validate_response(response) == response
 
@@ -40,6 +43,7 @@ def test_the_captured_payload_and_response_come_from_the_same_run() -> None:
 
 
 def test_every_answer_is_a_choice_with_probabilities_matching_its_question() -> None:
+    """Every captured answer's probabilities cover exactly its question's criteria, no more, no less."""
     payload = _load("health_payload.json")
     response = _load("health_response.json")
     for question_id, question in payload["questions"].items():
@@ -49,6 +53,7 @@ def test_every_answer_is_a_choice_with_probabilities_matching_its_question() -> 
 
 
 def test_captured_answers_classify_with_every_subject_accounted_for() -> None:
+    """classify() places every captured subject into either a count bucket or unsure, none dropped."""
     payload = _load("health_payload.json")
     response = _load("health_response.json")
     subjects = {question_id: {"entity_id": question_id} for question_id in payload["questions"]}
@@ -63,6 +68,7 @@ def test_captured_answers_classify_with_every_subject_accounted_for() -> None:
 
 
 def test_validate_response_answer_is_a_noul_with_no_confidence() -> None:
+    """The captured noul answer has no confidence field, matching the noul primitive's documented shape."""
     response = _load("validate_response.json")
     answer = response["answers"]["q"]
     assert answer["type"] == "noul"
@@ -71,6 +77,7 @@ def test_validate_response_answer_is_a_noul_with_no_confidence() -> None:
 
 
 def test_choice_answer_builder_matches_a_captured_answer_key_set() -> None:
+    """choice_answer() builds an answer with the same keys as a real captured choice answer."""
     response = _load("health_response.json")
     captured_answer = next(iter(response["answers"].values()))
     built_answer = choice_answer("expected", 0.9)

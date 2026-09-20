@@ -22,6 +22,7 @@ NEW_KEY = "new-key"
 
 
 def _health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
+    """The health recipe's sensor entity id for this entry."""
     registry = er.async_get(hass)
     entity_id = registry.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{RECIPE_HEALTH}")
     assert entity_id is not None
@@ -29,12 +30,14 @@ def _health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str
 
 
 def _register_one_unavailable_entity(hass: HomeAssistant) -> None:
+    """An unavailable entity the health recipe can select."""
     registry = er.async_get(hass)
     selectable = registry.async_get_or_create("sensor", "test", "unique_selectable")
     hass.states.async_set(selectable.entity_id, STATE_UNAVAILABLE)
 
 
 def _reauth_flow_id(hass: HomeAssistant) -> str:
+    """The flow id of the single in-progress reauth flow."""
     flows = hass.config_entries.flow.async_progress()
     reauth_flows = [flow for flow in flows if flow["handler"] == DOMAIN and flow["context"]["source"] == SOURCE_REAUTH]
     assert len(reauth_flows) == 1

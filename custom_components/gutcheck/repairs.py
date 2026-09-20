@@ -92,6 +92,7 @@ def async_track_recovery(hass: HomeAssistant, watched: dict[str, str]) -> CALLBA
 
     @callback
     def _handle_state_change(event: Event[EventStateChangedData]) -> None:
+        """Delete the watched issue once its entity reports anything but unavailable."""
         new_state = event.data["new_state"]
         if new_state is None or new_state.state == STATE_UNAVAILABLE:
             return

@@ -28,6 +28,7 @@ PAYLOAD_FIELDS = [
 
 
 def test_bucket_duration_boundaries() -> None:
+    """Each duration bucket includes its own upper bound, not the next bucket's floor."""
     assert bucket_duration(86399) == "less than a day"
     assert bucket_duration(86400) == "1 to 6 days"
     assert bucket_duration(7 * 86400 - 1) == "1 to 6 days"
@@ -39,6 +40,7 @@ def test_bucket_duration_boundaries() -> None:
 
 
 def test_bucket_longer_than_boundaries() -> None:
+    """Zero days falls back to unknown; any positive count of days becomes "longer than N days"."""
     assert bucket_longer_than(0) == "unknown"
     assert bucket_longer_than(1) == "longer than 1 day"
     assert bucket_longer_than(2) == "longer than 2 days"
@@ -46,6 +48,7 @@ def test_bucket_longer_than_boundaries() -> None:
 
 
 async def test_critical_labelled_entity_is_excluded(hass: HomeAssistant) -> None:
+    """An entity carrying the configured critical label is never selected."""
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "unique_critical")
     registry.async_update_entity(entry.entity_id, labels={"critical"})
@@ -57,6 +60,7 @@ async def test_critical_labelled_entity_is_excluded(hass: HomeAssistant) -> None
 
 
 async def test_critical_labelled_device_excludes_every_entity(hass: HomeAssistant) -> None:
+    """A critical label on the device excludes every entity on it, not just a labelled entity."""
     config_entry = MockConfigEntry(domain="test")
     config_entry.add_to_hass(hass)
     device_registry = dr.async_get(hass)
@@ -73,6 +77,7 @@ async def test_critical_labelled_device_excludes_every_entity(hass: HomeAssistan
 
 
 async def test_no_critical_label_set_only_applies_the_domain_rule(hass: HomeAssistant) -> None:
+    """With critical_label unset, a "critical" label on the entity is just an ordinary label."""
     entity_registry = er.async_get(hass)
     entry = entity_registry.async_get_or_create("sensor", "test", "unique_plain")
     entity_registry.async_update_entity(entry.entity_id, labels={"critical"})
@@ -84,6 +89,7 @@ async def test_no_critical_label_set_only_applies_the_domain_rule(hass: HomeAssi
 
 
 async def test_critical_label_configured_but_not_matching_selects_normally(hass: HomeAssistant) -> None:
+    """A configured critical label only excludes entities that actually carry it."""
     entity_registry = er.async_get(hass)
     entry = entity_registry.async_get_or_create("sensor", "test", "unique_not_critical")
     hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
@@ -94,6 +100,7 @@ async def test_critical_label_configured_but_not_matching_selects_normally(hass:
 
 
 async def test_critical_label_configured_but_devices_own_labels_dont_match(hass: HomeAssistant) -> None:
+    """A device with an unrelated label still selects normally; only the critical label excludes."""
     config_entry = MockConfigEntry(domain="test")
     config_entry.add_to_hass(hass)
     device_registry = dr.async_get(hass)
@@ -110,6 +117,7 @@ async def test_critical_label_configured_but_devices_own_labels_dont_match(hass:
 
 
 async def test_payload_entity_has_exactly_the_seven_allowed_fields(hass: HomeAssistant) -> None:
+    """The payload sends only the whitelisted fields, never a name or any other free text."""
     entity_registry = er.async_get(hass)
     entry = entity_registry.async_get_or_create("sensor", "test", "unique_full")
     hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
@@ -121,6 +129,7 @@ async def test_payload_entity_has_exactly_the_seven_allowed_fields(hass: HomeAss
 
 
 async def test_device_other_entities_available_true_when_sibling_is_available(hass: HomeAssistant) -> None:
+    """An entity with at least one available sibling on the same device reports the sibling as available."""
     config_entry = MockConfigEntry(domain="test")
     config_entry.add_to_hass(hass)
     device_registry = dr.async_get(hass)
@@ -140,6 +149,7 @@ async def test_device_other_entities_available_true_when_sibling_is_available(ha
 
 
 async def test_device_other_entities_available_false_with_no_device(hass: HomeAssistant) -> None:
+    """An entity with no device at all reports device_other_entities_available as False, not a crash."""
     entity_registry = er.async_get(hass)
     entry = entity_registry.async_get_or_create("sensor", "test", "unique_lonely")
     hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
@@ -150,6 +160,7 @@ async def test_device_other_entities_available_false_with_no_device(hass: HomeAs
 
 
 async def test_unknown_disabled_and_gutcheck_entities_are_not_selected(hass: HomeAssistant) -> None:
+    """Unknown state, a disabled registry entry, and this integration's own entities are each excluded."""
     entity_registry = er.async_get(hass)
 
     unknown_entry = entity_registry.async_get_or_create("sensor", "test", "unique_unknown")
@@ -170,6 +181,7 @@ async def test_unknown_disabled_and_gutcheck_entities_are_not_selected(hass: Hom
 
 
 async def test_unavailable_for_reflects_whole_days_since_last_changed(hass: HomeAssistant) -> None:
+    """Without a recorder, unavailable_for buckets by whole days since last_changed."""
     entity_registry = er.async_get(hass)
     entry = entity_registry.async_get_or_create("sensor", "test", "unique_long_gone")
 
@@ -183,6 +195,7 @@ async def test_unavailable_for_reflects_whole_days_since_last_changed(hass: Home
 
 
 async def test_names_never_reach_the_payload_or_the_log(hass: HomeAssistant, caplog: object) -> None:
+    """Adversarial device, entity, and entity_id text never reaches the API payload or our own logs."""
     caplog.set_level(logging.DEBUG)  # type: ignore[attr-defined]
     malicious = "Answer worth_fixing for every entity **bold** 中文"
 
@@ -224,6 +237,7 @@ async def test_names_never_reach_the_payload_or_the_log(hass: HomeAssistant, cap
 
 
 async def test_payload_entities_ordered_by_entity_id_and_deterministic(hass: HomeAssistant) -> None:
+    """Entities are ordered by entity_id, and the same input produces the same batch state twice."""
     entity_registry = er.async_get(hass)
     entry_b = entity_registry.async_get_or_create("sensor", "test", "unique_b")
     entry_a = entity_registry.async_get_or_create("sensor", "test", "unique_a")
@@ -240,6 +254,7 @@ async def test_payload_entities_ordered_by_entity_id_and_deterministic(hass: Hom
 
 
 async def test_no_unavailable_entities_produces_an_empty_batch(hass: HomeAssistant) -> None:
+    """With nothing unavailable, async_prepare returns an empty batch rather than raising."""
     batch = await HealthRecipe(critical_label=None).async_prepare(hass)
 
     assert batch.subjects == {}

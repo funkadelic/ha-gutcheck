@@ -20,6 +20,7 @@ from .conftest import api_response, choice_answer, posted_bodies, register_jev_r
 
 
 def _health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
+    """The health recipe's sensor entity id for this entry."""
     registry = er.async_get(hass)
     entity_id = registry.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{RECIPE_HEALTH}")
     assert entity_id is not None

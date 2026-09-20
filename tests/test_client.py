@@ -42,6 +42,7 @@ PAYLOAD: dict[str, Any] = {
 
 
 def _response(input_tokens: int = 5) -> dict[str, Any]:
+    """A Jev response reporting `input_tokens` spent."""
     return {
         "model": "jev-latest",
         "answers": {"q": {"type": "noul", "noul": 0.9}},
@@ -54,6 +55,7 @@ def _queue_responses(aioclient_mock: AiohttpClientMocker, entries: list[dict[str
     queue = list(entries)
 
     async def _side_effect(method: str, url: Any, data: Any) -> AiohttpClientMockResponse:
+        """Pop and return the next queued raw response."""
         entry = queue.pop(0)
         return AiohttpClientMockResponse(method=method, url=url, **entry)
 
@@ -61,6 +63,7 @@ def _queue_responses(aioclient_mock: AiohttpClientMocker, entries: list[dict[str
 
 
 def _client(hass: HomeAssistant, api_key: str = "test-key") -> GutCheckClient:
+    """A client bound to the test session, with the given key."""
     return GutCheckClient(async_get_clientsession(hass), api_key)
 
 
@@ -162,20 +165,24 @@ def test_validate_response_accepts_a_valid_body() -> None:
     ],
 )
 def test_parse_retry_after_numeric_and_invalid_forms(value: str | None, expected: float | None) -> None:
+    """A numeric string parses to seconds; anything non-numeric, empty, or absent parses to None."""
     assert parse_retry_after(value) == expected
 
 
 def test_parse_retry_after_http_date_in_the_future() -> None:
+    """An HTTP-date Retry-After in the future parses to the seconds remaining."""
     with freeze_time(datetime(2026, 1, 1, 12, 0, 0, tzinfo=UTC)):
         assert parse_retry_after("Thu, 01 Jan 2026 12:00:30 GMT") == 30.0
 
 
 def test_parse_retry_after_http_date_in_the_past() -> None:
+    """An HTTP-date Retry-After already past parses to zero, never negative."""
     with freeze_time(datetime(2026, 1, 1, 12, 0, 0, tzinfo=UTC)):
         assert parse_retry_after("Wed, 31 Dec 2025 12:00:00 GMT") == 0.0
 
 
 def test_parse_retry_after_naive_http_date_is_treated_as_utc() -> None:
+    """A Retry-After date with no timezone is treated as UTC, not local time."""
     with freeze_time(datetime(2026, 1, 1, 12, 0, 0, tzinfo=UTC)):
         assert parse_retry_after("01 Jan 2026 12:00:30") == 30.0
 
@@ -230,7 +237,7 @@ async def test_529_four_times_raises_after_three_retries(hass: HomeAssistant, ai
 
 
 async def test_retry_after_60_is_honored(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
-    """A Retry-After of exactly 60 seconds is honored."""
+    """Sitting exactly on MAX_RETRY_DELAY still waits and retries; the cap is inclusive."""
     _queue_responses(
         aioclient_mock,
         [

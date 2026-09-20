@@ -22,6 +22,7 @@ COST_UNIQUE_ID_SUFFIX = "_cost_today"
 
 
 def _sensor_state(hass: HomeAssistant, entry: MockConfigEntry, suffix: str) -> str:
+    """The state string of the usage sensor with the given unique-id suffix."""
     registry = er.async_get(hass)
     entity_id = registry.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}{suffix}")
     assert entity_id is not None
@@ -31,10 +32,12 @@ def _sensor_state(hass: HomeAssistant, entry: MockConfigEntry, suffix: str) -> s
 
 
 def _cost_value(hass: HomeAssistant, entry: MockConfigEntry) -> float:
+    """The cost-today sensor's state, parsed to a float."""
     return float(_sensor_state(hass, entry, COST_UNIQUE_ID_SUFFIX))
 
 
 def _sensor_attribute(hass: HomeAssistant, entry: MockConfigEntry, suffix: str, attribute: str) -> Any:
+    """One attribute of the usage sensor with the given unique-id suffix."""
     registry = er.async_get(hass)
     entity_id = registry.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}{suffix}")
     assert entity_id is not None
@@ -44,6 +47,7 @@ def _sensor_attribute(hass: HomeAssistant, entry: MockConfigEntry, suffix: str, 
 
 
 def _register_one_unavailable_entity(hass: HomeAssistant) -> str:
+    """An unavailable entity the health recipe can select."""
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "unique_selectable")
     hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)

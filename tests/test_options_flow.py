@@ -31,6 +31,7 @@ from .conftest import api_response, choice_answer, posted_bodies, register_jev_r
 
 
 def _register_one_unavailable_entity(hass: HomeAssistant, unique_id: str = "unique_selectable") -> str:
+    """An unavailable entity the health recipe can select."""
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", unique_id)
     hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
@@ -38,11 +39,13 @@ def _register_one_unavailable_entity(hass: HomeAssistant, unique_id: str = "uniq
 
 
 def _health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
+    """The health recipe's sensor entity id for this entry, or None if it was not created."""
     registry = er.async_get(hass)
     return registry.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{RECIPE_HEALTH}")
 
 
 def _tokens_sensor_state(hass: HomeAssistant, entry: MockConfigEntry) -> Any:
+    """The tokens_today usage sensor's current state."""
     registry = er.async_get(hass)
     entity_id = registry.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_tokens_today")
     assert entity_id is not None
@@ -52,6 +55,7 @@ def _tokens_sensor_state(hass: HomeAssistant, entry: MockConfigEntry) -> Any:
 
 
 def _schema_defaults(schema: Any) -> dict[str, Any]:
+    """The default value of every field in a voluptuous options-flow schema."""
     return {str(key): key.default() for key in schema.schema if hasattr(key, "default") and callable(key.default)}
 
 

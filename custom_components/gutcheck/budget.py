@@ -48,6 +48,7 @@ def estimate_tokens(payload: SystemOneRequest) -> int:
 
 
 def _today() -> str:
+    """Today's date in the user's timezone, which is where the budget rolls over."""
     return dt_util.now().date().isoformat()
 
 
@@ -80,6 +81,7 @@ class BudgetGate:
             self._data = {"date": today, "spent": 0}
 
     async def _save_and_notify(self) -> None:
+        """Persist the counter and tell the usage sensors to rewrite their state."""
         await self._store.async_save(self._data)
         async_dispatcher_send(self._hass, SIGNAL_BUDGET_UPDATED)
 
@@ -103,6 +105,7 @@ class BudgetGate:
         """Roll and notify at local midnight; return the async_track_time_change unsub."""
 
         async def _handle_midnight(_now: datetime) -> None:
+            """Roll the counter onto the new day and publish the reset."""
             async with self._lock:
                 self._roll()
                 await self._save_and_notify()

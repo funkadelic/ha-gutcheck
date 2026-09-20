@@ -27,6 +27,7 @@ RECENT_RUN = (dt_util.utcnow() - timedelta(days=1)).isoformat()
 
 
 def _register_unavailable(hass: HomeAssistant) -> str:
+    """An unavailable entity the health recipe can select."""
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "unique_selectable")
     hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
@@ -34,6 +35,7 @@ def _register_unavailable(hass: HomeAssistant) -> str:
 
 
 def _health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
+    """The health recipe's sensor entity id for this entry."""
     registry = er.async_get(hass)
     entity_id = registry.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{RECIPE_HEALTH}")
     assert entity_id is not None
@@ -41,6 +43,7 @@ def _health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str
 
 
 def _stale_stored_result(days_old: int) -> dict[str, Any]:
+    """A stored recipe result last run `days_old` days ago."""
     last_run = (dt_util.utcnow() - timedelta(days=days_old)).isoformat()
     return {"last_run": last_run, "counts": {}, "items": {}, "unsure": [], "last_payload": None}
 

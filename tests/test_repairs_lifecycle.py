@@ -22,6 +22,7 @@ from .conftest import api_response, choice_answer, health_item, health_result, p
 
 
 async def test_ignored_issue_survives_a_second_run_with_the_same_answers(hass: HomeAssistant) -> None:
+    """Re-running with identical answers must not clear the user's ignore."""
     recipe = HealthRecipe(critical_label=None)
     result = health_result({OPTION_WORTH_FIXING: [health_item("sensor.a", "reg_a")]})
 
@@ -36,6 +37,7 @@ async def test_ignored_issue_survives_a_second_run_with_the_same_answers(hass: H
 
 
 async def test_renaming_the_entity_keeps_the_same_issue_id_and_ignore(hass: HomeAssistant) -> None:
+    """The issue id is keyed to the registry id, not the entity_id, so a rename keeps the same card and its ignore."""
     recipe = HealthRecipe(critical_label=None)
     await recipe.async_act(hass, health_result({OPTION_WORTH_FIXING: [health_item("sensor.a", "reg_a")]}))
     ir.async_ignore_issue(hass, DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_a", True)
@@ -132,6 +134,7 @@ async def test_restore_keeps_a_finding_whose_entity_is_still_eligible(hass: Home
 
 
 async def test_state_becoming_available_deletes_the_issue_immediately(hass: HomeAssistant) -> None:
+    """Recovery to an available state deletes the issue at once, without waiting for the next run."""
     hass.states.async_set("sensor.a", STATE_UNAVAILABLE)
     recipe = HealthRecipe(critical_label=None)
     await recipe.async_act(hass, health_result({OPTION_WORTH_FIXING: [health_item("sensor.a", "reg_a")]}))
@@ -144,6 +147,7 @@ async def test_state_becoming_available_deletes_the_issue_immediately(hass: Home
 
 
 async def test_state_becoming_unknown_also_counts_as_recovered(hass: HomeAssistant) -> None:
+    """Unknown counts as recovered too, not just a normal available state."""
     hass.states.async_set("sensor.a", STATE_UNAVAILABLE)
     recipe = HealthRecipe(critical_label=None)
     await recipe.async_act(hass, health_result({OPTION_WORTH_FIXING: [health_item("sensor.a", "reg_a")]}))
@@ -155,6 +159,7 @@ async def test_state_becoming_unknown_also_counts_as_recovered(hass: HomeAssista
 
 
 async def test_entity_removed_from_the_state_machine_leaves_the_issue_alone(hass: HomeAssistant) -> None:
+    """An entity removed from the state machine, not recovered, leaves its issue untouched."""
     hass.states.async_set("sensor.a", STATE_UNAVAILABLE)
     recipe = HealthRecipe(critical_label=None)
     await recipe.async_act(hass, health_result({OPTION_WORTH_FIXING: [health_item("sensor.a", "reg_a")]}))
@@ -166,6 +171,7 @@ async def test_entity_removed_from_the_state_machine_leaves_the_issue_alone(hass
 
 
 async def test_already_recovered_before_the_next_run_is_cleared_at_once(hass: HomeAssistant) -> None:
+    """A recovery with no state-change event in between is still caught by the next run's immediate check."""
     recipe = HealthRecipe(critical_label=None)
     hass.states.async_set("sensor.b", STATE_UNAVAILABLE)
     await recipe.async_act(hass, health_result({OPTION_WORTH_FIXING: [health_item("sensor.b", "reg_b")]}))
@@ -180,6 +186,7 @@ async def test_already_recovered_before_the_next_run_is_cleared_at_once(hass: Ho
 
 
 async def test_reclassifying_worth_fixing_as_expected_deletes_its_issue(hass: HomeAssistant) -> None:
+    """A later run that reclassifies the entity out of worth-fixing deletes its stale issue."""
     recipe = HealthRecipe(critical_label=None)
     await recipe.async_act(hass, health_result({OPTION_WORTH_FIXING: [health_item("sensor.b", "reg_b")]}))
     assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_b") is not None
@@ -190,6 +197,7 @@ async def test_reclassifying_worth_fixing_as_expected_deletes_its_issue(hass: Ho
 
 
 async def test_a_run_that_selects_nothing_deletes_every_health_issue(hass: HomeAssistant) -> None:
+    """A run that selects nothing clears every previously raised health issue."""
     recipe = HealthRecipe(critical_label=None)
     await recipe.async_act(hass, health_result({OPTION_WORTH_FIXING: [health_item("sensor.a", "reg_a")]}))
 
@@ -203,6 +211,7 @@ async def test_reload_keeps_the_issue_and_its_ignore(
     aioclient_mock: AiohttpClientMocker,
     mock_config_entry: MockConfigEntry,
 ) -> None:
+    """A reload inside the interval restores for free and keeps the existing issue and its ignore."""
     registry = er.async_get(hass)
     selectable = registry.async_get_or_create("sensor", "test", "unique_a")
     hass.states.async_set(selectable.entity_id, STATE_UNAVAILABLE)
@@ -232,6 +241,7 @@ async def test_removing_the_entry_deletes_every_issue_including_ignored(
     aioclient_mock: AiohttpClientMocker,
     mock_config_entry: MockConfigEntry,
 ) -> None:
+    """Removing the config entry deletes every issue, ignored ones included."""
     registry = er.async_get(hass)
     selectable = registry.async_get_or_create("sensor", "test", "unique_a")
     hass.states.async_set(selectable.entity_id, STATE_UNAVAILABLE)
@@ -255,6 +265,7 @@ async def test_removing_an_entry_with_no_issues_succeeds(
     hass: HomeAssistant,
     mock_config_entry: MockConfigEntry,
 ) -> None:
+    """Removing an entry that never raised an issue still succeeds, with no restart required."""
     mock_config_entry.add_to_hass(hass)
 
     result = await hass.config_entries.async_remove(mock_config_entry.entry_id)

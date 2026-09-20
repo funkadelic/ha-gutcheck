@@ -42,6 +42,7 @@ PAYLOAD: dict[str, Any] = {
 
 
 def _response(input_tokens: int) -> dict[str, Any]:
+    """A Jev response reporting `input_tokens` spent."""
     return {
         "model": "jev-latest",
         "answers": {"q": {"type": "noul", "noul": 0.9}},
@@ -50,10 +51,12 @@ def _response(input_tokens: int) -> dict[str, Any]:
 
 
 def _client(hass: HomeAssistant) -> GutCheckClient:
+    """A client bound to the test session, with a throwaway key."""
     return GutCheckClient(async_get_clientsession(hass), "test-key")
 
 
 def _padded_payload(state_chars: int, question_chars: int = 10) -> dict[str, Any]:
+    """A payload padded to a target state size and question length, for cap tests."""
     return {
         "state": {"pad": "x" * state_chars},
         "model": "jev-latest",
@@ -68,6 +71,7 @@ async def test_overlapping_calls_that_exactly_fit_both_succeed(hass: HomeAssista
     first_started = asyncio.Event()
 
     async def _side_effect(method: str, url: Any, data: Any) -> AiohttpClientMockResponse:
+        """Hold the first call open so the second reservation lands while it is still outstanding."""
         nonlocal call_count
         call_count += 1
         if call_count == 1:
@@ -104,6 +108,7 @@ async def test_overlapping_calls_one_token_short_refuses_the_second(
     first_started = asyncio.Event()
 
     async def _side_effect(method: str, url: Any, data: Any) -> AiohttpClientMockResponse:
+        """Hold the only in-flight call open while the second request is attempted and refused."""
         nonlocal call_count
         call_count += 1
         first_started.set()
@@ -148,6 +153,7 @@ async def test_cancelled_call_releases_its_reservation(hass: HomeAssistant, aioc
     started = asyncio.Event()
 
     async def _side_effect(method: str, url: Any, data: Any) -> AiohttpClientMockResponse:
+        """Block until the task is cancelled out from under it."""
         started.set()
         await hold.wait()
         return AiohttpClientMockResponse(method=method, url=url, status=200, json=_response(10))
@@ -174,6 +180,7 @@ async def test_reservation_crossing_midnight_adds_actual_to_the_new_day(
     started = asyncio.Event()
 
     async def _side_effect(method: str, url: Any, data: Any) -> AiohttpClientMockResponse:
+        """Hold the call open across the frozen midnight rollover."""
         started.set()
         await hold.wait()
         return AiohttpClientMockResponse(method=method, url=url, status=200, json=_response(777))
@@ -261,6 +268,7 @@ async def test_lowering_budget_below_spent_gives_remaining_zero(hass: HomeAssist
 
 
 def _health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
+    """The health recipe's sensor entity id for this entry."""
     registry = er.async_get(hass)
     entity_id = registry.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{RECIPE_HEALTH}")
     assert entity_id is not None
@@ -334,6 +342,7 @@ async def test_budget_refused_run_makes_health_unavailable_and_retries_after_mid
 
 
 def _first_run_response() -> dict[str, Any]:
+    """A normal, budget-accepted first run's response."""
     return {
         "model": "jev-latest",
         "answers": {"e0": choice_answer(OPTION_EXPECTED, 0.9)},
@@ -349,6 +358,7 @@ async def test_failed_call_crossing_midnight_leaves_the_new_day_untouched(
     started = asyncio.Event()
 
     async def _side_effect(method: str, url: Any, data: Any) -> AiohttpClientMockResponse:
+        """Hold the call open across midnight, then fail with a 500."""
         started.set()
         await hold.wait()
         return AiohttpClientMockResponse(method=method, url=url, status=500, json={"error": "boom"})
@@ -378,6 +388,7 @@ class _OversizedRecipe:
     options: tuple[str, ...] = (OPTION_EXPECTED,)
 
     async def async_prepare(self, hass: HomeAssistant) -> Batch:
+        """A batch deliberately over the state-plus-question cap."""
         return Batch(
             state={"pad": "x" * 90_000},
             questions={"q": {"type": "choice", "instructions": "x" * 90_000, "criteria": {"a": None}}},  # type: ignore[typeddict-item]
@@ -385,6 +396,7 @@ class _OversizedRecipe:
         )
 
     async def async_act(self, hass: HomeAssistant, result: Any) -> None:
+        """Never reached; the oversized request is refused before acting."""
         return None
 
 

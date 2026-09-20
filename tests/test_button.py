@@ -14,12 +14,14 @@ from .conftest import api_response, choice_answer, posted_bodies, register_jev_r
 
 
 def _register_unavailable(hass: HomeAssistant) -> None:
+    """An unavailable entity the health recipe can select."""
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "unique_selectable")
     hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
 
 
 def _health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
+    """The health recipe's sensor entity id for this entry."""
     registry = er.async_get(hass)
     entity_id = registry.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{RECIPE_HEALTH}")
     assert entity_id is not None
@@ -27,11 +29,13 @@ def _health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str
 
 
 def _health_button_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
+    """The health recipe's Run button entity id, or None if it was not created."""
     registry = er.async_get(hass)
     return registry.async_get_entity_id("button", DOMAIN, f"{entry.entry_id}_{RECIPE_HEALTH}_run")
 
 
 async def _press(hass: HomeAssistant, entity_id: str) -> None:
+    """Press the button and let its background run finish."""
     await hass.services.async_call("button", "press", {"entity_id": entity_id}, blocking=True)
     await hass.async_block_till_done(wait_background_tasks=True)
 

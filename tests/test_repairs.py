@@ -65,30 +65,37 @@ async def test_placeholders_are_sanitized(hass: HomeAssistant) -> None:
 
 
 def test_sanitize_placeholder_leaves_an_entity_id_unchanged() -> None:
+    """A plain entity id has nothing to escape and passes through unchanged."""
     assert sanitize_placeholder("sensor.home_123_1min_inverted") == "sensor.home_123_1min_inverted"
 
 
 def test_sanitize_placeholder_breaks_a_code_span() -> None:
+    """A backtick is escaped so it cannot close into a Markdown code span."""
     assert sanitize_placeholder("a`b") == "a\\`b"
 
 
 def test_sanitize_placeholder_breaks_a_link() -> None:
+    """A link pasted into an entity id must not render as a link in the card."""
     assert sanitize_placeholder("[click here](http://evil.example)") == r"\[click here\](http://evil.example)"
 
 
 def test_sanitize_placeholder_breaks_an_image() -> None:
+    """A Markdown image reference must not render as an image in the card."""
     assert "![alt]" not in sanitize_placeholder("![alt](http://evil.example/img.png)")
 
 
 def test_sanitize_placeholder_breaks_html() -> None:
+    """A raw script tag must not survive into the rendered card."""
     assert "<script>" not in sanitize_placeholder("<script>alert(1)</script>")
 
 
 def test_sanitize_placeholder_collapses_a_newline() -> None:
+    """A newline is collapsed to a space so it cannot break the card's layout."""
     assert sanitize_placeholder("first line\nsecond line") == "first line second line"
 
 
 def test_sanitize_placeholder_caps_length() -> None:
+    """The placeholder is capped at 100 characters."""
     assert len(sanitize_placeholder("x" * 150)) == 100
 
 
@@ -100,6 +107,7 @@ def test_sanitize_placeholder_never_ends_in_a_dangling_backslash() -> None:
 
 
 def test_translations_have_the_unavailable_entity_issue() -> None:
+    """The unavailable_entity issue has a title and description but no fix_flow, since it is not fixable."""
     path = Path(__file__).parent.parent / "custom_components" / "gutcheck" / "translations" / "en.json"
     data = json.loads(path.read_text(encoding="utf-8"))
 
