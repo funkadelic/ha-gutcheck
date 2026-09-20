@@ -36,7 +36,7 @@
         },
         "data_description": {
           "daily_budget": "A hard stop for the day. It resets at local midnight.",
-          "critical_label": "Entities or devices with this label are never sent or checked. Locks, alarms and covers never are, label or not."
+          "critical_label": "Entities or devices with this label are never sent or checked. Locks, alarms and covers are never checked either, label or not."
         }
       }
     }
