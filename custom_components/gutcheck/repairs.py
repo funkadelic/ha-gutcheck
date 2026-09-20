@@ -22,10 +22,13 @@ _MAX_PLACEHOLDER_LENGTH = 100
 
 
 def sanitize_placeholder(value: str) -> str:
-    """Collapse whitespace, escape link, code and HTML characters, and cap length."""
-    collapsed = _WHITESPACE_RE.sub(" ", value)
-    escaped = _MARKDOWN_ACTIVE_RE.sub(r"\\\1", collapsed)
-    return escaped[:_MAX_PLACEHOLDER_LENGTH]
+    """Collapse whitespace, cap length, then escape link, code and HTML characters.
+
+    Truncating before escaping, not after: slicing escaped text can cut between a
+    backslash and the character it escapes, leaving a dangling backslash.
+    """
+    collapsed = _WHITESPACE_RE.sub(" ", value)[:_MAX_PLACEHOLDER_LENGTH]
+    return _MARKDOWN_ACTIVE_RE.sub(r"\\\1", collapsed)
 
 
 @callback

@@ -105,6 +105,13 @@ def test_sanitize_placeholder_caps_length() -> None:
     assert len(sanitize_placeholder("x" * 150)) == 100
 
 
+def test_sanitize_placeholder_never_ends_in_a_dangling_backslash() -> None:
+    """Truncating an escaped string can cut a backslash off the character it escapes."""
+    for active in "\\`[]<>":
+        result = sanitize_placeholder("x" * 99 + active)
+        assert result.endswith(f"\\{active}"), f"{active!r} lost its escape to the length cap"
+
+
 def test_translations_have_the_unavailable_entity_issue() -> None:
     path = Path(__file__).parent.parent / "custom_components" / "gutcheck" / "translations" / "en.json"
     data = json.loads(path.read_text(encoding="utf-8"))
