@@ -21,6 +21,9 @@ from custom_components.gutcheck.recipes.base import recipe_store_key
 from .conftest import api_response, choice_answer, posted_bodies, register_jev_responses
 
 HEALTH_STORE_KEY = recipe_store_key(RECIPE_HEALTH)
+# Inside RECIPE_INTERVAL on purpose: a store that is merely stale takes the
+# never-run branch anyway, which would let a malformed one pass unnoticed.
+RECENT_RUN = (dt_util.utcnow() - timedelta(days=1)).isoformat()
 
 
 def _register_unavailable(hass: HomeAssistant) -> str:
@@ -166,15 +169,15 @@ async def test_restart_with_a_stale_stored_run_re_runs_at_startup(
             id="unparseable_last_run",
         ),
         pytest.param(
-            {"last_run": "2026-01-01T00:00:00+00:00", "counts": "nope", "items": {}, "unsure": [], "last_payload": None},
+            {"last_run": RECENT_RUN, "counts": "nope", "items": {}, "unsure": [], "last_payload": None},
             id="non_dict_counts",
         ),
         pytest.param(
-            {"last_run": "2026-01-01T00:00:00+00:00", "counts": {}, "items": "nope", "unsure": [], "last_payload": None},
+            {"last_run": RECENT_RUN, "counts": {}, "items": "nope", "unsure": [], "last_payload": None},
             id="non_dict_items",
         ),
         pytest.param(
-            {"last_run": "2026-01-01T00:00:00+00:00", "counts": {}, "items": {}, "unsure": "nope", "last_payload": None},
+            {"last_run": RECENT_RUN, "counts": {}, "items": {}, "unsure": "nope", "last_payload": None},
             id="non_list_unsure",
         ),
         pytest.param(
@@ -183,7 +186,7 @@ async def test_restart_with_a_stale_stored_run_re_runs_at_startup(
         ),
         pytest.param(
             {
-                "last_run": "2026-01-01T00:00:00+00:00",
+                "last_run": RECENT_RUN,
                 "counts": {},
                 "items": {OPTION_WORTH_FIXING: [{}]},
                 "unsure": [],
@@ -193,7 +196,7 @@ async def test_restart_with_a_stale_stored_run_re_runs_at_startup(
         ),
         pytest.param(
             {
-                "last_run": "2026-01-01T00:00:00+00:00",
+                "last_run": RECENT_RUN,
                 "counts": {},
                 "items": {OPTION_WORTH_FIXING: "nope"},
                 "unsure": [],
@@ -203,7 +206,7 @@ async def test_restart_with_a_stale_stored_run_re_runs_at_startup(
         ),
         pytest.param(
             {
-                "last_run": "2026-01-01T00:00:00+00:00",
+                "last_run": RECENT_RUN,
                 "counts": {OPTION_WORTH_FIXING: "nope"},
                 "items": {},
                 "unsure": [],
