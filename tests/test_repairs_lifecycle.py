@@ -171,7 +171,7 @@ async def test_entity_removed_from_the_state_machine_leaves_the_issue_alone(hass
 
 
 async def test_already_recovered_before_the_next_run_is_cleared_at_once(hass: HomeAssistant) -> None:
-    """A recovery with no state-change event in between is still caught by the next run's immediate check."""
+    """A recovery whose state-change event has already passed is still caught by the next run's immediate check."""
     recipe = HealthRecipe(critical_label=None)
     hass.states.async_set("sensor.b", STATE_UNAVAILABLE)
     await recipe.async_act(hass, health_result({OPTION_WORTH_FIXING: [health_item("sensor.b", "reg_b")]}))

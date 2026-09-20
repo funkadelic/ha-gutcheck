@@ -15,7 +15,7 @@ CHECKED_TREES = ("custom_components", "tests")
 
 def _undocumented(path: Path) -> list[str]:
     """Every module, class and function in one file that has no docstring."""
-    tree = ast.parse(path.read_text(encoding="utf-8"))
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     relative = path.relative_to(REPO_ROOT)
     missing = [] if ast.get_docstring(tree) is not None else [f"{relative}:1 module"]
     for node in ast.walk(tree):
