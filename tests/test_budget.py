@@ -32,7 +32,7 @@ from custom_components.gutcheck.const import (
 )
 from custom_components.gutcheck.recipes.base import Batch, RecipeCoordinator
 
-from .conftest import choice_answer, posted_bodies, register_jev_responses
+from .conftest import api_response, choice_answer, posted_bodies, register_jev_responses
 
 PAYLOAD: dict[str, Any] = {
     "state": {"check": "ping"},
@@ -270,7 +270,7 @@ def _health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str
 async def test_budget_refused_run_makes_health_unavailable_and_retries_after_midnight(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry, freezer: Any
 ) -> None:
-    """A refused run keeps the last payload, sends nothing, raises no issue, and retries by itself after midnight."""
+    """A refused run keeps the last payload, sends nothing, leaves Repairs alone, and retries by itself after midnight."""
     freezer.move_to("2026-01-01T12:00:00-08:00")
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "unique_selectable")
@@ -278,7 +278,7 @@ async def test_budget_refused_run_makes_health_unavailable_and_retries_after_mid
 
     # The first run classifies worth-fixing on purpose, so a Repairs card exists
     # for the refused run to wrongly delete or duplicate if it touched Repairs.
-    register_jev_responses(aioclient_mock, [_worth_fixing_response(), _first_run_response()])
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)}), _first_run_response()])
     mock_config_entry.add_to_hass(hass)
 
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
@@ -337,14 +337,6 @@ def _first_run_response() -> dict[str, Any]:
     return {
         "model": "jev-latest",
         "answers": {"e0": choice_answer(OPTION_EXPECTED, 0.9)},
-        "usage": {"input_tokens": 10, "output_tokens": 0},
-    }
-
-
-def _worth_fixing_response() -> dict[str, Any]:
-    return {
-        "model": "jev-latest",
-        "answers": {"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)},
         "usage": {"input_tokens": 10, "output_tokens": 0},
     }
 

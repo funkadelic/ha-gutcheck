@@ -140,8 +140,10 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
         # rather than restoring and scheduling the catch-up run further out still.
         if parsed is not None and timedelta(0) <= dt_util.utcnow() - parsed[1] < RECIPE_INTERVAL:
             result, last_run = parsed
-            self.async_set_updated_data(result)
+            # Restore first: it can drop findings the safety rules now exclude,
+            # and the sensor should publish what survived, not the stored set.
             await self.recipe.restore(self.hass, result)
+            self.async_set_updated_data(result)
             remaining = (last_run + RECIPE_INTERVAL - dt_util.utcnow()).total_seconds()
             self.config_entry.async_on_unload(async_call_later(self.hass, remaining, self._handle_scheduled_refresh))
         else:

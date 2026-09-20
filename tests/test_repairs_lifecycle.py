@@ -57,6 +57,9 @@ async def test_restore_drops_a_finding_labelled_critical_since_the_run(hass: Hom
     await recipe.restore(hass, result)
 
     assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_a") is None
+    # Out of the result too, so the summary sensor does not keep listing it.
+    assert result["items"][OPTION_WORTH_FIXING] == []
+    assert result["counts"][OPTION_WORTH_FIXING] == 0
 
 
 async def test_restore_drops_a_finding_whose_entity_was_disabled_since_the_run(hass: HomeAssistant) -> None:
@@ -73,6 +76,17 @@ async def test_restore_drops_a_finding_whose_entity_was_disabled_since_the_run(h
     await recipe.restore(hass, result)
 
     assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_d") is None
+
+
+async def test_restore_of_a_result_with_no_worth_fixing_bucket_clears_the_cards(hass: HomeAssistant) -> None:
+    """An older stored result may carry no worth-fixing key at all; restoring it must not fail."""
+    recipe = HealthRecipe(critical_label=None)
+    await recipe.async_act(hass, health_result({OPTION_WORTH_FIXING: [health_item("sensor.a", "reg_e")]}))
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_e") is not None
+
+    await recipe.restore(hass, health_result({}))
+
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_e") is None
 
 
 async def test_restore_keeps_a_finding_whose_entity_is_no_longer_registered(hass: HomeAssistant) -> None:

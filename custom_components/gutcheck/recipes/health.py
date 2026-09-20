@@ -157,9 +157,13 @@ class HealthRecipe:
         A restore can follow a disable/re-enable, which deletes every issue under
         HEALTH_ISSUE_PREFIX, so the restored result's issues must be recreated too.
         Findings whose entity has since been labelled critical, disabled or moved
-        into a blocked domain are dropped rather than raised again.
+        into a blocked domain are dropped rather than raised again, out of the
+        result itself so the summary sensor does not list them either.
         """
         worth_fixing = [item for item in result["items"].get(OPTION_WORTH_FIXING, []) if not self._now_excluded(hass, item)]
+        if OPTION_WORTH_FIXING in result["items"]:
+            result["items"][OPTION_WORTH_FIXING] = worth_fixing
+            result["counts"][OPTION_WORTH_FIXING] = len(worth_fixing)
         async_sync_issues(hass, HEALTH_ISSUE_PREFIX, ISSUE_UNAVAILABLE_ENTITY, self._wanted_issues(worth_fixing))
         self._rearm_recovery(hass, worth_fixing)
 

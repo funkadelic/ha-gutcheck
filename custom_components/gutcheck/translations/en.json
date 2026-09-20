@@ -18,7 +18,8 @@
     },
     "error": {
       "invalid_auth": "That API key was rejected. Check it and try again.",
-      "cannot_connect": "Could not reach the API to check the key. Try again in a moment."
+      "cannot_connect": "Could not reach the API to check the key. Try again in a moment.",
+      "rate_limited": "The API is busy right now, so the key could not be checked. Try again in a minute."
     },
     "abort": {
       "single_instance_allowed": "Gut Check is already set up. Only one instance is allowed.",

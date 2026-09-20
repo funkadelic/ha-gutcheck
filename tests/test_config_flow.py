@@ -81,6 +81,20 @@ async def test_server_error_shows_cannot_connect_and_creates_no_entry(
     assert hass.config_entries.async_entries(DOMAIN) == []
 
 
+async def test_rate_limit_shows_its_own_error_and_posts_only_once(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
+) -> None:
+    """A 429 says the API is busy rather than unreachable, and never retries behind the form."""
+    register_jev_responses(aioclient_mock, [(429, {"error": "slow down"})])
+
+    result = await _start_flow(hass)
+
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == {"base": "rate_limited"}
+    assert len(posted_bodies(aioclient_mock)) == 1
+    assert hass.config_entries.async_entries(DOMAIN) == []
+
+
 async def test_client_error_shows_cannot_connect_and_creates_no_entry(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
 ) -> None:

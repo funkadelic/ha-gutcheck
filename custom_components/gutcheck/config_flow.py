@@ -13,7 +13,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import TextSelector, TextSelectorConfig, TextSelectorType
 
-from .client import GutCheckApiError, GutCheckAuthError, GutCheckClient
+from .client import GutCheckApiError, GutCheckAuthError, GutCheckClient, GutCheckRetryableError
 from .const import DOMAIN
 from .options_flow import GutCheckOptionsFlow
 
@@ -31,6 +31,10 @@ async def async_validate_api_key(hass: HomeAssistant, api_key: str) -> str | Non
         await client.async_validate_key()
     except GutCheckAuthError:
         return "invalid_auth"
+    except GutCheckRetryableError:
+        # Validation does not retry, so a busy API reaches the user as itself
+        # rather than as an unreachable one.
+        return "rate_limited"
     except GutCheckApiError:
         return "cannot_connect"
     return None
