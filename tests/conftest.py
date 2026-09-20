@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
-from homeassistant.const import CONF_API_KEY
+from homeassistant.const import CONF_API_KEY, STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -93,6 +93,13 @@ def health_item(entity_id: str, registry_id: str, unavailable_for: str = "1 to 6
 def health_result(items: dict[str, list[Item]]) -> RecipeResult:
     """A recipe result holding just the given per-option items."""
     return {"last_run": "", "counts": {}, "items": items, "unsure": [], "last_payload": None}
+
+
+def register_unavailable_entity(hass: HomeAssistant, unique_id: str = "unique_selectable") -> str:
+    """Register one unavailable entity the health recipe can select, and return its id."""
+    entry = er.async_get(hass).async_get_or_create("sensor", "test", unique_id)
+    hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
+    return entry.entity_id
 
 
 def find_health_sensor(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:

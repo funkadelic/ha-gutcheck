@@ -10,14 +10,14 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 
 from custom_components.gutcheck.const import CONF_HEALTH_ENABLED, DOMAIN, OPTION_WORTH_FIXING, RECIPE_HEALTH
 
-from .conftest import api_response, choice_answer, health_sensor_entity_id, posted_bodies, register_jev_responses
-
-
-def _register_unavailable(hass: HomeAssistant) -> None:
-    """An unavailable entity the health recipe can select."""
-    registry = er.async_get(hass)
-    entry = registry.async_get_or_create("sensor", "test", "unique_selectable")
-    hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
+from .conftest import (
+    api_response,
+    choice_answer,
+    health_sensor_entity_id,
+    posted_bodies,
+    register_jev_responses,
+    register_unavailable_entity,
+)
 
 
 def _health_button_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
@@ -38,7 +38,7 @@ async def test_press_after_first_run_sends_exactly_one_more_post(
     mock_config_entry: MockConfigEntry,
 ) -> None:
     """With the first run done, pressing Run sends exactly one more POST and updates the sensor."""
-    _register_unavailable(hass)
+    register_unavailable_entity(hass)
     register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
@@ -64,7 +64,7 @@ async def test_button_stays_available_after_a_failed_run_and_a_press_recovers_it
     mock_config_entry: MockConfigEntry,
 ) -> None:
     """A 500 leaves the sensor unavailable but the button available; a press with a healthy API recovers it."""
-    _register_unavailable(hass)
+    register_unavailable_entity(hass)
     register_jev_responses(aioclient_mock, [(500, {"error": "boom"})])
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)

@@ -6,7 +6,6 @@ from typing import Any
 from unittest.mock import patch
 
 import pytest
-from homeassistant.const import STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType, InvalidData
 from homeassistant.helpers import entity_registry as er
@@ -26,15 +25,14 @@ from custom_components.gutcheck.const import (
     OPTION_WORTH_FIXING,
 )
 
-from .conftest import api_response, choice_answer, find_health_sensor, posted_bodies, register_jev_responses
-
-
-def _register_one_unavailable_entity(hass: HomeAssistant, unique_id: str = "unique_selectable") -> str:
-    """An unavailable entity the health recipe can select."""
-    registry = er.async_get(hass)
-    entry = registry.async_get_or_create("sensor", "test", unique_id)
-    hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
-    return entry.entity_id
+from .conftest import (
+    api_response,
+    choice_answer,
+    find_health_sensor,
+    posted_bodies,
+    register_jev_responses,
+    register_unavailable_entity,
+)
 
 
 def _tokens_sensor_state(hass: HomeAssistant, entry: MockConfigEntry) -> Any:
@@ -56,7 +54,7 @@ async def test_defaults_apply_when_options_never_saved(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
 ) -> None:
     """The init form's defaults are health on, the default budget, and no label."""
-    _register_one_unavailable_entity(hass)
+    register_unavailable_entity(hass)
     register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)})])
     mock_config_entry.add_to_hass(hass)
 
@@ -78,7 +76,7 @@ async def test_saving_new_budget_reloads_and_keeps_spent_tokens(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
 ) -> None:
     """A new budget saves, reloads the entry, and today's spent tokens survive the reload."""
-    _register_one_unavailable_entity(hass)
+    register_unavailable_entity(hass)
     register_jev_responses(
         aioclient_mock,
         [api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}, input_tokens=1234)],
@@ -141,7 +139,7 @@ async def test_turning_health_off_removes_entity_and_issues_and_sends_nothing(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
 ) -> None:
     """Disabling the health check removes its sensor and issues; usage sensors and budget stay."""
-    _register_one_unavailable_entity(hass)
+    register_unavailable_entity(hass)
     register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     mock_config_entry.add_to_hass(hass)
 
@@ -170,7 +168,7 @@ async def test_turning_health_back_on_restores_sensor_and_runs(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
 ) -> None:
     """Re-enabling the health check restores its sensor and runs again once HA has started."""
-    _register_one_unavailable_entity(hass)
+    register_unavailable_entity(hass)
     register_jev_responses(
         aioclient_mock,
         [
@@ -200,7 +198,7 @@ async def test_reenabling_within_the_week_restores_the_worth_fixing_issue(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
 ) -> None:
     """Disable then re-enable within the cadence window: the free restore must recreate the Repairs card too."""
-    entity_id = _register_one_unavailable_entity(hass)
+    entity_id = register_unavailable_entity(hass)
     registry_id = er.async_get(hass).async_get(entity_id).id
     issue_id = f"{HEALTH_ISSUE_PREFIX}{registry_id}"
     register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
@@ -242,10 +240,10 @@ async def test_critical_label_excludes_and_clearing_restores(
     label_registry = lr.async_get(hass)
     label = label_registry.async_create("Critical")
 
-    labelled_entity_id = _register_one_unavailable_entity(hass, "unique_labelled")
+    labelled_entity_id = register_unavailable_entity(hass, "unique_labelled")
     registry = er.async_get(hass)
     registry.async_update_entity(labelled_entity_id, labels={label.label_id})
-    _register_one_unavailable_entity(hass, "unique_other")
+    register_unavailable_entity(hass, "unique_other")
 
     register_jev_responses(
         aioclient_mock,

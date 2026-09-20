@@ -18,20 +18,19 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 from custom_components.gutcheck.const import DOMAIN, HEALTH_ISSUE_PREFIX, OPTION_WORTH_FIXING, RECIPE_HEALTH, STORE_VERSION
 from custom_components.gutcheck.recipes.base import recipe_store_key
 
-from .conftest import api_response, choice_answer, health_sensor_entity_id, posted_bodies, register_jev_responses
+from .conftest import (
+    api_response,
+    choice_answer,
+    health_sensor_entity_id,
+    posted_bodies,
+    register_jev_responses,
+    register_unavailable_entity,
+)
 
 HEALTH_STORE_KEY = recipe_store_key(RECIPE_HEALTH)
 # Inside RECIPE_INTERVAL on purpose: a store that is merely stale takes the
 # never-run branch anyway, which would let a malformed one pass unnoticed.
 RECENT_RUN = (dt_util.utcnow() - timedelta(days=1)).isoformat()
-
-
-def _register_unavailable(hass: HomeAssistant) -> str:
-    """An unavailable entity the health recipe can select."""
-    registry = er.async_get(hass)
-    entry = registry.async_get_or_create("sensor", "test", "unique_selectable")
-    hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
-    return entry.entity_id
 
 
 def _stale_stored_result(days_old: int) -> dict[str, Any]:
@@ -48,7 +47,7 @@ async def test_fresh_install_runs_once_after_startup_and_persists(
 ) -> None:
     """A fresh install waits for startup, then runs once and persists the result."""
     hass.set_state(CoreState.not_running)
-    _register_unavailable(hass)
+    register_unavailable_entity(hass)
     register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
@@ -72,7 +71,7 @@ async def test_restart_within_a_week_restores_without_posting(
 ) -> None:
     """A restart 3 days after the last run restores the sensor for free."""
     freezer.move_to("2026-01-01T00:00:00-08:00")
-    _register_unavailable(hass)
+    register_unavailable_entity(hass)
     register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
@@ -100,7 +99,7 @@ async def test_scheduled_refresh_fires_seven_days_after_the_last_run(
 ) -> None:
     """The next run lands 7 days after the last one, not 7 days after the restart."""
     freezer.move_to("2026-01-01T00:00:00-08:00")
-    _register_unavailable(hass)
+    register_unavailable_entity(hass)
     register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
@@ -133,7 +132,7 @@ async def test_restart_with_a_stale_stored_run_re_runs_at_startup(
 ) -> None:
     """A stored last_run 8 days old is treated as due; it runs once startup completes."""
     hass.set_state(CoreState.not_running)
-    _register_unavailable(hass)
+    register_unavailable_entity(hass)
     hass_storage[HEALTH_STORE_KEY] = {
         "version": STORE_VERSION,
         "minor_version": 1,
@@ -220,7 +219,7 @@ async def test_malformed_stored_value_is_treated_as_never_run(
 ) -> None:
     """A stored value that isn't a proper RecipeResult is treated as never run."""
     hass.set_state(CoreState.not_running)
-    _register_unavailable(hass)
+    register_unavailable_entity(hass)
     hass_storage[HEALTH_STORE_KEY] = {
         "version": STORE_VERSION,
         "minor_version": 1,
@@ -247,7 +246,7 @@ async def test_restore_rearms_recovery_tracking_with_no_api_call(
 ) -> None:
     """After a restore, the restored worth-fixing entity's issue still clears on recovery, with no POST."""
     freezer.move_to("2026-01-01T00:00:00-08:00")
-    entity_id = _register_unavailable(hass)
+    entity_id = register_unavailable_entity(hass)
     registry_id = er.async_get(hass).async_get(entity_id).id  # type: ignore[union-attr]
 
     register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
@@ -279,7 +278,7 @@ async def test_failed_scheduled_run_retries_after_an_hour(
 ) -> None:
     """A 500 on a scheduled run leaves the sensor unavailable, then retries by itself an hour later."""
     freezer.move_to("2026-01-01T00:00:00-08:00")
-    _register_unavailable(hass)
+    register_unavailable_entity(hass)
     register_jev_responses(aioclient_mock, [(500, {"error": "boom"})])
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
@@ -310,7 +309,7 @@ async def test_removing_the_entry_deletes_the_recipe_store(
     mock_config_entry: MockConfigEntry,
 ) -> None:
     """Removing the entry deletes the persisted recipe Store, not just its Repairs issues."""
-    _register_unavailable(hass)
+    register_unavailable_entity(hass)
     register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)

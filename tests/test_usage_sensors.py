@@ -7,7 +7,6 @@ from typing import Any
 import pytest
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.sensor.const import DEVICE_CLASS_STATE_CLASSES
-from homeassistant.const import STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
@@ -15,7 +14,7 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 
 from custom_components.gutcheck.const import BUDGET_STORE_KEY, DOMAIN, OPTION_WORTH_FIXING
 
-from .conftest import api_response, choice_answer, posted_bodies, register_jev_responses
+from .conftest import api_response, choice_answer, posted_bodies, register_jev_responses, register_unavailable_entity
 
 TOKENS_UNIQUE_ID_SUFFIX = "_tokens_today"
 COST_UNIQUE_ID_SUFFIX = "_cost_today"
@@ -44,14 +43,6 @@ def _sensor_attribute(hass: HomeAssistant, entry: MockConfigEntry, suffix: str, 
     state = hass.states.get(entity_id)
     assert state is not None
     return state.attributes.get(attribute)
-
-
-def _register_one_unavailable_entity(hass: HomeAssistant) -> str:
-    """An unavailable entity the health recipe can select."""
-    registry = er.async_get(hass)
-    entry = registry.async_get_or_create("sensor", "test", "unique_selectable")
-    hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
-    return entry.entity_id
 
 
 async def test_fresh_setup_shows_zero_tokens_and_cost(hass: HomeAssistant, mock_config_entry: MockConfigEntry) -> None:
@@ -93,7 +84,7 @@ async def test_run_updates_sensors_and_persists_and_survives_restart(
     mock_config_entry: MockConfigEntry,
 ) -> None:
     """A run's reported usage lands on both sensors, in the Store, and survives a restart."""
-    entity_id = _register_one_unavailable_entity(hass)
+    entity_id = register_unavailable_entity(hass)
     register_jev_responses(
         aioclient_mock,
         [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)}, input_tokens=1234)],
@@ -175,7 +166,7 @@ async def test_both_sensors_reset_at_local_midnight_with_no_request(
 ) -> None:
     """Crossing local midnight zeroes both sensors on its own, without sending anything."""
     freezer.move_to("2026-01-01T23:59:59-08:00")
-    entity_id = _register_one_unavailable_entity(hass)
+    entity_id = register_unavailable_entity(hass)
     register_jev_responses(
         aioclient_mock,
         [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)}, input_tokens=1234)],

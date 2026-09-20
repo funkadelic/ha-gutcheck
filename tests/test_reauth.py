@@ -9,23 +9,22 @@ from homeassistant.config_entries import SOURCE_REAUTH
 from homeassistant.const import CONF_API_KEY, STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
-from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.gutcheck.const import API_URL, DOMAIN, OPTION_WORTH_FIXING
 
-from .conftest import api_response, choice_answer, health_sensor_entity_id, posted_bodies, register_jev_responses
+from .conftest import (
+    api_response,
+    choice_answer,
+    health_sensor_entity_id,
+    posted_bodies,
+    register_jev_responses,
+    register_unavailable_entity,
+)
 
 OLD_KEY = "test-key"
 NEW_KEY = "new-key"
-
-
-def _register_one_unavailable_entity(hass: HomeAssistant) -> None:
-    """An unavailable entity the health recipe can select."""
-    registry = er.async_get(hass)
-    selectable = registry.async_get_or_create("sensor", "test", "unique_selectable")
-    hass.states.async_set(selectable.entity_id, STATE_UNAVAILABLE)
 
 
 def _reauth_flow_id(hass: HomeAssistant) -> str:
@@ -47,7 +46,7 @@ async def test_rejected_key_starts_reauth_and_a_valid_key_recovers(
     # drops unless the level is lowered. Without this the key assertions below
     # pass even if a key is logged.
     caplog.set_level(logging.DEBUG, logger="custom_components.gutcheck")
-    _register_one_unavailable_entity(hass)
+    register_unavailable_entity(hass)
     register_jev_responses(
         aioclient_mock,
         [
