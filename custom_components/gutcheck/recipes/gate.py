@@ -20,16 +20,19 @@ def gate_choice(answer: object, allowed: tuple[str, ...], threshold: float) -> s
     choice = answer.get("choice")
     if choice not in allowed:
         return None
-    confidence = answer.get("confidence")
-    if isinstance(confidence, bool) or not isinstance(confidence, int | float):
+    confidence = _raw_confidence(answer)
+    if confidence is None:
         return None
     return choice if confidence >= threshold else None
 
 
 def _raw_confidence(answer: object) -> float | None:
+    """The answer's confidence, but only as a real number the API contract allows."""
     if isinstance(answer, dict):
         confidence = answer.get("confidence")
-        if not isinstance(confidence, bool) and isinstance(confidence, int | float):
+        # Compare before converting: float() on an oversized int raises. The
+        # range check also rejects NaN and both infinities, which fail every compare.
+        if not isinstance(confidence, bool) and isinstance(confidence, int | float) and 0.0 <= confidence <= 1.0:
             return float(confidence)
     return None
 

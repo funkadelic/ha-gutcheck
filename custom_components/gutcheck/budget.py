@@ -69,7 +69,7 @@ class BudgetGate:
         if isinstance(stored, dict):
             date = stored.get("date")
             spent = stored.get("spent")
-            if isinstance(date, str) and isinstance(spent, int) and not isinstance(spent, bool):
+            if isinstance(date, str) and isinstance(spent, int) and not isinstance(spent, bool) and spent >= 0:
                 self._data = {"date": date, "spent": spent}
         self._roll()
 

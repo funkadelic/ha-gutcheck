@@ -40,6 +40,15 @@ def _cost_value(hass: HomeAssistant, entry: MockConfigEntry) -> float:
     return float(_sensor_state(hass, entry, COST_UNIQUE_ID_SUFFIX))
 
 
+def _sensor_attribute(hass: HomeAssistant, entry: MockConfigEntry, suffix: str, attribute: str) -> Any:
+    registry = er.async_get(hass)
+    entity_id = registry.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}{suffix}")
+    assert entity_id is not None
+    state = hass.states.get(entity_id)
+    assert state is not None
+    return state.attributes.get(attribute)
+
+
 def _register_one_unavailable_entity(hass: HomeAssistant) -> str:
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "unique_selectable")
@@ -56,6 +65,16 @@ async def test_fresh_setup_shows_zero_tokens_and_cost(hass: HomeAssistant, mock_
 
     assert _sensor_state(hass, mock_config_entry, TOKENS_UNIQUE_ID_SUFFIX) == "0"
     assert _cost_value(hass, mock_config_entry) == pytest.approx(0.0)
+
+
+async def test_tokens_today_is_not_a_total_increasing_counter(hass: HomeAssistant, mock_config_entry: MockConfigEntry) -> None:
+    """Spend drops mid-day when a run releases its reservation, which a rising total forbids."""
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    assert _sensor_attribute(hass, mock_config_entry, TOKENS_UNIQUE_ID_SUFFIX, "state_class") == "measurement"
 
 
 async def test_run_updates_sensors_and_persists_and_survives_restart(

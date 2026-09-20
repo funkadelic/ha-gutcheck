@@ -12,6 +12,7 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import UpdateFailed
+from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
 from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMocker,
@@ -20,7 +21,14 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
 
 from custom_components.gutcheck.budget import BudgetExceededError, BudgetGate, RequestTooLargeError, estimate_tokens
 from custom_components.gutcheck.client import GutCheckApiError, GutCheckClient
-from custom_components.gutcheck.const import API_URL, DOMAIN, OPTION_EXPECTED, RECIPE_HEALTH
+from custom_components.gutcheck.const import (
+    API_URL,
+    BUDGET_STORE_KEY,
+    DOMAIN,
+    OPTION_EXPECTED,
+    RECIPE_HEALTH,
+    STORE_VERSION,
+)
 from custom_components.gutcheck.recipes.base import Batch, RecipeCoordinator
 
 from .conftest import choice_answer, posted_bodies, register_jev_responses
@@ -218,6 +226,22 @@ async def test_state_plus_longest_question_over_cap_is_refused_before_reserving(
 
     assert gate.spent_today == 0
     assert len(posted_bodies(aioclient_mock)) == 0
+
+
+async def test_negative_persisted_spend_starts_over_at_zero(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, hass_storage: dict[str, Any]
+) -> None:
+    """A corrupt counter must not hand back budget it never spent."""
+    hass_storage[BUDGET_STORE_KEY] = {
+        "version": STORE_VERSION,
+        "key": BUDGET_STORE_KEY,
+        "data": {"date": dt_util.now().date().isoformat(), "spent": -5000},
+    }
+    gate = BudgetGate(hass, _client(hass), daily_budget=1000)
+    await gate.async_load()
+
+    assert gate.spent_today == 0
+    assert gate.remaining == 1000
 
 
 async def test_lowering_budget_below_spent_gives_remaining_zero(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:

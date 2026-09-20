@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from custom_components.gutcheck.const import CHOICE_CONFIDENCE_THRESHOLD, HEALTH_OPTIONS, OPTION_NONE, OPTION_WORTH_FIXING
 from custom_components.gutcheck.recipes.base import Batch
 from custom_components.gutcheck.recipes.gate import classify, gate_choice
@@ -57,6 +59,13 @@ def test_bool_confidence_true_is_unsure() -> None:
 
 def test_none_confidence_is_unsure() -> None:
     answer = _answer(OPTION_WORTH_FIXING, None)
+    assert gate_choice(answer, ALLOWED, CHOICE_CONFIDENCE_THRESHOLD) is None
+
+
+@pytest.mark.parametrize("confidence", [1.5, -0.1, float("nan"), float("inf"), float("-inf"), 10**400])
+def test_confidence_outside_zero_to_one_is_unsure(confidence: object) -> None:
+    """A confidence the API contract does not allow must never open the gate."""
+    answer = _answer(OPTION_WORTH_FIXING, confidence)
     assert gate_choice(answer, ALLOWED, CHOICE_CONFIDENCE_THRESHOLD) is None
 
 

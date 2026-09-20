@@ -67,7 +67,9 @@ class TokensTodaySensor(_UsageSensorBase):
 
     _attr_translation_key = "tokens_today"
     _attr_native_unit_of_measurement = "tokens"
-    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+    # Not TOTAL_INCREASING: a released reservation or a smaller reconciled
+    # actual lowers the count mid-day, which reads as a meter reset.
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
     def __init__(self, entry: ConfigEntry, budget: BudgetGate) -> None:
         """Set the unique id alongside the shared budget binding."""
