@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from typing import Any
 
 import pytest
@@ -66,9 +65,3 @@ def posted_bodies(aioclient_mock: AiohttpClientMocker) -> list[dict[str, Any]]:
 def mock_config_entry() -> MockConfigEntry:
     """A Gut Check config entry with a test API key."""
     return MockConfigEntry(domain=DOMAIN, data={CONF_API_KEY: "test-key"})
-
-
-@pytest.fixture
-def register_responses() -> Callable[[AiohttpClientMocker, list[Any]], None]:
-    """Expose register_jev_responses as a fixture for readability at call sites."""
-    return register_jev_responses

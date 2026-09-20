@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import issue_registry as ir
@@ -105,8 +106,8 @@ def test_sanitize_placeholder_caps_length() -> None:
 
 
 def test_translations_have_the_unavailable_entity_issue() -> None:
-    with open("custom_components/gutcheck/translations/en.json", encoding="utf-8") as handle:
-        data = json.load(handle)
+    path = Path(__file__).parent.parent / "custom_components" / "gutcheck" / "translations" / "en.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
 
     issue = data["issues"]["unavailable_entity"]
     assert "title" in issue
