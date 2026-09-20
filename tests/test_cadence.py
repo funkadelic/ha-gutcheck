@@ -173,6 +173,22 @@ async def test_restart_with_a_stale_stored_run_re_runs_at_startup(
             {"last_run": "not-a-timestamp", "counts": {}, "items": {}, "unsure": [], "last_payload": None},
             id="unparseable_last_run",
         ),
+        pytest.param(
+            {"last_run": "2026-01-01T00:00:00+00:00", "counts": "nope", "items": {}, "unsure": [], "last_payload": None},
+            id="non_dict_counts",
+        ),
+        pytest.param(
+            {"last_run": "2026-01-01T00:00:00+00:00", "counts": {}, "items": "nope", "unsure": [], "last_payload": None},
+            id="non_dict_items",
+        ),
+        pytest.param(
+            {"last_run": "2026-01-01T00:00:00+00:00", "counts": {}, "items": {}, "unsure": "nope", "last_payload": None},
+            id="non_list_unsure",
+        ),
+        pytest.param(
+            {"last_run": "2099-01-01T00:00:00+00:00", "counts": {}, "items": {}, "unsure": [], "last_payload": None},
+            id="last_run_in_the_future",
+        ),
     ],
 )
 async def test_malformed_stored_value_is_treated_as_never_run(

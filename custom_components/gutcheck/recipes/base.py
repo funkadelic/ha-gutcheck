@@ -79,11 +79,12 @@ def _seconds_until_budget_retry() -> float:
     return (next_midnight - dt_util.now()).total_seconds() + 60
 
 
-def _empty_result() -> RecipeResult:
+def _empty_result(options: tuple[str, ...]) -> RecipeResult:
+    """A run with nothing to ask about, shaped exactly like a classified run."""
     return {
         "last_run": dt_util.utcnow().isoformat(),
-        "counts": {},
-        "items": {},
+        "counts": dict.fromkeys(options, 0),
+        "items": {option: [] for option in options},
         "unsure": [],
         "last_payload": None,
     }
@@ -93,7 +94,7 @@ _RECIPE_RESULT_KEYS = frozenset({"last_run", "counts", "items", "unsure", "last_
 
 
 def _parse_stored_result(stored: object) -> tuple[RecipeResult, datetime] | None:
-    """Return the stored value and its parsed last_run only when both are valid."""
+    """Return the stored value and its parsed last_run only when the whole shape is valid."""
     if not isinstance(stored, dict) or not stored.keys() >= _RECIPE_RESULT_KEYS:
         return None
     last_run = stored.get("last_run")
@@ -101,6 +102,11 @@ def _parse_stored_result(stored: object) -> tuple[RecipeResult, datetime] | None
         return None
     parsed = dt_util.parse_datetime(last_run)
     if parsed is None:
+        return None
+    # A half-written store would otherwise only blow up later, during restore.
+    if not isinstance(stored.get("counts"), dict) or not isinstance(stored.get("items"), dict):
+        return None
+    if not isinstance(stored.get("unsure"), list):
         return None
     return stored, parsed  # type: ignore[return-value]
 
@@ -130,7 +136,9 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
     async def async_restore_or_schedule(self) -> None:
         """Restore a fresh-enough stored result for free, or schedule the first run at startup."""
         parsed = _parse_stored_result(await self._store.async_load())
-        if parsed is not None and dt_util.utcnow() - parsed[1] < RECIPE_INTERVAL:
+        # A last_run in the future (clock skew, a restored backup) reads as overdue
+        # rather than restoring and scheduling the catch-up run further out still.
+        if parsed is not None and timedelta(0) <= dt_util.utcnow() - parsed[1] < RECIPE_INTERVAL:
             result, last_run = parsed
             self.async_set_updated_data(result)
             await self.recipe.restore(self.hass, result)
@@ -157,7 +165,7 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
         batch = await self.recipe.async_prepare(self.hass)
 
         if not batch.subjects:
-            result = _empty_result()
+            result = _empty_result(self.recipe.options)
         else:
             payload: SystemOneRequest = {
                 "state": batch.state,
