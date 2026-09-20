@@ -4,7 +4,7 @@ Home Assistant is good at following rules you write. It isn't good at judgment c
 
 ## What you need
 
-**An API key from TypeSafe.** Gut Check makes its judgment calls with TypeSafe's Jev model, and it will not set up without a key. Create an account and a key at [console.typesafe.ai/keys](https://console.typesafe.ai/keys), then paste it in when you add the integration.
+**An API key is required.** Gut Check makes its judgment calls with the Jev model from TypeSafe, and it will not set up without a key. Create an account and a key at [console.typesafe.ai/keys](https://console.typesafe.ai/keys), then paste it in when you add the integration.
 
 The key is the only setup. There is no add-on or local model to run, and a health check costs a fraction of a cent per run against a daily budget you control.
 
