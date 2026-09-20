@@ -32,7 +32,7 @@ from custom_components.gutcheck.const import (
 )
 from custom_components.gutcheck.recipes.base import Batch, RecipeCoordinator
 
-from .conftest import api_response, choice_answer, posted_bodies, register_jev_responses
+from .conftest import api_response, choice_answer, health_sensor_entity_id, posted_bodies, register_jev_responses
 
 PAYLOAD: dict[str, Any] = {
     "state": {"check": "ping"},
@@ -267,14 +267,6 @@ async def test_lowering_budget_below_spent_gives_remaining_zero(hass: HomeAssist
     assert reloaded.remaining == 0
 
 
-def _health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
-    """The health recipe's sensor entity id for this entry."""
-    registry = er.async_get(hass)
-    entity_id = registry.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{RECIPE_HEALTH}")
-    assert entity_id is not None
-    return entity_id
-
-
 async def test_budget_refused_run_makes_health_unavailable_and_retries_after_midnight(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry, freezer: Any
 ) -> None:
@@ -295,7 +287,7 @@ async def test_budget_refused_run_makes_health_unavailable_and_retries_after_mid
     assert len(posted_bodies(aioclient_mock)) == 1
     raised = [issue_id for domain, issue_id in ir.async_get(hass).issues if domain == DOMAIN]
     assert len(raised) == 1
-    state = hass.states.get(_health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
     assert state is not None
     assert state.state != STATE_UNAVAILABLE
 
@@ -314,7 +306,7 @@ async def test_budget_refused_run_makes_health_unavailable_and_retries_after_mid
     await hass.async_block_till_done()
 
     assert len(posted_bodies(aioclient_mock)) == 1
-    state = hass.states.get(_health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
     assert state is not None
     assert state.state == STATE_UNAVAILABLE
     assert coordinator.data["last_payload"] == first_payload
@@ -336,7 +328,7 @@ async def test_budget_refused_run_makes_health_unavailable_and_retries_after_mid
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert len(posted_bodies(aioclient_mock)) == 2
-    state = hass.states.get(_health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
     assert state is not None
     assert state.state != STATE_UNAVAILABLE
 

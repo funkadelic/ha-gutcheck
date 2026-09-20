@@ -13,20 +13,12 @@ from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import API_URL, DOMAIN, OPTION_WORTH_FIXING, RECIPE_HEALTH
+from custom_components.gutcheck.const import API_URL, DOMAIN, OPTION_WORTH_FIXING
 
-from .conftest import api_response, choice_answer, posted_bodies, register_jev_responses
+from .conftest import api_response, choice_answer, health_sensor_entity_id, posted_bodies, register_jev_responses
 
 OLD_KEY = "test-key"
 NEW_KEY = "new-key"
-
-
-def _health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
-    """The health recipe's sensor entity id for this entry."""
-    registry = er.async_get(hass)
-    entity_id = registry.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{RECIPE_HEALTH}")
-    assert entity_id is not None
-    return entity_id
 
 
 def _register_one_unavailable_entity(hass: HomeAssistant) -> None:
@@ -71,7 +63,7 @@ async def test_rejected_key_starts_reauth_and_a_valid_key_recovers(
     await hass.async_block_till_done(wait_background_tasks=True)
 
     flow_id = _reauth_flow_id(hass)
-    state = hass.states.get(_health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
     assert state is not None
     assert state.state == STATE_UNAVAILABLE
 
@@ -92,7 +84,7 @@ async def test_rejected_key_starts_reauth_and_a_valid_key_recovers(
     auth_headers = [headers["Authorization"] for _method, url, _data, headers in aioclient_mock.mock_calls if str(url) == API_URL]
     assert auth_headers[-1] == f"Bearer {NEW_KEY}"
 
-    state = hass.states.get(_health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
     assert state is not None
     assert state.state == "1"
 

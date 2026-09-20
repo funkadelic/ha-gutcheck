@@ -24,10 +24,9 @@ from custom_components.gutcheck.const import (
     HEALTH_ISSUE_PREFIX,
     OPTION_EXPECTED,
     OPTION_WORTH_FIXING,
-    RECIPE_HEALTH,
 )
 
-from .conftest import api_response, choice_answer, posted_bodies, register_jev_responses
+from .conftest import api_response, choice_answer, find_health_sensor, posted_bodies, register_jev_responses
 
 
 def _register_one_unavailable_entity(hass: HomeAssistant, unique_id: str = "unique_selectable") -> str:
@@ -36,12 +35,6 @@ def _register_one_unavailable_entity(hass: HomeAssistant, unique_id: str = "uniq
     entry = registry.async_get_or_create("sensor", "test", unique_id)
     hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
     return entry.entity_id
-
-
-def _health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
-    """The health recipe's sensor entity id for this entry, or None if it was not created."""
-    registry = er.async_get(hass)
-    return registry.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{RECIPE_HEALTH}")
 
 
 def _tokens_sensor_state(hass: HomeAssistant, entry: MockConfigEntry) -> Any:
@@ -77,7 +70,7 @@ async def test_defaults_apply_when_options_never_saved(
     assert defaults[CONF_DAILY_BUDGET] == DEFAULT_DAILY_BUDGET
     assert CONF_CRITICAL_LABEL not in defaults
 
-    assert _health_sensor_entity_id(hass, mock_config_entry) is not None
+    assert find_health_sensor(hass, mock_config_entry) is not None
     assert _tokens_sensor_state(hass, mock_config_entry).attributes["daily_budget"] == DEFAULT_DAILY_BUDGET
 
 
@@ -155,7 +148,7 @@ async def test_turning_health_off_removes_entity_and_issues_and_sends_nothing(
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    assert _health_sensor_entity_id(hass, mock_config_entry) is not None
+    assert find_health_sensor(hass, mock_config_entry) is not None
     issue_registry = ir.async_get(hass)
     assert any(domain == DOMAIN and issue_id.startswith("unavailable_") for domain, issue_id in issue_registry.issues)
     posted_before = len(posted_bodies(aioclient_mock))
@@ -166,7 +159,7 @@ async def test_turning_health_off_removes_entity_and_issues_and_sends_nothing(
     )
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    assert _health_sensor_entity_id(hass, mock_config_entry) is None
+    assert find_health_sensor(hass, mock_config_entry) is None
     assert not any(domain == DOMAIN and issue_id.startswith("unavailable_") for domain, issue_id in issue_registry.issues)
     assert len(posted_bodies(aioclient_mock)) == posted_before
 
@@ -190,7 +183,7 @@ async def test_turning_health_back_on_restores_sensor_and_runs(
 
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
-    assert _health_sensor_entity_id(hass, mock_config_entry) is None
+    assert find_health_sensor(hass, mock_config_entry) is None
     assert len(posted_bodies(aioclient_mock)) == 0
 
     result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
@@ -199,7 +192,7 @@ async def test_turning_health_back_on_restores_sensor_and_runs(
     )
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    assert _health_sensor_entity_id(hass, mock_config_entry) is not None
+    assert find_health_sensor(hass, mock_config_entry) is not None
     assert len(posted_bodies(aioclient_mock)) == 1
 
 

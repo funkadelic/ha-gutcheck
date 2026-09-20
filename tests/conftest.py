@@ -6,13 +6,15 @@ from typing import Any
 
 import pytest
 from homeassistant.const import CONF_API_KEY
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMocker,
     AiohttpClientMockResponse,
 )
 
-from custom_components.gutcheck.const import API_URL, DOMAIN, HEALTH_OPTIONS, OPTION_NONE
+from custom_components.gutcheck.const import API_URL, DOMAIN, HEALTH_OPTIONS, OPTION_NONE, RECIPE_HEALTH
 from custom_components.gutcheck.recipes.base import Item, RecipeResult
 
 ALL_HEALTH_OPTIONS = (*HEALTH_OPTIONS, OPTION_NONE)
@@ -91,6 +93,18 @@ def health_item(entity_id: str, registry_id: str, unavailable_for: str = "1 to 6
 def health_result(items: dict[str, list[Item]]) -> RecipeResult:
     """A recipe result holding just the given per-option items."""
     return {"last_run": "", "counts": {}, "items": items, "unsure": [], "last_payload": None}
+
+
+def find_health_sensor(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
+    """The health recipe's sensor entity id, or None when the recipe is switched off."""
+    return er.async_get(hass).async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{RECIPE_HEALTH}")
+
+
+def health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
+    """The health recipe's sensor entity id, for the tests where it must exist."""
+    entity_id = find_health_sensor(hass, entry)
+    assert entity_id is not None
+    return entity_id
 
 
 @pytest.fixture

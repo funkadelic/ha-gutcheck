@@ -18,7 +18,7 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 from custom_components.gutcheck.const import DOMAIN, HEALTH_ISSUE_PREFIX, OPTION_WORTH_FIXING, RECIPE_HEALTH, STORE_VERSION
 from custom_components.gutcheck.recipes.base import recipe_store_key
 
-from .conftest import api_response, choice_answer, posted_bodies, register_jev_responses
+from .conftest import api_response, choice_answer, health_sensor_entity_id, posted_bodies, register_jev_responses
 
 HEALTH_STORE_KEY = recipe_store_key(RECIPE_HEALTH)
 # Inside RECIPE_INTERVAL on purpose: a store that is merely stale takes the
@@ -32,14 +32,6 @@ def _register_unavailable(hass: HomeAssistant) -> str:
     entry = registry.async_get_or_create("sensor", "test", "unique_selectable")
     hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
     return entry.entity_id
-
-
-def _health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
-    """The health recipe's sensor entity id for this entry."""
-    registry = er.async_get(hass)
-    entity_id = registry.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{RECIPE_HEALTH}")
-    assert entity_id is not None
-    return entity_id
 
 
 def _stale_stored_result(days_old: int) -> dict[str, Any]:
@@ -93,7 +85,7 @@ async def test_restart_within_a_week_restores_without_posting(
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert len(posted_bodies(aioclient_mock)) == 1
-    state = hass.states.get(_health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
     assert state is not None
     assert state.state == "1"
     assert state.attributes["counts"][OPTION_WORTH_FIXING] == 1
@@ -293,7 +285,7 @@ async def test_failed_scheduled_run_retries_after_an_hour(
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    state = hass.states.get(_health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
     assert state is not None
     assert state.state == STATE_UNAVAILABLE
 
@@ -306,7 +298,7 @@ async def test_failed_scheduled_run_retries_after_an_hour(
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert len(posted_bodies(aioclient_mock)) == 1
-    state = hass.states.get(_health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
     assert state is not None
     assert state.state == "1"
 
