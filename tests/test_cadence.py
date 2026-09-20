@@ -181,6 +181,36 @@ async def test_restart_with_a_stale_stored_run_re_runs_at_startup(
             {"last_run": "2099-01-01T00:00:00+00:00", "counts": {}, "items": {}, "unsure": [], "last_payload": None},
             id="last_run_in_the_future",
         ),
+        pytest.param(
+            {
+                "last_run": "2026-01-01T00:00:00+00:00",
+                "counts": {},
+                "items": {OPTION_WORTH_FIXING: [{}]},
+                "unsure": [],
+                "last_payload": None,
+            },
+            id="item_missing_the_fields_restore_reads",
+        ),
+        pytest.param(
+            {
+                "last_run": "2026-01-01T00:00:00+00:00",
+                "counts": {},
+                "items": {OPTION_WORTH_FIXING: "nope"},
+                "unsure": [],
+                "last_payload": None,
+            },
+            id="non_list_bucket",
+        ),
+        pytest.param(
+            {
+                "last_run": "2026-01-01T00:00:00+00:00",
+                "counts": {OPTION_WORTH_FIXING: "nope"},
+                "items": {},
+                "unsure": [],
+                "last_payload": None,
+            },
+            id="non_int_count",
+        ),
     ],
 )
 async def test_malformed_stored_value_is_treated_as_never_run(

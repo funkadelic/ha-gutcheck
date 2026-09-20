@@ -158,12 +158,15 @@ class HealthRecipe:
         HEALTH_ISSUE_PREFIX, so the restored result's issues must be recreated too.
         Findings whose entity has since been labelled critical, disabled or moved
         into a blocked domain are dropped rather than raised again, out of the
-        result itself so the summary sensor does not list them either.
+        result itself so the summary sensor does not list them either. Every
+        bucket is filtered, not just worth-fixing: a newly critical entity must
+        not sit in safe-to-remove either, waiting for the next paid run.
         """
-        worth_fixing = [item for item in result["items"].get(OPTION_WORTH_FIXING, []) if not self._now_excluded(hass, item)]
-        if OPTION_WORTH_FIXING in result["items"]:
-            result["items"][OPTION_WORTH_FIXING] = worth_fixing
-            result["counts"][OPTION_WORTH_FIXING] = len(worth_fixing)
+        for option, items in list(result["items"].items()):
+            kept = [item for item in items if not self._now_excluded(hass, item)]
+            result["items"][option] = kept
+            result["counts"][option] = len(kept)
+        worth_fixing = result["items"].get(OPTION_WORTH_FIXING, [])
         async_sync_issues(hass, HEALTH_ISSUE_PREFIX, ISSUE_UNAVAILABLE_ENTITY, self._wanted_issues(worth_fixing))
         self._rearm_recovery(hass, worth_fixing)
 

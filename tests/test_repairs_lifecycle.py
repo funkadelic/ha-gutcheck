@@ -9,7 +9,13 @@ from homeassistant.helpers import issue_registry as ir
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import DOMAIN, HEALTH_ISSUE_PREFIX, OPTION_EXPECTED, OPTION_WORTH_FIXING
+from custom_components.gutcheck.const import (
+    DOMAIN,
+    HEALTH_ISSUE_PREFIX,
+    OPTION_EXPECTED,
+    OPTION_SAFE_TO_REMOVE,
+    OPTION_WORTH_FIXING,
+)
 from custom_components.gutcheck.recipes.health import HealthRecipe
 
 from .conftest import api_response, choice_answer, health_item, health_result, posted_bodies, register_jev_responses
@@ -60,6 +66,21 @@ async def test_restore_drops_a_finding_labelled_critical_since_the_run(hass: Hom
     # Out of the result too, so the summary sensor does not keep listing it.
     assert result["items"][OPTION_WORTH_FIXING] == []
     assert result["counts"][OPTION_WORTH_FIXING] == 0
+
+
+async def test_restore_drops_a_newly_critical_entity_from_every_bucket(hass: HomeAssistant) -> None:
+    """A critical entity must not sit in safe-to-remove either, waiting for the next paid run."""
+    registry = er.async_get(hass)
+    entry = registry.async_get_or_create("sensor", "test", "critical_safe")
+    recipe = HealthRecipe(critical_label="critical")
+    result = health_result({OPTION_SAFE_TO_REMOVE: [health_item(entry.entity_id, "reg_s")]})
+    result["counts"] = {OPTION_SAFE_TO_REMOVE: 1}
+
+    registry.async_update_entity(entry.entity_id, labels={"critical"})
+    await recipe.restore(hass, result)
+
+    assert result["items"][OPTION_SAFE_TO_REMOVE] == []
+    assert result["counts"][OPTION_SAFE_TO_REMOVE] == 0
 
 
 async def test_restore_drops_a_finding_whose_entity_was_disabled_since_the_run(hass: HomeAssistant) -> None:

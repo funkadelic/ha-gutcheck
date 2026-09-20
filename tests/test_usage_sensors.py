@@ -5,6 +5,8 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
+from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.components.sensor.const import DEVICE_CLASS_STATE_CLASSES
 from homeassistant.const import STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
@@ -59,14 +61,25 @@ async def test_fresh_setup_shows_zero_tokens_and_cost(hass: HomeAssistant, mock_
     assert _cost_value(hass, mock_config_entry) == pytest.approx(0.0)
 
 
-async def test_tokens_today_is_not_a_total_increasing_counter(hass: HomeAssistant, mock_config_entry: MockConfigEntry) -> None:
-    """Spend drops mid-day when a run releases its reservation, which a rising total forbids."""
+async def test_both_usage_sensors_are_resettable_daily_totals(hass: HomeAssistant, mock_config_entry: MockConfigEntry) -> None:
+    """Spend drops mid-day when a run releases its reservation, which only TOTAL allows.
+
+    TOTAL is also the one state class Home Assistant permits with the MONETARY
+    device class the cost sensor carries.
+    """
     mock_config_entry.add_to_hass(hass)
 
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    assert _sensor_attribute(hass, mock_config_entry, TOKENS_UNIQUE_ID_SUFFIX, "state_class") == "measurement"
+    assert _sensor_attribute(hass, mock_config_entry, TOKENS_UNIQUE_ID_SUFFIX, "state_class") == "total"
+
+    # Read back what the cost sensor actually publishes and hold it to Home
+    # Assistant's own table, so the pairing cannot drift to one HA rejects.
+    state_class = _sensor_attribute(hass, mock_config_entry, COST_UNIQUE_ID_SUFFIX, "state_class")
+    device_class = _sensor_attribute(hass, mock_config_entry, COST_UNIQUE_ID_SUFFIX, "device_class")
+    assert device_class == SensorDeviceClass.MONETARY
+    assert state_class in DEVICE_CLASS_STATE_CLASSES[SensorDeviceClass(device_class)]
 
 
 async def test_run_updates_sensors_and_persists_and_survives_restart(

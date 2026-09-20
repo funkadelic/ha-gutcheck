@@ -91,6 +91,13 @@ def _empty_result(options: tuple[str, ...]) -> RecipeResult:
 
 
 _RECIPE_RESULT_KEYS = frozenset({"last_run", "counts", "items", "unsure", "last_payload"})
+# Every field a restore reads off a stored item before the next run replaces it.
+_ITEM_KEYS = frozenset({"entity_id", "registry_id", "unavailable_for"})
+
+
+def _valid_items(bucket: object) -> bool:
+    """Whether one option's stored items all carry the fields a restore reads."""
+    return isinstance(bucket, list) and all(isinstance(item, dict) and item.keys() >= _ITEM_KEYS for item in bucket)
 
 
 def _parse_stored_result(stored: object) -> tuple[RecipeResult, datetime] | None:
@@ -104,9 +111,14 @@ def _parse_stored_result(stored: object) -> tuple[RecipeResult, datetime] | None
     if parsed is None:
         return None
     # A half-written store would otherwise only blow up later, during restore.
-    if not isinstance(stored.get("counts"), dict) or not isinstance(stored.get("items"), dict):
+    counts, items = stored.get("counts"), stored.get("items")
+    if not isinstance(counts, dict) or not isinstance(items, dict):
         return None
     if not isinstance(stored.get("unsure"), list):
+        return None
+    if not all(isinstance(count, int) for count in counts.values()):
+        return None
+    if not all(_valid_items(bucket) for bucket in items.values()):
         return None
     return stored, parsed  # type: ignore[return-value]
 

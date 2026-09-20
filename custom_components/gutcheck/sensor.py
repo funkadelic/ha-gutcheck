@@ -67,9 +67,9 @@ class TokensTodaySensor(_UsageSensorBase):
 
     _attr_translation_key = "tokens_today"
     _attr_native_unit_of_measurement = "tokens"
-    # Not TOTAL_INCREASING: a released reservation or a smaller reconciled
-    # actual lowers the count mid-day, which reads as a meter reset.
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    # TOTAL, not TOTAL_INCREASING: a released reservation or a smaller reconciled
+    # actual lowers the count mid-day, and only TOTAL allows a value to fall.
+    _attr_state_class = SensorStateClass.TOTAL
 
     def __init__(self, entry: ConfigEntry, budget: BudgetGate) -> None:
         """Set the unique id alongside the shared budget binding."""
@@ -94,8 +94,8 @@ class CostTodaySensor(_UsageSensorBase):
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_native_unit_of_measurement = "USD"
     _attr_suggested_display_precision = 5
-    # Measurement, not a total, for the same reason as the token count it tracks.
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    # TOTAL is the only state class Home Assistant allows with MONETARY.
+    _attr_state_class = SensorStateClass.TOTAL
 
     def __init__(self, entry: ConfigEntry, budget: BudgetGate) -> None:
         """Set the unique id alongside the shared budget binding."""
