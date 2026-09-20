@@ -13,18 +13,10 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 
 from custom_components.gutcheck.const import BUDGET_STORE_KEY, DOMAIN, OPTION_WORTH_FIXING
 
-from .conftest import choice_answer, posted_bodies, register_jev_responses
+from .conftest import api_response, choice_answer, posted_bodies, register_jev_responses
 
 TOKENS_UNIQUE_ID_SUFFIX = "_tokens_today"
 COST_UNIQUE_ID_SUFFIX = "_cost_today"
-
-
-def _api_response(answers: dict[str, Any], input_tokens: int) -> dict[str, Any]:
-    return {
-        "model": "jev-latest",
-        "answers": answers,
-        "usage": {"input_tokens": input_tokens, "output_tokens": 0},
-    }
 
 
 def _sensor_state(hass: HomeAssistant, entry: MockConfigEntry, suffix: str) -> str:
@@ -87,7 +79,7 @@ async def test_run_updates_sensors_and_persists_and_survives_restart(
     entity_id = _register_one_unavailable_entity(hass)
     register_jev_responses(
         aioclient_mock,
-        [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)}, input_tokens=1234)],
+        [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)}, input_tokens=1234)],
     )
     mock_config_entry.add_to_hass(hass)
 
@@ -169,7 +161,7 @@ async def test_both_sensors_reset_at_local_midnight_with_no_request(
     entity_id = _register_one_unavailable_entity(hass)
     register_jev_responses(
         aioclient_mock,
-        [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)}, input_tokens=1234)],
+        [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)}, input_tokens=1234)],
     )
     mock_config_entry.add_to_hass(hass)
 

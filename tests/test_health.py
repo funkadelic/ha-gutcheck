@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, STATE_UNAVAILABLE
 from homeassistant.core import CoreState, HomeAssistant
 from homeassistant.helpers import entity_registry as er
@@ -18,15 +16,7 @@ from custom_components.gutcheck.const import (
     RECIPE_HEALTH,
 )
 
-from .conftest import choice_answer, posted_bodies, register_jev_responses
-
-
-def _api_response(answers: dict[str, Any], input_tokens: int = 10) -> dict[str, Any]:
-    return {
-        "model": "jev-latest",
-        "answers": answers,
-        "usage": {"input_tokens": input_tokens, "output_tokens": 0},
-    }
+from .conftest import api_response, choice_answer, posted_bodies, register_jev_responses
 
 
 def _health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
@@ -60,7 +50,7 @@ async def test_no_post_before_startup_completes(
     """Setup waits for HA startup before sending anything."""
     hass.set_state(CoreState.not_running)
     _register_entities(hass)
-    register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     mock_config_entry.add_to_hass(hass)
 
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
@@ -77,7 +67,7 @@ async def test_one_batched_post_fills_the_sensor(
     """After startup, one POST classifies the selected entities and fills the sensor."""
     hass.set_state(CoreState.not_running)
     _register_entities(hass)
-    register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()
@@ -145,7 +135,7 @@ async def test_api_failure_then_recovery(
     assert state.state == "unavailable"
 
     aioclient_mock.clear_requests()
-    register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     coordinator = next(iter(mock_config_entry.runtime_data.coordinators.values()))
     await coordinator.async_refresh()
     await hass.async_block_till_done()

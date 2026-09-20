@@ -27,15 +27,7 @@ from custom_components.gutcheck.const import (
     RECIPE_HEALTH,
 )
 
-from .conftest import choice_answer, posted_bodies, register_jev_responses
-
-
-def _api_response(answers: dict[str, Any], input_tokens: int = 10) -> dict[str, Any]:
-    return {
-        "model": "jev-latest",
-        "answers": answers,
-        "usage": {"input_tokens": input_tokens, "output_tokens": 0},
-    }
+from .conftest import api_response, choice_answer, posted_bodies, register_jev_responses
 
 
 def _register_one_unavailable_entity(hass: HomeAssistant, unique_id: str = "unique_selectable") -> str:
@@ -68,7 +60,7 @@ async def test_defaults_apply_when_options_never_saved(
 ) -> None:
     """The init form's defaults are health on, the default budget, and no label."""
     _register_one_unavailable_entity(hass)
-    register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)})])
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)})])
     mock_config_entry.add_to_hass(hass)
 
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
@@ -92,7 +84,7 @@ async def test_saving_new_budget_reloads_and_keeps_spent_tokens(
     _register_one_unavailable_entity(hass)
     register_jev_responses(
         aioclient_mock,
-        [_api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}, input_tokens=1234)],
+        [api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}, input_tokens=1234)],
     )
     mock_config_entry.add_to_hass(hass)
 
@@ -153,7 +145,7 @@ async def test_turning_health_off_removes_entity_and_issues_and_sends_nothing(
 ) -> None:
     """Disabling the health check removes its sensor and issues; usage sensors and budget stay."""
     _register_one_unavailable_entity(hass)
-    register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     mock_config_entry.add_to_hass(hass)
 
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
@@ -185,8 +177,8 @@ async def test_turning_health_back_on_restores_sensor_and_runs(
     register_jev_responses(
         aioclient_mock,
         [
-            _api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}),
-            _api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}),
+            api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}),
+            api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}),
         ],
     )
     mock_config_entry = MockConfigEntry(domain=DOMAIN, data=mock_config_entry.data, options={CONF_HEALTH_ENABLED: False})
@@ -214,7 +206,7 @@ async def test_reenabling_within_the_week_restores_the_worth_fixing_issue(
     entity_id = _register_one_unavailable_entity(hass)
     registry_id = er.async_get(hass).async_get(entity_id).id
     issue_id = f"{HEALTH_ISSUE_PREFIX}{registry_id}"
-    register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     mock_config_entry.add_to_hass(hass)
 
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
@@ -261,9 +253,9 @@ async def test_critical_label_excludes_and_clearing_restores(
     register_jev_responses(
         aioclient_mock,
         [
-            _api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}),  # first run: no label yet, both selected
-            _api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}),  # after picking the label: only "other"
-            _api_response(
+            api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}),  # first run: no label yet, both selected
+            api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}),  # after picking the label: only "other"
+            api_response(
                 {"e0": choice_answer(OPTION_EXPECTED, 0.9), "e1": choice_answer(OPTION_EXPECTED, 0.9)}
             ),  # after clearing it: both again
         ],

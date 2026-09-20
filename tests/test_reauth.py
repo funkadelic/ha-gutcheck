@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from homeassistant.config_entries import SOURCE_REAUTH
@@ -14,18 +15,10 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 
 from custom_components.gutcheck.const import API_URL, DOMAIN, OPTION_WORTH_FIXING, RECIPE_HEALTH
 
-from .conftest import choice_answer, posted_bodies, register_jev_responses
+from .conftest import api_response, choice_answer, posted_bodies, register_jev_responses
 
 OLD_KEY = "test-key"
 NEW_KEY = "new-key"
-
-
-def _api_response(answers: dict[str, Any], input_tokens: int = 10) -> dict[str, Any]:
-    return {
-        "model": "jev-latest",
-        "answers": answers,
-        "usage": {"input_tokens": input_tokens, "output_tokens": 0},
-    }
 
 
 def _health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
@@ -55,14 +48,18 @@ async def test_rejected_key_starts_reauth_and_a_valid_key_recovers(
     caplog: Any,
 ) -> None:
     """A 401 during a run opens reauth; a rejected key changes nothing; a valid key recovers."""
+    # The only log line that touches the key path is a DEBUG one, which caplog
+    # drops unless the level is lowered. Without this the key assertions below
+    # pass even if a key is logged.
+    caplog.set_level(logging.DEBUG, logger="custom_components.gutcheck")
     _register_one_unavailable_entity(hass)
     register_jev_responses(
         aioclient_mock,
         [
             (401, {"error": "unauthorized"}),  # initial health run
             (401, {"error": "unauthorized"}),  # reauth confirm, wrong key
-            _api_response({"q": {"type": "noul", "noul": 0.9}}),  # reauth confirm, valid key
-            _api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)}),  # health run after reload
+            api_response({"q": {"type": "noul", "noul": 0.9}}),  # reauth confirm, valid key
+            api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)}),  # health run after reload
         ],
     )
     mock_config_entry.add_to_hass(hass)

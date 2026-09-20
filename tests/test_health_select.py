@@ -116,7 +116,8 @@ async def test_payload_entity_has_exactly_the_seven_allowed_fields(hass: HomeAss
 
     batch = await HealthRecipe(critical_label=None).async_prepare(hass)
 
-    assert list(batch.state["entities"][0].keys()) == PAYLOAD_FIELDS
+    # Compared as a set: the whitelist is which fields go out, not what order they are built in.
+    assert set(batch.state["entities"][0]) == set(PAYLOAD_FIELDS)
 
 
 async def test_device_other_entities_available_true_when_sibling_is_available(hass: HomeAssistant) -> None:
@@ -154,7 +155,11 @@ async def test_unknown_disabled_and_gutcheck_entities_are_not_selected(hass: Hom
     unknown_entry = entity_registry.async_get_or_create("sensor", "test", "unique_unknown")
     hass.states.async_set(unknown_entry.entity_id, STATE_UNKNOWN)
 
-    entity_registry.async_get_or_create("sensor", "test", "unique_disabled", disabled_by=er.RegistryEntryDisabler.USER)
+    # Given an unavailable state, so the disabled check is the only thing excluding it.
+    disabled_entry = entity_registry.async_get_or_create(
+        "sensor", "test", "unique_disabled", disabled_by=er.RegistryEntryDisabler.USER
+    )
+    hass.states.async_set(disabled_entry.entity_id, STATE_UNAVAILABLE)
 
     gutcheck_entry = entity_registry.async_get_or_create("sensor", DOMAIN, "unique_gutcheck")
     hass.states.async_set(gutcheck_entry.entity_id, STATE_UNAVAILABLE)

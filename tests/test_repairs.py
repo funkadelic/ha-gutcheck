@@ -16,32 +16,19 @@ from custom_components.gutcheck.const import (
     OPTION_SAFE_TO_REMOVE,
     OPTION_WORTH_FIXING,
 )
-from custom_components.gutcheck.recipes.base import Item, RecipeResult
 from custom_components.gutcheck.recipes.health import HealthRecipe
 from custom_components.gutcheck.repairs import sanitize_placeholder
 
-
-def _item(entity_id: str, registry_id: str, unavailable_for: str = "1 to 6 days") -> Item:
-    return {
-        "entity_id": entity_id,
-        "registry_id": registry_id,
-        "restored": False,
-        "confidence": 0.9,
-        "unavailable_for": unavailable_for,
-    }
-
-
-def _result(items: dict[str, list[Item]]) -> RecipeResult:
-    return {"last_run": "", "counts": {}, "items": items, "unsure": [], "last_payload": None}
+from .conftest import health_item, health_result
 
 
 async def test_only_worth_fixing_creates_an_issue(hass: HomeAssistant) -> None:
     """expected/safe_to_remove/none_of_these produce no issue; worth_fixing produces exactly one."""
-    result = _result(
+    result = health_result(
         {
-            OPTION_EXPECTED: [_item("sensor.expected", "reg_b")],
-            OPTION_WORTH_FIXING: [_item("sensor.worth_fixing", "reg_a")],
-            OPTION_SAFE_TO_REMOVE: [_item("sensor.safe", "reg_c")],
+            OPTION_EXPECTED: [health_item("sensor.expected", "reg_b")],
+            OPTION_WORTH_FIXING: [health_item("sensor.worth_fixing", "reg_a")],
+            OPTION_SAFE_TO_REMOVE: [health_item("sensor.safe", "reg_c")],
         }
     )
 
@@ -66,7 +53,7 @@ async def test_only_worth_fixing_creates_an_issue(hass: HomeAssistant) -> None:
 async def test_placeholders_are_sanitized(hass: HomeAssistant) -> None:
     """A placeholder reaches the issue only after sanitize_placeholder."""
     raw_entity_id = "sensor.link[x](y)"
-    result = _result({OPTION_WORTH_FIXING: [_item(raw_entity_id, "reg_x")]})
+    result = health_result({OPTION_WORTH_FIXING: [health_item(raw_entity_id, "reg_x")]})
 
     await HealthRecipe(critical_label=None).async_act(hass, result)
 

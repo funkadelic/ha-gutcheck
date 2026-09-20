@@ -13,6 +13,7 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
 )
 
 from custom_components.gutcheck.const import API_URL, DOMAIN, HEALTH_OPTIONS, OPTION_NONE
+from custom_components.gutcheck.recipes.base import Item, RecipeResult
 
 ALL_HEALTH_OPTIONS = (*HEALTH_OPTIONS, OPTION_NONE)
 
@@ -48,8 +49,13 @@ def register_jev_responses(aioclient_mock: AiohttpClientMocker, responses: list[
     Each item is either a JSON body (200) or an (status, body) pair.
     """
     queue = [item if isinstance(item, tuple) else (200, item) for item in responses]
+    registered = len(queue)
 
     async def _side_effect(method: str, url: Any, data: Any) -> AiohttpClientMockResponse:
+        if not queue:
+            # Retries and reschedules can outrun the queue; say so here rather
+            # than letting an IndexError surface from inside the mocker.
+            raise AssertionError(f"the test registered {registered} API responses but a further call was made")
         status, body = queue.pop(0)
         return AiohttpClientMockResponse(method=method, url=url, status=status, json=body)
 
@@ -59,6 +65,31 @@ def register_jev_responses(aioclient_mock: AiohttpClientMocker, responses: list[
 def posted_bodies(aioclient_mock: AiohttpClientMocker) -> list[dict[str, Any]]:
     """Return every request body posted to API_URL, in call order."""
     return [data for _method, url, data, _headers in aioclient_mock.mock_calls if str(url) == API_URL]
+
+
+def api_response(answers: dict[str, Any], input_tokens: int = 10) -> dict[str, Any]:
+    """One API response body wrapping the given answers and reported usage."""
+    return {
+        "model": "jev-latest",
+        "answers": answers,
+        "usage": {"input_tokens": input_tokens, "output_tokens": 0},
+    }
+
+
+def health_item(entity_id: str, registry_id: str, unavailable_for: str = "1 to 6 days") -> Item:
+    """One classified subject, as a recipe result carries it."""
+    return {
+        "entity_id": entity_id,
+        "registry_id": registry_id,
+        "restored": False,
+        "confidence": 0.9,
+        "unavailable_for": unavailable_for,
+    }
+
+
+def health_result(items: dict[str, list[Item]]) -> RecipeResult:
+    """A recipe result holding just the given per-option items."""
+    return {"last_run": "", "counts": {}, "items": items, "unsure": [], "last_payload": None}
 
 
 @pytest.fixture

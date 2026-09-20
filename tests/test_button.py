@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from homeassistant.const import STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
@@ -12,15 +10,7 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 
 from custom_components.gutcheck.const import CONF_HEALTH_ENABLED, DOMAIN, OPTION_WORTH_FIXING, RECIPE_HEALTH
 
-from .conftest import choice_answer, posted_bodies, register_jev_responses
-
-
-def _api_response(answers: dict[str, Any], input_tokens: int = 10) -> dict[str, Any]:
-    return {
-        "model": "jev-latest",
-        "answers": answers,
-        "usage": {"input_tokens": input_tokens, "output_tokens": 0},
-    }
+from .conftest import api_response, choice_answer, posted_bodies, register_jev_responses
 
 
 def _register_unavailable(hass: HomeAssistant) -> None:
@@ -53,7 +43,7 @@ async def test_press_after_first_run_sends_exactly_one_more_post(
 ) -> None:
     """With the first run done, pressing Run sends exactly one more POST and updates the sensor."""
     _register_unavailable(hass)
-    register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
@@ -63,7 +53,7 @@ async def test_press_after_first_run_sends_exactly_one_more_post(
     assert button_entity_id is not None
 
     aioclient_mock.clear_requests()
-    register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     await _press(hass, button_entity_id)
 
     assert len(posted_bodies(aioclient_mock)) == 1
@@ -95,7 +85,7 @@ async def test_button_stays_available_after_a_failed_run_and_a_press_recovers_it
     assert button_state.state != STATE_UNAVAILABLE
 
     aioclient_mock.clear_requests()
-    register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     await _press(hass, button_entity_id)
 
     sensor_state = hass.states.get(_health_sensor_entity_id(hass, mock_config_entry))

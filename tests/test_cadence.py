@@ -18,17 +18,9 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 from custom_components.gutcheck.const import DOMAIN, HEALTH_ISSUE_PREFIX, OPTION_WORTH_FIXING, RECIPE_HEALTH, STORE_VERSION
 from custom_components.gutcheck.recipes.base import recipe_store_key
 
-from .conftest import choice_answer, posted_bodies, register_jev_responses
+from .conftest import api_response, choice_answer, posted_bodies, register_jev_responses
 
 HEALTH_STORE_KEY = recipe_store_key(RECIPE_HEALTH)
-
-
-def _api_response(answers: dict[str, Any], input_tokens: int = 10) -> dict[str, Any]:
-    return {
-        "model": "jev-latest",
-        "answers": answers,
-        "usage": {"input_tokens": input_tokens, "output_tokens": 0},
-    }
 
 
 def _register_unavailable(hass: HomeAssistant) -> str:
@@ -59,7 +51,7 @@ async def test_fresh_install_runs_once_after_startup_and_persists(
     """A fresh install waits for startup, then runs once and persists the result."""
     hass.set_state(CoreState.not_running)
     _register_unavailable(hass)
-    register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()
@@ -83,7 +75,7 @@ async def test_restart_within_a_week_restores_without_posting(
     """A restart 3 days after the last run restores the sensor for free."""
     freezer.move_to("2026-01-01T00:00:00-08:00")
     _register_unavailable(hass)
-    register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
@@ -111,7 +103,7 @@ async def test_scheduled_refresh_fires_seven_days_after_the_last_run(
     """The next run lands 7 days after the last one, not 7 days after the restart."""
     freezer.move_to("2026-01-01T00:00:00-08:00")
     _register_unavailable(hass)
-    register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
@@ -124,7 +116,7 @@ async def test_scheduled_refresh_fires_seven_days_after_the_last_run(
     assert len(posted_bodies(aioclient_mock)) == 1
 
     aioclient_mock.clear_requests()
-    register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
 
     # 7 days after the original last_run (Jan 1), not after the Jan 3 restart.
     freezer.move_to("2026-01-08T00:00:05-08:00")
@@ -150,7 +142,7 @@ async def test_restart_with_a_stale_stored_run_re_runs_at_startup(
         "key": HEALTH_STORE_KEY,
         "data": _stale_stored_result(days_old=8),
     }
-    register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()
@@ -207,7 +199,7 @@ async def test_malformed_stored_value_is_treated_as_never_run(
         "key": HEALTH_STORE_KEY,
         "data": malformed_data,
     }
-    register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()
@@ -230,7 +222,7 @@ async def test_restore_rearms_recovery_tracking_with_no_api_call(
     entity_id = _register_unavailable(hass)
     registry_id = er.async_get(hass).async_get(entity_id).id  # type: ignore[union-attr]
 
-    register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
@@ -270,7 +262,7 @@ async def test_failed_scheduled_run_retries_after_an_hour(
     assert state.state == STATE_UNAVAILABLE
 
     aioclient_mock.clear_requests()
-    register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
 
     freezer.tick(3600 + 5)
     for _ in range(5):
@@ -291,7 +283,7 @@ async def test_removing_the_entry_deletes_the_recipe_store(
 ) -> None:
     """Removing the entry deletes the persisted recipe Store, not just its Repairs issues."""
     _register_unavailable(hass)
-    register_jev_responses(aioclient_mock, [_api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)

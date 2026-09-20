@@ -26,6 +26,7 @@ from custom_components.gutcheck.const import (
     BUDGET_STORE_KEY,
     DOMAIN,
     OPTION_EXPECTED,
+    OPTION_WORTH_FIXING,
     RECIPE_HEALTH,
     STORE_VERSION,
 )
@@ -275,13 +276,17 @@ async def test_budget_refused_run_makes_health_unavailable_and_retries_after_mid
     entry = registry.async_get_or_create("sensor", "test", "unique_selectable")
     hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
 
-    register_jev_responses(aioclient_mock, [_first_run_response(), _first_run_response()])
+    # The first run classifies worth-fixing on purpose, so a Repairs card exists
+    # for the refused run to wrongly delete or duplicate if it touched Repairs.
+    register_jev_responses(aioclient_mock, [_worth_fixing_response(), _first_run_response()])
     mock_config_entry.add_to_hass(hass)
 
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert len(posted_bodies(aioclient_mock)) == 1
+    raised = [issue_id for domain, issue_id in ir.async_get(hass).issues if domain == DOMAIN]
+    assert len(raised) == 1
     state = hass.states.get(_health_sensor_entity_id(hass, mock_config_entry))
     assert state is not None
     assert state.state != STATE_UNAVAILABLE
@@ -306,8 +311,9 @@ async def test_budget_refused_run_makes_health_unavailable_and_retries_after_mid
     assert state.state == STATE_UNAVAILABLE
     assert coordinator.data["last_payload"] == first_payload
 
-    issue_registry = ir.async_get(hass)
-    assert not any(domain == DOMAIN and issue_id.startswith("unavailable_") for domain, issue_id in issue_registry.issues)
+    # A refused run never reaches async_act, so the existing card must be
+    # neither deleted nor joined by a second one.
+    assert [issue_id for domain, issue_id in ir.async_get(hass).issues if domain == DOMAIN] == raised
 
     # Past local midnight, the budget resets and the coordinator's own
     # retry_after schedule (next local midnight plus a minute) fires by
@@ -331,6 +337,14 @@ def _first_run_response() -> dict[str, Any]:
     return {
         "model": "jev-latest",
         "answers": {"e0": choice_answer(OPTION_EXPECTED, 0.9)},
+        "usage": {"input_tokens": 10, "output_tokens": 0},
+    }
+
+
+def _worth_fixing_response() -> dict[str, Any]:
+    return {
+        "model": "jev-latest",
+        "answers": {"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)},
         "usage": {"input_tokens": 10, "output_tokens": 0},
     }
 

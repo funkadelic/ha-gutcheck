@@ -30,6 +30,15 @@ def test_validate_response_fixture_passes_validate_response() -> None:
     assert validate_response(response) == response
 
 
+def test_the_captured_payload_and_response_come_from_the_same_run() -> None:
+    """Regenerating one fixture without the other would make the tests below lie."""
+    payload = _load("health_payload.json")
+    response = _load("health_response.json")
+    assert set(payload["questions"]) == set(response["answers"]), (
+        "health_payload.json and health_response.json disagree on question ids; recapture both together"
+    )
+
+
 def test_every_answer_is_a_choice_with_probabilities_matching_its_question() -> None:
     payload = _load("health_payload.json")
     response = _load("health_response.json")
