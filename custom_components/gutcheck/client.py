@@ -134,13 +134,13 @@ class GutCheckClient:
                 raise GutCheckValidationError("request rejected as invalid", status)
             raise GutCheckApiError("unexpected status", status)
 
-    async def async_ask(self, payload: SystemOneRequest) -> SystemOneResponse:
+    async def async_ask(self, payload: SystemOneRequest, *, max_retries: int = MAX_RETRIES) -> SystemOneResponse:
         """POST one systemone request, retrying 429/529 per Retry-After or backoff."""
-        for attempt in range(MAX_RETRIES + 1):
+        for attempt in range(max_retries + 1):
             try:
                 return await self._post(payload)
             except GutCheckRetryableError as err:
-                if attempt == MAX_RETRIES:
+                if attempt == max_retries:
                     raise
                 delay = err.retry_after if err.retry_after is not None else BACKOFF_BASE * 2**attempt
                 if delay > MAX_RETRY_DELAY:
@@ -150,5 +150,9 @@ class GutCheckClient:
         raise AssertionError("unreachable")  # pragma: no cover
 
     async def async_validate_key(self) -> None:
-        """Send one cheap noul question to check the key; ignore the answer."""
-        await self.async_ask(VALIDATION_REQUEST)  # type: ignore[arg-type]
+        """Send one cheap noul question to check the key; ignore the answer.
+
+        No retries: this runs behind an interactive form, where backing off for
+        up to a Retry-After per attempt would freeze the dialog with no feedback.
+        """
+        await self.async_ask(VALIDATION_REQUEST, max_retries=0)  # type: ignore[arg-type]

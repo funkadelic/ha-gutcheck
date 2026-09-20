@@ -202,6 +202,20 @@ async def test_retries_429_twice_then_succeeds_with_identical_bodies(
     assert bodies[0] == bodies[1] == bodies[2] == PAYLOAD
 
 
+async def test_key_validation_gives_up_on_the_first_429(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
+    """Key validation runs behind an interactive form, so it must not sleep and retry."""
+    _queue_responses(aioclient_mock, [{"status": 429, "json": {"error": "slow down"}} for _ in range(4)])
+
+    with (
+        patch("custom_components.gutcheck.client.asyncio.sleep", new_callable=AsyncMock) as sleep_mock,
+        pytest.raises(GutCheckRateLimitError),
+    ):
+        await _client(hass).async_validate_key()
+
+    assert sleep_mock.await_count == 0
+    assert len(posted_bodies(aioclient_mock)) == 1
+
+
 async def test_529_four_times_raises_after_three_retries(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
     """529 four times raises GutCheckOverloadedError after sleeps of 1, 2 and 4 seconds."""
     _queue_responses(aioclient_mock, [{"status": 529, "json": {"error": "overloaded"}} for _ in range(4)])
