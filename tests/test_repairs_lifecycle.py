@@ -64,6 +64,59 @@ async def test_renaming_the_entity_keeps_the_same_issue_id_and_ignore(hass: Home
     assert issue.translation_placeholders["entity_id"] == "sensor.a_renamed"
 
 
+async def test_restore_drops_a_finding_labelled_critical_since_the_run(hass: HomeAssistant) -> None:
+    """Tagging an entity critical must retire its card, even on the free restore path."""
+    registry = er.async_get(hass)
+    entry = registry.async_get_or_create("sensor", "test", "critical_later")
+    recipe = HealthRecipe(critical_label="critical")
+    result = _result({OPTION_WORTH_FIXING: [_item(entry.entity_id, "reg_a")]})
+
+    await recipe.async_act(hass, result)
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_a") is not None
+
+    registry.async_update_entity(entry.entity_id, labels={"critical"})
+    await recipe.restore(hass, result)
+
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_a") is None
+
+
+async def test_restore_drops_a_finding_whose_entity_was_disabled_since_the_run(hass: HomeAssistant) -> None:
+    """A disabled entity is out of scope for a run, so its stored card goes too."""
+    registry = er.async_get(hass)
+    entry = registry.async_get_or_create("sensor", "test", "disabled_later")
+    recipe = HealthRecipe(critical_label=None)
+    result = _result({OPTION_WORTH_FIXING: [_item(entry.entity_id, "reg_d")]})
+
+    await recipe.async_act(hass, result)
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_d") is not None
+
+    registry.async_update_entity(entry.entity_id, disabled_by=er.RegistryEntryDisabler.USER)
+    await recipe.restore(hass, result)
+
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_d") is None
+
+
+async def test_restore_keeps_a_finding_whose_entity_is_no_longer_registered(hass: HomeAssistant) -> None:
+    """An unknown entity id is left alone, so a rename does not discard an ignore."""
+    recipe = HealthRecipe(critical_label="critical")
+
+    await recipe.restore(hass, _result({OPTION_WORTH_FIXING: [_item("sensor.never_registered", "reg_c")]}))
+
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_c") is not None
+
+
+async def test_restore_keeps_a_finding_whose_entity_is_still_eligible(hass: HomeAssistant) -> None:
+    """The critical filter must not retire ordinary findings on restore."""
+    registry = er.async_get(hass)
+    entry = registry.async_get_or_create("sensor", "test", "still_eligible")
+    recipe = HealthRecipe(critical_label="critical")
+    result = _result({OPTION_WORTH_FIXING: [_item(entry.entity_id, "reg_b")]})
+
+    await recipe.restore(hass, result)
+
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_b") is not None
+
+
 async def test_state_becoming_available_deletes_the_issue_immediately(hass: HomeAssistant) -> None:
     hass.states.async_set("sensor.a", STATE_UNAVAILABLE)
     recipe = HealthRecipe(critical_label=None)

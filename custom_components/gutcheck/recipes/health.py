@@ -141,13 +141,25 @@ class HealthRecipe:
 
         _LOGGER.debug("health check run complete, counts=%s", result["counts"])
 
+    def _now_excluded(self, hass: HomeAssistant, item: Item) -> bool:
+        """Whether a stored finding's entity has since come under the safety rules."""
+        entry = er.async_get(hass).async_get(str(item["entity_id"]))
+        if entry is None:
+            # Unknown now (removed or renamed). Left alone, so an ignore survives it.
+            return False
+        if entry.disabled or entry.domain in BLOCKED_DOMAINS:
+            return True
+        return self._is_critical(entry, dr.async_get(hass))
+
     async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
         """Re-sync issues and re-arm recovery tracking for a restored result, without calling the API.
 
         A restore can follow a disable/re-enable, which deletes every issue under
         HEALTH_ISSUE_PREFIX, so the restored result's issues must be recreated too.
+        Findings whose entity has since been labelled critical, disabled or moved
+        into a blocked domain are dropped rather than raised again.
         """
-        worth_fixing = result["items"].get(OPTION_WORTH_FIXING, [])
+        worth_fixing = [item for item in result["items"].get(OPTION_WORTH_FIXING, []) if not self._now_excluded(hass, item)]
         async_sync_issues(hass, HEALTH_ISSUE_PREFIX, ISSUE_UNAVAILABLE_ENTITY, self._wanted_issues(worth_fixing))
         self._rearm_recovery(hass, worth_fixing)
 
