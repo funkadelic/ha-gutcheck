@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
-from homeassistant.const import CONF_API_KEY, STATE_UNAVAILABLE
+from homeassistant.const import CONF_API_KEY, STATE_ON, STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -14,7 +14,16 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMockResponse,
 )
 
-from custom_components.gutcheck.const import API_URL, DOMAIN, HEALTH_OPTIONS, OPTION_NONE, RECIPE_HEALTH
+from custom_components.gutcheck.const import (
+    API_URL,
+    DOMAIN,
+    HEALTH_OPTIONS,
+    OPTION_NONE,
+    RECIPE_HEALTH,
+    RECIPE_UPDATES,
+    UPDATE_CRITERIA,
+    UPDATE_OPTIONS,
+)
 from custom_components.gutcheck.recipes.shapes import Item, RecipeResult
 
 ALL_HEALTH_OPTIONS = (*HEALTH_OPTIONS, OPTION_NONE)
@@ -43,6 +52,17 @@ def choice_answer(choice: str, confidence: float) -> dict[str, Any]:
     share = remaining / len(others) if others else 0.0
     probabilities = {option: (confidence if option == choice else share) for option in ALL_HEALTH_OPTIONS}
     return {"type": "choice", "choice": choice, "probabilities": probabilities, "confidence": confidence}
+
+
+def score_answer(level: int, confidence: float) -> dict[str, Any]:
+    """Build a documented-shape score answer with a legend and probabilities over every level."""
+    levels = range(len(UPDATE_OPTIONS))
+    others = [other for other in levels if other != level]
+    remaining = max(0.0, 1.0 - confidence)
+    share = remaining / len(others) if others else 0.0
+    probabilities = {str(lvl): (confidence if lvl == level else share) for lvl in levels}
+    legend = {str(lvl): UPDATE_CRITERIA[lvl] for lvl in levels}
+    return {"type": "score", "score": float(level), "legend": legend, "probabilities": probabilities, "confidence": confidence}
 
 
 def register_jev_responses(aioclient_mock: AiohttpClientMocker, responses: list[Any]) -> None:
@@ -102,6 +122,37 @@ def register_unavailable_entity(hass: HomeAssistant, unique_id: str = "unique_se
     return entry.entity_id
 
 
+def register_pending_update(
+    hass: HomeAssistant,
+    unique_id: str = "unique_update",
+    *,
+    platform: str = "test",
+    device_id: str | None = None,
+    disabled_by: er.RegistryEntryDisabler | None = None,
+    installed_version: str = "1.0.0",
+    latest_version: str = "2.0.0",
+    release_summary: str | None = "Bug fixes and performance improvements.",
+    title: str | None = None,
+    release_url: str | None = None,
+    skipped_version: str | None = None,
+) -> er.RegistryEntry:
+    """Register one pending update entity the update recipe can select, with the given attributes."""
+    entry = er.async_get(hass).async_get_or_create("update", platform, unique_id, device_id=device_id, disabled_by=disabled_by)
+    hass.states.async_set(
+        entry.entity_id,
+        STATE_ON,
+        {
+            "installed_version": installed_version,
+            "latest_version": latest_version,
+            "release_summary": release_summary,
+            "title": title,
+            "release_url": release_url,
+            "skipped_version": skipped_version,
+        },
+    )
+    return entry
+
+
 def find_health_sensor(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
     """The health recipe's sensor entity id, or None when the recipe is switched off."""
     return er.async_get(hass).async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{RECIPE_HEALTH}")
@@ -110,6 +161,18 @@ def find_health_sensor(hass: HomeAssistant, entry: MockConfigEntry) -> str | Non
 def health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
     """The health recipe's sensor entity id, for the tests where it must exist."""
     entity_id = find_health_sensor(hass, entry)
+    assert entity_id is not None
+    return entity_id
+
+
+def find_updates_sensor(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
+    """The update recipe's sensor entity id, or None when the recipe is switched off."""
+    return er.async_get(hass).async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{RECIPE_UPDATES}")
+
+
+def updates_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
+    """The update recipe's sensor entity id, for the tests where it must exist."""
+    entity_id = find_updates_sensor(hass, entry)
     assert entity_id is not None
     return entity_id
 

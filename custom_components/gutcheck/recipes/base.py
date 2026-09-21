@@ -106,7 +106,7 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
             payload: SystemOneRequest = {
                 "state": batch.state,
                 "model": MODEL,
-                "questions": batch.questions,  # type: ignore[typeddict-item]
+                "questions": batch.questions,
             }
             try:
                 response = await self.budget.async_ask(payload)
@@ -118,7 +118,7 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
                 raise UpdateFailed("run was too large to send") from err
             except GutCheckApiError as err:
                 raise UpdateFailed("recipe run failed", retry_after=FAILED_RUN_RETRY.total_seconds()) from err
-            result = classify(batch, response, self.recipe.options, payload)
+            result = classify(batch, response, self.recipe.options, payload, self.recipe.gate)
 
         await self.recipe.async_act(self.hass, result)
         await self._store.async_save(result)

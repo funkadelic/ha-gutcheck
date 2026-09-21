@@ -10,7 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
 from ..const import DOMAIN
-from ..models import ChoiceQuestion, SystemOneRequest
+from ..models import Question, SystemOneRequest
 
 Item = dict[str, str | float | bool | None]
 
@@ -20,7 +20,7 @@ class Batch:
     """One recipe run's model-visible state, questions and subject index."""
 
     state: dict[str, Any]
-    questions: dict[str, ChoiceQuestion]
+    questions: dict[str, Question]
     subjects: dict[str, Item]
 
 
@@ -40,6 +40,10 @@ class Recipe(Protocol):
     recipe_id: str
     options: tuple[str, ...]
     stored_item_keys: frozenset[str]
+
+    def gate(self, answer: object) -> str | None:
+        """Gate one answer through this recipe's own confidence threshold and answer type."""
+        ...
 
     async def async_prepare(self, hass: HomeAssistant) -> Batch:
         """Select subjects and build the request state and questions."""

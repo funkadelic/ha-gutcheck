@@ -18,7 +18,15 @@ class ChoiceQuestion(TypedDict):
     criteria: dict[str, str | None]
 
 
-Question = NoulQuestion | ChoiceQuestion
+class ScoreQuestion(TypedDict):
+    """An ordered-level question. criteria lists each level's description, in order."""
+
+    type: Literal["score"]
+    instructions: str
+    criteria: list[str]
+
+
+Question = NoulQuestion | ChoiceQuestion | ScoreQuestion
 
 
 class SystemOneRequest(TypedDict):
@@ -41,6 +49,16 @@ class ChoiceAnswer(TypedDict):
 
     type: Literal["choice"]
     choice: str
+    probabilities: dict[str, float]
+    confidence: float
+
+
+class ScoreAnswer(TypedDict):
+    """A score answer. score can land between two levels; legend and probabilities are keyed by level number."""
+
+    type: Literal["score"]
+    score: float
+    legend: dict[str, str]
     probabilities: dict[str, float]
     confidence: float
 

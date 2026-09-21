@@ -11,6 +11,7 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 
 from ..const import (
+    CHOICE_CONFIDENCE_THRESHOLD,
     HEALTH_CRITERIA,
     HEALTH_INSTRUCTIONS,
     HEALTH_ISSUE_PREFIX,
@@ -21,8 +22,9 @@ from ..const import (
 )
 from ..describe import bucket_duration, bucket_longer_than
 from ..history import async_unavailable_since
-from ..models import ChoiceQuestion
+from ..models import Question
 from ..repairs import async_sync_issues, async_track_recovery
+from .gate import gate_choice
 from .safety import SafetyRules
 from .shapes import Batch, Item, RecipeResult
 
@@ -41,6 +43,10 @@ class HealthRecipe:
         """Build the shared safety guard from the configured critical label."""
         self._safety = SafetyRules(critical_label)
         self._unsub_recovery: CALLBACK_TYPE | None = None
+
+    def gate(self, answer: object) -> str | None:
+        """Gate one answer through the choice gate at the health recipe's threshold."""
+        return gate_choice(answer, HEALTH_OPTIONS, CHOICE_CONFIDENCE_THRESHOLD)
 
     def _has_available_sibling(self, hass: HomeAssistant, registry: er.EntityRegistry, entry: er.RegistryEntry) -> bool:
         """Whether the same device still has an entity reporting, which separates a dead device from a dead entity."""
@@ -88,7 +94,7 @@ class HealthRecipe:
         history_result = await async_unavailable_since(hass, [entry.entity_id for entry, _ in selected])
 
         entities: list[Item] = []
-        questions: dict[str, ChoiceQuestion] = {}
+        questions: dict[str, Question] = {}
         subjects: dict[str, Item] = {}
         for index, (entry, state) in enumerate(selected):
             restored = bool(state.attributes.get(ATTR_RESTORED) is True)

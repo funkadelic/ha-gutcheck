@@ -47,6 +47,9 @@
       "health": {
         "name": "Home health check"
       },
+      "updates": {
+        "name": "Update review"
+      },
       "tokens_today": {
         "name": "Tokens used today"
       },
