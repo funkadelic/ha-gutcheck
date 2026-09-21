@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+import json
+from dataclasses import dataclass, field
+from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
+from homeassistant.components.update import DATA_COMPONENT, UpdateEntityFeature
 from homeassistant.const import CONF_API_KEY, STATE_ON, STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
@@ -27,6 +32,13 @@ from custom_components.gutcheck.const import (
 from custom_components.gutcheck.recipes.shapes import Item, RecipeResult
 
 ALL_HEALTH_OPTIONS = (*HEALTH_OPTIONS, OPTION_NONE)
+
+FIXTURES = Path(__file__).parent / "fixtures"
+
+
+def load_fixture(subdirectory: str, name: str) -> Any:
+    """The parsed JSON fixture at fixtures/<subdirectory>/<name>."""
+    return json.loads((FIXTURES / subdirectory / name).read_text(encoding="utf-8"))
 
 
 @pytest.fixture(autouse=True)
@@ -173,6 +185,33 @@ def register_pending_update(
         },
     )
     return entry
+
+
+@dataclass
+class FakeUpdateEntity:
+    """A minimal stand-in for the real update platform entity the notes fetch looks up."""
+
+    available: bool = True
+    supported_features: UpdateEntityFeature = field(default_factory=lambda: UpdateEntityFeature.RELEASE_NOTES)
+    notes: str | None = None
+    raises: Exception | None = None
+
+    async def async_release_notes(self) -> str | None:
+        """Return the configured notes, or raise the configured exception."""
+        if self.raises is not None:
+            raise self.raises
+        return self.notes
+
+
+def install_update_entities(hass: HomeAssistant, entities: dict[str, FakeUpdateEntity]) -> None:
+    """Install fake update platform entities for the release-notes fetch path to find.
+
+    The update recipe looks entities up through hass.data[DATA_COMPONENT], the
+    same in-process path HA's own websocket handler uses; standing up a full
+    update platform just to exercise that lookup would be a much larger fixture
+    for the same behavior.
+    """
+    hass.data[DATA_COMPONENT] = SimpleNamespace(get_entity=entities.get)
 
 
 def find_health_sensor(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
