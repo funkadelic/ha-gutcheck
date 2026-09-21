@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Protocol, TypedDict
 
@@ -22,6 +22,9 @@ class Batch:
     state: dict[str, Any]
     questions: dict[str, Question]
     subjects: dict[str, Item]
+    # Classifications a recipe decided without asking, keyed by option. Never
+    # includes unsure: an unsure verdict is never carried forward.
+    carried: dict[str, list[Item]] = field(default_factory=dict)
 
 
 class RecipeResult(TypedDict):
@@ -45,8 +48,13 @@ class Recipe(Protocol):
         """Gate one answer through this recipe's own confidence threshold and answer type."""
         ...
 
-    async def async_prepare(self, hass: HomeAssistant) -> Batch:
-        """Select subjects and build the request state and questions."""
+    async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None) -> Batch:
+        """Select subjects and build the request state and questions.
+
+        previous is the coordinator's last completed result, or None
+        before any run has completed or on a forced re-score. A recipe
+        with no carry-forward path ignores it.
+        """
         ...
 
     async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:

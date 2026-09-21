@@ -75,6 +75,34 @@ def _raw_score(answer: object) -> float | None:
     return None
 
 
+def _seed(batch: Batch, allowed: tuple[str, ...]) -> tuple[dict[str, int], dict[str, list[Item]]]:
+    """Counts and items, seeded from the batch's carried field.
+
+    The unsure list always starts empty, carried or not: an unsure verdict
+    is never carried forward, so there is nothing to seed it with.
+    """
+    items: dict[str, list[Item]] = {option: list(batch.carried.get(option, [])) for option in allowed}
+    counts: dict[str, int] = {option: len(bucket) for option, bucket in items.items()}
+    return counts, items
+
+
+def carry_forward(batch: Batch, allowed: tuple[str, ...], payload: SystemOneRequest | None) -> RecipeResult:
+    """Build a RecipeResult from the batch's carried field alone, for a run with nothing to ask.
+
+    payload is the prior result's last_payload: no request was made this
+    run, so the sensor keeps showing what was genuinely last sent instead
+    of reading as freshly empty.
+    """
+    counts, items = _seed(batch, allowed)
+    return {
+        "last_run": dt_util.utcnow().isoformat(),
+        "counts": counts,
+        "items": items,
+        "unsure": [],
+        "last_payload": payload,
+    }
+
+
 def classify(
     batch: Batch,
     response: SystemOneResponse,
@@ -83,8 +111,7 @@ def classify(
     gate: Callable[[object], str | None],
 ) -> RecipeResult:
     """Turn a response into a RecipeResult, gating every answer through the recipe's own gate."""
-    counts: dict[str, int] = dict.fromkeys(allowed, 0)
-    items: dict[str, list[Item]] = {option: [] for option in allowed}
+    counts, items = _seed(batch, allowed)
     unsure: list[Item] = []
     answers = response["answers"]
 

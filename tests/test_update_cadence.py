@@ -104,13 +104,14 @@ async def test_one_unchanged_one_unsure_asks_only_about_the_unsure_one(
 
 async def test_a_latest_version_bump_asks_only_about_that_one(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
     """Only the entity whose latest_version changed is asked about again."""
-    register_pending_update(hass, "update_unchanged")
-    register_pending_update(hass, "update_bumped")
+    # Named so entity_id order (a < b) matches question index order (u0, u1).
+    register_pending_update(hass, "update_a_unchanged")
+    register_pending_update(hass, "update_b_bumped")
     register_jev_responses(aioclient_mock, [api_response({"u0": score_answer(0, 0.9), "u1": score_answer(1, 0.9)})])
     entry = await _setup(hass)
     unchanged_before = _sensor_state(hass, entry).attributes["items"][OPTION_ROUTINE][0]
 
-    register_pending_update(hass, "update_bumped", latest_version="3.0.0")
+    register_pending_update(hass, "update_b_bumped", latest_version="3.0.0")
     aioclient_mock.clear_requests()
     register_jev_responses(aioclient_mock, [api_response({"u0": score_answer(2, 0.9)})])
     await _run_again(hass, entry)

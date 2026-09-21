@@ -38,5 +38,6 @@ class RecipeRunButton(ButtonEntity):
         self._attr_device_info = device_info(entry)
 
     async def async_press(self) -> None:
-        """Request an immediate recipe run."""
+        """Force a full re-score, then request an immediate recipe run."""
+        self._coordinator.force_full_rescore()
         await self._coordinator.async_request_refresh()

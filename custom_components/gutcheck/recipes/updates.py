@@ -17,13 +17,13 @@ from ..const import (
     UPDATE_CRITERIA,
     UPDATE_INSTRUCTIONS,
     UPDATE_OPTIONS,
-    VERSION_JUMP_MAJOR,
 )
 from ..describe import clean_release_notes, version_jump
 from ..models import Question
 from .gate import gate_score
 from .safety import SafetyRules
 from .shapes import Batch, Item, RecipeResult
+from .update_cadence import carry_bucket
 from .update_repairs import UpdateIssueTracker
 
 _LOGGER = logging.getLogger(__name__)
@@ -126,27 +126,23 @@ class UpdateRecipe:
         }
         return state_item, subject
 
-    def _is_askable(self, state_item: Item) -> bool:
-        """Whether this update has enough to ask about.
-
-        An empty-notes, major-version-jump update is decided in code instead:
-        both inputs are already known, and asking would cost a question,
-        invite an unsure answer, and lean on the version comparison the model
-        is documented to handle badly.
-        """
-        return bool(state_item["release_notes"]) or state_item["version_jump"] != VERSION_JUMP_MAJOR
-
-    async def async_prepare(self, hass: HomeAssistant) -> Batch:
-        """Select pending updates, fetch their release notes, and build one score question per entity."""
+    async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None) -> Batch:
+        """Select pending updates, carry forward unchanged accepted ones, and ask about the rest."""
         selected = self._select(hass)
         fetched_notes = await self._async_fetch_all_notes(hass, selected)
         described = [self._describe(entry, state, notes) for (entry, state), notes in zip(selected, fetched_notes, strict=True)]
-        askable = [pair for pair in described if self._is_askable(pair[0])]
 
         updates: list[Item] = []
         questions: dict[str, Question] = {}
         subjects: dict[str, Item] = {}
-        for index, (state_item, subject) in enumerate(askable):
+        carried: dict[str, list[Item]] = {}
+        for state_item, subject in described:
+            carry = carry_bucket(previous, self.options, state_item, subject)
+            if carry is not None:
+                option, carried_item = carry
+                carried.setdefault(option, []).append(carried_item)
+                continue
+            index = len(updates)
             updates.append(state_item)
             question_id = f"u{index}"
             questions[question_id] = {
@@ -156,8 +152,13 @@ class UpdateRecipe:
             }
             subjects[question_id] = subject
 
-        _LOGGER.debug("update review selected=%s asked=%s", len(selected), len(askable))
-        return Batch(state={"updates": updates}, questions=questions, subjects=subjects)
+        _LOGGER.debug(
+            "update review selected=%s asked=%s carried=%s",
+            len(selected),
+            len(updates),
+            sum(len(bucket) for bucket in carried.values()),
+        )
+        return Batch(state={"updates": updates}, questions=questions, subjects=subjects, carried=carried)
 
     async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:
         """Sync a Repairs issue per possibly-breaking update, re-arm recovery tracking, and log counts."""

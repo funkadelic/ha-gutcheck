@@ -18,7 +18,7 @@ from ..budget import BudgetExceededError, BudgetGate, RequestTooLargeError
 from ..client import GutCheckApiError, GutCheckAuthError
 from ..const import DOMAIN, FAILED_RUN_RETRY, MODEL, RECIPE_INTERVAL, STORE_VERSION
 from ..models import SystemOneRequest
-from .gate import classify
+from .gate import carry_forward, classify
 from .shapes import Recipe, RecipeResult, _parse_stored_result, recipe_store_key
 
 if TYPE_CHECKING:
@@ -32,17 +32,6 @@ def _seconds_until_budget_retry() -> float:
     tomorrow = dt_util.now().date() + timedelta(days=1)
     next_midnight = dt_util.start_of_local_day(tomorrow)
     return (next_midnight - dt_util.now()).total_seconds() + 60
-
-
-def _empty_result(options: tuple[str, ...]) -> RecipeResult:
-    """A run with nothing to ask about, shaped exactly like a classified run."""
-    return {
-        "last_run": dt_util.utcnow().isoformat(),
-        "counts": dict.fromkeys(options, 0),
-        "items": {option: [] for option in options},
-        "unsure": [],
-        "last_payload": None,
-    }
 
 
 class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
@@ -66,6 +55,12 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
         self.budget = budget
         self.recipe = recipe
         self._store: Store[RecipeResult] = Store(hass, STORE_VERSION, recipe_store_key(recipe.recipe_id))
+        self._force_full_rescore = False
+
+    @callback
+    def force_full_rescore(self) -> None:
+        """Mark the next run to ask about everything, ignoring what carried forward last time."""
+        self._force_full_rescore = True
 
     async def async_restore_or_schedule(self) -> None:
         """Restore a fresh-enough stored result for free, or schedule the first run at startup."""
@@ -97,11 +92,15 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
         )
 
     async def _async_update_data(self) -> RecipeResult:
-        """Run one select/describe/ask/act cycle."""
-        batch = await self.recipe.async_prepare(self.hass)
+        """Run one select/describe/ask/act cycle, or carry the prior result forward when nothing changed."""
+        force = self._force_full_rescore
+        self._force_full_rescore = False
+        previous = None if force else self.data
+        batch = await self.recipe.async_prepare(self.hass, previous)
 
         if not batch.subjects:
-            result = _empty_result(self.recipe.options)
+            last_payload = previous["last_payload"] if previous is not None else None
+            result = carry_forward(batch, self.recipe.options, last_payload)
         else:
             payload: SystemOneRequest = {
                 "state": batch.state,
