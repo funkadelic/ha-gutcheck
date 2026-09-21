@@ -1,0 +1,80 @@
+name: Release Please
+
+on:
+  push:
+    branches:
+      - main
+  # Manual recovery path: a push event isn't guaranteed to fire the workflow,
+  # and dispatch needs no commit to main. Idempotent if no release is pending.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.RELEASE_PLEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_PLEASE_APP_PRIVATE_KEY }}
+          # Scoped to what this workflow uses: contents for the version-bump
+          # commit, tag, release and asset upload; pull-requests for the
+          # release PR. An unscoped token inherits every grant the app
+          # installation holds.
+          permission-contents: write
+          permission-pull-requests: write
+
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        id: release
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: ${{ steps.release.outputs.release_created }}
+        with:
+          persist-credentials: false
+
+      - name: Package integration
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          cd custom_components/gutcheck
+          zip -r ../../gutcheck.zip .
+
+      - name: Upload release asset
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          TAG_NAME: ${{ steps.release.outputs.tag_name }}
+        run: |
+          gh release upload "$TAG_NAME" gutcheck.zip
+
+      - name: Sync the release body from the changelog
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          TAG_NAME: ${{ steps.release.outputs.tag_name }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          # release-please's generated notes ignore a hand-edited CHANGELOG.md
+          # section, so copy that section onto the release body instead.
+          # index() sidesteps the literal brackets in the heading; stops at
+          # the next "## [" to capture only this version.
+          awk -v ver="$VERSION" '
+            index($0, "## [" ver "]") == 1 { found = 1; next }
+            found && index($0, "## [") == 1 { exit }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+
+          # A missing/blank section would blank out a correct generated body.
+          # The release itself is already published at this point, so fail
+          # loudly here rather than leave stale or empty notes silently.
+          if ! grep -q '[^[:space:]]' release-notes.md; then
+            echo "::error::No CHANGELOG.md section found for ${VERSION}; release body left as generated."
+            exit 1
+          fi
+
+          gh release edit "$TAG_NAME" --notes-file release-notes.md
