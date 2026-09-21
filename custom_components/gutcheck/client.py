@@ -116,13 +116,10 @@ class GutCheckClient:
                     raise GutCheckResponseError("non-json response body") from err
                 return validate_response(body)
 
-            _LOGGER.debug(
-                "api error status=%s key_len=%s redirects=%s www_authenticate=%s",
-                status,
-                len(self._api_key),
-                len(resp.history),
-                resp.headers.get("WWW-Authenticate"),
-            )
+            # Status and redirect count only. WWW-Authenticate is server-controlled
+            # free text and the key length is an oracle, and these lines get pasted
+            # into public issues.
+            _LOGGER.debug("api error status=%s redirects=%s", status, len(resp.history))
             if status in (429, 529):
                 retry_after = parse_retry_after(resp.headers.get("Retry-After"))
                 if status == 429:
