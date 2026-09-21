@@ -1,8 +1,12 @@
 {
   "domain": "gutcheck",
   "name": "Gut Check",
-  "after_dependencies": ["recorder"],
-  "codeowners": ["@funkadelic"],
+  "after_dependencies": [
+    "recorder"
+  ],
+  "codeowners": [
+    "@funkadelic"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/funkadelic/ha-gutcheck",
   "integration_type": "service",
@@ -10,5 +14,5 @@
   "issue_tracker": "https://github.com/funkadelic/ha-gutcheck/issues",
   "requirements": [],
   "single_config_entry": true,
-  "version": "0.1.0"
+  "version": "0.1.1"
 }
