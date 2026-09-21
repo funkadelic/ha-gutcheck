@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.2](https://github.com/funkadelic/ha-gutcheck/compare/v0.1.1...v0.1.2) (2026-09-21)
+
+
+### Fixed
+
+* keep the auth header and key length out of the debug log ([#7](https://github.com/funkadelic/ha-gutcheck/issues/7)) ([0d2cd41](https://github.com/funkadelic/ha-gutcheck/commit/0d2cd411096125171f6d8cc91a1df2be2995e03d))
+
+
+### Changed
+
+* move the safety exclusions into a shared guard ([#5](https://github.com/funkadelic/ha-gutcheck/issues/5)) ([f26e61e](https://github.com/funkadelic/ha-gutcheck/commit/f26e61e83eb7373de7fff0d6b69314b0d9998df2))
+
 ## [0.1.1](https://github.com/funkadelic/ha-gutcheck/compare/v0.1.0...v0.1.1) (2026-09-21)
 
 
