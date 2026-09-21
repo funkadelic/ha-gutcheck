@@ -50,9 +50,12 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+      # !cancelled() so a failing suite still reports its coverage, matching the
+      # test-results upload below.
       - name: Upload coverage to Codecov
         if: >-
-          ${{ !contains(github.event.pull_request.labels.*.name, 'autorelease: pending') }}
+          ${{ !cancelled()
+          && !contains(github.event.pull_request.labels.*.name, 'autorelease: pending') }}
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: ./coverage.xml
