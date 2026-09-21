@@ -140,7 +140,7 @@ class HealthRecipe:
         Looks the entity up by registry id, which survives a rename that leaves
         the stored entity id resolving to nothing.
         """
-        return self._safety.excludes_stored(hass, str(item["registry_id"]))
+        return self._safety.excludes_entity_id(hass, str(item["registry_id"]))
 
     async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
         """Re-sync issues and re-arm recovery tracking for a restored result, without calling the API.

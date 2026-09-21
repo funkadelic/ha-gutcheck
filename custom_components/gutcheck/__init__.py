@@ -86,6 +86,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
     if entry.options.get(CONF_UPDATES_ENABLED, True):
         updates_recipe = UpdateRecipe(entry.options.get(CONF_CRITICAL_LABEL))
         coordinators[updates_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, updates_recipe)
+        entry.async_on_unload(updates_recipe.shutdown)
     else:
         async_delete_issues(hass, UPDATES_ISSUE_PREFIX)
         _async_remove_recipe_entities(hass, entry, RECIPE_UPDATES)

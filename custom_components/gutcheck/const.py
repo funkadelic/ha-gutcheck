@@ -46,6 +46,7 @@ HEALTH_ISSUE_PREFIX: Final = "unavailable_"
 # Pinned: issue ids persist in Home Assistant's issue registry, so this
 # shape is never changed once shipped, only added to.
 UPDATES_ISSUE_PREFIX: Final = "update_"
+ISSUE_POSSIBLY_BREAKING_UPDATE: Final = "possibly_breaking_update"
 
 BLOCKED_DOMAINS: Final = frozenset(
     {

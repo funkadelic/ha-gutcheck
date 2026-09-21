@@ -115,6 +115,28 @@ def health_result(items: dict[str, list[Item]]) -> RecipeResult:
     return {"last_run": "", "counts": {}, "items": items, "unsure": [], "last_payload": None}
 
 
+def update_item(
+    entity_id: str,
+    registry_id: str,
+    *,
+    latest_version: str = "2.0.0",
+    release_url: str | None = "https://example.com/release",
+) -> Item:
+    """One classified update subject, as a recipe result carries it."""
+    return {
+        "entity_id": entity_id,
+        "registry_id": registry_id,
+        "latest_version": latest_version,
+        "release_url": release_url,
+        "confidence": 0.9,
+    }
+
+
+def update_result(items: dict[str, list[Item]]) -> RecipeResult:
+    """A recipe result holding just the given per-option items."""
+    return {"last_run": "", "counts": {}, "items": items, "unsure": [], "last_payload": None}
+
+
 def register_unavailable_entity(hass: HomeAssistant, unique_id: str = "unique_selectable") -> str:
     """Register one unavailable entity the health recipe can select, and return its id."""
     entry = er.async_get(hass).async_get_or_create("sensor", "test", unique_id)

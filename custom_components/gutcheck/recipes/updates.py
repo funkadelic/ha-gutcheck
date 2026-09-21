@@ -11,6 +11,7 @@ from homeassistant.core import HomeAssistant, State
 from homeassistant.helpers import entity_registry as er
 
 from ..const import (
+    OPTION_POSSIBLY_BREAKING,
     RECIPE_UPDATES,
     UPDATE_CONFIDENCE_THRESHOLD,
     UPDATE_CRITERIA,
@@ -23,6 +24,7 @@ from ..models import Question
 from .gate import gate_score
 from .safety import SafetyRules
 from .shapes import Batch, Item, RecipeResult
+from .update_repairs import UpdateIssueTracker
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,6 +40,7 @@ class UpdateRecipe:
     def __init__(self, critical_label: str | None) -> None:
         """Build the shared safety guard from the configured critical label."""
         self._safety = SafetyRules(critical_label)
+        self._issues = UpdateIssueTracker()
 
     def gate(self, answer: object) -> str | None:
         """Gate one answer through the score gate at the update recipe's own threshold."""
@@ -157,8 +160,33 @@ class UpdateRecipe:
         return Batch(state={"updates": updates}, questions=questions, subjects=subjects)
 
     async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:
-        """Log counts only. Repairs and the run cache arrive in the next plan."""
+        """Sync a Repairs issue per possibly-breaking update, re-arm recovery tracking, and log counts."""
+        self._issues.sync(hass, result["items"].get(OPTION_POSSIBLY_BREAKING, []))
         _LOGGER.debug("update review run complete, counts=%s", result["counts"])
 
+    def _excluded(self, hass: HomeAssistant, item: Item) -> bool:
+        """Whether a stored finding's entity has since come under the safety rules.
+
+        Looks the entity up by registry id, which survives a rename that
+        leaves the stored entity id resolving to nothing.
+        """
+        return self._safety.excludes_entity_id(hass, str(item["registry_id"]))
+
     async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
-        """Nothing to re-arm yet. Repairs tracking arrives in the next plan."""
+        """Filter every bucket for entities the safety rules now exclude, then re-sync Repairs.
+
+        A restore calls no API, so an entity that has since been labelled
+        critical, disabled, or moved into a blocked domain must still drop
+        out of every bucket, including unsure, rather than sitting exposed
+        for up to a week until the next paid run notices.
+        """
+        for option, items in list(result["items"].items()):
+            kept = [item for item in items if not self._excluded(hass, item)]
+            result["items"][option] = kept
+            result["counts"][option] = len(kept)
+        result["unsure"] = [item for item in result["unsure"] if not self._excluded(hass, item)]
+        self._issues.sync(hass, result["items"].get(OPTION_POSSIBLY_BREAKING, []))
+
+    def shutdown(self) -> None:
+        """Cancel the recovery subscription, if any."""
+        self._issues.shutdown()

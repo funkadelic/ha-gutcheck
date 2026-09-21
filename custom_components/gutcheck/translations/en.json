@@ -72,6 +72,10 @@
     "unavailable_entity": {
       "title": "{entity_id} needs attention",
       "description": "`{entity_id}` has been unavailable for {unavailable_for}. Gut Check thinks it is worth fixing. Nothing will be changed automatically, and ignoring this card keeps it hidden on later checks."
+    },
+    "possibly_breaking_update": {
+      "title": "{entity_id} update may need attention",
+      "description": "`{entity_id}` is offering version {latest_version}. Gut Check read the release notes and thinks this update could change or break something. Nothing is installed automatically, and ignoring this card keeps it hidden on later checks."
     }
   }
 }
