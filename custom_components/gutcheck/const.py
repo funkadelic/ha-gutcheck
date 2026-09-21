@@ -115,6 +115,13 @@ UPDATE_CRITERIA: Final[list[str]] = [
     "needs a manual step after installing.",
 ]
 
+RELEASE_NOTES_MAX_CHARS: Final = 1500
+
+VERSION_JUMP_PATCH: Final = "patch-level change"
+VERSION_JUMP_MINOR: Final = "minor version change"
+VERSION_JUMP_MAJOR: Final = "major version change"
+VERSION_JUMP_UNKNOWN: Final = "version change of unknown size"
+
 VALIDATION_REQUEST: Final = {
     "state": {"check": "ping"},
     "model": MODEL,

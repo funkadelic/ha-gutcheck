@@ -23,3 +23,15 @@ def bucket_longer_than(days: int) -> str:
     if days == 1:
         return "longer than 1 day"
     return f"longer than {days} days"
+
+
+def version_jump(installed: str | None, latest: str | None) -> str:
+    """RED stub: not yet implemented."""
+    from custom_components.gutcheck.const import VERSION_JUMP_UNKNOWN
+
+    return VERSION_JUMP_UNKNOWN
+
+
+def clean_release_notes(text: str | None) -> str:
+    """RED stub: not yet implemented."""
+    return ""
