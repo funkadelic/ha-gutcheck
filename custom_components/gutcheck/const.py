@@ -15,7 +15,9 @@ CONF_DAILY_BUDGET: Final = "daily_budget"
 CONF_CRITICAL_LABEL: Final = "critical_label"
 CONF_HEALTH_ENABLED: Final = "health_enabled"
 
-DEFAULT_DAILY_BUDGET: Final = 100_000
+# Both coordinators refresh on a fresh install's first day, at about 46,000
+# input tokens each; 100,000 left one button press that day over budget.
+DEFAULT_DAILY_BUDGET: Final = 150_000
 CHARS_PER_TOKEN: Final = 4
 REQUEST_TIMEOUT: Final = 30  # seconds
 
@@ -120,6 +122,11 @@ UPDATE_CRITERIA: Final[list[str]] = [
 ]
 
 RELEASE_NOTES_MAX_CHARS: Final = 1500
+
+# STATE_TOKEN_LIMIT divided by one full-size update's safety-factored
+# token cost, then rounded down for the estimator's own known undercount.
+# tests/test_update_size.py derives and checks this ceiling.
+MAX_UPDATES_PER_RUN: Final = 50
 
 VERSION_JUMP_PATCH: Final = "patch-level change"
 VERSION_JUMP_MINOR: Final = "minor version change"

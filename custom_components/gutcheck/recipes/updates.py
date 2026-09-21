@@ -11,6 +11,7 @@ from homeassistant.core import HomeAssistant, State
 from homeassistant.helpers import entity_registry as er
 
 from ..const import (
+    MAX_UPDATES_PER_RUN,
     OPTION_POSSIBLY_BREAKING,
     RECIPE_UPDATES,
     UPDATE_CONFIDENCE_THRESHOLD,
@@ -23,7 +24,7 @@ from ..models import Question
 from .gate import gate_score
 from .safety import SafetyRules
 from .shapes import Batch, Item, RecipeResult
-from .update_cadence import carry_bucket
+from .update_cadence import carry_bucket, most_significant_first
 from .update_repairs import UpdateIssueTracker
 
 _LOGGER = logging.getLogger(__name__)
@@ -127,22 +128,30 @@ class UpdateRecipe:
         return state_item, subject
 
     async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None) -> Batch:
-        """Select pending updates, carry forward unchanged accepted ones, and ask about the rest."""
+        """Select pending updates, carry forward unchanged accepted ones, and ask about the rest.
+
+        A per-run cap keeps the request under the state token limit on a
+        large install: only the most significant version jumps are asked
+        about this run, and the rest wait for the next one.
+        """
         selected = self._select(hass)
         fetched_notes = await self._async_fetch_all_notes(hass, selected)
         described = [self._describe(entry, state, notes) for (entry, state), notes in zip(selected, fetched_notes, strict=True)]
 
-        updates: list[Item] = []
-        questions: dict[str, Question] = {}
-        subjects: dict[str, Item] = {}
         carried: dict[str, list[Item]] = {}
+        to_ask: list[tuple[Item, Item]] = []
         for state_item, subject in described:
             carry = carry_bucket(previous, self.options, state_item, subject)
             if carry is not None:
                 option, carried_item = carry
                 carried.setdefault(option, []).append(carried_item)
-                continue
-            index = len(updates)
+            else:
+                to_ask.append((state_item, subject))
+
+        updates: list[Item] = []
+        questions: dict[str, Question] = {}
+        subjects: dict[str, Item] = {}
+        for index, (state_item, subject) in enumerate(most_significant_first(to_ask, MAX_UPDATES_PER_RUN)):
             updates.append(state_item)
             question_id = f"u{index}"
             questions[question_id] = {
@@ -152,12 +161,8 @@ class UpdateRecipe:
             }
             subjects[question_id] = subject
 
-        _LOGGER.debug(
-            "update review selected=%s asked=%s carried=%s",
-            len(selected),
-            len(updates),
-            sum(len(bucket) for bucket in carried.values()),
-        )
+        carried_count = sum(len(bucket) for bucket in carried.values())
+        _LOGGER.debug("update review selected=%s asked=%s carried=%s", len(selected), len(updates), carried_count)
         return Batch(state={"updates": updates}, questions=questions, subjects=subjects, carried=carried)
 
     async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:

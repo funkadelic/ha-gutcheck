@@ -2,8 +2,21 @@
 
 from __future__ import annotations
 
-from ..const import OPTION_POSSIBLY_BREAKING, VERSION_JUMP_MAJOR
+from ..const import (
+    OPTION_POSSIBLY_BREAKING,
+    VERSION_JUMP_MAJOR,
+    VERSION_JUMP_MINOR,
+    VERSION_JUMP_PATCH,
+    VERSION_JUMP_UNKNOWN,
+)
 from .shapes import Item, RecipeResult
+
+_JUMP_RANK: dict[str, int] = {
+    VERSION_JUMP_MAJOR: 3,
+    VERSION_JUMP_MINOR: 2,
+    VERSION_JUMP_PATCH: 1,
+    VERSION_JUMP_UNKNOWN: 0,
+}
 
 
 def carry_bucket(
@@ -42,3 +55,14 @@ def carry_bucket(
                 return option, carried_item
             return None
     return None
+
+
+def most_significant_first(pairs: list[tuple[Item, Item]], cap: int) -> list[tuple[Item, Item]]:
+    """The cap most significant version-jump pairs to ask about this run, most significant first.
+
+    A per-run cap keeps the request under the state token limit on a large
+    install; anything past the cap is simply not asked this run and is
+    picked up on the next one, since an unasked update is not lost.
+    """
+    ordered = sorted(pairs, key=lambda pair: _JUMP_RANK.get(str(pair[0].get("version_jump")), -1), reverse=True)
+    return ordered[:cap]

@@ -12,7 +12,7 @@ from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import BUDGET_STORE_KEY, DOMAIN, OPTION_WORTH_FIXING
+from custom_components.gutcheck.const import BUDGET_STORE_KEY, DEFAULT_DAILY_BUDGET, DOMAIN, OPTION_WORTH_FIXING
 
 from .conftest import api_response, choice_answer, posted_bodies, register_jev_responses, register_unavailable_entity
 
@@ -102,8 +102,8 @@ async def test_run_updates_sensors_and_persists_and_survives_restart(
     assert tokens_entity_id is not None
     tokens_state = hass.states.get(tokens_entity_id)
     assert tokens_state is not None
-    assert tokens_state.attributes["daily_budget"] == 100_000
-    assert tokens_state.attributes["remaining"] == 100_000 - 1234
+    assert tokens_state.attributes["daily_budget"] == DEFAULT_DAILY_BUDGET
+    assert tokens_state.attributes["remaining"] == DEFAULT_DAILY_BUDGET - 1234
 
     stored = hass_storage[BUDGET_STORE_KEY]["data"]
     assert stored["spent"] == 1234
