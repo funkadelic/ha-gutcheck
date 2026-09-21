@@ -1,7 +1,10 @@
 name: Validate
 
 on:
+  # hacs/action resolves the branch itself rather than a merge ref, so a bare
+  # push trigger only repeats what the pull_request run already covers.
   push:
+    branches: [main]
   pull_request:
   schedule:
     - cron: "0 0 * * *"
