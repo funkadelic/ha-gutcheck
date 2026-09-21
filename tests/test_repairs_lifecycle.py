@@ -119,6 +119,7 @@ async def test_restore_drops_a_renamed_entity_that_is_now_critical(hass: HomeAss
     await recipe.restore(hass, result)
 
     assert result["items"][OPTION_WORTH_FIXING] == []
+    assert result["counts"][OPTION_WORTH_FIXING] == 0
     assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}{entry.id}") is None
 
 
