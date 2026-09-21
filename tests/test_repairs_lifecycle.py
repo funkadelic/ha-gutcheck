@@ -56,15 +56,15 @@ async def test_restore_drops_a_finding_labelled_critical_since_the_run(hass: Hom
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "critical_later")
     recipe = HealthRecipe(critical_label="critical")
-    result = health_result({OPTION_WORTH_FIXING: [health_item(entry.entity_id, "reg_a")]})
+    result = health_result({OPTION_WORTH_FIXING: [health_item(entry.entity_id, entry.id)]})
 
     await recipe.async_act(hass, result)
-    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_a") is not None
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}{entry.id}") is not None
 
     registry.async_update_entity(entry.entity_id, labels={"critical"})
     await recipe.restore(hass, result)
 
-    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_a") is None
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}{entry.id}") is None
     # Out of the result too, so the summary sensor does not keep listing it.
     assert result["items"][OPTION_WORTH_FIXING] == []
     assert result["counts"][OPTION_WORTH_FIXING] == 0
@@ -75,7 +75,7 @@ async def test_restore_drops_a_newly_critical_entity_from_every_bucket(hass: Hom
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "critical_safe")
     recipe = HealthRecipe(critical_label="critical")
-    result = health_result({OPTION_SAFE_TO_REMOVE: [health_item(entry.entity_id, "reg_s")]})
+    result = health_result({OPTION_SAFE_TO_REMOVE: [health_item(entry.entity_id, entry.id)]})
     result["counts"] = {OPTION_SAFE_TO_REMOVE: 1}
 
     registry.async_update_entity(entry.entity_id, labels={"critical"})
@@ -90,15 +90,36 @@ async def test_restore_drops_a_finding_whose_entity_was_disabled_since_the_run(h
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "disabled_later")
     recipe = HealthRecipe(critical_label=None)
-    result = health_result({OPTION_WORTH_FIXING: [health_item(entry.entity_id, "reg_d")]})
+    result = health_result({OPTION_WORTH_FIXING: [health_item(entry.entity_id, entry.id)]})
 
     await recipe.async_act(hass, result)
-    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_d") is not None
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}{entry.id}") is not None
 
     registry.async_update_entity(entry.entity_id, disabled_by=er.RegistryEntryDisabler.USER)
     await recipe.restore(hass, result)
 
-    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_d") is None
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}{entry.id}") is None
+
+
+async def test_restore_drops_a_renamed_entity_that_is_now_critical(hass: HomeAssistant) -> None:
+    """A rename must not smuggle a newly critical entity past the restore filter.
+
+    The stored entity id stops resolving once the entity is renamed, so the
+    lookup has to go through the registry id the finding also carries.
+    """
+    registry = er.async_get(hass)
+    entry = registry.async_get_or_create("sensor", "test", "renamed_then_critical")
+    recipe = HealthRecipe(critical_label="critical")
+    result = health_result({OPTION_WORTH_FIXING: [health_item(entry.entity_id, entry.id)]})
+
+    await recipe.async_act(hass, result)
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}{entry.id}") is not None
+
+    registry.async_update_entity(entry.entity_id, new_entity_id="sensor.renamed_by_the_user", labels={"critical"})
+    await recipe.restore(hass, result)
+
+    assert result["items"][OPTION_WORTH_FIXING] == []
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}{entry.id}") is None
 
 
 async def test_restore_of_a_result_with_no_worth_fixing_bucket_clears_the_cards(hass: HomeAssistant) -> None:
@@ -126,11 +147,11 @@ async def test_restore_keeps_a_finding_whose_entity_is_still_eligible(hass: Home
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "still_eligible")
     recipe = HealthRecipe(critical_label="critical")
-    result = health_result({OPTION_WORTH_FIXING: [health_item(entry.entity_id, "reg_b")]})
+    result = health_result({OPTION_WORTH_FIXING: [health_item(entry.entity_id, entry.id)]})
 
     await recipe.restore(hass, result)
 
-    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_b") is not None
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}{entry.id}") is not None
 
 
 async def test_state_becoming_available_deletes_the_issue_immediately(hass: HomeAssistant) -> None:

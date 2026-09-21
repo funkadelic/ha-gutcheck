@@ -74,7 +74,6 @@ class HealthRecipe:
         excluded_by_safety_rules = 0
         selected: list[tuple[er.RegistryEntry, State]] = []
         for entry in registry.entities.values():
-            # Counts every safety exclusion now, not only the critical-label ones.
             if self._safety.excludes(hass, entry):
                 excluded_by_safety_rules += 1
                 continue
@@ -128,8 +127,12 @@ class HealthRecipe:
         _LOGGER.debug("health check run complete, counts=%s", result["counts"])
 
     def _now_excluded(self, hass: HomeAssistant, item: Item) -> bool:
-        """Whether a stored finding's entity has since come under the safety rules."""
-        return self._safety.excludes_entity_id(hass, str(item["entity_id"]))
+        """Whether a stored finding's entity has since come under the safety rules.
+
+        Looks the entity up by registry id, which survives a rename that leaves
+        the stored entity id resolving to nothing.
+        """
+        return self._safety.excludes_stored(hass, str(item["registry_id"]))
 
     async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
         """Re-sync issues and re-arm recovery tracking for a restored result, without calling the API.
