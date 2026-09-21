@@ -7,13 +7,10 @@ from datetime import datetime
 
 from homeassistant.const import ATTR_RESTORED, STATE_UNAVAILABLE
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, State
-from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 
 from ..const import (
-    BLOCKED_DOMAINS,
-    DOMAIN,
     HEALTH_CRITERIA,
     HEALTH_INSTRUCTIONS,
     HEALTH_ISSUE_PREFIX,
@@ -27,6 +24,7 @@ from ..history import async_unavailable_since
 from ..models import ChoiceQuestion
 from ..repairs import async_sync_issues, async_track_recovery
 from .base import Batch, Item, RecipeResult
+from .safety import SafetyRules
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,21 +36,9 @@ class HealthRecipe:
     options: tuple[str, ...] = HEALTH_OPTIONS
 
     def __init__(self, critical_label: str | None) -> None:
-        """Store the label that marks an entity or device as critical."""
-        self._critical_label = critical_label
+        """Build the shared safety guard from the configured critical label."""
+        self._safety = SafetyRules(critical_label)
         self._unsub_recovery: CALLBACK_TYPE | None = None
-
-    def _is_critical(self, entry: er.RegistryEntry, device_registry: dr.DeviceRegistry) -> bool:
-        """Whether the configured label sits on the entity or on the device behind it."""
-        if not self._critical_label:
-            return False
-        if self._critical_label in entry.labels:
-            return True
-        if entry.device_id:
-            device = device_registry.async_get(entry.device_id)
-            if device and self._critical_label in device.labels:
-                return True
-        return False
 
     def _has_available_sibling(self, hass: HomeAssistant, registry: er.EntityRegistry, entry: er.RegistryEntry) -> bool:
         """Whether the same device still has an entity reporting, which separates a dead device from a dead entity."""
@@ -85,13 +71,10 @@ class HealthRecipe:
     async def async_prepare(self, hass: HomeAssistant) -> Batch:
         """Select unavailable, non-critical entities and build the request."""
         registry = er.async_get(hass)
-        device_registry = dr.async_get(hass)
         excluded_by_safety_rules = 0
         selected: list[tuple[er.RegistryEntry, State]] = []
         for entry in registry.entities.values():
-            if entry.disabled or entry.platform == DOMAIN or entry.domain in BLOCKED_DOMAINS:
-                continue
-            if self._is_critical(entry, device_registry):
+            if self._safety.excludes(hass, entry):
                 excluded_by_safety_rules += 1
                 continue
             state = hass.states.get(entry.entity_id)
@@ -144,14 +127,12 @@ class HealthRecipe:
         _LOGGER.debug("health check run complete, counts=%s", result["counts"])
 
     def _now_excluded(self, hass: HomeAssistant, item: Item) -> bool:
-        """Whether a stored finding's entity has since come under the safety rules."""
-        entry = er.async_get(hass).async_get(str(item["entity_id"]))
-        if entry is None:
-            # Unknown now (removed or renamed). Left alone, so an ignore survives it.
-            return False
-        if entry.disabled or entry.domain in BLOCKED_DOMAINS:
-            return True
-        return self._is_critical(entry, dr.async_get(hass))
+        """Whether a stored finding's entity has since come under the safety rules.
+
+        Looks the entity up by registry id, which survives a rename that leaves
+        the stored entity id resolving to nothing.
+        """
+        return self._safety.excludes_stored(hass, str(item["registry_id"]))
 
     async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
         """Re-sync issues and re-arm recovery tracking for a restored result, without calling the API.
