@@ -34,14 +34,18 @@ BACKOFF_BASE: Final = 1.0  # seconds
 MAX_RETRY_DELAY: Final = 60.0  # seconds
 
 RECIPE_HEALTH: Final = "health"
+RECIPE_UPDATES: Final = "updates"
 # Every recipe id this integration ships, so async_remove_entry can clean up
 # each one's Store without needing a line added by hand for each new recipe.
-ALL_RECIPE_IDS: Final = (RECIPE_HEALTH,)
+ALL_RECIPE_IDS: Final = (RECIPE_HEALTH, RECIPE_UPDATES)
 RECIPE_INTERVAL: Final = timedelta(days=7)
 FAILED_RUN_RETRY: Final = timedelta(hours=1)
 
 ISSUE_UNAVAILABLE_ENTITY: Final = "unavailable_entity"
 HEALTH_ISSUE_PREFIX: Final = "unavailable_"
+# Pinned: issue ids persist in Home Assistant's issue registry, so this
+# shape is never changed once shipped, only added to.
+UPDATES_ISSUE_PREFIX: Final = "update_"
 
 BLOCKED_DOMAINS: Final = frozenset(
     {
@@ -84,7 +88,6 @@ HEALTH_CRITERIA: Final[dict[str, str | None]] = {
     OPTION_NONE: "The fields do not clearly fit any of the other options.",
 }
 
-RECIPE_UPDATES: Final = "updates"
 CONF_UPDATES_ENABLED: Final = "updates_enabled"
 
 OPTION_ROUTINE: Final = "routine"

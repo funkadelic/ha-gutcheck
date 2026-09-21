@@ -25,7 +25,9 @@ from .const import (
     DOMAIN,
     HEALTH_ISSUE_PREFIX,
     RECIPE_HEALTH,
+    RECIPE_UPDATES,
     STORE_VERSION,
+    UPDATES_ISSUE_PREFIX,
 )
 from .recipes.base import RecipeCoordinator
 from .recipes.health import HealthRecipe
@@ -84,6 +86,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
     if entry.options.get(CONF_UPDATES_ENABLED, True):
         updates_recipe = UpdateRecipe(entry.options.get(CONF_CRITICAL_LABEL))
         coordinators[updates_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, updates_recipe)
+    else:
+        async_delete_issues(hass, UPDATES_ISSUE_PREFIX)
+        _async_remove_recipe_entities(hass, entry, RECIPE_UPDATES)
 
     entry.runtime_data = GutCheckData(client=client, budget=budget, coordinators=coordinators)
     entry.async_on_unload(budget.async_start())

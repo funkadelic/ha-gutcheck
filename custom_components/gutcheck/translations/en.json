@@ -32,10 +32,12 @@
         "title": "Gut Check options",
         "data": {
           "health_enabled": "Run the weekly home health check",
+          "updates_enabled": "Run the weekly update review",
           "daily_budget": "Daily token budget (input tokens)",
           "critical_label": "Critical label"
         },
         "data_description": {
+          "updates_enabled": "Scores pending updates as routine, feature, or possibly breaking. Advisory only, never installs anything.",
           "daily_budget": "A hard stop for the day. It resets at local midnight.",
           "critical_label": "Entities or devices with this label are never sent or checked. Locks, alarms and covers are never checked either, label or not."
         }
@@ -60,6 +62,9 @@
     "button": {
       "health_run": {
         "name": "Run home health check"
+      },
+      "updates_run": {
+        "name": "Run update review"
       }
     }
   },

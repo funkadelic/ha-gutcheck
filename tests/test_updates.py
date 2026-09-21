@@ -9,10 +9,11 @@ from typing import Any
 
 from homeassistant.components.update import DATA_COMPONENT, UpdateEntityFeature
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import OPTION_FEATURE, OPTION_POSSIBLY_BREAKING, OPTION_ROUTINE, RECIPE_UPDATES
+from custom_components.gutcheck.const import DOMAIN, OPTION_FEATURE, OPTION_POSSIBLY_BREAKING, OPTION_ROUTINE, RECIPE_UPDATES
 from custom_components.gutcheck.recipes.shapes import recipe_store_key
 
 from .conftest import (
@@ -247,3 +248,33 @@ async def test_posted_update_item_has_exactly_the_seven_allowed_fields(
         "release_notes",
     }
     assert set(body["state"]["updates"][0]) == expected_fields
+
+
+async def test_pressing_the_run_button_sends_one_request_and_updates_the_sensor(
+    hass: HomeAssistant,
+    aioclient_mock: AiohttpClientMocker,
+    mock_config_entry: MockConfigEntry,
+) -> None:
+    """Pressing the update review's Run button sends exactly one request and updates the sensor."""
+    register_pending_update(hass)
+    register_jev_responses(aioclient_mock, [api_response({"u0": score_answer(0, 0.9)})])
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+    assert len(posted_bodies(aioclient_mock)) == 1
+
+    button_entity_id = er.async_get(hass).async_get_entity_id(
+        "button", DOMAIN, f"{mock_config_entry.entry_id}_{RECIPE_UPDATES}_run"
+    )
+    assert button_entity_id is not None
+
+    aioclient_mock.clear_requests()
+    register_jev_responses(aioclient_mock, [api_response({"u0": score_answer(2, 0.9)})])
+    await hass.services.async_call("button", "press", {"entity_id": button_entity_id}, blocking=True)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    assert len(posted_bodies(aioclient_mock)) == 1
+    state = hass.states.get(updates_sensor_entity_id(hass, mock_config_entry))
+    assert state is not None
+    assert state.state == "1"
+    assert state.attributes["counts"][OPTION_POSSIBLY_BREAKING] == 1
