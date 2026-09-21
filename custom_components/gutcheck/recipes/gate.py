@@ -10,7 +10,7 @@ from ..const import CHOICE_CONFIDENCE_THRESHOLD
 from ..models import SystemOneRequest, SystemOneResponse
 
 if TYPE_CHECKING:
-    from .base import Batch, Item, RecipeResult
+    from .shapes import Batch, Item, RecipeResult
 
 
 def gate_choice(answer: object, allowed: tuple[str, ...], threshold: float) -> str | None:

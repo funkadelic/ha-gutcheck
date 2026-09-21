@@ -24,7 +24,8 @@ from .const import (
     PRICE_PER_MTOK_USD,
     SIGNAL_BUDGET_UPDATED,
 )
-from .recipes.base import RecipeCoordinator, RecipeResult
+from .recipes.base import RecipeCoordinator
+from .recipes.shapes import RecipeResult
 
 
 async def async_setup_entry(

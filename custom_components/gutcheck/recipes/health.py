@@ -23,8 +23,8 @@ from ..describe import bucket_duration, bucket_longer_than
 from ..history import async_unavailable_since
 from ..models import ChoiceQuestion
 from ..repairs import async_sync_issues, async_track_recovery
-from .base import Batch, Item, RecipeResult
 from .safety import SafetyRules
+from .shapes import Batch, Item, RecipeResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,6 +34,8 @@ class HealthRecipe:
 
     recipe_id = RECIPE_HEALTH
     options: tuple[str, ...] = HEALTH_OPTIONS
+    # Every field a restore reads off a stored item before the next run replaces it.
+    stored_item_keys: frozenset[str] = frozenset({"entity_id", "registry_id", "unavailable_for"})
 
     def __init__(self, critical_label: str | None) -> None:
         """Build the shared safety guard from the configured critical label."""

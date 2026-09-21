@@ -26,8 +26,9 @@ from .const import (
     RECIPE_HEALTH,
     STORE_VERSION,
 )
-from .recipes.base import RecipeCoordinator, recipe_store_key
+from .recipes.base import RecipeCoordinator
 from .recipes.health import HealthRecipe
+from .recipes.shapes import recipe_store_key
 from .repairs import async_delete_issues
 
 PLATFORMS = [Platform.SENSOR, Platform.BUTTON]

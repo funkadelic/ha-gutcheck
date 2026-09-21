@@ -8,8 +8,8 @@ from typing import Any
 
 from custom_components.gutcheck.client import validate_response
 from custom_components.gutcheck.const import HEALTH_OPTIONS
-from custom_components.gutcheck.recipes.base import Batch
 from custom_components.gutcheck.recipes.gate import classify
+from custom_components.gutcheck.recipes.shapes import Batch
 
 from .conftest import choice_answer
 

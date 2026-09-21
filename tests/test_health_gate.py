@@ -5,8 +5,8 @@ from __future__ import annotations
 import pytest
 
 from custom_components.gutcheck.const import CHOICE_CONFIDENCE_THRESHOLD, HEALTH_OPTIONS, OPTION_NONE, OPTION_WORTH_FIXING
-from custom_components.gutcheck.recipes.base import Batch
 from custom_components.gutcheck.recipes.gate import classify, gate_choice
+from custom_components.gutcheck.recipes.shapes import Batch
 
 ALLOWED = HEALTH_OPTIONS
 

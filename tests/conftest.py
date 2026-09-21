@@ -15,7 +15,7 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
 )
 
 from custom_components.gutcheck.const import API_URL, DOMAIN, HEALTH_OPTIONS, OPTION_NONE, RECIPE_HEALTH
-from custom_components.gutcheck.recipes.base import Item, RecipeResult
+from custom_components.gutcheck.recipes.shapes import Item, RecipeResult
 
 ALL_HEALTH_OPTIONS = (*HEALTH_OPTIONS, OPTION_NONE)
 
