@@ -1,0 +1,1604 @@
+{
+  "model": "jev-1.13.0",
+  "answers": {
+    "e0": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.99,
+      "probabilities": {
+        "none_of_these": 0.0,
+        "expected": 0.0,
+        "safe_to_remove": 1.0,
+        "worth_fixing": 0.0
+      }
+    },
+    "e1": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.99,
+      "probabilities": {
+        "expected": 0.0,
+        "none_of_these": 0.0,
+        "safe_to_remove": 1.0,
+        "worth_fixing": 0.0
+      }
+    },
+    "e2": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.44,
+      "probabilities": {
+        "expected": 0.58,
+        "none_of_these": 0.05,
+        "safe_to_remove": 0.35,
+        "worth_fixing": 0.02
+      }
+    },
+    "e3": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.43,
+      "probabilities": {
+        "expected": 0.58,
+        "none_of_these": 0.08,
+        "safe_to_remove": 0.33,
+        "worth_fixing": 0.01
+      }
+    },
+    "e4": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.97,
+      "probabilities": {
+        "none_of_these": 0.01,
+        "expected": 0.01,
+        "safe_to_remove": 0.97,
+        "worth_fixing": 0.01
+      }
+    },
+    "e5": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.74,
+      "probabilities": {
+        "expected": 0.14,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.8,
+        "worth_fixing": 0.04
+      }
+    },
+    "e6": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.76,
+      "probabilities": {
+        "expected": 0.11,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.83,
+        "worth_fixing": 0.04
+      }
+    },
+    "e7": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.82,
+      "probabilities": {
+        "expected": 0.07,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.86,
+        "worth_fixing": 0.05
+      }
+    },
+    "e8": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.75,
+      "probabilities": {
+        "expected": 0.12,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.81,
+        "worth_fixing": 0.04
+      }
+    },
+    "e9": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.88,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.05,
+        "safe_to_remove": 0.91,
+        "worth_fixing": 0.02
+      }
+    },
+    "e10": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.8,
+      "probabilities": {
+        "expected": 0.08,
+        "none_of_these": 0.03,
+        "safe_to_remove": 0.85,
+        "worth_fixing": 0.04
+      }
+    },
+    "e11": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.81,
+      "probabilities": {
+        "expected": 0.08,
+        "none_of_these": 0.03,
+        "safe_to_remove": 0.86,
+        "worth_fixing": 0.03
+      }
+    },
+    "e12": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.73,
+      "probabilities": {
+        "expected": 0.12,
+        "none_of_these": 0.03,
+        "safe_to_remove": 0.8,
+        "worth_fixing": 0.05
+      }
+    },
+    "e13": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.78,
+      "probabilities": {
+        "none_of_these": 0.03,
+        "expected": 0.09,
+        "safe_to_remove": 0.83,
+        "worth_fixing": 0.05
+      }
+    },
+    "e14": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.75,
+      "probabilities": {
+        "expected": 0.11,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.81,
+        "worth_fixing": 0.06
+      }
+    },
+    "e15": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.81,
+      "probabilities": {
+        "none_of_these": 0.01,
+        "expected": 0.08,
+        "safe_to_remove": 0.86,
+        "worth_fixing": 0.05
+      }
+    },
+    "e16": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.77,
+      "probabilities": {
+        "none_of_these": 0.01,
+        "expected": 0.09,
+        "safe_to_remove": 0.83,
+        "worth_fixing": 0.07
+      }
+    },
+    "e17": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.65,
+      "probabilities": {
+        "expected": 0.15,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.74,
+        "worth_fixing": 0.09
+      }
+    },
+    "e18": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.7,
+      "probabilities": {
+        "expected": 0.13,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.77,
+        "worth_fixing": 0.08
+      }
+    },
+    "e19": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.52,
+      "probabilities": {
+        "expected": 0.24,
+        "none_of_these": 0.01,
+        "safe_to_remove": 0.64,
+        "worth_fixing": 0.11
+      }
+    },
+    "e20": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.56,
+      "probabilities": {
+        "none_of_these": 0.0,
+        "expected": 0.67,
+        "safe_to_remove": 0.3,
+        "worth_fixing": 0.03
+      }
+    },
+    "e21": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.54,
+      "probabilities": {
+        "expected": 0.66,
+        "none_of_these": 0.0,
+        "safe_to_remove": 0.03,
+        "worth_fixing": 0.31
+      }
+    },
+    "e22": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.51,
+      "probabilities": {
+        "none_of_these": 0.01,
+        "expected": 0.63,
+        "safe_to_remove": 0.04,
+        "worth_fixing": 0.32
+      }
+    },
+    "e23": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.24,
+      "probabilities": {
+        "expected": 0.43,
+        "none_of_these": 0.01,
+        "safe_to_remove": 0.14,
+        "worth_fixing": 0.42
+      }
+    },
+    "e24": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.38,
+      "probabilities": {
+        "expected": 0.53,
+        "none_of_these": 0.01,
+        "safe_to_remove": 0.05,
+        "worth_fixing": 0.41
+      }
+    },
+    "e25": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.24,
+      "probabilities": {
+        "expected": 0.43,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.16,
+        "worth_fixing": 0.39
+      }
+    },
+    "e26": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.31,
+      "probabilities": {
+        "expected": 0.38,
+        "none_of_these": 0.04,
+        "safe_to_remove": 0.49,
+        "worth_fixing": 0.09
+      }
+    },
+    "e27": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.21,
+      "probabilities": {
+        "expected": 0.35,
+        "none_of_these": 0.05,
+        "safe_to_remove": 0.41,
+        "worth_fixing": 0.19
+      }
+    },
+    "e28": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.23,
+      "probabilities": {
+        "expected": 0.36,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.19,
+        "worth_fixing": 0.43
+      }
+    },
+    "e29": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.36,
+      "probabilities": {
+        "none_of_these": 0.01,
+        "expected": 0.31,
+        "safe_to_remove": 0.16,
+        "worth_fixing": 0.52
+      }
+    },
+    "e30": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.33,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.25,
+        "safe_to_remove": 0.23,
+        "worth_fixing": 0.5
+      }
+    },
+    "e31": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.24,
+      "probabilities": {
+        "none_of_these": 0.04,
+        "expected": 0.1,
+        "safe_to_remove": 0.43,
+        "worth_fixing": 0.43
+      }
+    },
+    "e32": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.16,
+      "probabilities": {
+        "expected": 0.21,
+        "none_of_these": 0.08,
+        "safe_to_remove": 0.37,
+        "worth_fixing": 0.34
+      }
+    },
+    "e33": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.42,
+      "probabilities": {
+        "expected": 0.14,
+        "none_of_these": 0.05,
+        "safe_to_remove": 0.24,
+        "worth_fixing": 0.57
+      }
+    },
+    "e34": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.59,
+      "probabilities": {
+        "expected": 0.1,
+        "none_of_these": 0.03,
+        "safe_to_remove": 0.17,
+        "worth_fixing": 0.7
+      }
+    },
+    "e35": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.22,
+      "probabilities": {
+        "none_of_these": 0.04,
+        "expected": 0.13,
+        "safe_to_remove": 0.42,
+        "worth_fixing": 0.41
+      }
+    },
+    "e36": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.32,
+      "probabilities": {
+        "expected": 0.14,
+        "none_of_these": 0.03,
+        "safe_to_remove": 0.34,
+        "worth_fixing": 0.49
+      }
+    },
+    "e37": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.22,
+      "probabilities": {
+        "expected": 0.15,
+        "none_of_these": 0.04,
+        "safe_to_remove": 0.39,
+        "worth_fixing": 0.42
+      }
+    },
+    "e38": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.44,
+      "probabilities": {
+        "expected": 0.12,
+        "none_of_these": 0.03,
+        "safe_to_remove": 0.27,
+        "worth_fixing": 0.58
+      }
+    },
+    "e39": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.46,
+      "probabilities": {
+        "expected": 0.16,
+        "none_of_these": 0.04,
+        "safe_to_remove": 0.59,
+        "worth_fixing": 0.21
+      }
+    },
+    "e40": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.44,
+      "probabilities": {
+        "expected": 0.15,
+        "none_of_these": 0.05,
+        "safe_to_remove": 0.58,
+        "worth_fixing": 0.22
+      }
+    },
+    "e41": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.24,
+      "probabilities": {
+        "expected": 0.23,
+        "none_of_these": 0.03,
+        "safe_to_remove": 0.42,
+        "worth_fixing": 0.32
+      }
+    },
+    "e42": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.17,
+      "probabilities": {
+        "expected": 0.22,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.38,
+        "worth_fixing": 0.38
+      }
+    },
+    "e43": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.24,
+      "probabilities": {
+        "expected": 0.24,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.31,
+        "worth_fixing": 0.43
+      }
+    },
+    "e44": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.38,
+      "probabilities": {
+        "expected": 0.19,
+        "none_of_these": 0.03,
+        "safe_to_remove": 0.24,
+        "worth_fixing": 0.54
+      }
+    },
+    "e45": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.2,
+      "probabilities": {
+        "expected": 0.29,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.29,
+        "worth_fixing": 0.4
+      }
+    },
+    "e46": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.25,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.25,
+        "safe_to_remove": 0.29,
+        "worth_fixing": 0.44
+      }
+    },
+    "e47": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.13,
+      "probabilities": {
+        "expected": 0.26,
+        "none_of_these": 0.05,
+        "safe_to_remove": 0.34,
+        "worth_fixing": 0.35
+      }
+    },
+    "e48": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.14,
+      "probabilities": {
+        "expected": 0.26,
+        "none_of_these": 0.04,
+        "safe_to_remove": 0.34,
+        "worth_fixing": 0.36
+      }
+    },
+    "e49": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.15,
+      "probabilities": {
+        "none_of_these": 0.05,
+        "expected": 0.26,
+        "safe_to_remove": 0.37,
+        "worth_fixing": 0.32
+      }
+    },
+    "e50": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.35,
+      "probabilities": {
+        "expected": 0.23,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.23,
+        "worth_fixing": 0.52
+      }
+    },
+    "e51": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.13,
+      "probabilities": {
+        "expected": 0.25,
+        "none_of_these": 0.06,
+        "safe_to_remove": 0.34,
+        "worth_fixing": 0.35
+      }
+    },
+    "e52": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.17,
+      "probabilities": {
+        "expected": 0.24,
+        "none_of_these": 0.05,
+        "safe_to_remove": 0.33,
+        "worth_fixing": 0.38
+      }
+    },
+    "e53": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.2,
+      "probabilities": {
+        "none_of_these": 0.05,
+        "expected": 0.23,
+        "safe_to_remove": 0.4,
+        "worth_fixing": 0.32
+      }
+    },
+    "e54": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.23,
+      "probabilities": {
+        "expected": 0.18,
+        "none_of_these": 0.03,
+        "safe_to_remove": 0.43,
+        "worth_fixing": 0.36
+      }
+    },
+    "e55": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.26,
+      "probabilities": {
+        "expected": 0.21,
+        "none_of_these": 0.04,
+        "safe_to_remove": 0.45,
+        "worth_fixing": 0.3
+      }
+    },
+    "e56": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.39,
+      "probabilities": {
+        "expected": 0.16,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.54,
+        "worth_fixing": 0.28
+      }
+    },
+    "e57": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.39,
+      "probabilities": {
+        "expected": 0.2,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.54,
+        "worth_fixing": 0.24
+      }
+    },
+    "e58": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.44,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.15,
+        "safe_to_remove": 0.58,
+        "worth_fixing": 0.25
+      }
+    },
+    "e59": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.42,
+      "probabilities": {
+        "expected": 0.18,
+        "none_of_these": 0.03,
+        "safe_to_remove": 0.56,
+        "worth_fixing": 0.23
+      }
+    },
+    "e60": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.47,
+      "probabilities": {
+        "expected": 0.15,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.61,
+        "worth_fixing": 0.22
+      }
+    },
+    "e61": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.41,
+      "probabilities": {
+        "expected": 0.17,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.56,
+        "worth_fixing": 0.25
+      }
+    },
+    "e62": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.31,
+      "probabilities": {
+        "expected": 0.18,
+        "none_of_these": 0.03,
+        "safe_to_remove": 0.48,
+        "worth_fixing": 0.31
+      }
+    },
+    "e63": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.4,
+      "probabilities": {
+        "expected": 0.2,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.55,
+        "worth_fixing": 0.23
+      }
+    },
+    "e64": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.46,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.14,
+        "safe_to_remove": 0.6,
+        "worth_fixing": 0.24
+      }
+    },
+    "e65": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.3,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.19,
+        "safe_to_remove": 0.48,
+        "worth_fixing": 0.31
+      }
+    },
+    "e66": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.22,
+      "probabilities": {
+        "expected": 0.19,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.41,
+        "worth_fixing": 0.38
+      }
+    },
+    "e67": {
+      "type": "choice",
+      "choice": "safe_to_remove",
+      "confidence": 0.17,
+      "probabilities": {
+        "expected": 0.24,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.38,
+        "worth_fixing": 0.36
+      }
+    },
+    "e68": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.21,
+      "probabilities": {
+        "expected": 0.23,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.34,
+        "worth_fixing": 0.41
+      }
+    },
+    "e69": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.31,
+      "probabilities": {
+        "expected": 0.24,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.26,
+        "worth_fixing": 0.48
+      }
+    },
+    "e70": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.43,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.19,
+        "safe_to_remove": 0.22,
+        "worth_fixing": 0.57
+      }
+    },
+    "e71": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.4,
+      "probabilities": {
+        "expected": 0.2,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.24,
+        "worth_fixing": 0.54
+      }
+    },
+    "e72": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.44,
+      "probabilities": {
+        "expected": 0.19,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.21,
+        "worth_fixing": 0.58
+      }
+    },
+    "e73": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.32,
+      "probabilities": {
+        "expected": 0.23,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.25,
+        "worth_fixing": 0.5
+      }
+    },
+    "e74": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.39,
+      "probabilities": {
+        "expected": 0.21,
+        "none_of_these": 0.03,
+        "safe_to_remove": 0.22,
+        "worth_fixing": 0.54
+      }
+    },
+    "e75": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.39,
+      "probabilities": {
+        "expected": 0.21,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.22,
+        "worth_fixing": 0.55
+      }
+    },
+    "e76": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.43,
+      "probabilities": {
+        "expected": 0.2,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.2,
+        "worth_fixing": 0.58
+      }
+    },
+    "e77": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.35,
+      "probabilities": {
+        "expected": 0.24,
+        "none_of_these": 0.03,
+        "safe_to_remove": 0.22,
+        "worth_fixing": 0.51
+      }
+    },
+    "e78": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.41,
+      "probabilities": {
+        "expected": 0.2,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.23,
+        "worth_fixing": 0.55
+      }
+    },
+    "e79": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.38,
+      "probabilities": {
+        "expected": 0.22,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.22,
+        "worth_fixing": 0.54
+      }
+    },
+    "e80": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.58,
+      "probabilities": {
+        "expected": 0.17,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.12,
+        "worth_fixing": 0.68
+      }
+    },
+    "e81": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.43,
+      "probabilities": {
+        "none_of_these": 0.03,
+        "expected": 0.26,
+        "safe_to_remove": 0.15,
+        "worth_fixing": 0.5599999999999999
+      }
+    },
+    "e82": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.47,
+      "probabilities": {
+        "expected": 0.21,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.16,
+        "worth_fixing": 0.61
+      }
+    },
+    "e83": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.44,
+      "probabilities": {
+        "expected": 0.24,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.16,
+        "worth_fixing": 0.58
+      }
+    },
+    "e84": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.56,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.18,
+        "safe_to_remove": 0.13,
+        "worth_fixing": 0.67
+      }
+    },
+    "e85": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.46,
+      "probabilities": {
+        "expected": 0.21,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.18,
+        "worth_fixing": 0.59
+      }
+    },
+    "e86": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.43,
+      "probabilities": {
+        "expected": 0.24,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.17,
+        "worth_fixing": 0.57
+      }
+    },
+    "e87": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.36,
+      "probabilities": {
+        "none_of_these": 0.03,
+        "expected": 0.29,
+        "safe_to_remove": 0.16,
+        "worth_fixing": 0.52
+      }
+    },
+    "e88": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.42,
+      "probabilities": {
+        "expected": 0.25,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.17,
+        "worth_fixing": 0.5599999999999999
+      }
+    },
+    "e89": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.4,
+      "probabilities": {
+        "expected": 0.28,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.14,
+        "worth_fixing": 0.55
+      }
+    },
+    "e90": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.51,
+      "probabilities": {
+        "expected": 0.17,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.17,
+        "worth_fixing": 0.64
+      }
+    },
+    "e91": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.36,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.3,
+        "safe_to_remove": 0.15,
+        "worth_fixing": 0.53
+      }
+    },
+    "e92": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.46,
+      "probabilities": {
+        "expected": 0.26,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.13,
+        "worth_fixing": 0.59
+      }
+    },
+    "e93": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.42,
+      "probabilities": {
+        "expected": 0.29,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.12,
+        "worth_fixing": 0.57
+      }
+    },
+    "e94": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.5,
+      "probabilities": {
+        "expected": 0.23,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.12,
+        "worth_fixing": 0.63
+      }
+    },
+    "e95": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.38,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.31,
+        "safe_to_remove": 0.14,
+        "worth_fixing": 0.53
+      }
+    },
+    "e96": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.4,
+      "probabilities": {
+        "expected": 0.32,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.11,
+        "worth_fixing": 0.55
+      }
+    },
+    "e97": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.22,
+      "probabilities": {
+        "expected": 0.41,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.17,
+        "worth_fixing": 0.4
+      }
+    },
+    "e98": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.44,
+      "probabilities": {
+        "expected": 0.3,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.09,
+        "worth_fixing": 0.59
+      }
+    },
+    "e99": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.35,
+      "probabilities": {
+        "expected": 0.34,
+        "none_of_these": 0.03,
+        "safe_to_remove": 0.12,
+        "worth_fixing": 0.51
+      }
+    },
+    "e100": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.4,
+      "probabilities": {
+        "expected": 0.27,
+        "none_of_these": 0.03,
+        "safe_to_remove": 0.15,
+        "worth_fixing": 0.55
+      }
+    },
+    "e101": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.23,
+      "probabilities": {
+        "expected": 0.41,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.14,
+        "worth_fixing": 0.43
+      }
+    },
+    "e102": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.3,
+      "probabilities": {
+        "expected": 0.35,
+        "none_of_these": 0.03,
+        "safe_to_remove": 0.14,
+        "worth_fixing": 0.48
+      }
+    },
+    "e103": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.3,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.47,
+        "safe_to_remove": 0.17,
+        "worth_fixing": 0.34
+      }
+    },
+    "e104": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.34,
+      "probabilities": {
+        "expected": 0.34,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.13,
+        "worth_fixing": 0.51
+      }
+    },
+    "e105": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.24,
+      "probabilities": {
+        "expected": 0.38,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.17,
+        "worth_fixing": 0.43
+      }
+    },
+    "e106": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.35,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.33,
+        "safe_to_remove": 0.14,
+        "worth_fixing": 0.51
+      }
+    },
+    "e107": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.2,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.4,
+        "safe_to_remove": 0.21,
+        "worth_fixing": 0.37
+      }
+    },
+    "e108": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.4,
+      "probabilities": {
+        "expected": 0.29,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.13,
+        "worth_fixing": 0.56
+      }
+    },
+    "e109": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.32,
+      "probabilities": {
+        "expected": 0.35,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.14,
+        "worth_fixing": 0.49
+      }
+    },
+    "e110": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.34,
+      "probabilities": {
+        "expected": 0.34,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.13,
+        "worth_fixing": 0.51
+      }
+    },
+    "e111": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.23,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.36,
+        "safe_to_remove": 0.2,
+        "worth_fixing": 0.42
+      }
+    },
+    "e112": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.36,
+      "probabilities": {
+        "expected": 0.32,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.13,
+        "worth_fixing": 0.53
+      }
+    },
+    "e113": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.27,
+      "probabilities": {
+        "expected": 0.38,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.15,
+        "worth_fixing": 0.45
+      }
+    },
+    "e114": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.31,
+      "probabilities": {
+        "expected": 0.35,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.15,
+        "worth_fixing": 0.48
+      }
+    },
+    "e115": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.2,
+      "probabilities": {
+        "expected": 0.4,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.19,
+        "worth_fixing": 0.39
+      }
+    },
+    "e116": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.2,
+      "probabilities": {
+        "expected": 0.4,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.19,
+        "worth_fixing": 0.39
+      }
+    },
+    "e117": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.34,
+      "probabilities": {
+        "expected": 0.5,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.21,
+        "worth_fixing": 0.27
+      }
+    },
+    "e118": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.29,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.47,
+        "safe_to_remove": 0.2,
+        "worth_fixing": 0.31
+      }
+    },
+    "e119": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.23,
+      "probabilities": {
+        "expected": 0.43,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.22,
+        "worth_fixing": 0.33
+      }
+    },
+    "e120": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.24,
+      "probabilities": {
+        "expected": 0.44,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.15,
+        "worth_fixing": 0.39
+      }
+    },
+    "e121": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.27,
+      "probabilities": {
+        "expected": 0.46,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.21,
+        "worth_fixing": 0.31
+      }
+    },
+    "e122": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.28,
+      "probabilities": {
+        "expected": 0.46,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.18,
+        "worth_fixing": 0.34
+      }
+    },
+    "e123": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.37,
+      "probabilities": {
+        "expected": 0.53,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.23,
+        "worth_fixing": 0.22
+      }
+    },
+    "e124": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.21,
+      "probabilities": {
+        "expected": 0.4,
+        "none_of_these": 0.03,
+        "safe_to_remove": 0.17,
+        "worth_fixing": 0.4
+      }
+    },
+    "e125": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.31,
+      "probabilities": {
+        "expected": 0.48,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.22,
+        "worth_fixing": 0.28
+      }
+    },
+    "e126": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.37,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.53,
+        "safe_to_remove": 0.22,
+        "worth_fixing": 0.23
+      }
+    },
+    "e127": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.35,
+      "probabilities": {
+        "expected": 0.51,
+        "none_of_these": 0.03,
+        "safe_to_remove": 0.24,
+        "worth_fixing": 0.22
+      }
+    },
+    "e128": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.36,
+      "probabilities": {
+        "expected": 0.52,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.19,
+        "worth_fixing": 0.27
+      }
+    },
+    "e129": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.43,
+      "probabilities": {
+        "expected": 0.58,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.2,
+        "worth_fixing": 0.2
+      }
+    },
+    "e130": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.26,
+      "probabilities": {
+        "expected": 0.34,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.19,
+        "worth_fixing": 0.45
+      }
+    },
+    "e131": {
+      "type": "choice",
+      "choice": "worth_fixing",
+      "confidence": 0.22,
+      "probabilities": {
+        "expected": 0.38,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.18,
+        "worth_fixing": 0.42
+      }
+    },
+    "e132": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.23,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.42,
+        "safe_to_remove": 0.19,
+        "worth_fixing": 0.37
+      }
+    },
+    "e133": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.33,
+      "probabilities": {
+        "expected": 0.5,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.22,
+        "worth_fixing": 0.26
+      }
+    },
+    "e134": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.23,
+      "probabilities": {
+        "expected": 0.43,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.19,
+        "worth_fixing": 0.36
+      }
+    },
+    "e135": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.28,
+      "probabilities": {
+        "expected": 0.47000000000000003,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.19,
+        "worth_fixing": 0.32
+      }
+    },
+    "e136": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.31,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.48,
+        "safe_to_remove": 0.23,
+        "worth_fixing": 0.27
+      }
+    },
+    "e137": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.44,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.58,
+        "safe_to_remove": 0.24,
+        "worth_fixing": 0.16
+      }
+    },
+    "e138": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.5,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.62,
+        "safe_to_remove": 0.18,
+        "worth_fixing": 0.18
+      }
+    },
+    "e139": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.51,
+      "probabilities": {
+        "expected": 0.63,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.19,
+        "worth_fixing": 0.16
+      }
+    },
+    "e140": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.32,
+      "probabilities": {
+        "expected": 0.48,
+        "none_of_these": 0.03,
+        "safe_to_remove": 0.24,
+        "worth_fixing": 0.25
+      }
+    },
+    "e141": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.46,
+      "probabilities": {
+        "expected": 0.6,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.17,
+        "worth_fixing": 0.21
+      }
+    },
+    "e142": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.42,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.56,
+        "safe_to_remove": 0.2,
+        "worth_fixing": 0.22
+      }
+    },
+    "e143": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.44,
+      "probabilities": {
+        "expected": 0.57,
+        "none_of_these": 0.02,
+        "safe_to_remove": 0.26,
+        "worth_fixing": 0.15
+      }
+    },
+    "e144": {
+      "type": "choice",
+      "choice": "expected",
+      "confidence": 0.46,
+      "probabilities": {
+        "none_of_these": 0.02,
+        "expected": 0.6,
+        "safe_to_remove": 0.22,
+        "worth_fixing": 0.16
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 45775,
+    "output_tokens": 7857
+  }
+}

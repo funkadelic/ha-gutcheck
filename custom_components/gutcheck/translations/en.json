@@ -1,0 +1,69 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Gut Check",
+        "description": "Paste the API key from your TypeSafe account. One small test question is sent to check it before anything else happens.",
+        "data": {
+          "api_key": "API key"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Update your API key",
+        "description": "The saved API key stopped working. Paste a new one to keep Gut Check running.",
+        "data": {
+          "api_key": "API key"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "That API key was rejected. Check it and try again.",
+      "cannot_connect": "Could not reach the API to check the key. Try again in a moment.",
+      "rate_limited": "The API is busy right now, so the key could not be checked. Try again in a minute."
+    },
+    "abort": {
+      "single_instance_allowed": "Gut Check is already set up. Only one instance is allowed.",
+      "reauth_successful": "The API key was updated."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Gut Check options",
+        "data": {
+          "health_enabled": "Run the weekly home health check",
+          "daily_budget": "Daily token budget (input tokens)",
+          "critical_label": "Critical label"
+        },
+        "data_description": {
+          "daily_budget": "A hard stop for the day. It resets at local midnight.",
+          "critical_label": "Entities or devices with this label are never sent or checked. Locks, alarms and covers are never checked either, label or not."
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "health": {
+        "name": "Home health check"
+      },
+      "tokens_today": {
+        "name": "Tokens used today"
+      },
+      "cost_today": {
+        "name": "Cost today"
+      }
+    },
+    "button": {
+      "health_run": {
+        "name": "Run home health check"
+      }
+    }
+  },
+  "issues": {
+    "unavailable_entity": {
+      "title": "{entity_id} needs attention",
+      "description": "`{entity_id}` has been unavailable for {unavailable_for}. Gut Check thinks it is worth fixing. Nothing will be changed automatically, and ignoring this card keeps it hidden on later checks."
+    }
+  }
+}

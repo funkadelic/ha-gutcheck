@@ -1,0 +1,43 @@
+[tool.coverage.report]
+fail_under = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+asyncio_mode = "auto"
+addopts = [
+    "--cov=custom_components.gutcheck",
+    "--cov-branch",
+    "--cov-report=term-missing",
+]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 130
+extend-exclude = [
+    ".claude",
+    ".planning",
+    "htmlcov",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "RUF",  # ruff-specific rules
+    "G",    # flake8-logging-format
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["custom_components.gutcheck"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+local_partial_types = true
+warn_unreachable = true
+files = ["custom_components/gutcheck"]

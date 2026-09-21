@@ -1,0 +1,14 @@
+coverage:
+  status:
+    project:
+      default:
+        threshold: 1%    # allow up to 1% drop in overall coverage
+    patch:
+      default:
+        target: 100%     # strive for 100% coverage on new/changed lines
+        threshold: 0%
+
+comment:
+  layout: "header, diff, flags, components, files, footer"
+  behavior: default
+  require_changes: false

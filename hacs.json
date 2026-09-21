@@ -1,0 +1,7 @@
+{
+    "name": "Gut Check",
+    "filename": "gutcheck.zip",
+    "zip_release": true,
+    "render_readme": true,
+    "homeassistant": "2026.9.0"
+}
