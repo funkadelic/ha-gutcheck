@@ -6,7 +6,6 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -15,10 +14,16 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
+    # Job-level env reaches every step, including pip install and pytest, where
+    # a compromised dependency could read it. Only the boolean lives here; the
+    # token is scoped to the scan step below.
+    env:
+      HAS_SONAR_TOKEN: ${{ secrets.SONAR_TOKEN != '' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -30,5 +35,38 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements-test.txt
 
+      # junit_family=legacy keeps the file and line attributes on each testcase
+      # that pytest's default xunit2 drops. Codecov Test Analytics attributes a
+      # test to a source file by them, so without it the flake and failure views
+      # cannot name where a test lives.
       - name: Run tests with pytest
-        run: pytest
+        run: pytest --cov-report=xml --junitxml=junit.xml -o junit_family=legacy
+
+      - name: SonarQube Scan
+        if: >-
+          ${{ env.HAS_SONAR_TOKEN == 'true'
+          && !contains(github.event.pull_request.labels.*.name, 'autorelease: pending') }}
+        uses: SonarSource/sonarqube-scan-action@ba9859eae8dd6bd29e412f25ddbbef3d032000f4 # v8.2.2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Upload coverage to Codecov
+        if: >-
+          ${{ !contains(github.event.pull_request.labels.*.name, 'autorelease: pending') }}
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload test results to Codecov
+        if: >-
+          ${{ !cancelled()
+          && !contains(github.event.pull_request.labels.*.name, 'autorelease: pending') }}
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          files: ./junit.xml
+          report_type: test_results
+          token: ${{ secrets.CODECOV_TOKEN }}
