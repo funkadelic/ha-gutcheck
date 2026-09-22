@@ -1,0 +1,139 @@
+name: Pre-release (beta)
+
+# Publishes a HACS beta build without touching the release-please flow. The
+# version is stamped in the runner only, so nothing is committed and
+# .release-please-manifest.json stays put.
+#
+# workflow_dispatch only lists workflows on the default branch, so this must be
+# merged to main first, then dispatched with the FEATURE BRANCH selected.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Beta version (e.g. 0.2.0rc1). A leading 'v' is stripped for files; the tag is v<version>."
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  # One prerelease at a time for the whole repo. Keying on inputs.version would
+  # let "0.2.0rc1" and "v0.2.0rc1" run concurrently against the same tag, and
+  # the loser's cleanup would delete the winner's release.
+  group: prerelease-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  prerelease:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Refuse to run against a tag, SHA, or the default branch
+        if: ${{ github.ref_type != 'branch' || github.ref == 'refs/heads/main' }}
+        run: |
+          echo "::error::Pre-releases must be cut from a non-main feature branch. Re-run and pick the branch in 'Use workflow from'."
+          exit 1
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Resolve version and tag
+        id: ver
+        env:
+          RAW: ${{ inputs.version }}
+          REF_NAME: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          # Reject control characters (e.g. newlines) up front so a crafted input
+          # cannot inject extra keys into $GITHUB_OUTPUT further down.
+          if [[ "$RAW" == *$'\n'* || "$RAW" == *$'\r'* ]]; then
+            echo "::error::Version must be a single line with no control characters."
+            exit 1
+          fi
+          VERSION="${RAW#v}"           # strip any leading 'v' for the file version
+          # Require a pre-release suffix (a, b, rc, alpha, beta, dev): a bare stable
+          # version like 0.2.0 must not be published here, since that tag would later
+          # collide with the stable tag release-please creates for the same version.
+          if ! printf '%s' "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+[.-]?(a|b|rc|alpha|beta|dev)\.?[0-9]+$'; then
+            echo "::error::Invalid version '$VERSION'. A pre-release suffix is required, e.g. 0.2.0b1, 0.2.0-beta.1, 0.2.0rc1."
+            exit 1
+          fi
+          TAG="v$VERSION"
+          # git ls-remote --exit-code: 0 = tag exists, 2 = tag absent, other = query failure.
+          rc=0
+          git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1 || rc=$?
+          if [ "$rc" -eq 0 ]; then
+            echo "::error::Tag $TAG already exists. If a cancelled run left it behind, remove it with: gh release delete $TAG --yes --cleanup-tag"
+            exit 1
+          elif [ "$rc" -ne 2 ]; then
+            echo "::error::Could not query remote tags (git ls-remote exit $rc)"
+            exit 1
+          fi
+          # A beta at or below the newest shipped stable becomes "the latest release"
+          # for that version on a commit that is not on main, which sends
+          # release-please backwards. Refuse it rather than clean up afterwards.
+          BASE=$(printf '%s' "$VERSION" | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
+          # Filter in awk, not grep: no stable tags yet means grep exits 1, which
+          # under this shell's -e and pipefail kills the step before the check below.
+          NEWEST_STABLE=$(git ls-remote --tags --refs origin 'refs/tags/v*' \
+            | awk '{sub(/^refs\/tags\/v/, "", $2); if ($2 ~ /^[0-9]+\.[0-9]+\.[0-9]+$/) print $2}' \
+            | sort -V | tail -1)
+          if [ -n "$NEWEST_STABLE" ]; then
+            HIGHER=$(printf '%s\n%s\n' "$BASE" "$NEWEST_STABLE" | sort -V | tail -1)
+            if [ "$BASE" = "$NEWEST_STABLE" ] || [ "$HIGHER" != "$BASE" ]; then
+              echo "::error::$VERSION is a beta for $BASE, which is not above the newest shipped stable $NEWEST_STABLE. Pick a version above $NEWEST_STABLE."
+              exit 1
+            fi
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Building $TAG from $REF_NAME @ ${GITHUB_SHA::7}"
+
+      - name: Stamp version into packaged files (runner only, not committed)
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          set -euo pipefail
+          # manifest.json
+          tmp="$(mktemp)"
+          jq --arg v "$VERSION" '.version = $v' custom_components/gutcheck/manifest.json > "$tmp"
+          mv "$tmp" custom_components/gutcheck/manifest.json
+          # const.py (only the release-please-annotated line)
+          sed -i -E "s/^(VERSION: Final = \")[^\"]*(\"[[:space:]]*# x-release-please-version)/\1${VERSION}\2/" custom_components/gutcheck/const.py
+          # Fail loudly if either stamp did not take
+          grep -q "\"version\": \"${VERSION}\"" custom_components/gutcheck/manifest.json
+          grep -q "^VERSION: Final = \"${VERSION}\"" custom_components/gutcheck/const.py
+          echo "Stamped version ${VERSION}"
+
+      - name: Package integration
+        run: |
+          cd custom_components/gutcheck
+          zip -r ../../gutcheck.zip .
+
+      - name: Create pre-release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.ver.outputs.tag }}
+          REF_NAME: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # gh release create makes the release + tag, then uploads the asset. If it
+          # fails partway, delete both so a rerun is not blocked by the tag guard.
+          cleanup() {
+            echo "::warning::Pre-release creation failed; removing $TAG so a rerun starts clean."
+            gh release delete "$TAG" --yes --cleanup-tag 2>/dev/null || true
+          }
+          trap cleanup ERR
+          gh release create "$TAG" \
+            --target "$GITHUB_SHA" \
+            --prerelease \
+            --latest=false \
+            --title "$TAG (beta)" \
+            --notes "Beta test build from \`$REF_NAME\`. Not a production release.
+
+          Install it from HACS via the integration's three-dot menu, Redownload, \"Need a different version?\", then pick this version. Stable users are not notified." \
+            gutcheck.zip
+          trap - ERR
