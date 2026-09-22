@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from homeassistant.const import CONF_API_KEY
+from homeassistant.const import CONF_API_KEY, STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
@@ -194,6 +194,28 @@ async def test_empty_notes_major_jump_update_carries_into_possibly_breaking_with
     item = state.attributes["items"][OPTION_POSSIBLY_BREAKING][0]
     assert "confidence" not in item
     assert "score" not in item
+
+
+async def test_an_update_unavailable_during_a_run_keeps_its_classification_and_its_card(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
+) -> None:
+    """An update entity that happens to be unavailable when a run lands is carried, not swept."""
+    update_entry = register_pending_update(hass, "update_a")
+    register_jev_responses(aioclient_mock, [api_response({"u0": score_answer(2, 0.9)})])
+    entry = await _setup(hass)
+    issue_id = f"{UPDATES_ISSUE_PREFIX}{update_entry.id}"
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
+    classified_before = _sensor_state(hass, entry).attributes["items"][OPTION_POSSIBLY_BREAKING][0]
+
+    hass.states.async_set(update_entry.entity_id, STATE_UNAVAILABLE)
+    aioclient_mock.clear_requests()
+    await _run_again(hass, entry)
+
+    assert posted_bodies(aioclient_mock) == []
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
+    state = _sensor_state(hass, entry)
+    assert state.state == "1"
+    assert state.attributes["items"][OPTION_POSSIBLY_BREAKING] == [classified_before]
 
 
 async def test_pressing_run_button_asks_about_everything_even_when_unchanged(

@@ -57,12 +57,33 @@ def carry_bucket(
     return None
 
 
-def most_significant_first(pairs: list[tuple[Item, Item]], cap: int) -> list[tuple[Item, Item]]:
-    """The cap most significant version-jump pairs to ask about this run, most significant first.
+def most_significant_first(pairs: list[tuple[Item, Item]], cap: int) -> tuple[list[tuple[Item, Item]], list[tuple[Item, Item]]]:
+    """The cap most significant version-jump pairs to ask about this run, and the ones deferred past it.
 
     A per-run cap keeps the request under the state token limit on a large
-    install; anything past the cap is simply not asked this run and is
-    picked up on the next one, since an unasked update is not lost.
+    install. Only the question is deferred: the caller carries a deferred
+    update's prior classification forward, so it keeps its place in the
+    result and its Repairs card until a later run asks about it.
     """
     ordered = sorted(pairs, key=lambda pair: _JUMP_RANK.get(str(pair[0].get("version_jump")), -1), reverse=True)
-    return ordered[:cap]
+    return ordered[:cap], ordered[cap:]
+
+
+def carry_unasked(previous: RecipeResult | None, options: tuple[str, ...], registry_ids: set[str]) -> list[tuple[str, Item]]:
+    """The prior bucket and item for every update not asked about this run, unchanged.
+
+    An update nobody asked about this run still exists, and what the last
+    run said about it is the best information there is. The stored item
+    carries over exactly as it stands, so the classification and the
+    version it was about stay together. An update with no prior
+    classification has nothing to carry and simply waits for a run that
+    asks about it.
+    """
+    if previous is None:
+        return []
+    return [
+        (option, dict(item))
+        for option in options
+        for item in previous["items"].get(option, [])
+        if item.get("registry_id") in registry_ids
+    ]

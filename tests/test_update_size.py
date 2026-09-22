@@ -8,6 +8,7 @@ import pytest
 from homeassistant.const import CONF_API_KEY, STATE_ON
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import issue_registry as ir
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
@@ -16,12 +17,14 @@ from custom_components.gutcheck.const import (
     DEFAULT_DAILY_BUDGET,
     DOMAIN,
     MAX_UPDATES_PER_RUN,
+    OPTION_POSSIBLY_BREAKING,
     OPTION_WORTH_FIXING,
     RECIPE_HEALTH,
     RECIPE_UPDATES,
     RELEASE_NOTES_MAX_CHARS,
     REQUEST_TOKEN_LIMIT,
     STATE_TOKEN_LIMIT,
+    UPDATES_ISSUE_PREFIX,
     VERSION_JUMP_MAJOR,
 )
 
@@ -74,6 +77,12 @@ async def _setup(hass: HomeAssistant) -> MockConfigEntry:
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
     return entry
+
+
+async def _run_again(hass: HomeAssistant, entry: MockConfigEntry) -> None:
+    """Drive a second run directly, the same way a scheduled refresh would."""
+    await entry.runtime_data.coordinators[RECIPE_UPDATES].async_refresh()
+    await hass.async_block_till_done(wait_background_tasks=True)
 
 
 def _sensor_state(hass: HomeAssistant, entry: MockConfigEntry, recipe_id: str) -> Any:
@@ -158,6 +167,36 @@ async def test_more_pending_than_the_cap_asks_about_the_highest_jump_ones_first(
 
     state = _sensor_state(hass, entry, RECIPE_UPDATES)
     assert state.state != "unavailable"
+
+
+async def test_an_update_cut_by_the_cap_keeps_its_prior_classification_and_its_card(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
+) -> None:
+    """An update ranked past the cap defers only its question; its bucket and its Repairs card stay put."""
+    deferred = _register_update(hass, 0, installed="1.0.0", latest="1.0.1")
+    register_jev_responses(aioclient_mock, [api_response({"u0": score_answer(2, 0.9)})])
+    entry = await _setup(hass)
+    issue_id = f"{UPDATES_ISSUE_PREFIX}{deferred.id}"
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
+    classified_before = _sensor_state(hass, entry, RECIPE_UPDATES).attributes["items"][OPTION_POSSIBLY_BREAKING][0]
+
+    # Its version moves on, so it cannot carry forward on a version match, and
+    # a cap's worth of major jumps arrive to outrank it.
+    _register_update(hass, 0, installed="1.0.0", latest="1.0.2")
+    for index in range(1, MAX_UPDATES_PER_RUN + 1):
+        _register_update(hass, index, installed="1.0.0", latest="2.0.0")
+    aioclient_mock.clear_requests()
+    register_jev_responses(aioclient_mock, [api_response({f"u{i}": score_answer(0, 0.9) for i in range(MAX_UPDATES_PER_RUN)})])
+    await _run_again(hass, entry)
+
+    bodies = posted_bodies(aioclient_mock)
+    assert len(bodies) == 1
+    assert len(bodies[0]["questions"]) == MAX_UPDATES_PER_RUN
+
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
+    state = _sensor_state(hass, entry, RECIPE_UPDATES)
+    assert state.state == str(MAX_UPDATES_PER_RUN + 1)
+    assert state.attributes["items"][OPTION_POSSIBLY_BREAKING] == [classified_before]
 
 
 async def test_an_oversized_request_is_refused_with_no_partial_result(

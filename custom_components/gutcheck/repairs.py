@@ -6,12 +6,12 @@ import logging
 import re
 from urllib.parse import urlparse
 
-from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
+from homeassistant.const import STATE_UNAVAILABLE
 from homeassistant.core import CALLBACK_TYPE, Event, EventStateChangedData, HomeAssistant, callback
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.event import async_track_state_change_event
 
-from .const import DOMAIN
+from .const import DOMAIN, NO_VERDICT_STATES
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -21,8 +21,6 @@ _WHITESPACE_RE = re.compile(r"\s+")
 _MARKDOWN_ACTIVE_RE = re.compile(r"([\\`\[\]<>])")
 _MAX_PLACEHOLDER_LENGTH = 100
 _SAFE_URL_SCHEMES = frozenset({"http", "https"})
-# States that report an absence of information, never a recovery.
-_NO_VERDICT_STATES = frozenset({STATE_UNAVAILABLE, STATE_UNKNOWN})
 
 
 def sanitize_placeholder(value: str) -> str:
@@ -108,7 +106,7 @@ def _has_recovered(state: str, problem_state: str) -> bool:
     """
     if state == problem_state:
         return False
-    return state not in _NO_VERDICT_STATES
+    return state not in NO_VERDICT_STATES
 
 
 @callback

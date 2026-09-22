@@ -3,7 +3,7 @@
 from datetime import timedelta
 from typing import Final
 
-from homeassistant.const import Platform
+from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN, Platform
 
 DOMAIN: Final = "gutcheck"
 VERSION: Final = "0.1.3"  # x-release-please-version
@@ -57,6 +57,11 @@ BLOCKED_DOMAINS: Final = frozenset(
         Platform.COVER,
     }
 )
+
+# An entity reports one of these on a reload, a device dropping off the
+# network, or a source going quiet. Each says an answer is missing, never
+# what the answer is, so neither ends a finding nor clears its card.
+NO_VERDICT_STATES: Final = frozenset({STATE_UNAVAILABLE, STATE_UNKNOWN})
 
 # Choice answers only. Noul thresholds are a probability band modeled
 # separately per question and never share this constant.
