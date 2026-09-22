@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from homeassistant.const import STATE_OFF, STATE_ON
+from homeassistant.const import STATE_OFF, STATE_ON, STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
@@ -92,6 +92,46 @@ async def test_entity_leaving_on_deletes_the_issue_with_no_further_request(hass:
     await hass.async_block_till_done()
 
     assert ir.async_get(hass).async_get_issue(DOMAIN, f"{UPDATES_ISSUE_PREFIX}reg_a") is None
+
+
+async def test_a_transient_unavailable_keeps_the_card_until_the_update_is_really_resolved(hass: HomeAssistant) -> None:
+    """An entity going unavailable mid-life, as it does on every reload of its integration, must not clear the card."""
+    hass.states.async_set("update.a", STATE_ON)
+    recipe = UpdateRecipe(critical_label=None)
+    await recipe.async_act(hass, update_result({OPTION_POSSIBLY_BREAKING: [update_item("update.a", "reg_a")]}))
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{UPDATES_ISSUE_PREFIX}reg_a") is not None
+
+    hass.states.async_set("update.a", STATE_UNAVAILABLE)
+    await hass.async_block_till_done()
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{UPDATES_ISSUE_PREFIX}reg_a") is not None
+
+    hass.states.async_set("update.a", STATE_UNKNOWN)
+    await hass.async_block_till_done()
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{UPDATES_ISSUE_PREFIX}reg_a") is not None
+
+    hass.states.async_set("update.a", STATE_ON)
+    await hass.async_block_till_done()
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{UPDATES_ISSUE_PREFIX}reg_a") is not None
+
+    hass.states.async_set("update.a", STATE_OFF)
+    await hass.async_block_till_done()
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{UPDATES_ISSUE_PREFIX}reg_a") is None
+
+
+async def test_an_unavailable_entity_at_run_time_keeps_its_card_and_its_dismissal(hass: HomeAssistant) -> None:
+    """A run that lands while the entity is unavailable re-arms tracking without sweeping the card or the ignore."""
+    hass.states.async_set("update.a", STATE_ON)
+    recipe = UpdateRecipe(critical_label=None)
+    result = update_result({OPTION_POSSIBLY_BREAKING: [update_item("update.a", "reg_a")]})
+    await recipe.async_act(hass, result)
+    ir.async_ignore_issue(hass, DOMAIN, f"{UPDATES_ISSUE_PREFIX}reg_a", True)
+
+    hass.states.async_set("update.a", STATE_UNAVAILABLE)
+    await recipe.async_act(hass, result)
+
+    issue = ir.async_get(hass).async_get_issue(DOMAIN, f"{UPDATES_ISSUE_PREFIX}reg_a")
+    assert issue is not None
+    assert issue.dismissed_version is not None
 
 
 async def test_a_latest_version_bump_while_still_on_leaves_the_issue_in_place(hass: HomeAssistant) -> None:

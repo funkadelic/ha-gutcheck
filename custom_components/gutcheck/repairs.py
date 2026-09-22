@@ -6,7 +6,7 @@ import logging
 import re
 from urllib.parse import urlparse
 
-from homeassistant.const import STATE_UNAVAILABLE
+from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import CALLBACK_TYPE, Event, EventStateChangedData, HomeAssistant, callback
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.event import async_track_state_change_event
@@ -21,6 +21,8 @@ _WHITESPACE_RE = re.compile(r"\s+")
 _MARKDOWN_ACTIVE_RE = re.compile(r"([\\`\[\]<>])")
 _MAX_PLACEHOLDER_LENGTH = 100
 _SAFE_URL_SCHEMES = frozenset({"http", "https"})
+# States that report an absence of information, never a recovery.
+_NO_VERDICT_STATES = frozenset({STATE_UNAVAILABLE, STATE_UNKNOWN})
 
 
 def sanitize_placeholder(value: str) -> str:
@@ -96,29 +98,43 @@ def async_delete_issues(hass: HomeAssistant, prefix: str = "") -> None:
         ir.async_delete_issue(hass, DOMAIN, issue_id)
 
 
+def _has_recovered(state: str, problem_state: str) -> bool:
+    """Whether a state says the problem is over, rather than saying nothing at all.
+
+    An entity reports unavailable or unknown on an integration reload, a
+    device dropping off the network or a source going quiet. None of those
+    resolve what the card warns about, and clearing on one of them takes
+    the user's dismissal with it, since a delete is not a re-create.
+    """
+    if state == problem_state:
+        return False
+    return state not in _NO_VERDICT_STATES
+
+
 @callback
 def async_track_recovery(
     hass: HomeAssistant, watched: dict[str, str], *, problem_state: str = STATE_UNAVAILABLE
 ) -> CALLBACK_TYPE:
-    """Delete a watched issue the moment its entity leaves problem_state.
+    """Delete a watched issue the moment its entity recovers from problem_state.
 
     The issue stays while the entity holds problem_state, and clears the
-    moment it leaves it. Checks current state immediately, since an entity
-    may have already recovered since it was classified, then subscribes for
-    future changes. A removed or renamed entity reports new_state as None,
-    which is left alone: the issue stays until the next run reclassifies it,
-    which is what keeps an ignored issue alive across a rename.
+    moment it reaches a state that means recovery. Checks current state
+    immediately, since an entity may have already recovered since it was
+    classified, then subscribes for future changes. A removed or renamed
+    entity reports new_state as None, which is left alone: the issue stays
+    until the next run reclassifies it, which is what keeps an ignored
+    issue alive across a rename.
     """
     for entity_id, issue_id in watched.items():
         state = hass.states.get(entity_id)
-        if state is not None and state.state != problem_state:
+        if state is not None and _has_recovered(state.state, problem_state):
             ir.async_delete_issue(hass, DOMAIN, issue_id)
 
     @callback
     def _handle_state_change(event: Event[EventStateChangedData]) -> None:
-        """Delete the watched issue once its entity leaves problem_state."""
+        """Delete the watched issue once its entity recovers from problem_state."""
         new_state = event.data["new_state"]
-        if new_state is None or new_state.state == problem_state:
+        if new_state is None or not _has_recovered(new_state.state, problem_state):
             return
         ir.async_delete_issue(hass, DOMAIN, watched[event.data["entity_id"]])
 
