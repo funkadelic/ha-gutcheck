@@ -19,9 +19,10 @@ permissions:
   contents: write
 
 concurrency:
-  # Serialize by the target version/tag (the shared resource), not the branch,
-  # so two branches publishing the same v<version> can't race to create the tag.
-  group: prerelease-${{ inputs.version }}
+  # One prerelease at a time for the whole repo. Keying on inputs.version would
+  # let "0.2.0rc1" and "v0.2.0rc1" run concurrently against the same tag, and
+  # the loser's cleanup would delete the winner's release.
+  group: prerelease-${{ github.repository }}
   cancel-in-progress: false
 
 jobs:
@@ -64,11 +65,25 @@ jobs:
           rc=0
           git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1 || rc=$?
           if [ "$rc" -eq 0 ]; then
-            echo "::error::Tag $TAG already exists"
+            echo "::error::Tag $TAG already exists. If a cancelled run left it behind, remove it with: gh release delete $TAG --yes --cleanup-tag"
             exit 1
           elif [ "$rc" -ne 2 ]; then
             echo "::error::Could not query remote tags (git ls-remote exit $rc)"
             exit 1
+          fi
+          # A beta at or below the newest shipped stable becomes "the latest release"
+          # for that version on a commit that is not on main, which sends
+          # release-please backwards. Refuse it rather than clean up afterwards.
+          BASE=$(printf '%s' "$VERSION" | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
+          NEWEST_STABLE=$(git ls-remote --tags --refs origin 'refs/tags/v*' \
+            | awk '{sub(/^refs\/tags\/v/, "", $2); print $2}' \
+            | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+          if [ -n "$NEWEST_STABLE" ]; then
+            HIGHER=$(printf '%s\n%s\n' "$BASE" "$NEWEST_STABLE" | sort -V | tail -1)
+            if [ "$BASE" = "$NEWEST_STABLE" ] || [ "$HIGHER" != "$BASE" ]; then
+              echo "::error::$VERSION is a beta for $BASE, which is not above the newest shipped stable $NEWEST_STABLE. Pick a version above $NEWEST_STABLE."
+              exit 1
+            fi
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
