@@ -98,9 +98,11 @@ def _parse_stored_result(stored: object, item_keys: frozenset[str]) -> tuple[Rec
     counts, items = stored.get("counts"), stored.get("items")
     if not isinstance(counts, dict) or not isinstance(items, dict):
         return None
-    if not isinstance(stored.get("unsure"), list):
-        return None
     if not all(isinstance(count, int) for count in counts.values()):
+        return None
+    # unsure holds the same item shape as any bucket, and a recipe's restore
+    # reads the same fields off it, so it gets the same check.
+    if not _valid_items(stored.get("unsure"), item_keys):
         return None
     if not all(_valid_items(bucket, item_keys) for bucket in items.values()):
         return None

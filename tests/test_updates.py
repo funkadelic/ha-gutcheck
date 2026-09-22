@@ -3,15 +3,25 @@
 from __future__ import annotations
 
 import json
+from datetime import timedelta
 from typing import Any
 
 from homeassistant.components.update import UpdateEntityFeature
-from homeassistant.core import HomeAssistant
+from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
+from homeassistant.core import CoreState, HomeAssistant
 from homeassistant.helpers import entity_registry as er
+from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import DOMAIN, OPTION_FEATURE, OPTION_POSSIBLY_BREAKING, OPTION_ROUTINE, RECIPE_UPDATES
+from custom_components.gutcheck.const import (
+    DOMAIN,
+    OPTION_FEATURE,
+    OPTION_POSSIBLY_BREAKING,
+    OPTION_ROUTINE,
+    RECIPE_UPDATES,
+    STORE_VERSION,
+)
 from custom_components.gutcheck.recipes.shapes import recipe_store_key
 
 from .conftest import (
@@ -26,6 +36,47 @@ from .conftest import (
 )
 
 UPDATES_STORE_KEY = recipe_store_key(RECIPE_UPDATES)
+RECENT_RUN = (dt_util.utcnow() - timedelta(days=1)).isoformat()
+
+
+async def test_a_stored_unsure_entry_missing_a_field_is_treated_as_never_run(
+    hass: HomeAssistant,
+    hass_storage: dict[str, Any],
+    aioclient_mock: AiohttpClientMocker,
+    mock_config_entry: MockConfigEntry,
+) -> None:
+    """A half-written unsure entry must not take the config entry down with it.
+
+    The update recipe is the first restore path that reads fields off an
+    unsure entry, so a stored one missing registry_id used to raise out of
+    setup and leave the entry dead until someone cleared the store by hand.
+    """
+    hass.set_state(CoreState.not_running)
+    register_pending_update(hass)
+    hass_storage[UPDATES_STORE_KEY] = {
+        "version": STORE_VERSION,
+        "minor_version": 1,
+        "key": UPDATES_STORE_KEY,
+        "data": {
+            "last_run": RECENT_RUN,
+            "counts": {},
+            "items": {},
+            "unsure": [{"entity_id": "update.a"}],
+            "last_payload": None,
+        },
+    }
+    register_jev_responses(aioclient_mock, [api_response({"u0": score_answer(0, 0.9)})])
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+    hass.bus.async_fire(EVENT_HOMEASSISTANT_STARTED)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    assert len(posted_bodies(aioclient_mock)) == 1
+    state = hass.states.get(updates_sensor_entity_id(hass, mock_config_entry))
+    assert state is not None
+    assert state.attributes["unsure"] == []
 
 
 async def test_two_pending_updates_are_scored_in_one_request(
