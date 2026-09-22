@@ -75,9 +75,11 @@ jobs:
           # for that version on a commit that is not on main, which sends
           # release-please backwards. Refuse it rather than clean up afterwards.
           BASE=$(printf '%s' "$VERSION" | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
+          # Filter in awk, not grep: no stable tags yet means grep exits 1, which
+          # under this shell's -e and pipefail kills the step before the check below.
           NEWEST_STABLE=$(git ls-remote --tags --refs origin 'refs/tags/v*' \
-            | awk '{sub(/^refs\/tags\/v/, "", $2); print $2}' \
-            | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+            | awk '{sub(/^refs\/tags\/v/, "", $2); if ($2 ~ /^[0-9]+\.[0-9]+\.[0-9]+$/) print $2}' \
+            | sort -V | tail -1)
           if [ -n "$NEWEST_STABLE" ]; then
             HIGHER=$(printf '%s\n%s\n' "$BASE" "$NEWEST_STABLE" | sort -V | tail -1)
             if [ "$BASE" = "$NEWEST_STABLE" ] || [ "$HIGHER" != "$BASE" ]; then
