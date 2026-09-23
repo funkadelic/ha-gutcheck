@@ -42,11 +42,20 @@ def test_bucket_duration_boundaries() -> None:
 
 
 def test_bucket_longer_than_boundaries() -> None:
-    """Zero days falls back to unknown; any positive count of days becomes "longer than N days"."""
+    """Zero days is unknown; a positive count snaps down to 1 day, 1 week or 4 weeks, matching bucket_duration's edges."""
     assert bucket_longer_than(0) == "unknown"
     assert bucket_longer_than(1) == "longer than 1 day"
-    assert bucket_longer_than(2) == "longer than 2 days"
-    assert bucket_longer_than(10) == "longer than 10 days"
+    assert bucket_longer_than(6) == "longer than 1 day"
+    assert bucket_longer_than(7) == "longer than 1 week"
+    assert bucket_longer_than(27) == "longer than 1 week"
+    assert bucket_longer_than(28) == "longer than 4 weeks"
+
+
+@pytest.mark.parametrize("days", [0, 1, 7, 28])
+def test_health_criteria_quote_every_longer_than_word(days: int) -> None:
+    """Every word bucket_longer_than can send appears double-quoted in HEALTH_CRITERIA, so none is left for the model to judge."""
+    combined = " ".join(text or "" for text in HEALTH_CRITERIA.values())
+    assert f'"{bucket_longer_than(days)}"' in combined
 
 
 async def test_critical_labelled_entity_is_excluded(hass: HomeAssistant) -> None:
@@ -228,7 +237,7 @@ async def test_unavailable_for_reflects_whole_days_since_last_changed(hass: Home
     with freeze_time("2026-01-04 00:00:00"):
         batch = await HealthRecipe(critical_label=None).async_prepare(hass)
 
-    assert batch.state["entities"][0]["unavailable_for"] == "longer than 3 days"
+    assert batch.state["entities"][0]["unavailable_for"] == "longer than 1 day"
 
 
 async def test_names_never_reach_the_payload_or_the_log(hass: HomeAssistant, caplog: object) -> None:

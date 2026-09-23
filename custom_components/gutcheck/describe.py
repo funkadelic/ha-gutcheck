@@ -30,12 +30,14 @@ def bucket_duration(seconds: float) -> str:
 
 
 def bucket_longer_than(days: int) -> str:
-    """Describe a lower bound in whole days, for when the real duration is unknown."""
+    """Describe a lower bound in whole days, snapped down to a fixed word so the model never compares numbers."""
     if days <= 0:
         return "unknown"
-    if days == 1:
+    if days < 7:
         return "longer than 1 day"
-    return f"longer than {days} days"
+    if days < 28:
+        return "longer than 1 week"
+    return "longer than 4 weeks"
 
 
 def version_jump(installed: str | None, latest: str | None) -> str:

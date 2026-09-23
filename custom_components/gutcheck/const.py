@@ -92,18 +92,19 @@ HEALTH_CRITERIA: Final[dict[str, str | None]] = {
         "its domain and device class describe something often switched off or asleep."
     ),
     OPTION_WORTH_FIXING: (
-        'Its `config_entry_state` is "setup error", "setup retry" or "migration error" (the integration '
-        'failed to start); or `config_entry_state` is "loaded" or missing, `restored` is false, '
+        'Its `config_entry_state` is "setup error", "setup retry" or "migration error"; or '
+        '`config_entry_state` is "loaded" or missing, `restored` is false, '
         "`device_other_entities_available` is false, and its domain and device class do not describe "
         "something often switched off or asleep."
     ),
     OPTION_SAFE_TO_REMOVE: (
-        "Its `restored` is true, so no loaded integration provides it any more, its `config_entry_state` is "
-        '"loaded" or missing, and its `unavailable_for` is "1 to 4 weeks", "more than 4 weeks" or starts with "longer than".'
+        "Its `restored` is true, its `config_entry_state` is "
+        '"loaded" or missing, and its `unavailable_for` is "1 to 4 weeks", "more than 4 weeks", '
+        '"longer than 1 week" or "longer than 4 weeks".'
     ),
     OPTION_NONE: (
         "Anything else, for example any other `config_entry_state`, or `restored` is true with "
-        '`unavailable_for` "less than a day", "1 to 6 days" or "unknown".'
+        '`unavailable_for` "less than a day", "1 to 6 days", "longer than 1 day" or "unknown".'
     ),
 }
 

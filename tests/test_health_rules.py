@@ -135,8 +135,8 @@ async def test_last_changed_boundary(hass: HomeAssistant, freezer: Any, days_gon
 @pytest.mark.parametrize(
     ("recorder_config", "days_later", "expect_carried", "expected_text"),
     [
-        ({"purge_keep_days": 31}, 41, True, "longer than 31 days"),
-        ({"purge_keep_days": 10}, 41, True, "longer than 10 days"),
+        ({"purge_keep_days": 31}, 41, True, "longer than 4 weeks"),
+        ({"purge_keep_days": 10}, 41, True, "longer than 1 week"),
         ({"purge_keep_days": 60}, 41, True, "more than 4 weeks"),
         ({"purge_keep_days": 60}, 30, False, "more than 4 weeks"),
         ({"purge_keep_days": 10}, 5, False, "1 to 6 days"),
