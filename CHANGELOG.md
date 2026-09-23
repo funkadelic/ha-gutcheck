@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.3](https://github.com/funkadelic/ha-gutcheck/compare/v0.1.2...v0.1.3) (2026-09-23)
+
+
+### Other Changes
+
+* add a beta prerelease workflow and a release-please guard ([#8](https://github.com/funkadelic/ha-gutcheck/issues/8)) ([013ae7d](https://github.com/funkadelic/ha-gutcheck/commit/013ae7da7936b241c6dfc8cd569b014e7fcc9f8c))
+* add dependabot for grouped actions and pip updates ([#10](https://github.com/funkadelic/ha-gutcheck/issues/10)) ([fa2b6ce](https://github.com/funkadelic/ha-gutcheck/commit/fa2b6cecd0187265379124dd5dd0594b118bbd39))
+
 ## [0.1.2](https://github.com/funkadelic/ha-gutcheck/compare/v0.1.1...v0.1.2) (2026-09-21)
 
 
