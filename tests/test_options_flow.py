@@ -25,6 +25,7 @@ from custom_components.gutcheck.const import (
     OPTION_EXPECTED,
     OPTION_WORTH_FIXING,
     RECIPE_UPDATES,
+    UPDATES_ISSUE_PREFIX,
 )
 
 from .conftest import (
@@ -53,6 +54,11 @@ def _tokens_sensor_state(hass: HomeAssistant, entry: MockConfigEntry) -> Any:
     state = hass.states.get(entity_id)
     assert state is not None
     return state
+
+
+def _has_update_issue(hass: HomeAssistant) -> bool:
+    """Whether any possibly-breaking update Repairs card exists."""
+    return any(domain == DOMAIN and issue_id.startswith(UPDATES_ISSUE_PREFIX) for domain, issue_id in ir.async_get(hass).issues)
 
 
 def _schema_defaults(schema: Any) -> dict[str, Any]:
@@ -312,12 +318,12 @@ async def test_budget_of_zero_is_rejected_by_the_form_schema(hass: HomeAssistant
 async def test_turning_updates_off_removes_its_sensor_and_button_leaving_health_alone(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
 ) -> None:
-    """Disabling the update review removes its sensor and button; the health check stays untouched."""
+    """Disabling the update review removes its sensor, button and cards; the health check stays untouched."""
     register_unavailable_entity(hass)
     register_pending_update(hass)
     register_jev_responses(
         aioclient_mock,
-        [api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}), api_response({"u0": score_answer(0, 0.9)})],
+        [api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}), api_response({"u0": score_answer(2, 0.9)})],
     )
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
@@ -326,6 +332,7 @@ async def test_turning_updates_off_removes_its_sensor_and_button_leaving_health_
     assert find_health_sensor(hass, mock_config_entry) is not None
     assert find_updates_sensor(hass, mock_config_entry) is not None
     assert _updates_button_entity_id(hass, mock_config_entry) is not None
+    assert _has_update_issue(hass)
 
     result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
     await hass.config_entries.options.async_configure(
@@ -337,17 +344,15 @@ async def test_turning_updates_off_removes_its_sensor_and_button_leaving_health_
     assert find_health_sensor(hass, mock_config_entry) is not None
     assert find_updates_sensor(hass, mock_config_entry) is None
     assert _updates_button_entity_id(hass, mock_config_entry) is None
+    assert not _has_update_issue(hass)
 
 
 async def test_turning_updates_back_on_restores_sensor_and_runs(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
 ) -> None:
-    """Re-enabling the update review restores its sensor and runs again once HA has started."""
+    """Re-enabling the update review restores its sensor, runs again once HA has started, and raises its cards."""
     register_pending_update(hass)
-    register_jev_responses(
-        aioclient_mock,
-        [api_response({"u0": score_answer(0, 0.9)}), api_response({"u0": score_answer(0, 0.9)})],
-    )
+    register_jev_responses(aioclient_mock, [api_response({"u0": score_answer(2, 0.9)})])
     mock_config_entry = MockConfigEntry(
         domain=DOMAIN, data=mock_config_entry.data, options={CONF_HEALTH_ENABLED: False, CONF_UPDATES_ENABLED: False}
     )
@@ -367,6 +372,7 @@ async def test_turning_updates_back_on_restores_sensor_and_runs(
 
     assert find_updates_sensor(hass, mock_config_entry) is not None
     assert len(posted_bodies(aioclient_mock)) == 1
+    assert _has_update_issue(hass)
 
 
 async def test_saving_identical_updates_value_does_not_reload(hass: HomeAssistant, mock_config_entry: MockConfigEntry) -> None:

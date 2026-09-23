@@ -128,11 +128,6 @@ async def test_no_part_of_a_hostile_note_reaches_a_repairs_placeholder(hass: Hom
     issue = ir.async_get(hass).async_get_issue(DOMAIN, f"{UPDATES_ISSUE_PREFIX}reg_a")
     assert issue is not None
     assert issue.translation_placeholders == {"entity_id": "update.a", "latest_version": "2.0.0"}
-    notes = str(item["release_notes"])
-    windows = {notes[start : start + 20] for start in range(max(1, len(notes) - 19))}
-    for value in issue.translation_placeholders.values():
-        assert title not in value
-        assert not any(window in value for window in windows)
 
 
 async def test_a_script_scheme_release_url_never_becomes_a_card_link(hass: HomeAssistant) -> None:

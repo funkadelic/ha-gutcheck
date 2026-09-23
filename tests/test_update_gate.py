@@ -95,8 +95,9 @@ def test_confidence_outside_zero_to_one_is_rejected(confidence: object) -> None:
     assert gate_score(answer, ALLOWED, UPDATE_CONFIDENCE_THRESHOLD) is None
 
 
-def test_a_score_of_one_and_a_half_on_three_levels_resolves_to_the_top_level() -> None:
-    """floor(score + 0.5), not round(): a score exactly half-way between two levels always rounds up."""
-    answer = _answer(1.5, 0.9)
-    assert math.floor(1.5 + 0.5) == 2
-    assert gate_score(answer, ALLOWED, UPDATE_CONFIDENCE_THRESHOLD) == ALLOWED[2]
+def test_a_score_of_one_half_on_three_levels_resolves_to_the_middle_level() -> None:
+    """floor(score + 0.5), not round(): a score half-way between two levels rounds up, where round(0.5) gives 0."""
+    answer = _answer(0.5, 0.9)
+    assert round(0.5) == 0
+    assert math.floor(0.5 + 0.5) == 1
+    assert gate_score(answer, ALLOWED, UPDATE_CONFIDENCE_THRESHOLD) == ALLOWED[1]

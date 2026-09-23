@@ -16,6 +16,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.gutcheck.const import DOMAIN, HEALTH_ISSUE_PREFIX, OPTION_WORTH_FIXING, RECIPE_HEALTH, STORE_VERSION
+from custom_components.gutcheck.recipes.health import HealthRecipe
 from custom_components.gutcheck.recipes.shapes import _parse_stored_result, recipe_store_key
 
 from .conftest import (
@@ -56,6 +57,7 @@ def test_stored_result_parses_against_its_own_recipes_declared_key_set() -> None
     }
 
     assert _parse_stored_result(stored, frozenset({"entity_id", "registry_id"})) is not None
+    assert _parse_stored_result(stored, HealthRecipe.stored_item_keys) is None
 
 
 async def test_fresh_install_runs_once_after_startup_and_persists(

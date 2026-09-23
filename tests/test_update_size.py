@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
-from homeassistant.const import CONF_API_KEY, STATE_ON
+from homeassistant.const import CONF_API_KEY
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
@@ -33,6 +33,7 @@ from .conftest import (
     choice_answer,
     posted_bodies,
     register_jev_responses,
+    register_pending_update,
     register_unavailable_entity,
     score_answer,
 )
@@ -44,30 +45,6 @@ SAFETY_FACTOR = 1.15
 # (56 as of 2026-09-18), and safely under MAX_UPDATES_PER_RUN so this run
 # is provably uncapped.
 REALISTIC_UPDATE_COUNT = 45
-
-
-def _register_update(
-    hass: HomeAssistant,
-    index: int,
-    *,
-    installed: str = "1.0.0",
-    latest: str = "2.0.0",
-) -> er.RegistryEntry:
-    """Register one pending update entity directly, without a real update platform entity."""
-    entry = er.async_get(hass).async_get_or_create("update", "test", f"upd_{index:04d}")
-    hass.states.async_set(
-        entry.entity_id,
-        STATE_ON,
-        {
-            "installed_version": installed,
-            "latest_version": latest,
-            "release_summary": "Bug fixes and performance improvements.",
-            "title": f"Update {index}",
-            "release_url": None,
-            "skipped_version": None,
-        },
-    )
-    return entry
 
 
 async def _setup(hass: HomeAssistant) -> MockConfigEntry:
@@ -114,7 +91,7 @@ def _full_size_state_item() -> dict[str, Any]:
 async def test_one_run_is_one_request_with_measured_headroom(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
     """A realistic pending-update count sends one request, comfortably inside both token limits."""
     for index in range(REALISTIC_UPDATE_COUNT):
-        _register_update(hass, index)
+        register_pending_update(hass, f"upd_{index:04d}", title=f"Update {index}")
     answers = {f"u{i}": score_answer(i % 3, 0.9) for i in range(REALISTIC_UPDATE_COUNT)}
     register_jev_responses(aioclient_mock, [api_response(answers)])
 
@@ -152,7 +129,9 @@ async def test_more_pending_than_the_cap_asks_about_the_highest_jump_ones_first(
     total = MAX_UPDATES_PER_RUN * 3
     for index in range(total):
         installed, latest = jumps[index % 3]
-        _register_update(hass, index, installed=installed, latest=latest)
+        register_pending_update(
+            hass, f"upd_{index:04d}", installed_version=installed, latest_version=latest, title=f"Update {index}"
+        )
     answers = {f"u{i}": score_answer(0, 0.9) for i in range(MAX_UPDATES_PER_RUN)}
     register_jev_responses(aioclient_mock, [api_response(answers)])
 
@@ -173,7 +152,7 @@ async def test_an_update_cut_by_the_cap_keeps_its_prior_classification_and_its_c
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
 ) -> None:
     """An update ranked past the cap defers only its question; its bucket and its Repairs card stay put."""
-    deferred = _register_update(hass, 0, installed="1.0.0", latest="1.0.1")
+    deferred = register_pending_update(hass, "upd_0000", installed_version="1.0.0", latest_version="1.0.1", title="Update 0")
     register_jev_responses(aioclient_mock, [api_response({"u0": score_answer(2, 0.9)})])
     entry = await _setup(hass)
     issue_id = f"{UPDATES_ISSUE_PREFIX}{deferred.id}"
@@ -182,9 +161,11 @@ async def test_an_update_cut_by_the_cap_keeps_its_prior_classification_and_its_c
 
     # Its version moves on, so it cannot carry forward on a version match, and
     # a cap's worth of major jumps arrive to outrank it.
-    _register_update(hass, 0, installed="1.0.0", latest="1.0.2")
+    register_pending_update(hass, "upd_0000", installed_version="1.0.0", latest_version="1.0.2", title="Update 0")
     for index in range(1, MAX_UPDATES_PER_RUN + 1):
-        _register_update(hass, index, installed="1.0.0", latest="2.0.0")
+        register_pending_update(
+            hass, f"upd_{index:04d}", installed_version="1.0.0", latest_version="2.0.0", title=f"Update {index}"
+        )
     aioclient_mock.clear_requests()
     register_jev_responses(aioclient_mock, [api_response({f"u{i}": score_answer(0, 0.9) for i in range(MAX_UPDATES_PER_RUN)})])
     await _run_again(hass, entry)
@@ -213,7 +194,7 @@ async def test_an_oversized_request_is_refused_with_no_partial_result(
     """
     monkeypatch.setattr("custom_components.gutcheck.budget.REQUEST_TOKEN_LIMIT", 100)
     for index in range(3):
-        _register_update(hass, index)
+        register_pending_update(hass, f"upd_{index:04d}", title=f"Update {index}")
 
     entry = await _setup(hass)
 
@@ -233,7 +214,7 @@ async def test_a_health_run_and_a_full_update_run_the_same_day_both_fit_the_defa
     """Both coordinators refreshing on a fresh install's first day fit comfortably inside the default budget."""
     register_unavailable_entity(hass)
     for index in range(REALISTIC_UPDATE_COUNT):
-        _register_update(hass, index)
+        register_pending_update(hass, f"upd_{index:04d}", title=f"Update {index}")
     register_jev_responses(
         aioclient_mock,
         [
