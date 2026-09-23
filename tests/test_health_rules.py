@@ -4,11 +4,13 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 from typing import Any
+from unittest.mock import patch
 
 import pytest
+from homeassistant.components.recorder import history
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
-from homeassistant.core import CoreState, HomeAssistant
+from homeassistant.core import CoreState, HomeAssistant, State
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -166,6 +168,31 @@ async def test_recorder_window_gates_the_leftover_rule(
         assert len(batch.subjects) == 1
         subject = next(iter(batch.subjects.values()))
         assert subject["unavailable_for"] == expected_text
+
+
+@pytest.mark.parametrize("recorder_config", [{"purge_keep_days": 10}])
+@pytest.mark.parametrize(("rows", "days_gone"), [([], 12), ([State("sensor.test_unique_undated", "20")], 0)])
+async def test_retention_cap_needs_a_recorder_dated_outage(
+    recorder_mock: Any,
+    hass: HomeAssistant,
+    freezer: Any,
+    recorder_config: dict[str, Any],
+    rows: list[State],
+    days_gone: int,
+) -> None:
+    """With no retained unavailable row, the 31 days count from last_changed, not the 10-day window."""
+    registry = er.async_get(hass)
+    entry = registry.async_get_or_create("sensor", "test", "unique_undated")
+    freezer.move_to(_T0)
+    entry.write_unavailable_state(hass)
+    await async_wait_recording_done(hass)
+
+    freezer.move_to(_T0 + timedelta(days=days_gone))
+    with patch.object(history, "get_significant_states", return_value={entry.entity_id: rows} if rows else {}):
+        batch = await HealthRecipe(critical_label=None).async_prepare(hass)
+
+    assert len(batch.subjects) == 1
+    assert batch.carried.get(OPTION_SAFE_TO_REMOVE, []) == []
 
 
 @pytest.mark.parametrize(

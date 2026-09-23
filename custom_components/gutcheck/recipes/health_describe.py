@@ -61,7 +61,7 @@ def describe(
 
     leftover is true only when restored is true, the outage is known to have
     lasted at least HEALTH_LEFTOVER_DAYS (or the recorder's retention, if
-    shorter), and the owning config entry is
+    shorter and the recorder dated the outage), and the owning config entry is
     loaded or the entity has no config entry at all.
     """
     restored = bool(state.attributes.get(ATTR_RESTORED) is True)
@@ -87,7 +87,9 @@ def describe(
         "restored": restored,
         "unavailable_for": unavailable_for,
     }
-    # Capped at the recorder's retention, since an outage older than that reads only as "longer than N days".
-    threshold = HEALTH_LEFTOVER_DAYS if history_result is None else min(HEALTH_LEFTOVER_DAYS, history_result[0])
+    threshold = HEALTH_LEFTOVER_DAYS
+    if history_result is not None and entry.entity_id in history_result[1]:
+        # The recorder dated this outage, and one older than its window reads only as "longer than N days".
+        threshold = min(HEALTH_LEFTOVER_DAYS, history_result[0])
     leftover = restored and known_days >= threshold and (owning_entry is None or owning_entry.state is ConfigEntryState.LOADED)
     return state_item, subject, leftover

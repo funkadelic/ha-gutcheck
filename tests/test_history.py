@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from homeassistant.components.recorder import history
 from homeassistant.const import ATTR_RESTORED, STATE_UNAVAILABLE
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, State
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.components.recorder.common import async_wait_recording_done
 
@@ -106,7 +106,18 @@ async def test_dict_shaped_rows_are_skipped(recorder_mock, hass: HomeAssistant) 
         keep_days, since_map = await async_unavailable_since(hass, ["sensor.a"])
 
     assert keep_days == 10
-    assert since_map["sensor.a"] is None
+    assert "sensor.a" not in since_map
+
+
+async def test_latest_row_not_unavailable_is_left_out_of_the_map(recorder_mock, hass: HomeAssistant) -> None:
+    """An outage the recorder has not written yet falls back to last_changed instead of reading as the whole window."""
+    hass.states.async_set("sensor.a", STATE_UNAVAILABLE)
+    await async_wait_recording_done(hass)
+
+    with patch.object(history, "get_significant_states", return_value={"sensor.a": [State("sensor.a", "20")]}):
+        _, since_map = await async_unavailable_since(hass, ["sensor.a"])
+
+    assert "sensor.a" not in since_map
 
 
 async def test_one_query_for_every_entity_in_one_run(recorder_mock, hass: HomeAssistant) -> None:

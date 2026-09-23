@@ -130,17 +130,6 @@ async def test_payload_entity_has_exactly_the_seven_allowed_fields(hass: HomeAss
     assert set(batch.state["entities"][0]) == set(PAYLOAD_FIELDS)
 
 
-async def test_entity_with_no_config_entry_omits_config_entry_state(hass: HomeAssistant) -> None:
-    """An entity with no owning config entry keeps exactly the seven fields; the key is omitted, not null."""
-    entity_registry = er.async_get(hass)
-    entry = entity_registry.async_get_or_create("sensor", "test", "unique_no_entry")
-    hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
-
-    batch = await HealthRecipe(critical_label=None).async_prepare(hass)
-
-    assert set(batch.state["entities"][0]) == set(PAYLOAD_FIELDS)
-
-
 @pytest.mark.parametrize(
     ("config_entry_state", "expected_words"),
     [(ConfigEntryState.LOADED, "loaded"), (ConfigEntryState.SETUP_RETRY, "setup retry")],
@@ -165,11 +154,11 @@ async def test_entity_with_a_config_entry_sends_its_state_as_words(
     "config_entry_state",
     [ConfigEntryState.LOADED, ConfigEntryState.SETUP_ERROR, ConfigEntryState.SETUP_RETRY, ConfigEntryState.MIGRATION_ERROR],
 )
-def test_health_criteria_quotes_every_config_entry_state_word_the_code_sends(config_entry_state: ConfigEntryState) -> None:
-    """The words describe() sends for each state appear double-quoted somewhere in HEALTH_CRITERIA.
+def test_health_criteria_quotes_the_config_entry_states_it_names(config_entry_state: ConfigEntryState) -> None:
+    """The words describe() sends for each state a criterion names appear double-quoted in HEALTH_CRITERIA.
 
-    Renaming either the words describe() builds or the words a criterion
-    quotes fails this, so the two cannot drift apart unnoticed.
+    Any other state falls through to "none of these". Renaming either the
+    words describe() builds or the words a criterion quotes fails this.
     """
     words = config_entry_state.value.replace("_", " ")
     combined = " ".join(text or "" for text in HEALTH_CRITERIA.values())
