@@ -1,0 +1,29 @@
+custom_components/gutcheck/recipes/health_describe.py
+  s_aa500d3ae953c7::t_aa35129699fe4a 81-82
+tests/test_health_select.py
+  s_aa500d3ae953c7::t_352cbc012be77f 8,10,17
+  s_aa500d3ae953c7::t_f8ff4ccc134973 133-178
+README.md
+  s_aa500d3ae953c7::t_d8f0f5841c7207 13
+  s_aa500d3ae953c7::t_058c6c5afdd7e0 31
+custom_components/gutcheck/const.py
+  s_aa500d3ae953c7::t_c622c8c185c304 90-91,95-96
+  s_aa500d3ae953c7::t_9f39ff2eb718db 92
+  s_aa500d3ae953c7::t_080995a83bd5af 97-98,101-106
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "63a3e09a1e1fbc9e5194ce5eee447667a82681db",
+  "prompts": {},
+  "sessions": {
+    "s_aa500d3ae953c7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "de8da189-8ed0-41d8-8b31-7af26c1e2e02",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
