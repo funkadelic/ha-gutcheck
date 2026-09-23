@@ -1,0 +1,26 @@
+tests/test_options_flow.py
+  s_10cef395d2fd85::t_df9f457e01f210 28,59-63,321,326,335,347,353,355,375
+tests/test_update_size.py
+  s_10cef395d2fd85::t_29372089e310d7 155,164
+  s_10cef395d2fd85::t_5b75e30845e875 8,36,94,132-134,166-168,197,217
+tests/test_cadence.py
+  s_10cef395d2fd85::t_a0ca704c37b8c7 19,60
+tests/test_update_gate.py
+  s_10cef395d2fd85::t_a0ca704c37b8c7 98-103
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e970a22e5e724443cd7f7d794c7e0391df3ce316",
+  "prompts": {},
+  "sessions": {
+    "s_10cef395d2fd85": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "25ac6b01-bad8-4c32-a70b-96d04948cd9c",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
