@@ -42,7 +42,10 @@ def safe_url(value: str | None) -> str | None:
     """
     if not value:
         return None
-    parsed = urlparse(value)
+    try:
+        parsed = urlparse(value)
+    except ValueError:  # an unclosed IPv6 bracket, for one
+        return None
     if parsed.scheme not in _SAFE_URL_SCHEMES or not parsed.netloc:
         return None
     return value

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pytest
 from homeassistant.const import STATE_OFF, STATE_ON, STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
@@ -59,9 +60,10 @@ async def test_routine_feature_and_none_create_no_issue(hass: HomeAssistant) -> 
     assert [issue_id for domain, issue_id in ir.async_get(hass).issues if domain == DOMAIN] == []
 
 
-async def test_unsafe_release_url_produces_an_issue_with_no_link(hass: HomeAssistant) -> None:
-    """A script-scheme release url never becomes a clickable link."""
-    result = update_result({OPTION_POSSIBLY_BREAKING: [update_item("update.a", "reg_a", release_url="javascript:alert(1)")]})
+@pytest.mark.parametrize("release_url", ["javascript:alert(1)", "https://[::1"])
+async def test_unsafe_release_url_produces_an_issue_with_no_link(hass: HomeAssistant, release_url: str) -> None:
+    """A script-scheme or malformed release url never becomes a clickable link, and never fails the run."""
+    result = update_result({OPTION_POSSIBLY_BREAKING: [update_item("update.a", "reg_a", release_url=release_url)]})
 
     await UpdateRecipe(critical_label=None).async_act(hass, result)
 
