@@ -128,6 +128,7 @@ UPDATE_CRITERIA: Final[list[str]] = [
 ]
 
 RELEASE_NOTES_MAX_CHARS: Final = 1500
+UPDATE_TITLE_MAX_CHARS: Final = 200
 
 # STATE_TOKEN_LIMIT divided by one full-size update's safety-factored
 # token cost, then rounded down for the estimator's own known undercount.

@@ -12,7 +12,7 @@ from typing import Any
 import pytest
 from homeassistant.core import HomeAssistant
 
-from custom_components.gutcheck.const import UPDATE_CRITERIA, UPDATE_INSTRUCTIONS
+from custom_components.gutcheck.const import UPDATE_CRITERIA, UPDATE_INSTRUCTIONS, UPDATE_TITLE_MAX_CHARS
 from custom_components.gutcheck.describe import clean_release_notes
 from custom_components.gutcheck.recipes.updates import UpdateRecipe
 
@@ -67,7 +67,11 @@ async def test_hostile_text_in_any_publisher_field_produces_the_same_question(
         if subject["entity_id"] == hostile.entity_id
     )
     state_key = FIELD_KEYS[field]
-    expected = clean_release_notes(text) if state_key in CLEANED_KEYS else text
+    if field == "title":
+        expected = text[:UPDATE_TITLE_MAX_CHARS]
+        assert len(hostile_item[state_key]) <= UPDATE_TITLE_MAX_CHARS
+    else:
+        expected = clean_release_notes(text) if state_key in CLEANED_KEYS else text
     assert hostile_item[state_key] == expected
 
 

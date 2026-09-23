@@ -9,7 +9,7 @@ from homeassistant.components.update import DATA_COMPONENT, UpdateEntity, Update
 from homeassistant.core import HomeAssistant, State
 from homeassistant.helpers import entity_registry as er
 
-from ..const import RELEASE_NOTES_FETCH_TIMEOUT
+from ..const import RELEASE_NOTES_FETCH_TIMEOUT, UPDATE_TITLE_MAX_CHARS
 from ..describe import clean_release_notes, version_jump
 from .shapes import Item
 
@@ -53,6 +53,7 @@ def describe(entry: er.RegistryEntry, state: State, fetched_notes: str | BaseExc
     installed_version = attributes.get("installed_version")
     latest_version = attributes.get("latest_version")
     release_summary = attributes.get("release_summary")
+    title = attributes.get("title")
     if isinstance(fetched_notes, BaseException):
         _LOGGER.debug(
             "update review release notes fetch failed integration=%s error=%s",
@@ -67,7 +68,7 @@ def describe(entry: er.RegistryEntry, state: State, fetched_notes: str | BaseExc
         "installed_version": installed_version,
         "latest_version": latest_version,
         "version_jump": version_jump(installed_version, latest_version),
-        "title": attributes.get("title"),
+        "title": title[:UPDATE_TITLE_MAX_CHARS] if isinstance(title, str) else None,
         "release_summary": clean_release_notes(release_summary),
         "release_notes": clean_release_notes(notes_text),
     }
