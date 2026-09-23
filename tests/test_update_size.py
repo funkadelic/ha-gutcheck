@@ -33,6 +33,7 @@ from .conftest import (
     choice_answer,
     posted_bodies,
     register_jev_responses,
+    register_jev_responses_by_question,
     register_pending_update,
     register_unavailable_entity,
     score_answer,
@@ -215,12 +216,12 @@ async def test_a_health_run_and_a_full_update_run_the_same_day_both_fit_the_defa
     register_unavailable_entity(hass)
     for index in range(REALISTIC_UPDATE_COUNT):
         register_pending_update(hass, f"upd_{index:04d}", title=f"Update {index}")
-    register_jev_responses(
+    register_jev_responses_by_question(
         aioclient_mock,
-        [
-            api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)}),
-            api_response({f"u{i}": score_answer(i % 3, 0.9) for i in range(REALISTIC_UPDATE_COUNT)}),
-        ],
+        {
+            "e0": api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)}),
+            "u0": api_response({f"u{i}": score_answer(i % 3, 0.9) for i in range(REALISTIC_UPDATE_COUNT)}),
+        },
     )
 
     entry = await _setup(hass)

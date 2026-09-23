@@ -35,6 +35,7 @@ from .conftest import (
     find_updates_sensor,
     posted_bodies,
     register_jev_responses,
+    register_jev_responses_by_question,
     register_pending_update,
     register_unavailable_entity,
     score_answer,
@@ -321,9 +322,9 @@ async def test_turning_updates_off_removes_its_sensor_and_button_leaving_health_
     """Disabling the update review removes its sensor, button and cards; the health check stays untouched."""
     register_unavailable_entity(hass)
     register_pending_update(hass)
-    register_jev_responses(
+    register_jev_responses_by_question(
         aioclient_mock,
-        [api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}), api_response({"u0": score_answer(2, 0.9)})],
+        {"e0": api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}), "u0": api_response({"u0": score_answer(2, 0.9)})},
     )
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)

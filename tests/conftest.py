@@ -98,6 +98,28 @@ def register_jev_responses(aioclient_mock: AiohttpClientMocker, responses: list[
     aioclient_mock.post(API_URL, side_effect=_side_effect)
 
 
+def register_jev_responses_by_question(aioclient_mock: AiohttpClientMocker, responses: dict[str, Any]) -> None:
+    """Queue one response per request, routed by the first question id in its own payload.
+
+    Two recipes' coordinators can each fire their first refresh concurrently,
+    so the order their POSTs land in is not guaranteed; keying by question id
+    removes that race instead of trusting call order. Each key is used at
+    most once: an unknown or already-used question id fails loudly.
+    Each value is either a JSON body (200) or an (status, body) pair.
+    """
+    remaining = {key: (value if isinstance(value, tuple) else (200, value)) for key, value in responses.items()}
+
+    async def _side_effect(method: str, url: Any, data: Any) -> AiohttpClientMockResponse:
+        """Pop the response queued for this request's first question id, or fail loudly."""
+        question_id = next(iter(data["questions"]))
+        if question_id not in remaining:
+            raise AssertionError(f"no queued response for question {question_id!r} (unknown or already used)")
+        status, body = remaining.pop(question_id)
+        return AiohttpClientMockResponse(method=method, url=url, status=status, json=body)
+
+    aioclient_mock.post(API_URL, side_effect=_side_effect)
+
+
 def posted_bodies(aioclient_mock: AiohttpClientMocker) -> list[dict[str, Any]]:
     """Return every request body posted to API_URL, in call order."""
     return [data for _method, url, data, _headers in aioclient_mock.mock_calls if str(url) == API_URL]
