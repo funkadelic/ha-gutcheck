@@ -8,11 +8,12 @@ import voluptuous as vol
 from homeassistant.config_entries import ConfigFlowResult, OptionsFlowWithReload
 from homeassistant.helpers.selector import BooleanSelector, LabelSelector
 
-from .const import CONF_CRITICAL_LABEL, CONF_DAILY_BUDGET, CONF_HEALTH_ENABLED, DEFAULT_DAILY_BUDGET
+from .const import CONF_CRITICAL_LABEL, CONF_DAILY_BUDGET, CONF_HEALTH_ENABLED, CONF_UPDATES_ENABLED, DEFAULT_DAILY_BUDGET
 
 OPTIONS_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_HEALTH_ENABLED, default=True): BooleanSelector(),
+        vol.Required(CONF_UPDATES_ENABLED, default=True): BooleanSelector(),
         vol.Required(CONF_DAILY_BUDGET, default=DEFAULT_DAILY_BUDGET): vol.All(vol.Coerce(int), vol.Range(min=1)),
         vol.Optional(CONF_CRITICAL_LABEL): LabelSelector(),
     }

@@ -30,7 +30,8 @@ from custom_components.gutcheck.const import (
     RECIPE_HEALTH,
     STORE_VERSION,
 )
-from custom_components.gutcheck.recipes.base import Batch, RecipeCoordinator
+from custom_components.gutcheck.recipes.base import RecipeCoordinator
+from custom_components.gutcheck.recipes.shapes import Batch, RecipeResult
 
 from .conftest import api_response, choice_answer, health_sensor_entity_id, posted_bodies, register_jev_responses
 
@@ -378,9 +379,10 @@ class _OversizedRecipe:
 
     recipe_id = "oversized"
     options: tuple[str, ...] = (OPTION_EXPECTED,)
+    stored_item_keys: frozenset[str] = frozenset()
 
-    async def async_prepare(self, hass: HomeAssistant) -> Batch:
-        """A batch deliberately over the state-plus-question cap."""
+    async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None, *, force: bool = False) -> Batch:
+        """A batch deliberately over the state-plus-question cap. previous and force are unused."""
         return Batch(
             state={"pad": "x" * 90_000},
             questions={"q": {"type": "choice", "instructions": "x" * 90_000, "criteria": {"a": None}}},  # type: ignore[typeddict-item]

@@ -5,8 +5,8 @@ from __future__ import annotations
 import pytest
 
 from custom_components.gutcheck.const import CHOICE_CONFIDENCE_THRESHOLD, HEALTH_OPTIONS, OPTION_NONE, OPTION_WORTH_FIXING
-from custom_components.gutcheck.recipes.base import Batch
 from custom_components.gutcheck.recipes.gate import classify, gate_choice
+from custom_components.gutcheck.recipes.shapes import Batch
 
 ALLOWED = HEALTH_OPTIONS
 
@@ -14,6 +14,11 @@ ALLOWED = HEALTH_OPTIONS
 def _answer(choice: object, confidence: object, answer_type: str = "choice") -> dict[str, object]:
     """A choice-shaped answer with the given choice and confidence, empty probabilities."""
     return {"type": answer_type, "choice": choice, "confidence": confidence, "probabilities": {}}
+
+
+def _gate(answer: object) -> str | None:
+    """The plain choice gate at the health recipe's own threshold, for classify() calls below."""
+    return gate_choice(answer, ALLOWED, CHOICE_CONFIDENCE_THRESHOLD)
 
 
 def test_confidence_at_threshold_is_accepted() -> None:
@@ -94,7 +99,7 @@ def test_reversed_answer_order_still_maps_each_answer_to_its_own_entity() -> Non
     }
     payload = {"state": {}, "model": "jev-latest", "questions": {}}
 
-    result = classify(batch, response, ALLOWED, payload)  # type: ignore[arg-type]
+    result = classify(batch, response, ALLOWED, payload, _gate)  # type: ignore[arg-type]
 
     assert result["counts"][OPTION_WORTH_FIXING] == 1
     assert result["items"][OPTION_WORTH_FIXING][0]["entity_id"] == "sensor.b"
@@ -113,7 +118,7 @@ def test_unsure_entity_is_absent_from_every_count_and_from_worth_fixing() -> Non
     }
     payload = {"state": {}, "model": "jev-latest", "questions": {}}
 
-    result = classify(batch, response, ALLOWED, payload)  # type: ignore[arg-type]
+    result = classify(batch, response, ALLOWED, payload, _gate)  # type: ignore[arg-type]
 
     assert sum(result["counts"].values()) == 0
     assert result["items"][OPTION_WORTH_FIXING] == []
@@ -127,7 +132,7 @@ def test_missing_answer_lands_in_unsure_with_no_confidence() -> None:
     response = {"model": "jev-latest", "answers": {}, "usage": {"input_tokens": 5, "output_tokens": 0}}
     payload = {"state": {}, "model": "jev-latest", "questions": {}}
 
-    result = classify(batch, response, ALLOWED, payload)  # type: ignore[arg-type]
+    result = classify(batch, response, ALLOWED, payload, _gate)  # type: ignore[arg-type]
 
     assert result["unsure"] == [{"entity_id": "sensor.a", "confidence": None}]
 
@@ -143,6 +148,6 @@ def test_answer_with_malformed_confidence_lands_in_unsure_with_no_confidence() -
     }
     payload = {"state": {}, "model": "jev-latest", "questions": {}}
 
-    result = classify(batch, response, ALLOWED, payload)  # type: ignore[arg-type]
+    result = classify(batch, response, ALLOWED, payload, _gate)  # type: ignore[arg-type]
 
     assert result["unsure"] == [{"entity_id": "sensor.a", "confidence": None}]

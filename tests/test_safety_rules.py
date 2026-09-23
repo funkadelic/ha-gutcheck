@@ -19,8 +19,8 @@ from custom_components.gutcheck.const import (
     DOMAIN,
     OPTION_WORTH_FIXING,
 )
-from custom_components.gutcheck.recipes.base import Recipe
 from custom_components.gutcheck.recipes.health import HealthRecipe
+from custom_components.gutcheck.recipes.shapes import Recipe
 
 from .conftest import health_item, health_result
 

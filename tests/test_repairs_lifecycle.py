@@ -168,13 +168,17 @@ async def test_state_becoming_available_deletes_the_issue_immediately(hass: Home
     assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_a") is None
 
 
-async def test_state_becoming_unknown_also_counts_as_recovered(hass: HomeAssistant) -> None:
-    """Unknown counts as recovered too, not just a normal available state."""
+async def test_state_becoming_unknown_does_not_count_as_recovered(hass: HomeAssistant) -> None:
+    """Unknown says nothing about whether the entity came back, so the card stays until it really does."""
     hass.states.async_set("sensor.a", STATE_UNAVAILABLE)
     recipe = HealthRecipe(critical_label=None)
     await recipe.async_act(hass, health_result({OPTION_WORTH_FIXING: [health_item("sensor.a", "reg_a")]}))
 
     hass.states.async_set("sensor.a", STATE_UNKNOWN)
+    await hass.async_block_till_done()
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_a") is not None
+
+    hass.states.async_set("sensor.a", "on")
     await hass.async_block_till_done()
 
     assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}reg_a") is None

@@ -7,9 +7,9 @@ from pathlib import Path
 from typing import Any
 
 from custom_components.gutcheck.client import validate_response
-from custom_components.gutcheck.const import HEALTH_OPTIONS
-from custom_components.gutcheck.recipes.base import Batch
-from custom_components.gutcheck.recipes.gate import classify
+from custom_components.gutcheck.const import CHOICE_CONFIDENCE_THRESHOLD, HEALTH_OPTIONS
+from custom_components.gutcheck.recipes.gate import classify, gate_choice
+from custom_components.gutcheck.recipes.shapes import Batch
 
 from .conftest import choice_answer
 
@@ -59,7 +59,11 @@ def test_captured_answers_classify_with_every_subject_accounted_for() -> None:
     subjects = {question_id: {"entity_id": question_id} for question_id in payload["questions"]}
     batch = Batch(state=payload["state"], questions=payload["questions"], subjects=subjects)
 
-    result = classify(batch, response, HEALTH_OPTIONS, payload)  # type: ignore[arg-type]
+    def _gate(answer: object) -> str | None:
+        """The plain choice gate at the health recipe's own threshold."""
+        return gate_choice(answer, HEALTH_OPTIONS, CHOICE_CONFIDENCE_THRESHOLD)
+
+    result = classify(batch, response, HEALTH_OPTIONS, payload, _gate)  # type: ignore[arg-type]
 
     accepted = sum(result["counts"].values())
     assert accepted + len(result["unsure"]) == len(payload["questions"])

@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Any, Protocol, TypedDict
+from typing import TYPE_CHECKING
 
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryAuthFailed
@@ -18,58 +17,14 @@ from homeassistant.util import dt as dt_util
 from ..budget import BudgetExceededError, BudgetGate, RequestTooLargeError
 from ..client import GutCheckApiError, GutCheckAuthError
 from ..const import DOMAIN, FAILED_RUN_RETRY, MODEL, RECIPE_INTERVAL, STORE_VERSION
-from ..models import ChoiceQuestion, SystemOneRequest
-from .gate import classify
+from ..models import SystemOneRequest
+from .gate import carry_forward, classify
+from .shapes import Recipe, RecipeResult, _parse_stored_result, recipe_store_key
 
 if TYPE_CHECKING:
     from .. import GutCheckConfigEntry
 
 _LOGGER = logging.getLogger(__name__)
-
-Item = dict[str, str | float | bool | None]
-
-
-@dataclass
-class Batch:
-    """One recipe run's model-visible state, questions and subject index."""
-
-    state: dict[str, Any]
-    questions: dict[str, ChoiceQuestion]
-    subjects: dict[str, Item]
-
-
-class RecipeResult(TypedDict):
-    """A completed run's classification, ready for the summary sensor."""
-
-    last_run: str
-    counts: dict[str, int]
-    items: dict[str, list[Item]]
-    unsure: list[Item]
-    last_payload: SystemOneRequest | None
-
-
-class Recipe(Protocol):
-    """A recipe: select and describe its subjects, then act on the answers."""
-
-    recipe_id: str
-    options: tuple[str, ...]
-
-    async def async_prepare(self, hass: HomeAssistant) -> Batch:
-        """Select subjects and build the request state and questions."""
-        ...
-
-    async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:
-        """Act on a completed result (logging, Repairs, and so on)."""
-        ...
-
-    async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
-        """Re-arm a restored result's side effects, without calling the API."""
-        ...
-
-
-def recipe_store_key(recipe_id: str) -> str:
-    """The Store key holding one recipe's last run and result."""
-    return f"{DOMAIN}.recipe_{recipe_id}"
 
 
 def _seconds_until_budget_retry() -> float:
@@ -77,50 +32,6 @@ def _seconds_until_budget_retry() -> float:
     tomorrow = dt_util.now().date() + timedelta(days=1)
     next_midnight = dt_util.start_of_local_day(tomorrow)
     return (next_midnight - dt_util.now()).total_seconds() + 60
-
-
-def _empty_result(options: tuple[str, ...]) -> RecipeResult:
-    """A run with nothing to ask about, shaped exactly like a classified run."""
-    return {
-        "last_run": dt_util.utcnow().isoformat(),
-        "counts": dict.fromkeys(options, 0),
-        "items": {option: [] for option in options},
-        "unsure": [],
-        "last_payload": None,
-    }
-
-
-_RECIPE_RESULT_KEYS = frozenset({"last_run", "counts", "items", "unsure", "last_payload"})
-# Every field a restore reads off a stored item before the next run replaces it.
-_ITEM_KEYS = frozenset({"entity_id", "registry_id", "unavailable_for"})
-
-
-def _valid_items(bucket: object) -> bool:
-    """Whether one option's stored items all carry the fields a restore reads."""
-    return isinstance(bucket, list) and all(isinstance(item, dict) and item.keys() >= _ITEM_KEYS for item in bucket)
-
-
-def _parse_stored_result(stored: object) -> tuple[RecipeResult, datetime] | None:
-    """Return the stored value and its parsed last_run only when the whole shape is valid."""
-    if not isinstance(stored, dict) or not stored.keys() >= _RECIPE_RESULT_KEYS:
-        return None
-    last_run = stored.get("last_run")
-    if not isinstance(last_run, str):
-        return None
-    parsed = dt_util.parse_datetime(last_run)
-    if parsed is None:
-        return None
-    # A half-written store would otherwise only blow up later, during restore.
-    counts, items = stored.get("counts"), stored.get("items")
-    if not isinstance(counts, dict) or not isinstance(items, dict):
-        return None
-    if not isinstance(stored.get("unsure"), list):
-        return None
-    if not all(isinstance(count, int) for count in counts.values()):
-        return None
-    if not all(_valid_items(bucket) for bucket in items.values()):
-        return None
-    return stored, parsed  # type: ignore[return-value]
 
 
 class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
@@ -144,10 +55,19 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
         self.budget = budget
         self.recipe = recipe
         self._store: Store[RecipeResult] = Store(hass, STORE_VERSION, recipe_store_key(recipe.recipe_id))
+        # Only a saved run advances _force_done, so a failed forced run stays
+        # pending and a press during a run forces the next run too.
+        self._force_requested = 0
+        self._force_done = 0
+
+    @callback
+    def force_full_rescore(self) -> None:
+        """Mark the next run to ask about everything, ignoring what carried forward last time."""
+        self._force_requested += 1
 
     async def async_restore_or_schedule(self) -> None:
         """Restore a fresh-enough stored result for free, or schedule the first run at startup."""
-        parsed = _parse_stored_result(await self._store.async_load())
+        parsed = _parse_stored_result(await self._store.async_load(), self.recipe.stored_item_keys)
         # A last_run in the future (clock skew, a restored backup) reads as overdue
         # rather than restoring and scheduling the catch-up run further out still.
         if parsed is not None and timedelta(0) <= dt_util.utcnow() - parsed[1] < RECIPE_INTERVAL:
@@ -175,16 +95,19 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
         )
 
     async def _async_update_data(self) -> RecipeResult:
-        """Run one select/describe/ask/act cycle."""
-        batch = await self.recipe.async_prepare(self.hass)
+        """Run one select/describe/ask/act cycle, or carry the prior result forward when nothing changed."""
+        generation = self._force_requested
+        previous = self.data
+        batch = await self.recipe.async_prepare(self.hass, previous, force=generation > self._force_done)
 
         if not batch.subjects:
-            result = _empty_result(self.recipe.options)
+            last_payload = previous["last_payload"] if previous is not None else None
+            result = carry_forward(batch, self.recipe.options, last_payload)
         else:
             payload: SystemOneRequest = {
                 "state": batch.state,
                 "model": MODEL,
-                "questions": batch.questions,  # type: ignore[typeddict-item]
+                "questions": batch.questions,
             }
             try:
                 response = await self.budget.async_ask(payload)
@@ -196,8 +119,9 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
                 raise UpdateFailed("run was too large to send") from err
             except GutCheckApiError as err:
                 raise UpdateFailed("recipe run failed", retry_after=FAILED_RUN_RETRY.total_seconds()) from err
-            result = classify(batch, response, self.recipe.options, payload)
+            result = classify(batch, response, self.recipe.options, payload, self.recipe.gate)
 
         await self.recipe.async_act(self.hass, result)
         await self._store.async_save(result)
+        self._force_done = generation
         return result

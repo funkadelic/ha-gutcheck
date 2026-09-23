@@ -2,10 +2,16 @@
 
 from __future__ import annotations
 
+import asyncio
+import json
+from dataclasses import dataclass, field
+from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
-from homeassistant.const import CONF_API_KEY, STATE_UNAVAILABLE
+from homeassistant.components.update import DATA_COMPONENT, UpdateEntityFeature
+from homeassistant.const import CONF_API_KEY, STATE_ON, STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -14,10 +20,26 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMockResponse,
 )
 
-from custom_components.gutcheck.const import API_URL, DOMAIN, HEALTH_OPTIONS, OPTION_NONE, RECIPE_HEALTH
-from custom_components.gutcheck.recipes.base import Item, RecipeResult
+from custom_components.gutcheck.const import (
+    API_URL,
+    DOMAIN,
+    HEALTH_OPTIONS,
+    OPTION_NONE,
+    RECIPE_HEALTH,
+    RECIPE_UPDATES,
+    UPDATE_CRITERIA,
+    UPDATE_OPTIONS,
+)
+from custom_components.gutcheck.recipes.shapes import Item, RecipeResult
 
 ALL_HEALTH_OPTIONS = (*HEALTH_OPTIONS, OPTION_NONE)
+
+FIXTURES = Path(__file__).parent / "fixtures"
+
+
+def load_fixture(subdirectory: str, name: str) -> Any:
+    """The parsed JSON fixture at fixtures/<subdirectory>/<name>."""
+    return json.loads((FIXTURES / subdirectory / name).read_text(encoding="utf-8"))
 
 
 @pytest.fixture(autouse=True)
@@ -45,6 +67,17 @@ def choice_answer(choice: str, confidence: float) -> dict[str, Any]:
     return {"type": "choice", "choice": choice, "probabilities": probabilities, "confidence": confidence}
 
 
+def score_answer(level: int, confidence: float) -> dict[str, Any]:
+    """Build a documented-shape score answer with a legend and probabilities over every level."""
+    levels = range(len(UPDATE_OPTIONS))
+    others = [other for other in levels if other != level]
+    remaining = max(0.0, 1.0 - confidence)
+    share = remaining / len(others) if others else 0.0
+    probabilities = {str(lvl): (confidence if lvl == level else share) for lvl in levels}
+    legend = {str(lvl): UPDATE_CRITERIA[lvl] for lvl in levels}
+    return {"type": "score", "score": float(level), "legend": legend, "probabilities": probabilities, "confidence": confidence}
+
+
 def register_jev_responses(aioclient_mock: AiohttpClientMocker, responses: list[Any]) -> None:
     """Queue a sequence of responses for POSTs to API_URL, in order, one per call.
 
@@ -60,6 +93,28 @@ def register_jev_responses(aioclient_mock: AiohttpClientMocker, responses: list[
             # than letting an IndexError surface from inside the mocker.
             raise AssertionError(f"the test registered {registered} API responses but a further call was made")
         status, body = queue.pop(0)
+        return AiohttpClientMockResponse(method=method, url=url, status=status, json=body)
+
+    aioclient_mock.post(API_URL, side_effect=_side_effect)
+
+
+def register_jev_responses_by_question(aioclient_mock: AiohttpClientMocker, responses: dict[str, Any]) -> None:
+    """Queue one response per request, routed by the first question id in its own payload.
+
+    Two recipes' coordinators can each fire their first refresh concurrently,
+    so the order their POSTs land in is not guaranteed; keying by question id
+    removes that race instead of trusting call order. Each key is used at
+    most once: an unknown or already-used question id fails loudly.
+    Each value is either a JSON body (200) or an (status, body) pair.
+    """
+    remaining = {key: (value if isinstance(value, tuple) else (200, value)) for key, value in responses.items()}
+
+    async def _side_effect(method: str, url: Any, data: Any) -> AiohttpClientMockResponse:
+        """Pop the response queued for this request's first question id, or fail loudly."""
+        question_id = next(iter(data["questions"]))
+        if question_id not in remaining:
+            raise AssertionError(f"no queued response for question {question_id!r} (unknown or already used)")
+        status, body = remaining.pop(question_id)
         return AiohttpClientMockResponse(method=method, url=url, status=status, json=body)
 
     aioclient_mock.post(API_URL, side_effect=_side_effect)
@@ -95,11 +150,94 @@ def health_result(items: dict[str, list[Item]]) -> RecipeResult:
     return {"last_run": "", "counts": {}, "items": items, "unsure": [], "last_payload": None}
 
 
+def update_item(
+    entity_id: str,
+    registry_id: str,
+    *,
+    latest_version: str = "2.0.0",
+    release_url: str | None = "https://example.com/release",
+) -> Item:
+    """One classified update subject, as a recipe result carries it."""
+    return {
+        "entity_id": entity_id,
+        "registry_id": registry_id,
+        "latest_version": latest_version,
+        "release_url": release_url,
+        "confidence": 0.9,
+    }
+
+
+def update_result(items: dict[str, list[Item]]) -> RecipeResult:
+    """A recipe result holding just the given per-option items."""
+    return {"last_run": "", "counts": {}, "items": items, "unsure": [], "last_payload": None}
+
+
 def register_unavailable_entity(hass: HomeAssistant, unique_id: str = "unique_selectable") -> str:
     """Register one unavailable entity the health recipe can select, and return its id."""
     entry = er.async_get(hass).async_get_or_create("sensor", "test", unique_id)
     hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
     return entry.entity_id
+
+
+def register_pending_update(
+    hass: HomeAssistant,
+    unique_id: str = "unique_update",
+    *,
+    platform: str = "test",
+    device_id: str | None = None,
+    disabled_by: er.RegistryEntryDisabler | None = None,
+    installed_version: str = "1.0.0",
+    latest_version: str = "2.0.0",
+    release_summary: str | None = "Bug fixes and performance improvements.",
+    title: str | None = None,
+    release_url: str | None = None,
+    skipped_version: str | None = None,
+) -> er.RegistryEntry:
+    """Register one pending update entity the update recipe can select, with the given attributes."""
+    entry = er.async_get(hass).async_get_or_create("update", platform, unique_id, device_id=device_id, disabled_by=disabled_by)
+    hass.states.async_set(
+        entry.entity_id,
+        STATE_ON,
+        {
+            "installed_version": installed_version,
+            "latest_version": latest_version,
+            "release_summary": release_summary,
+            "title": title,
+            "release_url": release_url,
+            "skipped_version": skipped_version,
+        },
+    )
+    return entry
+
+
+@dataclass
+class FakeUpdateEntity:
+    """A minimal stand-in for the real update platform entity the notes fetch looks up."""
+
+    available: bool = True
+    supported_features: UpdateEntityFeature = field(default_factory=lambda: UpdateEntityFeature.RELEASE_NOTES)
+    notes: str | None = None
+    raises: Exception | None = None
+    hangs: bool = False
+
+    async def async_release_notes(self) -> str | None:
+        """Return the configured notes, raise the configured exception, or hang forever."""
+        if self.hangs:
+            await asyncio.Event().wait()
+        if self.raises is not None:
+            raise self.raises
+        return self.notes
+
+
+def install_update_entities(hass: HomeAssistant, entities: dict[str, FakeUpdateEntity]) -> None:
+    """Install fake update platform entities for the release-notes fetch path to find.
+
+    The update recipe looks entities up through hass.data[DATA_COMPONENT], the
+    same in-process path HA's own websocket handler uses; standing up a full
+    update platform just to exercise that lookup would be a much larger fixture
+    for the same behavior.
+    """
+    hass.data[DATA_COMPONENT] = SimpleNamespace(get_entity=entities.get)
 
 
 def find_health_sensor(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
@@ -110,6 +248,18 @@ def find_health_sensor(hass: HomeAssistant, entry: MockConfigEntry) -> str | Non
 def health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
     """The health recipe's sensor entity id, for the tests where it must exist."""
     entity_id = find_health_sensor(hass, entry)
+    assert entity_id is not None
+    return entity_id
+
+
+def find_updates_sensor(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
+    """The update recipe's sensor entity id, or None when the recipe is switched off."""
+    return er.async_get(hass).async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{RECIPE_UPDATES}")
+
+
+def updates_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
+    """The update recipe's sensor entity id, for the tests where it must exist."""
+    entity_id = find_updates_sensor(hass, entry)
     assert entity_id is not None
     return entity_id
 

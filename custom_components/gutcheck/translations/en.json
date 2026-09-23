@@ -32,10 +32,12 @@
         "title": "Gut Check options",
         "data": {
           "health_enabled": "Run the weekly home health check",
+          "updates_enabled": "Run the weekly update review",
           "daily_budget": "Daily token budget (input tokens)",
           "critical_label": "Critical label"
         },
         "data_description": {
+          "updates_enabled": "Scores pending updates as routine, feature, or possibly breaking. Advisory only, never installs anything.",
           "daily_budget": "A hard stop for the day. It resets at local midnight.",
           "critical_label": "Entities or devices with this label are never sent or checked. Locks, alarms and covers are never checked either, label or not."
         }
@@ -47,6 +49,9 @@
       "health": {
         "name": "Home health check"
       },
+      "updates": {
+        "name": "Update review"
+      },
       "tokens_today": {
         "name": "Tokens used today"
       },
@@ -57,6 +62,9 @@
     "button": {
       "health_run": {
         "name": "Run home health check"
+      },
+      "updates_run": {
+        "name": "Run update review"
       }
     }
   },
@@ -64,6 +72,10 @@
     "unavailable_entity": {
       "title": "{entity_id} needs attention",
       "description": "`{entity_id}` has been unavailable for {unavailable_for}. Gut Check thinks it is worth fixing. Nothing will be changed automatically, and ignoring this card keeps it hidden on later checks."
+    },
+    "possibly_breaking_update": {
+      "title": "{entity_id} update may need attention",
+      "description": "`{entity_id}` is offering version {latest_version}. Gut Check read the release notes and thinks this update could change or break something. Nothing is installed automatically, and ignoring this card keeps it hidden on later checks."
     }
   }
 }

@@ -34,7 +34,7 @@ class SafetyRules:
             return True
         return self.is_critical(hass, entry)
 
-    def excludes_stored(self, hass: HomeAssistant, entity_id_or_uuid: str) -> bool:
+    def excludes_entity_id(self, hass: HomeAssistant, entity_id_or_uuid: str) -> bool:
         """The same rules for a stored finding, which may no longer be registered.
 
         Takes either form the registry accepts. Prefer the registry id, which

@@ -11,6 +11,7 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 
 from ..const import (
+    CHOICE_CONFIDENCE_THRESHOLD,
     HEALTH_CRITERIA,
     HEALTH_INSTRUCTIONS,
     HEALTH_ISSUE_PREFIX,
@@ -21,10 +22,11 @@ from ..const import (
 )
 from ..describe import bucket_duration, bucket_longer_than
 from ..history import async_unavailable_since
-from ..models import ChoiceQuestion
+from ..models import Question
 from ..repairs import async_sync_issues, async_track_recovery
-from .base import Batch, Item, RecipeResult
+from .gate import gate_choice
 from .safety import SafetyRules
+from .shapes import Batch, Item, RecipeResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,11 +36,17 @@ class HealthRecipe:
 
     recipe_id = RECIPE_HEALTH
     options: tuple[str, ...] = HEALTH_OPTIONS
+    # Every field a restore reads off a stored item before the next run replaces it.
+    stored_item_keys: frozenset[str] = frozenset({"entity_id", "registry_id", "unavailable_for"})
 
     def __init__(self, critical_label: str | None) -> None:
         """Build the shared safety guard from the configured critical label."""
         self._safety = SafetyRules(critical_label)
         self._unsub_recovery: CALLBACK_TYPE | None = None
+
+    def gate(self, answer: object) -> str | None:
+        """Gate one answer through the choice gate at the health recipe's threshold."""
+        return gate_choice(answer, HEALTH_OPTIONS, CHOICE_CONFIDENCE_THRESHOLD)
 
     def _has_available_sibling(self, hass: HomeAssistant, registry: er.EntityRegistry, entry: er.RegistryEntry) -> bool:
         """Whether the same device still has an entity reporting, which separates a dead device from a dead entity."""
@@ -68,8 +76,11 @@ class HealthRecipe:
             return bucket_longer_than(keep_days)
         return bucket_duration((dt_util.utcnow() - run_start).total_seconds())
 
-    async def async_prepare(self, hass: HomeAssistant) -> Batch:
-        """Select unavailable, non-critical entities and build the request."""
+    async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None, *, force: bool = False) -> Batch:
+        """Select unavailable, non-critical entities and build the request.
+
+        previous and force are unused: the health check has no carry-forward path yet.
+        """
         registry = er.async_get(hass)
         excluded_by_safety_rules = 0
         selected: list[tuple[er.RegistryEntry, State]] = []
@@ -86,7 +97,7 @@ class HealthRecipe:
         history_result = await async_unavailable_since(hass, [entry.entity_id for entry, _ in selected])
 
         entities: list[Item] = []
-        questions: dict[str, ChoiceQuestion] = {}
+        questions: dict[str, Question] = {}
         subjects: dict[str, Item] = {}
         for index, (entry, state) in enumerate(selected):
             restored = bool(state.attributes.get(ATTR_RESTORED) is True)
@@ -132,7 +143,7 @@ class HealthRecipe:
         Looks the entity up by registry id, which survives a rename that leaves
         the stored entity id resolving to nothing.
         """
-        return self._safety.excludes_stored(hass, str(item["registry_id"]))
+        return self._safety.excludes_entity_id(hass, str(item["registry_id"]))
 
     async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
         """Re-sync issues and re-arm recovery tracking for a restored result, without calling the API.

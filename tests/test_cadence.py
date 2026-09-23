@@ -16,7 +16,8 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.gutcheck.const import DOMAIN, HEALTH_ISSUE_PREFIX, OPTION_WORTH_FIXING, RECIPE_HEALTH, STORE_VERSION
-from custom_components.gutcheck.recipes.base import recipe_store_key
+from custom_components.gutcheck.recipes.health import HealthRecipe
+from custom_components.gutcheck.recipes.shapes import _parse_stored_result, recipe_store_key
 
 from .conftest import (
     api_response,
@@ -37,6 +38,26 @@ def _stale_stored_result(days_old: int) -> dict[str, Any]:
     """A stored recipe result last run `days_old` days ago."""
     last_run = (dt_util.utcnow() - timedelta(days=days_old)).isoformat()
     return {"last_run": last_run, "counts": {}, "items": {}, "unsure": [], "last_payload": None}
+
+
+def test_stored_result_parses_against_its_own_recipes_declared_key_set() -> None:
+    """A stored item carrying only a smaller recipe's own keys still parses, not the health recipe's.
+
+    This is the bug the shapes.py split fixed: the item key guard used to be
+    one module-level constant shaped for the health recipe, so a differently
+    shaped stored result (fewer keys, no unavailable_for) would always fail
+    to parse and fall through to a full paid run on every restart.
+    """
+    stored = {
+        "last_run": RECENT_RUN,
+        "counts": {},
+        "items": {"routine": [{"entity_id": "update.foo", "registry_id": "abc"}]},
+        "unsure": [],
+        "last_payload": None,
+    }
+
+    assert _parse_stored_result(stored, frozenset({"entity_id", "registry_id"})) is not None
+    assert _parse_stored_result(stored, HealthRecipe.stored_item_keys) is None
 
 
 async def test_fresh_install_runs_once_after_startup_and_persists(
