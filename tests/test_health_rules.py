@@ -180,7 +180,7 @@ async def test_retention_cap_needs_a_recorder_dated_outage(
     rows: list[State],
     days_gone: int,
 ) -> None:
-    """With no retained unavailable row, the 31 days count from last_changed, not the 10-day window."""
+    """With no retained unavailable row, the 31 days count from last_changed even under a 10-day recorder window."""
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "unique_undated")
     freezer.move_to(_T0)

@@ -89,7 +89,7 @@ def describe(
     }
     threshold = HEALTH_LEFTOVER_DAYS
     if history_result is not None and entry.entity_id in history_result[1]:
-        # The recorder dated this outage, and one older than its window reads only as "longer than N days".
+        # Only a recorder-dated outage is capped, since the recorder cannot see past its own window.
         threshold = min(HEALTH_LEFTOVER_DAYS, history_result[0])
     leftover = restored and known_days >= threshold and (owning_entry is None or owning_entry.state is ConfigEntryState.LOADED)
     return state_item, subject, leftover
