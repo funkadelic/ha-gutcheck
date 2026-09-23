@@ -73,8 +73,11 @@ class UpdateRecipe:
         selected.sort(key=lambda pair: pair[0].entity_id)
         return selected, silent
 
-    async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None) -> Batch:
+    async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None, *, force: bool = False) -> Batch:
         """Select pending updates, carry forward unchanged accepted ones, and ask about the rest.
+
+        force asks again about every update this run can ask about. Silent
+        and cap-deferred updates still keep their prior classification.
 
         A per-run cap keeps the request under the state token limit on a
         large install: only the most significant version jumps are asked
@@ -88,7 +91,7 @@ class UpdateRecipe:
         carried: dict[str, list[Item]] = {}
         to_ask: list[tuple[Item, Item]] = []
         for state_item, subject in described:
-            carry = carry_bucket(previous, self.options, state_item, subject)
+            carry = carry_bucket(None if force else previous, self.options, state_item, subject)
             if carry is not None:
                 option, carried_item = carry
                 carried.setdefault(option, []).append(carried_item)

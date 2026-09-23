@@ -48,12 +48,12 @@ class Recipe(Protocol):
         """Gate one answer through this recipe's own confidence threshold and answer type."""
         ...
 
-    async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None) -> Batch:
+    async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None, *, force: bool = False) -> Batch:
         """Select subjects and build the request state and questions.
 
-        previous is the coordinator's last completed result, or None
-        before any run has completed or on a forced re-score. A recipe
-        with no carry-forward path ignores it.
+        previous is the coordinator's last completed result, or None before
+        any run has completed. force asks again about everything this run
+        can ask about. A recipe with no carry-forward path ignores both.
         """
         ...
 

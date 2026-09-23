@@ -381,8 +381,8 @@ class _OversizedRecipe:
     options: tuple[str, ...] = (OPTION_EXPECTED,)
     stored_item_keys: frozenset[str] = frozenset()
 
-    async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None) -> Batch:
-        """A batch deliberately over the state-plus-question cap. previous is unused."""
+    async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None, *, force: bool = False) -> Batch:
+        """A batch deliberately over the state-plus-question cap. previous and force are unused."""
         return Batch(
             state={"pad": "x" * 90_000},
             questions={"q": {"type": "choice", "instructions": "x" * 90_000, "criteria": {"a": None}}},  # type: ignore[typeddict-item]

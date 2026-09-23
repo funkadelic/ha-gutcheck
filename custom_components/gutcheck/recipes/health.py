@@ -76,10 +76,10 @@ class HealthRecipe:
             return bucket_longer_than(keep_days)
         return bucket_duration((dt_util.utcnow() - run_start).total_seconds())
 
-    async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None) -> Batch:
+    async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None, *, force: bool = False) -> Batch:
         """Select unavailable, non-critical entities and build the request.
 
-        previous is unused: the health check has no carry-forward path yet.
+        previous and force are unused: the health check has no carry-forward path yet.
         """
         registry = er.async_get(hass)
         excluded_by_safety_rules = 0

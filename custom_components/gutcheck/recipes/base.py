@@ -55,12 +55,15 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
         self.budget = budget
         self.recipe = recipe
         self._store: Store[RecipeResult] = Store(hass, STORE_VERSION, recipe_store_key(recipe.recipe_id))
-        self._force_full_rescore = False
+        # Only a saved run advances _force_done, so a failed forced run stays
+        # pending and a press during a run forces the next run too.
+        self._force_requested = 0
+        self._force_done = 0
 
     @callback
     def force_full_rescore(self) -> None:
         """Mark the next run to ask about everything, ignoring what carried forward last time."""
-        self._force_full_rescore = True
+        self._force_requested += 1
 
     async def async_restore_or_schedule(self) -> None:
         """Restore a fresh-enough stored result for free, or schedule the first run at startup."""
@@ -93,10 +96,9 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
 
     async def _async_update_data(self) -> RecipeResult:
         """Run one select/describe/ask/act cycle, or carry the prior result forward when nothing changed."""
-        force = self._force_full_rescore
-        self._force_full_rescore = False
-        previous = None if force else self.data
-        batch = await self.recipe.async_prepare(self.hass, previous)
+        generation = self._force_requested
+        previous = self.data
+        batch = await self.recipe.async_prepare(self.hass, previous, force=generation > self._force_done)
 
         if not batch.subjects:
             last_payload = previous["last_payload"] if previous is not None else None
@@ -121,4 +123,5 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
 
         await self.recipe.async_act(self.hass, result)
         await self._store.async_save(result)
+        self._force_done = generation
         return result
