@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from homeassistant.const import STATE_ON
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant
+from homeassistant.helpers import entity_registry as er
 
 from ..const import ISSUE_POSSIBLY_BREAKING_UPDATE, UPDATES_ISSUE_PREFIX
 from ..repairs import async_sync_issues, async_track_recovery, safe_url
@@ -37,6 +38,16 @@ def _learn_more_urls(possibly_breaking: list[Item]) -> dict[str, str]:
     return urls
 
 
+def _with_current_entity_ids(hass: HomeAssistant, items: list[Item]) -> list[Item]:
+    """Each item with its entity id re-read by registry id, so a rename since the run is followed."""
+    registry = er.async_get(hass)
+    resolved: list[Item] = []
+    for item in items:
+        entry = registry.async_get(str(item["registry_id"]))
+        resolved.append(item if entry is None else {**item, "entity_id": entry.entity_id})
+    return resolved
+
+
 class UpdateIssueTracker:
     """Owns the recovery-tracking subscription for possibly-breaking update issues."""
 
@@ -51,6 +62,7 @@ class UpdateIssueTracker:
         skipped and superseded in one condition; a version bump alone
         leaves the entity on and so never wrongly clears the card.
         """
+        possibly_breaking = _with_current_entity_ids(hass, possibly_breaking)
         async_sync_issues(
             hass,
             UPDATES_ISSUE_PREFIX,

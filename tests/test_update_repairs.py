@@ -7,6 +7,8 @@ from homeassistant.const import STATE_OFF, STATE_ON, STATE_UNAVAILABLE, STATE_UN
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
+from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.gutcheck.const import (
     DOMAIN,
@@ -19,7 +21,14 @@ from custom_components.gutcheck.const import (
 from custom_components.gutcheck.recipes.updates import UpdateRecipe
 from custom_components.gutcheck.repairs import safe_url
 
-from .conftest import update_item, update_result
+from .conftest import (
+    api_response,
+    register_jev_responses,
+    register_pending_update,
+    score_answer,
+    update_item,
+    update_result,
+)
 
 
 async def test_possibly_breaking_creates_one_issue_with_a_validated_link(hass: HomeAssistant) -> None:
@@ -175,6 +184,35 @@ async def test_restored_result_recreates_the_card_and_rearms_clearing_with_no_re
     await hass.async_block_till_done()
 
     assert ir.async_get(hass).async_get_issue(DOMAIN, f"{UPDATES_ISSUE_PREFIX}reg_a") is None
+
+
+async def test_a_restored_card_follows_an_entity_renamed_since_the_run(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
+) -> None:
+    """After a rename and a reload, the card names the new entity id and clears when that entity leaves on."""
+    update_entry = register_pending_update(hass, "update_a")
+    register_jev_responses(aioclient_mock, [api_response({"u0": score_answer(2, 0.9)})])
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+    issue_id = f"{UPDATES_ISSUE_PREFIX}{update_entry.id}"
+
+    assert await hass.config_entries.async_unload(mock_config_entry.entry_id)
+    er.async_get(hass).async_update_entity(update_entry.entity_id, new_entity_id="update.renamed")
+    hass.states.async_remove(update_entry.entity_id)
+    hass.states.async_set("update.renamed", STATE_ON)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    issue = ir.async_get(hass).async_get_issue(DOMAIN, issue_id)
+    assert issue is not None
+    assert issue.translation_placeholders is not None
+    assert issue.translation_placeholders["entity_id"] == "update.renamed"
+
+    hass.states.async_set("update.renamed", STATE_OFF)
+    await hass.async_block_till_done()
+
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
 
 
 async def test_restore_drops_a_newly_critical_entity_from_its_bucket_counts_and_repairs(hass: HomeAssistant) -> None:
