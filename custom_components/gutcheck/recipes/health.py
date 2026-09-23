@@ -3,12 +3,10 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime
 
-from homeassistant.const import ATTR_RESTORED, STATE_UNAVAILABLE
+from homeassistant.const import STATE_UNAVAILABLE
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, State
 from homeassistant.helpers import entity_registry as er
-from homeassistant.util import dt as dt_util
 
 from ..const import (
     CHOICE_CONFIDENCE_THRESHOLD,
@@ -17,14 +15,15 @@ from ..const import (
     HEALTH_ISSUE_PREFIX,
     HEALTH_OPTIONS,
     ISSUE_UNAVAILABLE_ENTITY,
+    OPTION_SAFE_TO_REMOVE,
     OPTION_WORTH_FIXING,
     RECIPE_HEALTH,
 )
-from ..describe import bucket_duration, bucket_longer_than
 from ..history import async_unavailable_since
 from ..models import Question
 from ..repairs import async_sync_issues, async_track_recovery
 from .gate import gate_choice
+from .health_describe import describe
 from .safety import SafetyRules
 from .shapes import Batch, Item, RecipeResult
 
@@ -48,38 +47,13 @@ class HealthRecipe:
         """Gate one answer through the choice gate at the health recipe's threshold."""
         return gate_choice(answer, HEALTH_OPTIONS, CHOICE_CONFIDENCE_THRESHOLD)
 
-    def _has_available_sibling(self, hass: HomeAssistant, registry: er.EntityRegistry, entry: er.RegistryEntry) -> bool:
-        """Whether the same device still has an entity reporting, which separates a dead device from a dead entity."""
-        if not entry.device_id:
-            return False
-        for sibling in er.async_entries_for_device(registry, entry.device_id):
-            if sibling.entity_id == entry.entity_id:
-                continue
-            sibling_state = hass.states.get(sibling.entity_id)
-            if sibling_state is not None and sibling_state.state != STATE_UNAVAILABLE:
-                return True
-        return False
-
-    def _unavailable_for(
-        self,
-        entity_id: str,
-        state: State,
-        history_result: tuple[int, dict[str, datetime | None]] | None,
-    ) -> str:
-        """Bucket a duration from recorder history, falling back to last_changed."""
-        if history_result is None or entity_id not in history_result[1]:
-            unavailable_days = int((dt_util.utcnow() - state.last_changed).total_seconds() // 86400)
-            return bucket_longer_than(unavailable_days)
-        keep_days, since_map = history_result
-        run_start = since_map[entity_id]
-        if run_start is None:
-            return bucket_longer_than(keep_days)
-        return bucket_duration((dt_util.utcnow() - run_start).total_seconds())
-
     async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None, *, force: bool = False) -> Batch:
         """Select unavailable, non-critical entities and build the request.
 
-        previous and force are unused: the health check has no carry-forward path yet.
+        previous and force are unused, since nothing carries over from the
+        last run. A long-gone, restored entity whose owning integration is
+        loaded (or which has none) is decided in code and carried straight
+        into safe_to_remove; everything else is asked.
         """
         registry = er.async_get(hass)
         excluded_by_safety_rules = 0
@@ -99,35 +73,30 @@ class HealthRecipe:
         entities: list[Item] = []
         questions: dict[str, Question] = {}
         subjects: dict[str, Item] = {}
-        for index, (entry, state) in enumerate(selected):
-            restored = bool(state.attributes.get(ATTR_RESTORED) is True)
-            unavailable_for = self._unavailable_for(entry.entity_id, state, history_result)
-            entities.append(
-                {
-                    "domain": entry.domain,
-                    "device_class": entry.device_class or entry.original_device_class,
-                    "integration": entry.platform,
-                    "unavailable_for": unavailable_for,
-                    "restored": restored,
-                    "entity_category": entry.entity_category.value if entry.entity_category else None,
-                    "device_other_entities_available": self._has_available_sibling(hass, registry, entry),
-                }
-            )
+        carried: dict[str, list[Item]] = {OPTION_SAFE_TO_REMOVE: []}
+        for entry, state in selected:
+            state_item, subject, leftover = describe(hass, registry, entry, state, history_result)
+            if leftover:
+                carried[OPTION_SAFE_TO_REMOVE].append(subject)
+                continue
+            index = len(entities)
+            entities.append(state_item)
             question_id = f"e{index}"
             questions[question_id] = {
                 "type": "choice",
                 "instructions": HEALTH_INSTRUCTIONS.format(index=index),
                 "criteria": HEALTH_CRITERIA,
             }
-            subjects[question_id] = {
-                "entity_id": entry.entity_id,
-                "registry_id": entry.id,
-                "restored": restored,
-                "unavailable_for": unavailable_for,
-            }
+            subjects[question_id] = subject
 
-        _LOGGER.debug("health check selected=%s excluded_by_safety_rules=%s", len(selected), excluded_by_safety_rules)
-        return Batch(state={"entities": entities}, questions=questions, subjects=subjects)
+        _LOGGER.debug(
+            "health check selected=%s asked=%s decided_by_rule=%s excluded_by_safety_rules=%s",
+            len(selected),
+            len(entities),
+            len(carried[OPTION_SAFE_TO_REMOVE]),
+            excluded_by_safety_rules,
+        )
+        return Batch(state={"entities": entities}, questions=questions, subjects=subjects, carried=carried)
 
     async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:
         """Sync a Repairs issue per worth-fixing entity, re-arm recovery tracking, and log counts."""

@@ -17,9 +17,10 @@ async def async_unavailable_since(hass: HomeAssistant, entity_ids: list[str]) ->
 
     None overall means the recorder is not running; the caller falls back to
     last_changed. A mapped None means every retained row for that entity is
-    unavailable, i.e. the outage is at least as old as the retention window.
-    An entity with no rows at all is left out of the map, so the caller falls
-    back for that entity too.
+    unavailable back to the window start, i.e. the outage is at least as old
+    as the retention window.
+    An entity with no rows at all, or whose latest rows are not unavailable,
+    is left out of the map, so the caller falls back for that entity too.
     """
     if DATA_INSTANCE not in hass.data:
         return None
@@ -60,6 +61,12 @@ async def async_unavailable_since(hass: HomeAssistant, entity_ids: list[str]) ->
             else:
                 seen_available = True
                 run_start = None
-        result[entity_id] = run_start if seen_available else None
+        if run_start is None:
+            # The current outage has no retained row yet (not flushed), so the
+            # caller falls back to last_changed rather than reading a full window.
+            continue
+        # An unavailable first row inside the window dates the outage's start
+        # (new entity or young database).
+        result[entity_id] = run_start if seen_available or run_start > start_time else None
 
     return keep_days, result
