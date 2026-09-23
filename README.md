@@ -53,7 +53,7 @@ Open the integration's **Configure** screen to:
 
 ## Hard rules
 
-Gut Check never touches locks, alarms, garage doors or covers, whatever a recipe finds. It never acts on its own: every actionable finding waits for you in Repairs. And when it is not confident in an answer, it does nothing rather than guess.
+Gut Check never controls a lock, alarm panel, garage door or cover, and the health check leaves those entities out. The update review does read the firmware updates for those devices, since each is an ordinary update entity, but it only scores them: it never installs, skips or changes an update, for those devices or any other. To keep a device's updates out of the review too, put the label you chose to exclude on the device. It never acts on its own: every actionable finding waits for you in Repairs. And when it is not confident in an answer, it does nothing rather than guess.
 
 ## Install
 

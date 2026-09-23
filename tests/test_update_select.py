@@ -2,16 +2,18 @@
 
 from __future__ import annotations
 
-from homeassistant.const import STATE_OFF
+import pytest
+from homeassistant.const import EVENT_CALL_SERVICE, STATE_OFF
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from homeassistant.helpers import issue_registry as ir
+from pytest_homeassistant_custom_component.common import MockConfigEntry, async_capture_events, async_mock_service
 
-from custom_components.gutcheck.const import DOMAIN
+from custom_components.gutcheck.const import BLOCKED_DOMAINS, DOMAIN, OPTION_POSSIBLY_BREAKING, UPDATES_ISSUE_PREFIX
 from custom_components.gutcheck.recipes.updates import UpdateRecipe
 
-from .conftest import register_pending_update
+from .conftest import register_pending_update, update_item, update_result
 
 
 async def test_pending_update_entity_is_selected(hass: HomeAssistant) -> None:
@@ -95,3 +97,35 @@ async def test_every_question_built_is_a_score_question_with_three_criteria(hass
     question = next(iter(batch.questions.values()))
     assert question["type"] == "score"
     assert len(question["criteria"]) == 3
+
+
+@pytest.mark.parametrize("domain", sorted(BLOCKED_DOMAINS))
+async def test_a_firmware_update_on_a_blocked_domain_device_is_reviewed_and_never_installed(
+    hass: HomeAssistant, domain: str
+) -> None:
+    """A lock, alarm panel or cover's own firmware update is reviewed on purpose; the review only advises."""
+    config_entry = MockConfigEntry(domain="test")
+    config_entry.add_to_hass(hass)
+    device_registry = dr.async_get(hass)
+    device = device_registry.async_get_or_create(config_entry_id=config_entry.entry_id, identifiers={("test", "dev1")})
+    er.async_get(hass).async_get_or_create(domain, "test", f"{domain}_1", device_id=device.id)
+    update_entry = register_pending_update(hass, f"{domain}_firmware", device_id=device.id)
+
+    install = async_mock_service(hass, "update", "install")
+    skip = async_mock_service(hass, "update", "skip")
+    calls = async_capture_events(hass, EVENT_CALL_SERVICE)
+
+    recipe = UpdateRecipe(critical_label=None)
+    batch = await recipe.async_prepare(hass)
+    assert update_entry.entity_id in {str(s["entity_id"]) for s in batch.subjects.values()}
+
+    await recipe.async_act(
+        hass, update_result({OPTION_POSSIBLY_BREAKING: [update_item(update_entry.entity_id, update_entry.id)]})
+    )
+    await hass.async_block_till_done()
+
+    assert install == []
+    assert skip == []
+    assert calls == []
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{UPDATES_ISSUE_PREFIX}{update_entry.id}") is not None
+    recipe.shutdown()
