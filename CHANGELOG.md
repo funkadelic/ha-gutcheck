@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/funkadelic/ha-gutcheck/compare/v0.2.0...v0.2.1) (2026-09-23)
+
+
+### Fixed
+
+* leave fewer entities unsorted in the home health check ([#14](https://github.com/funkadelic/ha-gutcheck/issues/14)) ([0f05f9f](https://github.com/funkadelic/ha-gutcheck/commit/0f05f9f1afe9aeff05cebc019a0a4761dea1a3c0))
+
 ## [0.2.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.1.3...v0.2.0) (2026-09-23)
 
 
