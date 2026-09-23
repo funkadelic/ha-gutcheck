@@ -131,10 +131,13 @@ async def test_last_changed_boundary(hass: HomeAssistant, freezer: Any, days_gon
 
 
 @pytest.mark.parametrize(
-    ("recorder_config", "expect_carried", "expected_text"),
+    ("recorder_config", "days_later", "expect_carried", "expected_text"),
     [
-        ({"purge_keep_days": 31}, True, "longer than 31 days"),
-        ({"purge_keep_days": 10}, False, "longer than 10 days"),
+        ({"purge_keep_days": 31}, 41, True, "longer than 31 days"),
+        ({"purge_keep_days": 10}, 41, True, "longer than 10 days"),
+        ({"purge_keep_days": 60}, 41, True, "more than 4 weeks"),
+        ({"purge_keep_days": 60}, 30, False, "more than 4 weeks"),
+        ({"purge_keep_days": 10}, 5, False, "1 to 6 days"),
     ],
 )
 async def test_recorder_window_gates_the_leftover_rule(
@@ -142,17 +145,18 @@ async def test_recorder_window_gates_the_leftover_rule(
     hass: HomeAssistant,
     freezer: Any,
     recorder_config: dict[str, Any],
+    days_later: int,
     expect_carried: bool,
     expected_text: str,
 ) -> None:
-    """Every retained row unavailable only carries once that reaches HEALTH_LEFTOVER_DAYS."""
+    """The rule needs HEALTH_LEFTOVER_DAYS, or the retention window if shorter; one begun inside it counts from its start."""
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "unique_recorder_leftover")
     freezer.move_to(_T0)
     entry.write_unavailable_state(hass)
     await async_wait_recording_done(hass)
 
-    freezer.move_to(_WELL_PAST_LEFTOVER)
+    freezer.move_to(_T0 + timedelta(days=days_later))
     batch = await HealthRecipe(critical_label=None).async_prepare(hass)
 
     if expect_carried:

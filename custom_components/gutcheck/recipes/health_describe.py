@@ -36,8 +36,8 @@ def _unavailable_for(entity_id: str, state: State, history_result: HistoryResult
     Returns the bucket words, plus the whole days the outage is known to
     have lasted at least: the fallback branch's own day count, the
     beyond-window branch's keep_days, or the known-start branch's elapsed
-    days. The leftover rule compares this second value against
-    HEALTH_LEFTOVER_DAYS without re-deriving it from the words.
+    days. The leftover rule compares this second value against its
+    threshold without re-deriving it from the words.
     """
     if history_result is None or entity_id not in history_result[1]:
         unavailable_days = int((dt_util.utcnow() - state.last_changed).total_seconds() // 86400)
@@ -60,7 +60,8 @@ def describe(
     """One entity's model-visible state, its code-only subject, and whether it is a code-decided leftover.
 
     leftover is true only when restored is true, the outage is known to have
-    lasted at least HEALTH_LEFTOVER_DAYS, and the owning config entry is
+    lasted at least HEALTH_LEFTOVER_DAYS (or the recorder's retention, if
+    shorter), and the owning config entry is
     loaded or the entity has no config entry at all.
     """
     restored = bool(state.attributes.get(ATTR_RESTORED) is True)
@@ -86,9 +87,7 @@ def describe(
         "restored": restored,
         "unavailable_for": unavailable_for,
     }
-    leftover = (
-        restored
-        and known_days >= HEALTH_LEFTOVER_DAYS
-        and (owning_entry is None or owning_entry.state is ConfigEntryState.LOADED)
-    )
+    # Capped at the recorder's retention, since an outage older than that reads only as "longer than N days".
+    threshold = HEALTH_LEFTOVER_DAYS if history_result is None else min(HEALTH_LEFTOVER_DAYS, history_result[0])
+    leftover = restored and known_days >= threshold and (owning_entry is None or owning_entry.state is ConfigEntryState.LOADED)
     return state_item, subject, leftover
