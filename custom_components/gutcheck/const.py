@@ -99,11 +99,11 @@ HEALTH_CRITERIA: Final[dict[str, str | None]] = {
     ),
     OPTION_SAFE_TO_REMOVE: (
         "Its `restored` is true, so no loaded integration provides it any more, its `config_entry_state` is "
-        '"loaded" or missing, and its `unavailable_for` is neither "less than a day" nor "unknown".'
+        '"loaded" or missing, and its `unavailable_for` is "1 to 4 weeks", "more than 4 weeks" or starts with "longer than".'
     ),
     OPTION_NONE: (
         "Anything else, for example any other `config_entry_state`, or `restored` is true with "
-        '`unavailable_for` "less than a day" or "unknown".'
+        '`unavailable_for` "less than a day", "1 to 6 days" or "unknown".'
     ),
 }
 
