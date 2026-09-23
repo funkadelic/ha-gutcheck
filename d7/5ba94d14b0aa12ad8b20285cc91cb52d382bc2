@@ -1,0 +1,21 @@
+tests/test_update_restore_guard.py
+  s_10cef395d2fd85::t_be0adc10e07086 1-57
+custom_components/gutcheck/recipes/updates.py
+  s_10cef395d2fd85::t_66d79610a0ce43 38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d75ba94d14b0aa12ad8b20285cc91cb52d382bc2",
+  "prompts": {},
+  "sessions": {
+    "s_10cef395d2fd85": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "25ac6b01-bad8-4c32-a70b-96d04948cd9c",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
