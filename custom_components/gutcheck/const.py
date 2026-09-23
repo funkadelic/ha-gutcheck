@@ -75,6 +75,11 @@ OPTION_NONE: Final = "none_of_these"
 
 HEALTH_OPTIONS: Final = (OPTION_EXPECTED, OPTION_WORTH_FIXING, OPTION_SAFE_TO_REMOVE)
 
+# A restored entity gone at least this many days, with its integration loaded
+# or no config entry, is sorted as safe to remove without asking. Matches the
+# captured install's recorder window.
+HEALTH_LEFTOVER_DAYS: Final = 31
+
 HEALTH_INSTRUCTIONS: Final = (
     "`entities[{index}]` describes one Home Assistant entity that is unavailable right now. "
     "Using only the fields of `entities[{index}]`, decide what the user should do about it."
