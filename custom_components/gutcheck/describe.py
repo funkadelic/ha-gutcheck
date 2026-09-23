@@ -67,7 +67,7 @@ _MARKDOWN_IMAGE_RE = re.compile(r"!\[[^\]]*\]\([^)]*\)")
 _MARKDOWN_LINK_RE = re.compile(r"\[([^\]]*)\]\([^)]*\)")
 _HEADING_RE = re.compile(r"(?m)^#{1,6}\s*")
 # Only a run acting as a delimiter: foo_bar and 2 * 3 keep theirs.
-_EMPHASIS_RE = re.compile(r"(?<!\w)(\*{1,3}|_{1,3})(?=\S)|(?<=\S)(\*{1,3}|_{1,3})(?!\w)")
+_EMPHASIS_RE = re.compile(r"(?<!\w)[*_]{1,3}(?=\S)|(?<=\S)[*_]{1,3}(?!\w)")
 _CODE_FENCE_RE = re.compile(r"```[a-zA-Z0-9]*\n?")
 _INLINE_CODE_RE = re.compile(r"`([^`]*)`")
 _WHITESPACE_RE = re.compile(r"\s+")

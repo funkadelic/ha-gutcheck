@@ -141,7 +141,7 @@ class UpdateRecipe:
         out of every bucket, including unsure, rather than sitting exposed
         for up to a week until the next paid run notices.
         """
-        for option, items in list(result["items"].items()):
+        for option, items in result["items"].items():
             kept = [item for item in items if not self._excluded(hass, item)]
             result["items"][option] = kept
             result["counts"][option] = len(kept)
