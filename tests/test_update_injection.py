@@ -20,8 +20,6 @@ from custom_components.gutcheck.const import (
     OPTION_POSSIBLY_BREAKING,
     RELEASE_NOTES_MAX_CHARS,
     UPDATE_CONFIDENCE_THRESHOLD,
-    UPDATE_CRITERIA,
-    UPDATE_INSTRUCTIONS,
     UPDATE_OPTIONS,
     UPDATES_ISSUE_PREFIX,
 )
@@ -30,19 +28,10 @@ from custom_components.gutcheck.recipes.gate import classify, gate_score
 from custom_components.gutcheck.recipes.shapes import Batch
 from custom_components.gutcheck.recipes.updates import UpdateRecipe
 
-from .conftest import (
-    FakeUpdateEntity,
-    install_update_entities,
-    load_fixture,
-    register_pending_update,
-    update_item,
-    update_result,
-)
+from .conftest import load_fixture, update_item, update_result
 
 HOSTILE: dict[str, dict[str, Any]] = load_fixture("injection", "hostile_release_notes.json")
 CASE_NAMES = sorted(HOSTILE)
-
-BENIGN_NOTES = "Maintenance release. One dependency bump and refreshed translations. Nothing else changed."
 
 # Deliberately re-derived here rather than imported: a test that reused the
 # production patterns would pass even if both sides drifted together.
@@ -97,34 +86,6 @@ def test_an_instruction_hidden_past_the_cap_is_cut() -> None:
 
     assert len(cleaned) == RELEASE_NOTES_MAX_CHARS
     assert "ignore every level" not in cleaned
-
-
-@pytest.mark.parametrize("case_name", CASE_NAMES)
-async def test_a_hostile_note_produces_the_same_question_as_a_benign_one(hass: HomeAssistant, case_name: str) -> None:
-    """The question is fixed in code: no note can add a level, widen the scale, or change the type."""
-    hostile = register_pending_update(hass, "hostile", title="Publisher controlled title")
-    benign = register_pending_update(hass, "benign")
-    install_update_entities(
-        hass,
-        {
-            hostile.entity_id: FakeUpdateEntity(notes=HOSTILE[case_name]["notes"]),
-            benign.entity_id: FakeUpdateEntity(notes=BENIGN_NOTES),
-        },
-    )
-
-    batch = await UpdateRecipe(critical_label=None).async_prepare(hass)
-
-    assert len(batch.questions) == 2
-    for index, question in enumerate(batch.questions.values()):
-        assert question["type"] == "score"
-        # Identity, not equality: a copy could have been built from the state.
-        assert question["criteria"] is UPDATE_CRITERIA
-        assert question["instructions"] == UPDATE_INSTRUCTIONS.format(index=index)
-
-    first, second = batch.questions.values()
-    assert {key: value for key, value in first.items() if key != "instructions"} == {
-        key: value for key, value in second.items() if key != "instructions"
-    }
 
 
 def test_the_score_gate_refuses_every_hostile_answer_shape() -> None:

@@ -65,7 +65,7 @@ def describe(entry: er.RegistryEntry, state: State, fetched_notes: str | BaseExc
         "latest_version": latest_version,
         "version_jump": version_jump(installed_version, latest_version),
         "title": attributes.get("title"),
-        "release_summary": release_summary,
+        "release_summary": clean_release_notes(release_summary),
         "release_notes": clean_release_notes(notes_text),
     }
     subject: Item = {
