@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.1.3...v0.2.0) (2026-09-23)
+
+
+### Added
+
+* add an update review that scores each pending update ([#11](https://github.com/funkadelic/ha-gutcheck/issues/11)) ([4257124](https://github.com/funkadelic/ha-gutcheck/commit/4257124510f90e074ada94fb8c81a1ab3cc80379))
+
+
+### Other Changes
+
+* bump the minor version for features before 1.0 ([#13](https://github.com/funkadelic/ha-gutcheck/issues/13)) ([bc8269a](https://github.com/funkadelic/ha-gutcheck/commit/bc8269a227af6c1811c472769b8ac0a6fcc5bbe9))
+
 ## [0.1.3](https://github.com/funkadelic/ha-gutcheck/compare/v0.1.2...v0.1.3) (2026-09-23)
 
 
