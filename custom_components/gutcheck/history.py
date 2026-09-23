@@ -61,8 +61,8 @@ async def async_unavailable_since(hass: HomeAssistant, entity_ids: list[str]) ->
             else:
                 seen_available = True
                 run_start = None
-        # An unavailable first row inside the window is the outage's real start
-        # (new entity or young database), not an outage older than the window.
+        # An unavailable first row inside the window dates the outage's start
+        # (new entity or young database).
         started_inside = run_start is not None and run_start > start_time
         result[entity_id] = run_start if seen_available or started_inside else None
 

@@ -168,8 +168,8 @@ async def test_entity_with_a_config_entry_sends_its_state_as_words(
 def test_health_criteria_quotes_every_config_entry_state_word_the_code_sends(config_entry_state: ConfigEntryState) -> None:
     """The words describe() sends for each state appear double-quoted somewhere in HEALTH_CRITERIA.
 
-    A drift test: renaming either the words describe() builds or the words a
-    criterion quotes fails this, instead of silently falling out of sync.
+    Renaming either the words describe() builds or the words a criterion
+    quotes fails this, so the two cannot drift apart unnoticed.
     """
     words = config_entry_state.value.replace("_", " ")
     combined = " ".join(text or "" for text in HEALTH_CRITERIA.values())

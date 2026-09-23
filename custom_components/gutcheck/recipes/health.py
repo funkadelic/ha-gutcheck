@@ -50,8 +50,8 @@ class HealthRecipe:
     async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None, *, force: bool = False) -> Batch:
         """Select unavailable, non-critical entities and build the request.
 
-        previous and force are unused: the health check has no carry-forward
-        path yet. A long-gone, restored entity whose owning integration is
+        previous and force are unused, since nothing carries over from the
+        last run. A long-gone, restored entity whose owning integration is
         loaded (or which has none) is decided in code and carried straight
         into safe_to_remove; everything else is asked.
         """
