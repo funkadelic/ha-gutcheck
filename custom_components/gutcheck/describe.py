@@ -66,7 +66,8 @@ _HTML_TAG_RE = re.compile(r"<[^>]+>")
 _MARKDOWN_IMAGE_RE = re.compile(r"!\[[^\]]*\]\([^)]*\)")
 _MARKDOWN_LINK_RE = re.compile(r"\[([^\]]*)\]\([^)]*\)")
 _HEADING_RE = re.compile(r"(?m)^#{1,6}\s*")
-_EMPHASIS_RE = re.compile(r"\*\*\*|___|\*\*|__|\*|_")
+# Only a run acting as a delimiter: foo_bar and 2 * 3 keep theirs.
+_EMPHASIS_RE = re.compile(r"(?<!\w)(\*{1,3}|_{1,3})(?=\S)|(?<=\S)(\*{1,3}|_{1,3})(?!\w)")
 _CODE_FENCE_RE = re.compile(r"```[a-zA-Z0-9]*\n?")
 _INLINE_CODE_RE = re.compile(r"`([^`]*)`")
 _WHITESPACE_RE = re.compile(r"\s+")
@@ -76,7 +77,7 @@ def clean_release_notes(text: str | None) -> str:
     """Clean a release note excerpt to plain text, capped at RELEASE_NOTES_MAX_CHARS.
 
     Fixed order, so the result is deterministic: unescape HTML entities,
-    strip HTML tags, drop markdown images, keep a markdown link's text and
+    turn HTML tags into spaces, drop markdown images, keep a markdown link's text and
     drop its target, strip heading/emphasis/code-fence/inline-code markers,
     collapse whitespace, then truncate. This is for token economy and model
     clarity, not sanitizing: the excerpt only ever lands in a JSON request
@@ -86,7 +87,7 @@ def clean_release_notes(text: str | None) -> str:
     if not text:
         return ""
     cleaned = html.unescape(text)
-    cleaned = _HTML_TAG_RE.sub("", cleaned)
+    cleaned = _HTML_TAG_RE.sub(" ", cleaned)
     cleaned = _MARKDOWN_IMAGE_RE.sub("", cleaned)
     cleaned = _MARKDOWN_LINK_RE.sub(r"\1", cleaned)
     cleaned = _HEADING_RE.sub("", cleaned)

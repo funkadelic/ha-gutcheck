@@ -104,6 +104,22 @@ def test_cleaning_drops_emphasis_markers() -> None:
     assert clean_release_notes("This is **bold** and *italic* text.") == "This is bold and italic text."
 
 
+def test_cleaning_drops_underscore_emphasis_markers() -> None:
+    """Underscore bold and italic markers are stripped too."""
+    assert clean_release_notes("An _italic_ and __bold__ word.") == "An italic and bold word."
+
+
+@pytest.mark.parametrize("text", ["Renamed foo_bar to foo_baz.", "Scales by 2 * 3 now.", "Matches a*b only."])
+def test_cleaning_keeps_underscores_and_asterisks_inside_text(text: str) -> None:
+    """An underscore or asterisk that is not an emphasis delimiter stays put."""
+    assert clean_release_notes(text) == text
+
+
+def test_cleaning_keeps_adjacent_html_blocks_apart() -> None:
+    """Back-to-back list items do not fuse into one word."""
+    assert clean_release_notes("<ul><li>a</li><li>b</li></ul>") == "a b"
+
+
 def test_cleaning_drops_code_fences() -> None:
     """Triple-backtick code fences, language tag included, are stripped."""
     assert clean_release_notes("```python\nprint('hi')\n```") == "print('hi')"
