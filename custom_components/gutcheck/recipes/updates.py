@@ -35,7 +35,7 @@ class UpdateRecipe:
     recipe_id = RECIPE_UPDATES
     options: tuple[str, ...] = UPDATE_OPTIONS
     # Every field a restore reads off a stored item before the next run replaces it.
-    stored_item_keys: frozenset[str] = frozenset({"entity_id", "registry_id"})
+    stored_item_keys: frozenset[str] = frozenset({"entity_id", "registry_id", "latest_version"})
 
     def __init__(self, critical_label: str | None) -> None:
         """Build the shared safety guard from the configured critical label."""
