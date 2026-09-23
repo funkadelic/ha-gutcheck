@@ -78,6 +78,8 @@ def describe(
         "entity_category": entry.entity_category.value if entry.entity_category else None,
         "device_other_entities_available": _has_available_sibling(hass, registry, entry),
     }
+    if owning_entry is not None:
+        state_item["config_entry_state"] = owning_entry.state.value.replace("_", " ")
     subject: Item = {
         "entity_id": entry.entity_id,
         "registry_id": entry.id,

@@ -5,14 +5,16 @@ from __future__ import annotations
 import json
 import logging
 
+import pytest
 from freezegun import freeze_time
+from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.gutcheck.const import DOMAIN
+from custom_components.gutcheck.const import DOMAIN, HEALTH_CRITERIA
 from custom_components.gutcheck.describe import bucket_duration, bucket_longer_than
 from custom_components.gutcheck.recipes.health import HealthRecipe
 
@@ -126,6 +128,52 @@ async def test_payload_entity_has_exactly_the_seven_allowed_fields(hass: HomeAss
 
     # Compared as a set: the whitelist is which fields go out, not what order they are built in.
     assert set(batch.state["entities"][0]) == set(PAYLOAD_FIELDS)
+
+
+async def test_entity_with_no_config_entry_omits_config_entry_state(hass: HomeAssistant) -> None:
+    """An entity with no owning config entry keeps exactly the seven fields; the key is omitted, not null."""
+    entity_registry = er.async_get(hass)
+    entry = entity_registry.async_get_or_create("sensor", "test", "unique_no_entry")
+    hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
+
+    batch = await HealthRecipe(critical_label=None).async_prepare(hass)
+
+    assert set(batch.state["entities"][0]) == set(PAYLOAD_FIELDS)
+
+
+@pytest.mark.parametrize(
+    ("config_entry_state", "expected_words"),
+    [(ConfigEntryState.LOADED, "loaded"), (ConfigEntryState.SETUP_RETRY, "setup retry")],
+)
+async def test_entity_with_a_config_entry_sends_its_state_as_words(
+    hass: HomeAssistant, config_entry_state: ConfigEntryState, expected_words: str
+) -> None:
+    """An entity owned by a config entry is described with the eight fields, config_entry_state as plain words."""
+    owning_entry = MockConfigEntry(domain="test", state=config_entry_state)
+    owning_entry.add_to_hass(hass)
+    entity_registry = er.async_get(hass)
+    entry = entity_registry.async_get_or_create("sensor", "test", "unique_with_entry", config_entry=owning_entry)
+    hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
+
+    batch = await HealthRecipe(critical_label=None).async_prepare(hass)
+
+    assert set(batch.state["entities"][0]) == {*PAYLOAD_FIELDS, "config_entry_state"}
+    assert batch.state["entities"][0]["config_entry_state"] == expected_words
+
+
+@pytest.mark.parametrize(
+    "config_entry_state",
+    [ConfigEntryState.LOADED, ConfigEntryState.SETUP_ERROR, ConfigEntryState.SETUP_RETRY, ConfigEntryState.MIGRATION_ERROR],
+)
+def test_health_criteria_quotes_every_config_entry_state_word_the_code_sends(config_entry_state: ConfigEntryState) -> None:
+    """The words describe() sends for each state appear double-quoted somewhere in HEALTH_CRITERIA.
+
+    A drift test: renaming either the words describe() builds or the words a
+    criterion quotes fails this, instead of silently falling out of sync.
+    """
+    words = config_entry_state.value.replace("_", " ")
+    combined = " ".join(text or "" for text in HEALTH_CRITERIA.values())
+    assert f'"{words}"' in combined
 
 
 async def test_device_other_entities_available_true_when_sibling_is_available(hass: HomeAssistant) -> None:

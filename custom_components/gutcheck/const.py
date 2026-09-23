@@ -87,19 +87,24 @@ HEALTH_INSTRUCTIONS: Final = (
 
 HEALTH_CRITERIA: Final[dict[str, str | None]] = {
     OPTION_EXPECTED: (
-        "Being unavailable is normal here and needs no action, for example its `entity_category` is "
-        '"diagnostic" or "config" while its `device_other_entities_available` is true, or its domain and '
-        "device class describe something that is often switched off or asleep."
+        'Its `config_entry_state` is "loaded" or missing, `restored` is false, and either '
+        "`device_other_entities_available` is true (the device still reports, only this entity is idle) or "
+        "its domain and device class describe something often switched off or asleep."
     ),
     OPTION_WORTH_FIXING: (
-        "It should be working and the user should look into it: its `restored` is false, so a loaded "
-        "integration still provides it, and nothing suggests the outage is normal."
+        'Its `config_entry_state` is "setup error", "setup retry" or "migration error" (the integration '
+        'failed to start); or `config_entry_state` is "loaded" or missing, `restored` is false, '
+        "`device_other_entities_available` is false, and its domain and device class do not describe "
+        "something often switched off or asleep."
     ),
     OPTION_SAFE_TO_REMOVE: (
-        "It is left over: its `restored` is true, so no loaded integration provides it any more, and its "
-        "`unavailable_for` is long."
+        "Its `restored` is true, so no loaded integration provides it any more, its `config_entry_state` is "
+        '"loaded" or missing, and its `unavailable_for` is neither "less than a day" nor "unknown".'
     ),
-    OPTION_NONE: "The fields do not clearly fit any of the other options.",
+    OPTION_NONE: (
+        "Anything else, for example any other `config_entry_state`, or `restored` is true with "
+        '`unavailable_for` "less than a day" or "unknown".'
+    ),
 }
 
 CONF_UPDATES_ENABLED: Final = "updates_enabled"
