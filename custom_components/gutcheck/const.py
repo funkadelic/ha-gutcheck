@@ -20,6 +20,7 @@ CONF_HEALTH_ENABLED: Final = "health_enabled"
 DEFAULT_DAILY_BUDGET: Final = 150_000
 CHARS_PER_TOKEN: Final = 4
 REQUEST_TIMEOUT: Final = 30  # seconds
+RELEASE_NOTES_FETCH_TIMEOUT: Final = 10  # seconds
 
 PRICE_PER_MTOK_USD: Final = 0.042
 STORE_VERSION: Final = 1

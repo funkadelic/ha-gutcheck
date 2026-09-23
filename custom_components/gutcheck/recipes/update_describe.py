@@ -9,6 +9,7 @@ from homeassistant.components.update import DATA_COMPONENT, UpdateEntity, Update
 from homeassistant.core import HomeAssistant, State
 from homeassistant.helpers import entity_registry as er
 
+from ..const import RELEASE_NOTES_FETCH_TIMEOUT
 from ..describe import clean_release_notes, version_jump
 from .shapes import Item
 
@@ -20,14 +21,16 @@ async def _async_fetch_one_note(hass: HomeAssistant, entry: er.RegistryEntry) ->
 
     Requires the entity to exist, be available, and support the
     release-notes feature; anything else returns None so the caller
-    falls back to release_summary. A raised exception is left to
-    propagate: the caller gathers with return_exceptions=True so one
-    entity's failure cannot stall or fail the whole run.
+    falls back to release_summary. A raised exception, including a
+    timeout past RELEASE_NOTES_FETCH_TIMEOUT, is left to propagate: the
+    caller gathers with return_exceptions=True so one entity's failure
+    cannot stall or fail the whole run.
     """
     entity: UpdateEntity | None = hass.data[DATA_COMPONENT].get_entity(entry.entity_id)
     if entity is None or not entity.available or UpdateEntityFeature.RELEASE_NOTES not in entity.supported_features:
         return None
-    return await entity.async_release_notes()
+    async with asyncio.timeout(RELEASE_NOTES_FETCH_TIMEOUT):
+        return await entity.async_release_notes()
 
 
 async def async_fetch_notes(

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -195,9 +196,12 @@ class FakeUpdateEntity:
     supported_features: UpdateEntityFeature = field(default_factory=lambda: UpdateEntityFeature.RELEASE_NOTES)
     notes: str | None = None
     raises: Exception | None = None
+    hangs: bool = False
 
     async def async_release_notes(self) -> str | None:
-        """Return the configured notes, or raise the configured exception."""
+        """Return the configured notes, raise the configured exception, or hang forever."""
+        if self.hangs:
+            await asyncio.Event().wait()
         if self.raises is not None:
             raise self.raises
         return self.notes
