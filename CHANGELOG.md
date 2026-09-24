@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/funkadelic/ha-gutcheck/compare/v0.2.1...v0.2.2) (2026-09-24)
+
+
+### Fixed
+
+* log a budget-refused run at info instead of error ([#16](https://github.com/funkadelic/ha-gutcheck/issues/16)) ([640bf7a](https://github.com/funkadelic/ha-gutcheck/commit/640bf7aeabbfa605f61251e5b2b7def47bc6a78f))
+
 ## [0.2.1](https://github.com/funkadelic/ha-gutcheck/compare/v0.2.0...v0.2.1) (2026-09-23)
 
 
