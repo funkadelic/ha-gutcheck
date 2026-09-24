@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import re
-from collections.abc import Mapping
+from collections.abc import Collection, Mapping
 from urllib.parse import urlparse
 
 from homeassistant.const import STATE_UNAVAILABLE
@@ -65,6 +65,7 @@ def async_sync_issues(
     *,
     is_fixable: bool = False,
     issue_data: Mapping[str, dict[str, str | int | float | None]] | None = None,
+    keep: Collection[str] = (),
 ) -> None:
     """Create or update every wanted issue, and delete every other issue under prefix.
 
@@ -74,6 +75,9 @@ def async_sync_issues(
     from it gets no link, same as omitting learn_more_url entirely.
     issue_data maps an issue id to the data a fixable issue's flow reads;
     an id absent from it gets no data, same as every non-fixable issue today.
+    keep names existing issue ids the stale sweep must leave alone: neither
+    re-created nor deleted, so their dismissed_version and placeholders stay
+    exactly as they are. Existing call sites pass nothing and behave as before.
     """
     for issue_id, placeholders in wanted.items():
         ir.async_create_issue(
@@ -93,11 +97,11 @@ def async_sync_issues(
     stale = [
         issue_id
         for domain, issue_id in list(registry.issues)
-        if domain == DOMAIN and issue_id.startswith(prefix) and issue_id not in wanted
+        if domain == DOMAIN and issue_id.startswith(prefix) and issue_id not in wanted and issue_id not in keep
     ]
     for issue_id in stale:
         ir.async_delete_issue(hass, DOMAIN, issue_id)
-    _LOGGER.debug("issue sync created_or_updated=%s deleted=%s", len(wanted), len(stale))
+    _LOGGER.debug("issue sync created_or_updated=%s deleted=%s kept=%s", len(wanted), len(stale), len(keep))
 
 
 @callback

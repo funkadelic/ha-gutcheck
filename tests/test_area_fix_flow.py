@@ -15,6 +15,7 @@ from homeassistant.setup import async_setup_component
 
 from custom_components.gutcheck.const import AREA_ISSUE_PREFIX, DOMAIN, ISSUE_AREA_SUGGESTION
 from custom_components.gutcheck.recipes.area_cards import sync_area_cards
+from custom_components.gutcheck.recipes.safety import SafetyRules
 
 from .conftest import create_areas, register_area_device
 
@@ -39,7 +40,7 @@ async def test_a_removed_device_aborts_and_changes_nothing(hass: HomeAssistant) 
     create_areas(hass, "Kitchen")
     device = register_area_device(hass, "plug", entities=["sensor"])
     issue_id = f"{AREA_ISSUE_PREFIX}{device.id}"
-    sync_area_cards(hass, [{"registry_id": device.id, "choice": "Kitchen"}])
+    sync_area_cards(hass, SafetyRules(None), [{"registry_id": device.id, "choice": "Kitchen"}])
     dr.async_get(hass).async_remove_device(device.id)
 
     result = await _open_and_confirm(hass, issue_id)
@@ -53,7 +54,7 @@ async def test_a_device_given_an_area_by_hand_aborts_and_keeps_that_area(hass: H
     areas = create_areas(hass, "Kitchen", "Garage")
     device = register_area_device(hass, "plug", entities=["sensor"])
     issue_id = f"{AREA_ISSUE_PREFIX}{device.id}"
-    sync_area_cards(hass, [{"registry_id": device.id, "choice": "Kitchen"}])
+    sync_area_cards(hass, SafetyRules(None), [{"registry_id": device.id, "choice": "Kitchen"}])
     dr.async_get(hass).async_update_device(device.id, area_id=areas["Garage"])
 
     result = await _open_and_confirm(hass, issue_id)
@@ -70,7 +71,7 @@ async def test_a_deleted_suggested_area_aborts_and_changes_nothing(hass: HomeAss
     areas = create_areas(hass, "Kitchen")
     device = register_area_device(hass, "plug", entities=["sensor"])
     issue_id = f"{AREA_ISSUE_PREFIX}{device.id}"
-    sync_area_cards(hass, [{"registry_id": device.id, "choice": "Kitchen"}])
+    sync_area_cards(hass, SafetyRules(None), [{"registry_id": device.id, "choice": "Kitchen"}])
     ar.async_get(hass).async_delete(areas["Kitchen"])
 
     result = await _open_and_confirm(hass, issue_id)
@@ -116,7 +117,7 @@ async def test_a_successful_confirm_makes_a_second_flow_for_the_same_issue_raise
     create_areas(hass, "Kitchen")
     device = register_area_device(hass, "plug", entities=["sensor"])
     issue_id = f"{AREA_ISSUE_PREFIX}{device.id}"
-    sync_area_cards(hass, [{"registry_id": device.id, "choice": "Kitchen"}])
+    sync_area_cards(hass, SafetyRules(None), [{"registry_id": device.id, "choice": "Kitchen"}])
 
     result = await _open_and_confirm(hass, issue_id)
     assert result["type"] is FlowResultType.CREATE_ENTRY

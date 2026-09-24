@@ -79,9 +79,9 @@ class AreaRecipe:
 
     async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:
         """Sync one fixable Repairs card per suggested device, and log counts."""
-        sync_area_cards(hass, result["items"].get(OPTION_SUGGESTED, []))
+        sync_area_cards(hass, self._safety, result["items"].get(OPTION_SUGGESTED, []))
         _LOGGER.debug("area suggestions run complete, counts=%s", result["counts"])
 
     async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
         """Re-sync cards for a restored result, without calling the API."""
-        sync_area_cards(hass, result["items"].get(OPTION_SUGGESTED, []))
+        sync_area_cards(hass, self._safety, result["items"].get(OPTION_SUGGESTED, []))

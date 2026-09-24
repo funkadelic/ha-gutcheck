@@ -16,6 +16,7 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 
 from custom_components.gutcheck.const import AREA_ISSUE_PREFIX, DOMAIN, OPTION_NONE
 from custom_components.gutcheck.recipes.area_cards import sync_area_cards
+from custom_components.gutcheck.recipes.safety import SafetyRules
 
 from .conftest import (
     api_response,
@@ -131,7 +132,7 @@ async def test_sync_skips_an_item_whose_device_no_longer_resolves(hass: HomeAssi
     """An item naming a registry id that no longer resolves to a device raises no card."""
     create_areas(hass, "Kitchen")
 
-    sync_area_cards(hass, [{"registry_id": "gone", "choice": "Kitchen"}])
+    sync_area_cards(hass, SafetyRules(None), [{"registry_id": "gone", "choice": "Kitchen"}])
 
     assert not any(issue_id.startswith(AREA_ISSUE_PREFIX) for _domain, issue_id in ir.async_get(hass).issues)
 
@@ -141,7 +142,7 @@ async def test_sync_skips_an_item_whose_choice_no_longer_resolves_to_a_live_area
     create_areas(hass, "Kitchen")
     device = register_area_device(hass, "plug", entities=["sensor"])
 
-    sync_area_cards(hass, [{"registry_id": device.id, "choice": "Attic"}])
+    sync_area_cards(hass, SafetyRules(None), [{"registry_id": device.id, "choice": "Attic"}])
 
     assert not any(issue_id.startswith(AREA_ISSUE_PREFIX) for _domain, issue_id in ir.async_get(hass).issues)
 
