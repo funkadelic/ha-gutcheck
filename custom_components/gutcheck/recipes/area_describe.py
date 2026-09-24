@@ -9,14 +9,27 @@ from homeassistant.helpers import area_registry as ar
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
-from ..const import AREA_NONE_DESCRIPTION, OPTION_NONE
+from ..const import AREA_NAME_MAX_CHARS, AREA_NONE_DESCRIPTION, DEVICE_TEXT_MAX_CHARS, OPTION_NONE
+from ..describe import clean_text
 from .shapes import Item
 
 
 def area_options(hass: HomeAssistant) -> dict[str, str]:
-    """Every area's name mapped to its area id, in area id order."""
+    """Every area's cleaned, capped name mapped to its area id, in area id order.
+
+    Walking areas lowest id first and skipping an already-taken name is what
+    keeps the lowest area id holding a contested name: a plain dict
+    comprehension would let a later, higher id silently overwrite it. A
+    cleaned name that is empty or equals the none-of-these key is left out.
+    """
     areas = sorted(ar.async_get(hass).async_list_areas(), key=lambda area: area.id)
-    return {area.name: area.id for area in areas}
+    options: dict[str, str] = {}
+    for area in areas:
+        name = clean_text(area.name, AREA_NAME_MAX_CHARS)
+        if not name or name == OPTION_NONE or name in options:
+            continue
+        options[name] = area.id
+    return options
 
 
 def area_criteria(options: dict[str, str]) -> dict[str, str | None]:
@@ -29,11 +42,12 @@ def area_criteria(options: dict[str, str]) -> dict[str, str | None]:
 def describe(hass: HomeAssistant, device: dr.DeviceEntry) -> tuple[dict[str, Any], Item]:
     """One device's model-visible state and its code-only subject.
 
-    Built from this device and its own entities only: never the parent
-    (via_device) device, another device, or the deprecated suggested-area
-    property.
+    Built from this device and its own entities only: never the linking
+    parent device, another device, or the deprecated suggested-area property.
     """
-    name = device.name_by_user or device.name
+    name = clean_text(device.name_by_user or device.name, DEVICE_TEXT_MAX_CHARS) or None
+    manufacturer = clean_text(device.manufacturer, DEVICE_TEXT_MAX_CHARS) or None
+    model = clean_text(device.model, DEVICE_TEXT_MAX_CHARS) or None
     entries = er.async_entries_for_device(er.async_get(hass), device.id, include_disabled_entities=True)
     entity_domains = sorted({entry.domain for entry in entries})
     classes = {entry.device_class or entry.original_device_class for entry in entries}
@@ -44,8 +58,8 @@ def describe(hass: HomeAssistant, device: dr.DeviceEntry) -> tuple[dict[str, Any
         integration = entry.domain if entry is not None else None
     state_item: dict[str, Any] = {
         "name": name,
-        "manufacturer": device.manufacturer,
-        "model": device.model,
+        "manufacturer": manufacturer,
+        "model": model,
         "integration": integration,
         "entity_domains": entity_domains,
         "device_classes": device_classes,

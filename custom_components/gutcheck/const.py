@@ -190,3 +190,8 @@ AREA_INSTRUCTIONS: Final = (
     "Using only the fields of `devices[{index}]`, pick the area this device is most likely in."
 )
 AREA_NONE_DESCRIPTION: Final = "None of the listed areas clearly fits, or the device's fields do not say where it is."
+
+# 60 fits real device names; 18 areas at 40 characters keep the repeated
+# criteria small.
+DEVICE_TEXT_MAX_CHARS: Final = 60
+AREA_NAME_MAX_CHARS: Final = 40
