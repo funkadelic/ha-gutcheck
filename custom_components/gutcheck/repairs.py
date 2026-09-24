@@ -96,7 +96,7 @@ def async_sync_issues(
     registry = ir.async_get(hass)
     stale = [
         issue_id
-        for domain, issue_id in list(registry.issues)
+        for domain, issue_id in registry.issues
         if domain == DOMAIN and issue_id.startswith(prefix) and issue_id not in wanted and issue_id not in keep
     ]
     for issue_id in stale:
