@@ -75,16 +75,17 @@ _INLINE_CODE_RE = re.compile(r"`([^`]*)`")
 _WHITESPACE_RE = re.compile(r"\s+")
 
 
-def clean_release_notes(text: str | None) -> str:
-    """Clean a release note excerpt to plain text, capped at RELEASE_NOTES_MAX_CHARS.
+def clean_text(text: str | None, max_chars: int) -> str:
+    """Clean a text excerpt to plain text, capped at max_chars.
 
     Fixed order, so the result is deterministic: unescape HTML entities,
     turn HTML tags into spaces, drop markdown images, keep a markdown link's text and
     drop its target, strip heading/emphasis/code-fence/inline-code markers,
     collapse whitespace, then truncate. This is for token economy and model
-    clarity, not sanitizing: the excerpt only ever lands in a JSON request
+    clarity, not sanitizing: the result only ever lands in a JSON request
     body and the last-payload attribute, is never rendered as HTML, and is
-    never used as a Repairs placeholder.
+    never used as a Repairs placeholder. Anything bound for a Repairs
+    placeholder still goes through sanitize_placeholder.
     """
     if not text:
         return ""
@@ -97,4 +98,9 @@ def clean_release_notes(text: str | None) -> str:
     cleaned = _CODE_FENCE_RE.sub("", cleaned)
     cleaned = _INLINE_CODE_RE.sub(r"\1", cleaned)
     cleaned = _WHITESPACE_RE.sub(" ", cleaned).strip()
-    return cleaned[:RELEASE_NOTES_MAX_CHARS]
+    return cleaned[:max_chars]
+
+
+def clean_release_notes(text: str | None) -> str:
+    """Clean a release note excerpt to plain text, capped at RELEASE_NOTES_MAX_CHARS."""
+    return clean_text(text, RELEASE_NOTES_MAX_CHARS)

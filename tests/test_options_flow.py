@@ -15,6 +15,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.gutcheck.const import (
+    CONF_AREAS_ENABLED,
     CONF_CRITICAL_LABEL,
     CONF_DAILY_BUDGET,
     CONF_HEALTH_ENABLED,
@@ -82,6 +83,7 @@ async def test_defaults_apply_when_options_never_saved(
     assert result["type"] is FlowResultType.FORM
     defaults = _schema_defaults(result["data_schema"])
     assert defaults[CONF_HEALTH_ENABLED] is True
+    assert defaults[CONF_AREAS_ENABLED] is True
     assert defaults[CONF_DAILY_BUDGET] == DEFAULT_DAILY_BUDGET
     assert CONF_CRITICAL_LABEL not in defaults
 
@@ -116,7 +118,7 @@ async def test_saving_new_budget_reloads_and_keeps_spent_tokens(
     assert result["type"] is FlowResultType.CREATE_ENTRY
     reload_spy.assert_called_once()
 
-    # The reload restores the run from less than a week ago for free (D-11)
+    # The reload restores the run from less than a week ago for free
     # instead of sending another request, so only the first run's 1234 tokens
     # are spent.
     tokens_state = _tokens_sensor_state(hass, mock_config_entry)
@@ -250,7 +252,7 @@ async def test_critical_label_excludes_and_clearing_restores(
     """Picking a critical label excludes the labelled entity; clearing it brings it back.
 
     Each reload jumps the clock past the weekly cadence window first, so the
-    restore-for-free path (D-11) doesn't hide the label's effect behind a
+    restore-for-free path doesn't hide the label's effect behind a
     restored, pre-label result.
     """
     freezer.move_to("2026-01-01T00:00:00-08:00")

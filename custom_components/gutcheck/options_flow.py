@@ -1,4 +1,4 @@
-"""Options flow: toggle the home health check, set the daily budget, pick the critical label."""
+"""Options flow: toggle the home health check, update review and area suggestions, set the daily budget and critical label."""
 
 from __future__ import annotations
 
@@ -8,12 +8,20 @@ import voluptuous as vol
 from homeassistant.config_entries import ConfigFlowResult, OptionsFlowWithReload
 from homeassistant.helpers.selector import BooleanSelector, LabelSelector
 
-from .const import CONF_CRITICAL_LABEL, CONF_DAILY_BUDGET, CONF_HEALTH_ENABLED, CONF_UPDATES_ENABLED, DEFAULT_DAILY_BUDGET
+from .const import (
+    CONF_AREAS_ENABLED,
+    CONF_CRITICAL_LABEL,
+    CONF_DAILY_BUDGET,
+    CONF_HEALTH_ENABLED,
+    CONF_UPDATES_ENABLED,
+    DEFAULT_DAILY_BUDGET,
+)
 
 OPTIONS_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_HEALTH_ENABLED, default=True): BooleanSelector(),
         vol.Required(CONF_UPDATES_ENABLED, default=True): BooleanSelector(),
+        vol.Required(CONF_AREAS_ENABLED, default=True): BooleanSelector(),
         vol.Required(CONF_DAILY_BUDGET, default=DEFAULT_DAILY_BUDGET): vol.All(vol.Coerce(int), vol.Range(min=1)),
         vol.Optional(CONF_CRITICAL_LABEL): LabelSelector(),
     }
@@ -21,7 +29,7 @@ OPTIONS_SCHEMA = vol.Schema(
 
 
 class GutCheckOptionsFlow(OptionsFlowWithReload):
-    """The health check toggle, the daily token budget, and the critical label."""
+    """The health check, update review and area suggestion toggles, the daily token budget, and the critical label."""
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Show the options form, prefilled with the entry's saved options."""

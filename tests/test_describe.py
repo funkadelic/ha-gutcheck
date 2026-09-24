@@ -11,7 +11,7 @@ from custom_components.gutcheck.const import (
     VERSION_JUMP_PATCH,
     VERSION_JUMP_UNKNOWN,
 )
-from custom_components.gutcheck.describe import clean_release_notes, version_jump
+from custom_components.gutcheck.describe import clean_release_notes, clean_text, version_jump
 
 
 def test_patch_only_move_buckets_as_patch() -> None:
@@ -148,3 +148,8 @@ def test_cleaning_none_yields_an_empty_string() -> None:
 def test_cleaning_empty_string_yields_an_empty_string() -> None:
     """An empty input string cleans to an empty string."""
     assert clean_release_notes("") == ""
+
+
+def test_clean_text_caps_at_its_own_max_chars_argument() -> None:
+    """clean_text truncates to whatever cap its caller passes, independent of RELEASE_NOTES_MAX_CHARS."""
+    assert len(clean_text("x" * 200, 60)) == 60

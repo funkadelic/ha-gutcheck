@@ -14,17 +14,23 @@ The key is the only setup. There is no add-on or local model to run, and a healt
 
 **Update review.** Gut Check reads the release notes on every pending update and scores each one routine (nothing for you to do beyond installing it), feature (adds something visible while every existing setup keeps working), or possibly breaking (removes or renames something, needs a migration, or needs a manual step). It runs on the same weekly schedule as the health check, and you can press a button to run it on demand. It never installs, skips, or changes an update itself; every possibly-breaking finding waits for you in Repairs.
 
+**Area suggestions.** Gut Check suggests one existing area for each device that does not have one yet, or suggests none when it is not sure or nothing fits. Each suggestion is a Repairs card with two choices: assign the suggested area, or tell Gut Check not to suggest an area for that device. It never creates an area and never moves a device on its own. It runs on the same weekly schedule as the other checks, and you can press a button to run it on demand. Left out: service devices such as add-ons and accounts, disabled devices, devices that already have an area, devices with no entities, anything with a device tracker, devices where you placed any entity's area by hand, and anything carrying the label you chose to exclude, on the device or on any of its entities.
+
 ## The sensor
 
 Each enabled recipe gets one sensor. For the health check, `sensor.gut_check_home_health_check` shows the number of entities it classified confidently (expected plus worth fixing plus safe to remove). Its attributes carry the full lists per bucket, plus an `unsure` list for anything below the confidence threshold or that did not clearly fit any bucket. Unsure entities are never counted in the sensor's number, never turned into a Repairs card, and never treated as worth fixing.
 
 For the update review, `sensor.gut_check_update_review` shows the number of updates it scored confidently, split into routine, feature, and possibly breaking. Its attributes carry the full lists per level, plus an `unsure` list the same way the health check has one. An update Gut Check already scored is re-read only when its installed, offered or skipped version changes, and one that landed in unsure is re-read on every run. Pressing the Run update review button re-reads every pending update whether or not anything changed, still at most 50 per run; the rest, and any update entity that is unavailable at the time, keep their last score until a later run reaches them.
 
+For area suggestions, `sensor.gut_check_area_suggestions` shows the number of confident suggestions. Its attributes list each one with its suggested area and confidence, plus an `unsure` list for anything below the confidence threshold or where none of the listed areas clearly fit.
+
 ## Repairs cards
 
 Only entities classified worth fixing get a Repairs card, one per entity, under **Settings > Repairs**. A card clears itself once the entity it names is available again, no action needed. Ignoring a card hides it and Gut Check remembers that choice on later runs. Removing the integration removes every card it created, ignored ones included.
 
 A possibly-breaking update gets a Repairs card the same way, one per update, and links to its release notes where the integration provides one. The card clears itself the moment the update is installed or skipped, not on a version bump alone, so an open card still has an unread update behind it.
+
+An area suggestion gets a Repairs card the same way, one per device, up to ten new cards per run, most confident first; the rest wait for a later run or a button press. A card clears when you assign its area, or when the device gets an area another way or stops qualifying. Choosing not to have an area suggested moves the card to your ignored repairs, where it stays for as long as the device still qualifies, including across turning area suggestions off and back on. If the device or the suggested area changed by the time you open a card, assigning does nothing, tells you so, and removes the card.
 
 ## What gets sent, and what does not
 
@@ -34,6 +40,8 @@ For each pending update, Gut Check sends the integration name, the installed and
 
 To see exactly what was sent on the last completed run, open **Developer tools > States**, find the sensor, and look at its `last_payload` attribute. A run that fails partway leaves the previous run's payload in place.
 
+For each device with no area, Gut Check sends its name (as you or its maker named it, cleaned and shortened), manufacturer, model, integration, and the kinds and device classes of its entities, plus your existing area names as the options it can pick from. It never sends entity names or entity IDs, never another device's area, and never the area of a hub or account the device sits behind. The device's name is read only as a description, never as an instruction.
+
 ## Budget
 
 Gut Check enforces a daily token budget so cost stays predictable. `sensor.gut_check_tokens_used_today` and `sensor.gut_check_cost_today` show what has been spent and what it cost, both resetting at local midnight.
@@ -42,18 +50,21 @@ Gut Check sizes up every run before sending it and refuses one that would exceed
 
 A full update review run, at the per-run cap of 50 pending updates with every release summary and release note at full length, comes to about 36,000 tokens by Gut Check's own sizing check, or up to about 41,000 once you allow for that check reading about 12% low. That is still a fraction of a cent. That figure is an estimate; the one real run so far, with a single pending update and short release notes, used 593 tokens. The default daily budget of 150,000 tokens leaves room for that run and a health check on the same day, even a health check at the largest request size Gut Check will send.
 
+Area suggestions cost about as little. The one real run so far, with 48 devices and 18 areas, used 17,652 input tokens.
+
 ## Options
 
 Open the integration's **Configure** screen to:
 
 - Turn the home health check on or off
 - Turn the weekly update review on or off
+- Turn area suggestions on or off
 - Set the daily token budget (default 150,000 tokens)
 - Pick a label; anything carrying that label on the entity or its device is left out of every check entirely
 
 ## Hard rules
 
-Gut Check never controls a lock, alarm panel, garage door or cover, and the health check leaves those entities out. The update review does read the firmware updates for those devices, since each is an ordinary update entity, but it only scores them: it never installs, skips or changes an update, for those devices or any other. To keep a device's updates out of the review too, put the label you chose to exclude on the device. It never acts on its own: every actionable finding waits for you in Repairs. And when it is not confident in an answer, it does nothing rather than guess.
+Gut Check never controls a lock, alarm panel, garage door or cover, and the health check leaves those entities out. The update review does read the firmware updates for those devices, since each is an ordinary update entity, but it only scores them: it never installs, skips or changes an update, for those devices or any other. To keep a device's updates out of the review too, put the label you chose to exclude on the device. Area suggestions do cover devices with locks, alarm panels, garage doors or covers, because an area is only a label on the device, and it changes only when you confirm that card; Gut Check still never controls them. Gut Check never acts on its own: every actionable finding waits for you in Repairs. And when it is not confident in an answer, it does nothing rather than guess.
 
 ## Install
 
