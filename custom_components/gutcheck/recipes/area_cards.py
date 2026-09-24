@@ -84,6 +84,17 @@ def _still_qualifies(hass: HomeAssistant, safety: SafetyRules, issue_id: str) ->
     return isinstance(device, dr.DeviceEntry) and not safety.excludes_device(hass, device)
 
 
+def _attempted_ids(suggested: list[Item]) -> set[str]:
+    """Every device this run's suggested list names, whether or not it fully resolved.
+
+    Built straight from each item's own registry_id, with no registry
+    lookup: a device the model answered about this run but whose device or
+    area no longer resolves is still "attempted", which is what tells an
+    existing card to be swept rather than kept as a rejection.
+    """
+    return {f"{AREA_ISSUE_PREFIX}{item['registry_id']}" for item in suggested}
+
+
 def sync_area_cards(hass: HomeAssistant, safety: SafetyRules, suggested: list[Item]) -> None:
     """Create or update a capped, rejection-preserving set of area suggestion cards.
 
@@ -91,14 +102,18 @@ def sync_area_cards(hass: HomeAssistant, safety: SafetyRules, suggested: list[It
     run's own suggestion, which is what lets an ignored card's content
     follow the model while HA's own re-create keeps dismissed_version
     untouched (D-05, D-06). A new card arrives only up to
-    MAX_NEW_AREA_CARDS_PER_RUN per run, most confident first (D-11). Every
-    other existing card is passed straight through untouched as long as its
-    device still qualifies, which is what lets a rejection outlive a run
-    answering unsure or none of these; once the device stops qualifying,
-    its card is swept like any other stale one.
+    MAX_NEW_AREA_CARDS_PER_RUN per run, most confident first (D-11). An
+    existing card for a device this run never suggested at all (an unsure
+    or none-of-these answer) is passed straight through untouched as long
+    as its device still qualifies, which is what lets a rejection outlive a
+    noisy run; once the device stops qualifying, its card is swept like any
+    other stale one. A device this run did suggest, but whose choice no
+    longer names a live area, is swept too rather than kept: that suggestion
+    is stale, not rejected.
     """
     options = area_options(hass)
     resolved = _resolve(hass, options, suggested)
+    attempted = _attempted_ids(suggested)
 
     registry = ir.async_get(hass)
     existing_ids = {
@@ -110,7 +125,11 @@ def sync_area_cards(hass: HomeAssistant, safety: SafetyRules, suggested: list[It
     deferred_new = ordered_new[MAX_NEW_AREA_CARDS_PER_RUN:]
     wanted_ids = open_ids | set(accepted_new)
 
-    kept = {issue_id for issue_id in existing_ids - wanted_ids if _still_qualifies(hass, safety, issue_id)}
+    kept = {
+        issue_id
+        for issue_id in existing_ids - wanted_ids
+        if issue_id not in attempted and _still_qualifies(hass, safety, issue_id)
+    }
 
     async_sync_issues(
         hass,
