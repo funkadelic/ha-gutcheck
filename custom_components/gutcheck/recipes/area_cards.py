@@ -101,8 +101,8 @@ def sync_area_cards(hass: HomeAssistant, safety: SafetyRules, suggested: list[It
     An open card (its id already exists) is always re-created with this
     run's own suggestion, which is what lets an ignored card's content
     follow the model while HA's own re-create keeps dismissed_version
-    untouched (D-05, D-06). A new card arrives only up to
-    MAX_NEW_AREA_CARDS_PER_RUN per run, most confident first (D-11). An
+    untouched. A new card arrives only up to
+    MAX_NEW_AREA_CARDS_PER_RUN per run, most confident first. An
     existing card for a device this run never suggested at all (an unsure
     or none-of-these answer) is passed straight through untouched as long
     as its device still qualifies, which is what lets a rejection outlive a
