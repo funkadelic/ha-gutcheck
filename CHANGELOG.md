@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.2.2...v0.3.0) (2026-09-24)
+
+
+### Added
+
+* suggest a room for each unassigned device ([#19](https://github.com/funkadelic/ha-gutcheck/issues/19)) ([dd13d71](https://github.com/funkadelic/ha-gutcheck/commit/dd13d71197a6ab66455e227dae4a359e54d95e10))
+
 ## [0.2.2](https://github.com/funkadelic/ha-gutcheck/compare/v0.2.1...v0.2.2) (2026-09-24)
 
 
