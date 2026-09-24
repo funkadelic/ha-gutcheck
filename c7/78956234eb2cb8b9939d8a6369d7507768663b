@@ -1,0 +1,19 @@
+custom_components/gutcheck/repairs.py
+  s_23260f172cf6f6::t_e28f20427497ef 99
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c778956234eb2cb8b9939d8a6369d7507768663b",
+  "prompts": {},
+  "sessions": {
+    "s_23260f172cf6f6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2d3d82eb-8af2-4d3f-a7c3-86141e17e29a",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
