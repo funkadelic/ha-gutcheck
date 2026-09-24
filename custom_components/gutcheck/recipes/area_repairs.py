@@ -43,15 +43,19 @@ class AreaSuggestionRepairFlow(RepairsFlow):
         return self.async_show_menu(step_id="init", menu_options=["confirm", "ignore"], description_placeholders=placeholders)
 
     async def async_step_confirm(self, user_input: dict[str, str] | None = None) -> RepairsFlowResult:
-        """Assign the area, or abort as outdated if the re-check fails."""
+        """Assign the area, or remove the card and abort as outdated if the re-check fails."""
         if not self._assign():
             _LOGGER.debug("area suggestion outdated")
+            ir.async_delete_issue(self.hass, DOMAIN, self.issue_id)
             return self.async_abort(reason="suggestion_outdated")
         _LOGGER.debug("area suggestion confirmed")
         return self.async_create_entry(data={})
 
     async def async_step_ignore(self, user_input: dict[str, str] | None = None) -> RepairsFlowResult:
-        """Ignore the card: HA's own dismissed_version is the rejection memory."""
+        """Ignore the card, or abort as outdated if a run already swept it out from under the open dialog."""
+        if ir.async_get(self.hass).async_get_issue(DOMAIN, self.issue_id) is None:
+            _LOGGER.debug("area suggestion outdated")
+            return self.async_abort(reason="suggestion_outdated")
         ir.async_ignore_issue(self.hass, DOMAIN, self.issue_id, True)
         _LOGGER.debug("area suggestion ignored")
         return self.async_abort(reason="suggestion_ignored")

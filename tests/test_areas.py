@@ -198,6 +198,7 @@ async def test_a_device_labelled_critical_after_its_card_was_raised_aborts_on_co
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "suggestion_outdated"
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
     updated = dr.async_get(hass).async_get(device.id)
     assert updated is not None
     assert updated.area_id is None

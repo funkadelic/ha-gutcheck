@@ -48,6 +48,7 @@ async def test_a_removed_device_aborts_and_changes_nothing(hass: HomeAssistant) 
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "suggestion_outdated"
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
 
 
 async def test_a_device_given_an_area_by_hand_aborts_and_keeps_that_area(hass: HomeAssistant) -> None:
@@ -62,6 +63,7 @@ async def test_a_device_given_an_area_by_hand_aborts_and_keeps_that_area(hass: H
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "suggestion_outdated"
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
     updated = dr.async_get(hass).async_get(device.id)
     assert updated is not None
     assert updated.area_id == areas["Garage"]
@@ -79,6 +81,7 @@ async def test_a_deleted_suggested_area_aborts_and_changes_nothing(hass: HomeAss
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "suggestion_outdated"
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
     updated = dr.async_get(hass).async_get(device.id)
     assert updated is not None
     assert updated.area_id is None
@@ -108,6 +111,7 @@ async def test_issue_data_missing_either_id_aborts_and_changes_nothing(hass: Hom
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "suggestion_outdated"
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
     updated = dr.async_get(hass).async_get(device.id)
     assert updated is not None
     assert updated.area_id is None
@@ -127,3 +131,24 @@ async def test_a_successful_confirm_makes_a_second_flow_for_the_same_issue_raise
     assert manager is not None
     with pytest.raises(UnknownStep):
         await manager.async_init(DOMAIN, data={"issue_id": issue_id})
+
+
+async def test_ignoring_a_card_a_run_already_swept_aborts_as_outdated_with_no_error(hass: HomeAssistant) -> None:
+    """A card deleted by a run while its dialog is open ends the dialog as outdated, not an unhandled error."""
+    create_areas(hass, "Kitchen")
+    device = register_area_device(hass, "plug", entities=["sensor"])
+    issue_id = f"{AREA_ISSUE_PREFIX}{device.id}"
+    sync_area_cards(hass, SafetyRules(None), [{"registry_id": device.id, "choice": "Kitchen"}])
+    assert await async_setup_component(hass, DOMAIN, {})
+    assert await async_setup_component(hass, "repairs", {})
+    manager = repairs_flow_manager(hass)
+    assert manager is not None
+    result = await manager.async_init(DOMAIN, data={"issue_id": issue_id})
+    assert result["type"] is FlowResultType.MENU
+
+    ir.async_delete_issue(hass, DOMAIN, issue_id)
+    result = await manager.async_configure(result["flow_id"], {"next_step_id": "ignore"})
+
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "suggestion_outdated"
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
