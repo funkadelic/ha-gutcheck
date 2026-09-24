@@ -1,0 +1,21 @@
+custom_components/gutcheck/recipes/area_cards.py
+  s_23260f172cf6f6::t_274fd30949c648 120
+custom_components/gutcheck/repairs.py
+  s_23260f172cf6f6::t_274fd30949c648 118
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2cd1817c5ffea05fc022525a5c1dbeb7460bdbd2",
+  "prompts": {},
+  "sessions": {
+    "s_23260f172cf6f6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2d3d82eb-8af2-4d3f-a7c3-86141e17e29a",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
