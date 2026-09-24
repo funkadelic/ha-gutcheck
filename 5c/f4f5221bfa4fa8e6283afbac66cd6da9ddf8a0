@@ -1,0 +1,26 @@
+custom_components/gutcheck/recipes/areas.py
+  s_4cc0ece6e08b16::t_1dd3d201376588 50-53
+tests/test_area_size.py
+  s_4cc0ece6e08b16::t_4bc233a6d90098 124-125
+  s_4cc0ece6e08b16::t_0253763ac47f5c 1-30,41-86,89-122,127-191,196
+  s_4cc0ece6e08b16::t_1d7030ee9c8675 123,126,192,195
+  s_4cc0ece6e08b16::t_5bda881578c12b 31-40
+  s_4cc0ece6e08b16::t_82e6dc53a03867 87-88
+  s_4cc0ece6e08b16::t_4f70c738365593 193-194
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5cf4f5221bfa4fa8e6283afbac66cd6da9ddf8a0",
+  "prompts": {},
+  "sessions": {
+    "s_4cc0ece6e08b16": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "06dc1f03-ac86-4a4d-ab2d-91483c9f14b5",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}

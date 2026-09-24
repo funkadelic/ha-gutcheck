@@ -1,0 +1,25 @@
+tests/test_area_restore.py
+  s_4cc0ece6e08b16::t_5f027fd4819fba 76-79
+  s_4cc0ece6e08b16::t_3d460ff424b415 8
+  s_4cc0ece6e08b16::t_6947445be4308a 14-20
+  s_4cc0ece6e08b16::t_ce975fb94326b6 1-7,9-13,21-64,66-71,73,80-89,92,94-98,100-193,195-206
+  s_4cc0ece6e08b16::t_ee2f440f9bdc0a 65,72,74-75,90-91
+  s_4cc0ece6e08b16::t_4b27bd9dcaa770 93,99
+  s_4cc0ece6e08b16::t_36762522bb79db 194
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "42ab4d8a9954d95ea233fb54ce0d64e2e41c009d",
+  "prompts": {},
+  "sessions": {
+    "s_4cc0ece6e08b16": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "06dc1f03-ac86-4a4d-ab2d-91483c9f14b5",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+custom_components/gutcheck/recipes/area_cards.py
+  s_4cc0ece6e08b16::t_d67ade1e223bf7 1,6,10,12,15,21-40,46,56-83,85-112,115-130
+  s_4cc0ece6e08b16::t_854d9847e97b2d 113
+  s_4cc0ece6e08b16::t_c891e86c539662 84
+tests/test_areas.py
+  s_4cc0ece6e08b16::t_72d0103cfcf51e 135
+  s_4cc0ece6e08b16::t_7fd457488dbe11 19
+  s_4cc0ece6e08b16::t_81b984150f8f90 145
+tests/test_area_fix_flow.py
+  s_4cc0ece6e08b16::t_6d36ce17a1fea5 18
+  s_4cc0ece6e08b16::t_c8eff78ed7c620 43,57,74,120
+custom_components/gutcheck/recipes/areas.py
+  s_4cc0ece6e08b16::t_d384da8e4c6f43 82,87
+custom_components/gutcheck/repairs.py
+  s_4cc0ece6e08b16::t_a51ea7624153aa 100,104
+  s_4cc0ece6e08b16::t_40e16f68a4ed37 68,78-80
+  s_4cc0ece6e08b16::t_974d95058ee748 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "09575c6990d2a3c351bd59d1a195aae83c8c0b25",
+  "prompts": {},
+  "sessions": {
+    "s_4cc0ece6e08b16": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "06dc1f03-ac86-4a4d-ab2d-91483c9f14b5",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
