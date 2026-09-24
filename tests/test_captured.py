@@ -7,9 +7,16 @@ from pathlib import Path
 from typing import Any
 
 from custom_components.gutcheck.client import validate_response
-from custom_components.gutcheck.const import CHOICE_CONFIDENCE_THRESHOLD, HEALTH_OPTIONS
+from custom_components.gutcheck.const import (
+    CHOICE_CONFIDENCE_THRESHOLD,
+    HEALTH_OPTIONS,
+    OPTION_ROUTINE,
+    UPDATE_CRITERIA,
+    UPDATE_INSTRUCTIONS,
+)
 from custom_components.gutcheck.recipes.gate import classify, gate_choice
 from custom_components.gutcheck.recipes.shapes import Batch
+from custom_components.gutcheck.recipes.updates import UpdateRecipe
 
 from .conftest import choice_answer
 
@@ -86,3 +93,42 @@ def test_choice_answer_builder_matches_a_captured_answer_key_set() -> None:
     captured_answer = next(iter(response["answers"].values()))
     built_answer = choice_answer("expected", 0.9)
     assert set(built_answer) == set(captured_answer)
+
+
+def test_update_response_passes_validate_response() -> None:
+    """A real captured update-review response satisfies validate_response's documented shape."""
+    response = _load("update_response.json")
+    assert validate_response(response) == response
+
+
+def test_the_captured_update_payload_and_response_come_from_the_same_run() -> None:
+    """Regenerating one update fixture without the other would make the tests below lie."""
+    payload = _load("update_payload.json")
+    response = _load("update_response.json")
+    assert set(payload["questions"]) == set(response["answers"]), (
+        "update_payload.json and update_response.json disagree on question ids; recapture both together"
+    )
+
+
+def test_the_captured_update_question_matches_the_current_wording() -> None:
+    """A change to the update question's wording leaves the captured pair stale until it is recaptured."""
+    payload = _load("update_payload.json")
+    for index, question in enumerate(payload["questions"].values()):
+        assert question["instructions"] == UPDATE_INSTRUCTIONS.format(index=index)
+        assert question["criteria"] == UPDATE_CRITERIA
+
+
+def test_every_captured_update_answer_is_a_score_over_its_criteria_levels() -> None:
+    """Each real score answer keys its probabilities by level index, one per criterion."""
+    payload = _load("update_payload.json")
+    response = _load("update_response.json")
+    for question_id, question in payload["questions"].items():
+        answer = response["answers"][question_id]
+        assert answer["type"] == "score"
+        assert set(answer["probabilities"]) == {str(level) for level in range(len(question["criteria"]))}
+
+
+def test_the_captured_patch_release_gates_to_routine() -> None:
+    """The real answer for a bug-fix-only patch release passes the update gate as routine."""
+    response = _load("update_response.json")
+    assert UpdateRecipe(None).gate(response["answers"]["u0"]) == OPTION_ROUTINE

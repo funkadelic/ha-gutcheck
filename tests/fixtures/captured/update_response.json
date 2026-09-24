@@ -1,0 +1,24 @@
+{
+  "model": "jev-1.13.0",
+  "answers": {
+    "u0": {
+      "type": "score",
+      "score": 0.02,
+      "confidence": 0.97,
+      "legend": {
+        "0": "Routine: a maintenance release, bug fix, translation update, dependency bump or security patch. Nothing for the user to do beyond installing it.",
+        "1": "Feature: adds something user-visible, or changes a default, while every existing setup keeps working unchanged.",
+        "2": "Possibly breaking: removes or renames something, requires a migration, raises a minimum version, or needs a manual step after installing."
+      },
+      "probabilities": {
+        "0": 0.98,
+        "1": 0.02,
+        "2": 0.0
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 593,
+    "output_tokens": 18
+  }
+}
