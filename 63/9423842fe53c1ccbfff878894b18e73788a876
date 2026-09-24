@@ -1,0 +1,24 @@
+tests/test_options_flow.py
+  s_488411bc08e4bc::t_139998685ed2f2 255
+  s_488411bc08e4bc::t_53c4b3011e21f4 121
+custom_components/gutcheck/const.py
+  s_488411bc08e4bc::t_d250f7079cb5e4 199
+custom_components/gutcheck/recipes/area_cards.py
+  s_488411bc08e4bc::t_218c188a8ef498 104-105
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "639423842fe53c1ccbfff878894b18e73788a876",
+  "prompts": {},
+  "sessions": {
+    "s_488411bc08e4bc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c06597a5-0540-4cee-a3eb-d319ab390119",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
