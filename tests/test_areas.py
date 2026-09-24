@@ -6,6 +6,7 @@ import logging
 
 import pytest
 from homeassistant.components.repairs import repairs_flow_manager
+from homeassistant.const import CONF_API_KEY
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import device_registry as dr
@@ -14,7 +15,14 @@ from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import AREA_ISSUE_PREFIX, DOMAIN, OPTION_NONE
+from custom_components.gutcheck.const import (
+    AREA_ISSUE_PREFIX,
+    CONF_CRITICAL_LABEL,
+    CONF_HEALTH_ENABLED,
+    CONF_UPDATES_ENABLED,
+    DOMAIN,
+    OPTION_NONE,
+)
 from custom_components.gutcheck.recipes.area_cards import sync_area_cards
 from custom_components.gutcheck.recipes.safety import SafetyRules
 
@@ -161,3 +169,35 @@ async def test_with_no_areas_at_all_setup_sends_no_request(
     state = hass.states.get(areas_sensor_entity_id(hass, mock_config_entry))
     assert state is not None
     assert state.state == "0"
+
+
+async def test_a_device_labelled_critical_after_its_card_was_raised_aborts_on_confirm(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
+) -> None:
+    """Confirm re-reads the configured critical label, so a device labelled since the run keeps its missing area."""
+    areas = create_areas(hass, "Kitchen", "Garage")
+    device = register_area_device(hass, "plug", name="Kitchen Plug", entities=["sensor"])
+    register_jev_responses(aioclient_mock, [api_response({"d0": area_answer("Kitchen", 0.9, list(areas))})])
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_API_KEY: "test-key"},
+        options={CONF_HEALTH_ENABLED: False, CONF_UPDATES_ENABLED: False, CONF_CRITICAL_LABEL: "critical"},
+    )
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+    issue_id = f"{AREA_ISSUE_PREFIX}{device.id}"
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
+
+    dr.async_get(hass).async_update_device(device.id, labels={"critical"})
+    assert await async_setup_component(hass, "repairs", {})
+    manager = repairs_flow_manager(hass)
+    assert manager is not None
+    result = await manager.async_init(DOMAIN, data={"issue_id": issue_id})
+    result = await manager.async_configure(result["flow_id"], {})
+
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "suggestion_outdated"
+    updated = dr.async_get(hass).async_get(device.id)
+    assert updated is not None
+    assert updated.area_id is None
