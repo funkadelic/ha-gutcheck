@@ -47,6 +47,10 @@ class AreaRecipe:
         previous and force are unused, since nothing carries forward between
         runs.
         """
+        # ponytail: no per-run ask cap. A realistic run (18 areas, 60 devices)
+        # measures well inside REQUEST_TOKEN_LIMIT, and the budget gate refuses
+        # an oversized run loudly with nothing spent. Add a cap that rotates
+        # devices not asked last run to the front if an install ever needs one.
         options = area_options(hass)
         self._allowed = tuple(options.keys())
         if not options:
