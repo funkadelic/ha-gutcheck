@@ -40,7 +40,7 @@ Gut Check enforces a daily token budget so cost stays predictable. `sensor.gut_c
 
 Gut Check sizes up every run before sending it and refuses one that would exceed what is left of the budget, so a refused run spends nothing. The affected sensor then goes unavailable until the budget resets or you raise it. That size comes from the length of the request rather than an exact count, so a run that does go through can land a little over the cap before the counter is corrected to the usage the API reports. A health check typically costs a fraction of a cent, since Jev charges only for input tokens.
 
-A full update review run, at the per-run cap of 50 pending updates with every release summary and release note at full length, comes to about 36,000 tokens by Gut Check's own sizing check, or up to about 41,000 once you allow for that check reading about 12% low. That is still a fraction of a cent. It is an estimate, not a measurement: no run has gone out against the real API yet. The default daily budget of 150,000 tokens leaves room for that run and a health check on the same day, even a health check at the largest request size Gut Check will send.
+A full update review run, at the per-run cap of 50 pending updates with every release summary and release note at full length, comes to about 36,000 tokens by Gut Check's own sizing check, or up to about 41,000 once you allow for that check reading about 12% low. That is still a fraction of a cent. That figure is an estimate; the one real run so far, with a single pending update and short release notes, used 593 tokens. The default daily budget of 150,000 tokens leaves room for that run and a health check on the same day, even a health check at the largest request size Gut Check will send.
 
 ## Options
 
