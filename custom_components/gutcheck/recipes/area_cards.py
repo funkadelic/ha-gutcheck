@@ -117,7 +117,7 @@ def sync_area_cards(hass: HomeAssistant, safety: SafetyRules, suggested: list[It
 
     registry = ir.async_get(hass)
     existing_ids = {
-        issue_id for domain, issue_id in list(registry.issues) if domain == DOMAIN and issue_id.startswith(AREA_ISSUE_PREFIX)
+        issue_id for domain, issue_id in registry.issues if domain == DOMAIN and issue_id.startswith(AREA_ISSUE_PREFIX)
     }
 
     open_ids, ordered_new = _split_new(existing_ids, resolved)

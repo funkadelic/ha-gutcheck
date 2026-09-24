@@ -115,7 +115,7 @@ def async_delete_issues(hass: HomeAssistant, prefix: str = "", *, keep_ignored: 
     registry = ir.async_get(hass)
     stale = [
         issue_id
-        for domain, issue_id in list(registry.issues)
+        for domain, issue_id in registry.issues
         if domain == DOMAIN and issue_id.startswith(prefix) and not (keep_ignored and _is_ignored(registry, issue_id))
     ]
     for issue_id in stale:
