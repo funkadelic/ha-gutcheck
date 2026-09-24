@@ -331,15 +331,20 @@ def register_area_device(
     config_entry = MockConfigEntry(domain=domain, unique_id=f"area_device_{domain}_{unique}")
     config_entry.add_to_hass(hass)
     device_registry = dr.async_get(hass)
+    # A falsy name at creation falls back to the config entry's own title
+    # (device_registry.py's own documented behavior), so a genuinely nameless
+    # device is created with a placeholder name, then nulled out explicitly.
     device = device_registry.async_get_or_create(
         config_entry_id=config_entry.entry_id,
         identifiers={(domain, unique)},
-        name=name,
+        name=name or "unnamed",
         manufacturer=manufacturer,
         model=model,
         disabled_by=disabled_by,
         entry_type=entry_type,
     )
+    if name is None:
+        device_registry.async_update_device(device.id, name=None)
     if name_by_user is not None:
         device_registry.async_update_device(device.id, name_by_user=name_by_user)
     if labels:
