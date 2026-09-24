@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from homeassistant.util import dt as dt_util
 
-from ..models import SystemOneRequest, SystemOneResponse
+from ..models import Question, SystemOneRequest, SystemOneResponse
 
 if TYPE_CHECKING:
     from .shapes import Batch, Item, RecipeResult
@@ -75,6 +75,25 @@ def _raw_score(answer: object) -> float | None:
     return None
 
 
+def _asked_choice(question: Question, answer: object) -> str | None:
+    """The answer's choice, but only when the question asked was itself a choice question.
+
+    The str type is checked before the membership test: an unhashable choice
+    such as a list would otherwise raise inside the dict lookup.
+    """
+    if question.get("type") != "choice":
+        return None
+    if not isinstance(answer, dict):
+        return None
+    choice = answer.get("choice")
+    if not isinstance(choice, str):
+        return None
+    criteria = question.get("criteria")
+    if not isinstance(criteria, dict) or choice not in criteria:
+        return None
+    return choice
+
+
 def _seed(batch: Batch, allowed: tuple[str, ...]) -> tuple[dict[str, int], dict[str, list[Item]]]:
     """Counts and items, seeded from the batch's carried field.
 
@@ -122,6 +141,11 @@ def classify(
         entry: Item = {**subject, "confidence": confidence}
         if score is not None:
             entry["score"] = score
+        question = batch.questions.get(question_id)
+        if question is not None:
+            choice = _asked_choice(question, answer)
+            if choice is not None:
+                entry["choice"] = choice
         chosen = gate(answer)
         if chosen is not None:
             items[chosen].append(entry)

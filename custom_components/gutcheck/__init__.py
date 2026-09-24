@@ -17,6 +17,7 @@ from .client import GutCheckClient
 from .const import (
     ALL_RECIPE_IDS,
     BUDGET_STORE_KEY,
+    CONF_AREAS_ENABLED,
     CONF_CRITICAL_LABEL,
     CONF_DAILY_BUDGET,
     CONF_HEALTH_ENABLED,
@@ -29,6 +30,7 @@ from .const import (
     STORE_VERSION,
     UPDATES_ISSUE_PREFIX,
 )
+from .recipes.areas import AreaRecipe
 from .recipes.base import RecipeCoordinator
 from .recipes.health import HealthRecipe
 from .recipes.shapes import recipe_store_key
@@ -90,6 +92,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
     else:
         async_delete_issues(hass, UPDATES_ISSUE_PREFIX)
         _async_remove_recipe_entities(hass, entry, RECIPE_UPDATES)
+
+    if entry.options.get(CONF_AREAS_ENABLED, True):
+        area_recipe = AreaRecipe(entry.options.get(CONF_CRITICAL_LABEL))
+        coordinators[area_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, area_recipe)
 
     entry.runtime_data = GutCheckData(client=client, budget=budget, coordinators=coordinators)
     entry.async_on_unload(budget.async_start())

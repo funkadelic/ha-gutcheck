@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import re
+from collections.abc import Mapping
 from urllib.parse import urlparse
 
 from homeassistant.const import STATE_UNAVAILABLE
@@ -12,6 +13,9 @@ from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.event import async_track_state_change_event
 
 from .const import DOMAIN, NO_VERDICT_STATES
+
+# Re-export so the repairs platform loader finds this hook on this module.
+from .recipes.area_repairs import async_create_fix_flow as async_create_fix_flow
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -58,6 +62,9 @@ def async_sync_issues(
     translation_key: str,
     wanted: dict[str, dict[str, str]],
     learn_more_urls: dict[str, str] | None = None,
+    *,
+    is_fixable: bool = False,
+    issue_data: Mapping[str, dict[str, str | int | float | None]] | None = None,
 ) -> None:
     """Create or update every wanted issue, and delete every other issue under prefix.
 
@@ -65,18 +72,21 @@ def async_sync_issues(
     which is what keeps a user's ignore across runs, renames and reloads.
     learn_more_urls maps an issue id to its validated link; an id absent
     from it gets no link, same as omitting learn_more_url entirely.
+    issue_data maps an issue id to the data a fixable issue's flow reads;
+    an id absent from it gets no data, same as every non-fixable issue today.
     """
     for issue_id, placeholders in wanted.items():
         ir.async_create_issue(
             hass,
             DOMAIN,
             issue_id,
-            is_fixable=False,
+            is_fixable=is_fixable,
             is_persistent=False,
             severity=ir.IssueSeverity.WARNING,
             translation_key=translation_key,
             translation_placeholders={key: sanitize_placeholder(value) for key, value in placeholders.items()},
             learn_more_url=learn_more_urls.get(issue_id) if learn_more_urls else None,
+            data=issue_data.get(issue_id) if issue_data else None,
         )
 
     registry = ir.async_get(hass)

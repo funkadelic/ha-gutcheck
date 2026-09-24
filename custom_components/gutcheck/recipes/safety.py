@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
@@ -33,6 +34,35 @@ class SafetyRules:
         if entry.disabled or entry.platform == DOMAIN or entry.domain in BLOCKED_DOMAINS:
             return True
         return self.is_critical(hass, entry)
+
+    def excludes_device(self, hass: HomeAssistant, device: dr.DeviceEntry) -> bool:
+        """Whether this device is out of the area recipe's reach.
+
+        Service devices, disabled devices, devices already in an area, and
+        anything carrying the critical label on the device itself are
+        excluded first. A device with no entities, a device_tracker entity,
+        an entity already placed in its own area, or an entity carrying the
+        critical label (disabled ones included) is excluded too. Lock, alarm
+        panel and cover entities do not exclude a device: an area is
+        registry metadata the user confirms by hand, not control of it.
+        """
+        if device.entry_type is not None:
+            return True
+        if device.disabled_by is not None:
+            return True
+        if device.area_id is not None:
+            return True
+        if self._critical_label and self._critical_label in device.labels:
+            return True
+        entries = er.async_entries_for_device(er.async_get(hass), device.id, include_disabled_entities=True)
+        if not entries:
+            return True
+        return any(
+            entry.domain == Platform.DEVICE_TRACKER
+            or entry.area_id is not None
+            or (self._critical_label is not None and self._critical_label in entry.labels)
+            for entry in entries
+        )
 
     def excludes_entity_id(self, hass: HomeAssistant, entity_id_or_uuid: str) -> bool:
         """The same rules for a stored finding, which may no longer be registered.

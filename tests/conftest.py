@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import SimpleNamespace
@@ -13,6 +14,8 @@ import pytest
 from homeassistant.components.update import DATA_COMPONENT, UpdateEntityFeature
 from homeassistant.const import CONF_API_KEY, STATE_ON, STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import area_registry as ar
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import (
@@ -25,6 +28,7 @@ from custom_components.gutcheck.const import (
     DOMAIN,
     HEALTH_OPTIONS,
     OPTION_NONE,
+    RECIPE_AREAS,
     RECIPE_HEALTH,
     RECIPE_UPDATES,
     UPDATE_CRITERIA,
@@ -76,6 +80,16 @@ def score_answer(level: int, confidence: float) -> dict[str, Any]:
     probabilities = {str(lvl): (confidence if lvl == level else share) for lvl in levels}
     legend = {str(lvl): UPDATE_CRITERIA[lvl] for lvl in levels}
     return {"type": "score", "score": float(level), "legend": legend, "probabilities": probabilities, "confidence": confidence}
+
+
+def area_answer(choice: str, confidence: float, options: Sequence[str]) -> dict[str, Any]:
+    """Build a documented-shape choice answer over the given area options, plus none of these."""
+    all_options = (*options, OPTION_NONE)
+    others = [option for option in all_options if option != choice]
+    remaining = max(0.0, 1.0 - confidence)
+    share = remaining / len(others) if others else 0.0
+    probabilities = {option: (confidence if option == choice else share) for option in all_options}
+    return {"type": "choice", "choice": choice, "probabilities": probabilities, "confidence": confidence}
 
 
 def register_jev_responses(aioclient_mock: AiohttpClientMocker, responses: list[Any]) -> None:
@@ -262,6 +276,96 @@ def updates_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str
     entity_id = find_updates_sensor(hass, entry)
     assert entity_id is not None
     return entity_id
+
+
+def find_areas_sensor(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
+    """The area recipe's sensor entity id, or None when the recipe is switched off."""
+    return er.async_get(hass).async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{RECIPE_AREAS}")
+
+
+def areas_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
+    """The area recipe's sensor entity id, for the tests where it must exist."""
+    entity_id = find_areas_sensor(hass, entry)
+    assert entity_id is not None
+    return entity_id
+
+
+def create_areas(hass: HomeAssistant, *names: str) -> dict[str, str]:
+    """Create each named area and return its name mapped to its area id."""
+    registry = ar.async_get(hass)
+    return {name: registry.async_create(name).id for name in names}
+
+
+@dataclass
+class AreaEntitySpec:
+    """One entity to attach to a test device, with just the fields the area recipe cares about."""
+
+    domain: str
+    device_class: str | None = None
+    disabled_by: er.RegistryEntryDisabler | None = None
+    area: str | None = None
+    labels: frozenset[str] = frozenset()
+
+
+def register_area_device(
+    hass: HomeAssistant,
+    unique: str,
+    *,
+    domain: str = "test",
+    name: str | None = "Device",
+    manufacturer: str | None = None,
+    model: str | None = None,
+    name_by_user: str | None = None,
+    labels: frozenset[str] = frozenset(),
+    area: str | None = None,
+    disabled_by: dr.DeviceEntryDisabler | None = None,
+    entry_type: dr.DeviceEntryType | None = None,
+    entities: Sequence[AreaEntitySpec | str] = (),
+) -> dr.DeviceEntry:
+    """Register (or reuse) a device with the given fields and entities, for the area recipe to select.
+
+    Each item in entities is either a bare domain string (a plain entity in
+    that domain) or an AreaEntitySpec for one with its own device class,
+    disabled state, area or labels.
+    """
+    config_entry = MockConfigEntry(domain=domain, unique_id=f"area_device_{domain}_{unique}")
+    config_entry.add_to_hass(hass)
+    device_registry = dr.async_get(hass)
+    device = device_registry.async_get_or_create(
+        config_entry_id=config_entry.entry_id,
+        identifiers={(domain, unique)},
+        name=name,
+        manufacturer=manufacturer,
+        model=model,
+        disabled_by=disabled_by,
+        entry_type=entry_type,
+    )
+    if name_by_user is not None:
+        device_registry.async_update_device(device.id, name_by_user=name_by_user)
+    if labels:
+        device_registry.async_update_device(device.id, labels=set(labels))
+    if area is not None:
+        device_registry.async_update_device(device.id, area_id=area)
+
+    entity_registry = er.async_get(hass)
+    for index, spec in enumerate(entities):
+        item = spec if isinstance(spec, AreaEntitySpec) else AreaEntitySpec(domain=spec)
+        entry = entity_registry.async_get_or_create(
+            item.domain,
+            domain,
+            f"{unique}_{index}",
+            device_id=device.id,
+            disabled_by=item.disabled_by,
+            original_device_class=item.device_class,
+        )
+        if item.labels:
+            entity_registry.async_update_entity(entry.entity_id, labels=set(item.labels))
+        if item.area is not None:
+            entity_registry.async_update_entity(entry.entity_id, area_id=item.area)
+
+    resolved = device_registry.async_get(device.id)
+    assert resolved is not None
+    return resolved
 
 
 @pytest.fixture

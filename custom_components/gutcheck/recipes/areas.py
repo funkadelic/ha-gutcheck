@@ -1,0 +1,87 @@
+"""Area suggestions recipe: one choice question per device with no area."""
+
+from __future__ import annotations
+
+import logging
+from typing import Any
+
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry as dr
+
+from ..const import AREA_CONFIDENCE_THRESHOLD, AREA_INSTRUCTIONS, OPTION_SUGGESTED, RECIPE_AREAS
+from ..models import Question
+from .area_cards import sync_area_cards
+from .area_describe import area_criteria, area_options, describe
+from .gate import gate_choice
+from .safety import SafetyRules
+from .shapes import Batch, Item, RecipeResult
+
+_LOGGER = logging.getLogger(__name__)
+
+
+class AreaRecipe:
+    """Selects devices with no area and classifies each with one choice question."""
+
+    recipe_id = RECIPE_AREAS
+    options: tuple[str, ...] = (OPTION_SUGGESTED,)
+    # An unsure item carries no choice, so the registry id is the one field
+    # every stored item has.
+    stored_item_keys: frozenset[str] = frozenset({"registry_id"})
+
+    def __init__(self, critical_label: str | None) -> None:
+        """Build the shared safety guard; the allowed area set fills in on the first prepare."""
+        self._safety = SafetyRules(critical_label)
+        self._allowed: tuple[str, ...] = ()
+
+    def gate(self, answer: object) -> str | None:
+        """Gate one answer through the choice gate over this run's own areas.
+
+        OPTION_NONE is never in _allowed, so a confident "none of these"
+        lands in unsure rather than being suggested.
+        """
+        return OPTION_SUGGESTED if gate_choice(answer, self._allowed, AREA_CONFIDENCE_THRESHOLD) is not None else None
+
+    async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None, *, force: bool = False) -> Batch:
+        """Select every qualifying device with no area and ask one choice question per device.
+
+        previous and force are unused, since nothing carries forward between
+        runs.
+        """
+        options = area_options(hass)
+        self._allowed = tuple(options.keys())
+        if not options:
+            _LOGGER.debug("area suggestions found no areas, nothing to ask")
+            return Batch(state={"devices": []}, questions={}, subjects={})
+
+        criteria = area_criteria(options)
+        registry = dr.async_get(hass)
+        selected = sorted(
+            (device for device in registry.devices if not self._safety.excludes_device(hass, device)),
+            key=lambda device: device.id,
+        )
+
+        devices: list[dict[str, Any]] = []
+        questions: dict[str, Question] = {}
+        subjects: dict[str, Item] = {}
+        for index, device in enumerate(selected):
+            state_item, subject = describe(hass, device)
+            devices.append(state_item)
+            question_id = f"d{index}"
+            questions[question_id] = {
+                "type": "choice",
+                "instructions": AREA_INSTRUCTIONS.format(index=index),
+                "criteria": criteria,
+            }
+            subjects[question_id] = subject
+
+        _LOGGER.debug("area suggestions selected=%s asked=%s areas=%s", len(selected), len(devices), len(options))
+        return Batch(state={"devices": devices}, questions=questions, subjects=subjects)
+
+    async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:
+        """Sync one fixable Repairs card per suggested device, and log counts."""
+        sync_area_cards(hass, result["items"].get(OPTION_SUGGESTED, []))
+        _LOGGER.debug("area suggestions run complete, counts=%s", result["counts"])
+
+    async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
+        """Re-sync cards for a restored result, without calling the API."""
+        sync_area_cards(hass, result["items"].get(OPTION_SUGGESTED, []))
