@@ -21,7 +21,7 @@ from .conftest import create_areas, register_area_device
 
 
 async def _open_and_confirm(hass: HomeAssistant, issue_id: str) -> dict[str, Any]:
-    """Load gutcheck and repairs, open the fix flow for issue_id, and submit its confirm step with no input.
+    """Load gutcheck and repairs, open the fix flow for issue_id, and choose confirm from its menu.
 
     The repairs platform loader only finds gutcheck's fix flow for a loaded
     integration; without this, every case here would silently pass through
@@ -32,7 +32,8 @@ async def _open_and_confirm(hass: HomeAssistant, issue_id: str) -> dict[str, Any
     manager = repairs_flow_manager(hass)
     assert manager is not None
     result = await manager.async_init(DOMAIN, data={"issue_id": issue_id})
-    return await manager.async_configure(result["flow_id"], {})
+    assert result["type"] is FlowResultType.MENU
+    return await manager.async_configure(result["flow_id"], {"next_step_id": "confirm"})
 
 
 async def test_a_removed_device_aborts_and_changes_nothing(hass: HomeAssistant) -> None:

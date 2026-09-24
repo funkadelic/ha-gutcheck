@@ -1,4 +1,4 @@
-"""The confirm-only fix flow for a suggested area, and the platform hook Home Assistant loads.
+"""The fix flow for a suggested area, and the platform hook Home Assistant loads.
 
 This module must not import the integration's own repairs module or any
 recipe module that does: repairs.py re-exports async_create_fix_flow from
@@ -11,7 +11,6 @@ from __future__ import annotations
 import logging
 from collections.abc import Mapping
 
-import voluptuous as vol
 from homeassistant.components.repairs import RepairsFlow, RepairsFlowResult
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import area_registry as ar
@@ -27,7 +26,7 @@ IssueData = Mapping[str, str | int | float | None]
 
 
 class AreaSuggestionRepairFlow(RepairsFlow):
-    """Confirm only: submit assigns the suggested area. Ignore on the card is the rejection (D-07)."""
+    """A menu of two choices: assign the suggested area, or ignore the card for good."""
 
     def __init__(self, data: IssueData | None) -> None:
         """Hold the device and area ids the card was raised for, each kept only if it is a string."""
@@ -38,21 +37,24 @@ class AreaSuggestionRepairFlow(RepairsFlow):
         self._area_id = area_id if isinstance(area_id, str) else None
 
     async def async_step_init(self, user_input: dict[str, str] | None = None) -> RepairsFlowResult:
-        """Go straight to the confirm step; this flow has no earlier step."""
-        return await self.async_step_confirm()
-
-    async def async_step_confirm(self, user_input: dict[str, str] | None = None) -> RepairsFlowResult:
-        """Show the confirm form, then assign the area on submit."""
-        if user_input is not None:
-            if not self._assign():
-                _LOGGER.debug("area suggestion outdated")
-                return self.async_abort(reason="suggestion_outdated")
-            _LOGGER.debug("area suggestion confirmed")
-            return self.async_create_entry(data={})
-
+        """Show the assign/ignore menu, with the card's own placeholders."""
         issue = ir.async_get(self.hass).async_get_issue(self.handler, self.issue_id)
         placeholders = issue.translation_placeholders if issue is not None else None
-        return self.async_show_form(step_id="confirm", data_schema=vol.Schema({}), description_placeholders=placeholders)
+        return self.async_show_menu(step_id="init", menu_options=["confirm", "ignore"], description_placeholders=placeholders)
+
+    async def async_step_confirm(self, user_input: dict[str, str] | None = None) -> RepairsFlowResult:
+        """Assign the area, or abort as outdated if the re-check fails."""
+        if not self._assign():
+            _LOGGER.debug("area suggestion outdated")
+            return self.async_abort(reason="suggestion_outdated")
+        _LOGGER.debug("area suggestion confirmed")
+        return self.async_create_entry(data={})
+
+    async def async_step_ignore(self, user_input: dict[str, str] | None = None) -> RepairsFlowResult:
+        """Ignore the card: HA's own dismissed_version is the rejection memory."""
+        ir.async_ignore_issue(self.hass, DOMAIN, self.issue_id, True)
+        _LOGGER.debug("area suggestion ignored")
+        return self.async_abort(reason="suggestion_ignored")
 
     def _assign(self) -> bool:
         """Re-check the device still exists and still qualifies, critical label included, and the area still exists."""
@@ -74,7 +76,7 @@ class AreaSuggestionRepairFlow(RepairsFlow):
 
 
 async def async_create_fix_flow(hass: HomeAssistant, issue_id: str, data: IssueData | None) -> RepairsFlow:
-    """Build the confirm-only flow for a suggested-area card.
+    """Build the assign/ignore flow for a suggested-area card.
 
     Every other Gut Check issue is is_fixable=False and never reaches here.
     """

@@ -89,13 +89,18 @@
       "title": "{device_name} has no area",
       "fix_flow": {
         "step": {
-          "confirm": {
-            "title": "Assign an area",
-            "description": "Gut Check suggests **{area_name}** for {device_name}. Submitting assigns the device to that area. Nothing changes until then, and ignoring this card stops Gut Check suggesting an area for this device."
+          "init": {
+            "title": "Suggested area",
+            "description": "Gut Check suggests **{area_name}** for {device_name}. Nothing changes unless you assign it.",
+            "menu_options": {
+              "confirm": "Assign this area",
+              "ignore": "Don't suggest an area for this device"
+            }
           }
         },
         "abort": {
-          "suggestion_outdated": "The device or the area changed since this suggestion was made, so nothing was changed."
+          "suggestion_outdated": "The device or the area changed since this suggestion was made, so nothing was changed.",
+          "suggestion_ignored": "Gut Check will stop suggesting an area for this device. The card is now in your ignored repairs."
         }
       }
     }

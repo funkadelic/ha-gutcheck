@@ -84,11 +84,11 @@ async def test_confident_answer_raises_a_card_and_confirm_assigns_the_area(
     manager = repairs_flow_manager(hass)
     assert manager is not None
     result = await manager.async_init(DOMAIN, data={"issue_id": issue_id})
-    assert result["type"] is FlowResultType.FORM
-    assert result["step_id"] == "confirm"
+    assert result["type"] is FlowResultType.MENU
+    assert result["step_id"] == "init"
     assert result["description_placeholders"] == issue.translation_placeholders
 
-    result = await manager.async_configure(result["flow_id"], {})
+    result = await manager.async_configure(result["flow_id"], {"next_step_id": "confirm"})
     assert result["type"] is FlowResultType.CREATE_ENTRY
 
     updated_device = dr.async_get(hass).async_get(device.id)
@@ -194,7 +194,7 @@ async def test_a_device_labelled_critical_after_its_card_was_raised_aborts_on_co
     manager = repairs_flow_manager(hass)
     assert manager is not None
     result = await manager.async_init(DOMAIN, data={"issue_id": issue_id})
-    result = await manager.async_configure(result["flow_id"], {})
+    result = await manager.async_configure(result["flow_id"], {"next_step_id": "confirm"})
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "suggestion_outdated"
