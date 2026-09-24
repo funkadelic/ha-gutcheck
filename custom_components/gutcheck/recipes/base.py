@@ -114,6 +114,10 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
             except GutCheckAuthError as err:
                 raise ConfigEntryAuthFailed("api key rejected") from err
             except BudgetExceededError as err:
+                if self.last_update_success:
+                    _LOGGER.info("%s paused until the daily budget resets after midnight", self.name)
+                    # Marked failed first so the coordinator skips its own ERROR line for an expected state.
+                    self.last_update_success = False
                 raise UpdateFailed("daily budget reached", retry_after=_seconds_until_budget_retry()) from err
             except RequestTooLargeError as err:
                 raise UpdateFailed("run was too large to send") from err

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from typing import Any
 
 import pytest
@@ -269,7 +270,7 @@ async def test_lowering_budget_below_spent_gives_remaining_zero(hass: HomeAssist
 
 
 async def test_budget_refused_run_makes_health_unavailable_and_retries_after_midnight(
-    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry, freezer: Any
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry, freezer: Any, caplog: Any
 ) -> None:
     """A refused run keeps the last payload, sends nothing, leaves Repairs alone, and retries by itself after midnight."""
     freezer.move_to("2026-01-01T12:00:00-08:00")
@@ -303,8 +304,14 @@ async def test_budget_refused_run_makes_health_unavailable_and_retries_after_mid
     # full daily_budget.
     coordinator.budget._data["spent"] = coordinator.budget.daily_budget
 
+    caplog.set_level(logging.INFO, logger="custom_components.gutcheck")
+    await coordinator.async_refresh()
     await coordinator.async_refresh()
     await hass.async_block_till_done()
+
+    # Expected and self-resolving, so one INFO line per outage and never ERROR.
+    refusals = [r for r in caplog.records if "daily budget" in r.getMessage()]
+    assert [r.levelno for r in refusals] == [logging.INFO]
 
     assert len(posted_bodies(aioclient_mock)) == 1
     state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
