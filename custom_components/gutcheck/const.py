@@ -195,3 +195,6 @@ AREA_NONE_DESCRIPTION: Final = "None of the listed areas clearly fits, or the de
 # criteria small.
 DEVICE_TEXT_MAX_CHARS: Final = 60
 AREA_NAME_MAX_CHARS: Final = 40
+
+# Cards already open do not count against this cap (D-11).
+MAX_NEW_AREA_CARDS_PER_RUN: Final = 10
