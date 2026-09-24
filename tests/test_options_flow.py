@@ -15,6 +15,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.gutcheck.const import (
+    CONF_AREAS_ENABLED,
     CONF_CRITICAL_LABEL,
     CONF_DAILY_BUDGET,
     CONF_HEALTH_ENABLED,
@@ -82,6 +83,7 @@ async def test_defaults_apply_when_options_never_saved(
     assert result["type"] is FlowResultType.FORM
     defaults = _schema_defaults(result["data_schema"])
     assert defaults[CONF_HEALTH_ENABLED] is True
+    assert defaults[CONF_AREAS_ENABLED] is True
     assert defaults[CONF_DAILY_BUDGET] == DEFAULT_DAILY_BUDGET
     assert CONF_CRITICAL_LABEL not in defaults
 

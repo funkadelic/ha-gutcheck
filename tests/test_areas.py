@@ -15,6 +15,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.gutcheck.const import AREA_ISSUE_PREFIX, DOMAIN, OPTION_NONE
+from custom_components.gutcheck.recipes.area_cards import sync_area_cards
 
 from .conftest import (
     api_response,
@@ -123,6 +124,25 @@ async def test_a_low_confidence_kitchen_answer_leaves_the_device_unsure_with_no_
     assert state is not None
     assert state.attributes["items"]["suggested"] == []
     assert len(state.attributes["unsure"]) == 1
+    assert not any(issue_id.startswith(AREA_ISSUE_PREFIX) for _domain, issue_id in ir.async_get(hass).issues)
+
+
+async def test_sync_skips_an_item_whose_device_no_longer_resolves(hass: HomeAssistant) -> None:
+    """An item naming a registry id that no longer resolves to a device raises no card."""
+    create_areas(hass, "Kitchen")
+
+    sync_area_cards(hass, [{"registry_id": "gone", "choice": "Kitchen"}])
+
+    assert not any(issue_id.startswith(AREA_ISSUE_PREFIX) for _domain, issue_id in ir.async_get(hass).issues)
+
+
+async def test_sync_skips_an_item_whose_choice_no_longer_resolves_to_a_live_area(hass: HomeAssistant) -> None:
+    """An item naming a choice that is no longer a live area name raises no card."""
+    create_areas(hass, "Kitchen")
+    device = register_area_device(hass, "plug", entities=["sensor"])
+
+    sync_area_cards(hass, [{"registry_id": device.id, "choice": "Attic"}])
+
     assert not any(issue_id.startswith(AREA_ISSUE_PREFIX) for _domain, issue_id in ir.async_get(hass).issues)
 
 

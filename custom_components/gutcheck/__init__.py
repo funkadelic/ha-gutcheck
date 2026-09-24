@@ -16,6 +16,7 @@ from .budget import BudgetGate
 from .client import GutCheckClient
 from .const import (
     ALL_RECIPE_IDS,
+    AREA_ISSUE_PREFIX,
     BUDGET_STORE_KEY,
     CONF_AREAS_ENABLED,
     CONF_CRITICAL_LABEL,
@@ -25,6 +26,7 @@ from .const import (
     DEFAULT_DAILY_BUDGET,
     DOMAIN,
     HEALTH_ISSUE_PREFIX,
+    RECIPE_AREAS,
     RECIPE_HEALTH,
     RECIPE_UPDATES,
     STORE_VERSION,
@@ -96,6 +98,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
     if entry.options.get(CONF_AREAS_ENABLED, True):
         area_recipe = AreaRecipe(entry.options.get(CONF_CRITICAL_LABEL))
         coordinators[area_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, area_recipe)
+    else:
+        # Only this recipe keeps ignored cards on disable: an ignored area
+        # card is the one record that the user rejected that suggestion, and
+        # switching the recipe off and on must not bring it back.
+        async_delete_issues(hass, AREA_ISSUE_PREFIX, keep_ignored=True)
+        _async_remove_recipe_entities(hass, entry, RECIPE_AREAS)
 
     entry.runtime_data = GutCheckData(client=client, budget=budget, coordinators=coordinators)
     entry.async_on_unload(budget.async_start())

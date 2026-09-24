@@ -101,12 +101,27 @@ def async_sync_issues(
 
 
 @callback
-def async_delete_issues(hass: HomeAssistant, prefix: str = "") -> None:
-    """Delete every Gut Check issue whose id starts with prefix (default: every issue)."""
+def async_delete_issues(hass: HomeAssistant, prefix: str = "", *, keep_ignored: bool = False) -> None:
+    """Delete every Gut Check issue whose id starts with prefix (default: every issue).
+
+    keep_ignored leaves an issue in place when its dismissed_version is set:
+    an ignored card is the one record that the user rejected that finding,
+    and switching a recipe off and back on must not bring it back.
+    """
     registry = ir.async_get(hass)
-    stale = [issue_id for domain, issue_id in list(registry.issues) if domain == DOMAIN and issue_id.startswith(prefix)]
+    stale = [
+        issue_id
+        for domain, issue_id in list(registry.issues)
+        if domain == DOMAIN and issue_id.startswith(prefix) and not (keep_ignored and _is_ignored(registry, issue_id))
+    ]
     for issue_id in stale:
         ir.async_delete_issue(hass, DOMAIN, issue_id)
+
+
+def _is_ignored(registry: ir.IssueRegistry, issue_id: str) -> bool:
+    """Whether the issue's dismissed_version is set, meaning the user ignored it."""
+    issue = registry.async_get_issue(DOMAIN, issue_id)
+    return issue is not None and issue.dismissed_version is not None
 
 
 def _has_recovered(state: str, problem_state: str) -> bool:

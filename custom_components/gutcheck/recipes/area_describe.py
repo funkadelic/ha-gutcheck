@@ -52,10 +52,12 @@ def describe(hass: HomeAssistant, device: dr.DeviceEntry) -> tuple[dict[str, Any
     entity_domains = sorted({entry.domain for entry in entries})
     classes = {entry.device_class or entry.original_device_class for entry in entries}
     device_classes = sorted({device_class for device_class in classes if device_class})
-    integration = None
-    if device.config_entry_id:
-        entry = hass.config_entries.async_get_entry(device.config_entry_id)
-        integration = entry.domain if entry is not None else None
+    # A device belongs to exactly one config entry, and the registry refuses
+    # to create one whose config_entry_id does not resolve, so this is
+    # always found while the device itself is (device_registry.py at 2026.9.2).
+    owning_entry = hass.config_entries.async_get_entry(device.config_entry_id)
+    assert owning_entry is not None
+    integration = owning_entry.domain
     state_item: dict[str, Any] = {
         "name": name,
         "manufacturer": manufacturer,
