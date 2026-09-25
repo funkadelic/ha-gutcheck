@@ -38,7 +38,7 @@ _HEALTH_ANSWERS = {
 async def test_each_sensor_counts_its_own_open_cards_and_skips_ignored_ones(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
 ) -> None:
-    """A card under another domain or recipe never counts; ignoring one drops it until the next run recounts."""
+    """A card under another domain or recipe never counts; ignoring one drops it at once and it stays out after the next run."""
     first_entity_id = register_unavailable_entity(hass, "unique_a")
     register_unavailable_entity(hass, "unique_b")
     register_unavailable_entity(hass, "unique_c")
@@ -73,9 +73,13 @@ async def test_each_sensor_counts_its_own_open_cards_and_skips_ignored_ones(
     first_entry = er.async_get(hass).async_get(first_entity_id)
     assert first_entry is not None
     ir.async_ignore_issue(hass, DOMAIN, f"{HEALTH_ISSUE_PREFIX}{first_entry.id}", True)
-    still_state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
-    assert still_state is not None
-    assert still_state.state == "2"
+    await hass.async_block_till_done()
+    ignored_state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    assert ignored_state is not None
+    assert ignored_state.state == "1"
+    updates_after_ignore = hass.states.get(updates_sensor_entity_id(hass, mock_config_entry))
+    assert updates_after_ignore is not None
+    assert updates_after_ignore.state == "1"
 
     aioclient_mock.clear_requests()
     register_jev_responses_by_question(aioclient_mock, {"e0": api_response(_HEALTH_ANSWERS)})

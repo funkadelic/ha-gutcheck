@@ -116,7 +116,7 @@ A restored entity is one its integration no longer provides. The health check so
 
 ### Sensors
 
-Each enabled check gets one sensor. Its state is how many of that check's Repairs cards are open, not counting cards you ignored; it is recounted after each run and when Home Assistant starts. The size of every group is in its `counts` attribute.
+Each enabled check gets one sensor. Its state is how many of that check's Repairs cards are open, not counting cards you ignored, and it changes as soon as a card is ignored, fixed or cleared. The size of every group is in its `counts` attribute.
 
 `sensor.gut_check_home_health_check` counts the open worth-fixing cards. Its attributes carry the full list for each group, plus an `unsure` list for anything below the confidence threshold or that did not clearly fit any group. Unsure entities are never turned into a Repairs card, and never treated as worth fixing. An unsure entity can also carry a `lean`: `needs_attention` when worth fixing and safe to remove together reach 70 percent probability, or `expected` when expected alone does. A lean never raises a Repairs card.
 

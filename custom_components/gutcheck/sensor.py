@@ -6,7 +6,7 @@ from typing import Any
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -128,6 +128,27 @@ class RecipeSummarySensor(CoordinatorEntity[RecipeCoordinator], SensorEntity):
         self._attr_translation_key = coordinator.recipe.recipe_id
         self._attr_unique_id = f"{entry.entry_id}_{coordinator.recipe.recipe_id}"
         self._attr_device_info = device_info(entry)
+
+    async def async_added_to_hass(self) -> None:
+        """Also redraw when one of this recipe's cards is ignored, fixed or cleared between runs."""
+        await super().async_added_to_hass()
+        self.async_on_remove(
+            self.hass.bus.async_listen(
+                ir.EVENT_REPAIRS_ISSUE_REGISTRY_UPDATED,
+                self._handle_issue_update,
+                event_filter=self._is_own_issue,
+            )
+        )
+
+    @callback
+    def _is_own_issue(self, event_data: ir.EventIssueRegistryUpdatedData) -> bool:
+        """True for an issue this recipe raised."""
+        return event_data["domain"] == DOMAIN and event_data["issue_id"].startswith(self._recipe_coordinator.recipe.issue_prefix)
+
+    @callback
+    def _handle_issue_update(self, _event: Event[ir.EventIssueRegistryUpdatedData]) -> None:
+        """Recount the open cards."""
+        self.async_write_ha_state()
 
     @property
     def _data(self) -> RecipeResult | None:
