@@ -33,8 +33,8 @@ from .const import (
     STORE_VERSION,
     UPDATES_ISSUE_PREFIX,
 )
+from .coordinator import RecipeCoordinator
 from .recipes.areas import AreaRecipe
-from .recipes.base import RecipeCoordinator
 from .recipes.health import HealthRecipe
 from .recipes.shapes import recipe_store_key
 from .recipes.updates import UpdateRecipe

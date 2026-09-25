@@ -24,7 +24,7 @@ from .const import (
     PRICE_PER_MTOK_USD,
     SIGNAL_BUDGET_UPDATED,
 )
-from .recipes.base import RecipeCoordinator
+from .coordinator import RecipeCoordinator
 from .recipes.shapes import RecipeResult
 
 

@@ -11,12 +11,7 @@ rules:
   # brand/icon.png and brand/logo.png ship in the release asset, and every HA
   # release from the hacs.json minimum (2026.9.0) serves them from there.
   brands: done
-  common-modules:
-    status: exempt
-    comment: >
-      RecipeCoordinator lives in recipes/base.py as part of the shared recipe
-      framework every recipe imports from, rather than in a coordinator.py.
-      Moving it would touch every recipe's imports and the tests that patch them.
+  common-modules: done
   config-flow: done
   # pyproject.toml:2 sets fail_under = 100 under [tool.coverage.report], and
   # tests/test_config_flow.py exists, so the config flow's coverage is enforced

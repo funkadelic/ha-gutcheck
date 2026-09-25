@@ -1,4 +1,4 @@
-"""Shared select/describe/ask/act framework every recipe implements."""
+"""The coordinator that runs one recipe on its schedule and stores its result."""
 
 from __future__ import annotations
 
@@ -14,15 +14,15 @@ from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
-from ..budget import BudgetExceededError, BudgetGate, RequestTooLargeError
-from ..client import GutCheckApiError, GutCheckAuthError
-from ..const import DOMAIN, FAILED_RUN_RETRY, MODEL, RECIPE_INTERVAL, STORE_VERSION
-from ..models import SystemOneRequest
-from .gate import carry_forward, classify
-from .shapes import Recipe, RecipeResult, _parse_stored_result, recipe_store_key
+from .budget import BudgetExceededError, BudgetGate, RequestTooLargeError
+from .client import GutCheckApiError, GutCheckAuthError
+from .const import DOMAIN, FAILED_RUN_RETRY, MODEL, RECIPE_INTERVAL, STORE_VERSION
+from .models import SystemOneRequest
+from .recipes.gate import carry_forward, classify
+from .recipes.shapes import Recipe, RecipeResult, _parse_stored_result, recipe_store_key
 
 if TYPE_CHECKING:
-    from .. import GutCheckConfigEntry
+    from . import GutCheckConfigEntry
 
 _LOGGER = logging.getLogger(__name__)
 
