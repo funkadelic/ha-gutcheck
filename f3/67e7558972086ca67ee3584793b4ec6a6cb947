@@ -1,0 +1,24 @@
+custom_components/gutcheck/recipes/device_class_undo.py
+  s_3507e5fa0dad84::t_ec54247e448794 113-114
+  s_3507e5fa0dad84::t_21aeeee2bf2597 112,115-118
+tests/test_device_class_undo_rules.py
+  s_3507e5fa0dad84::t_d75c01273a1a44 188-202
+  s_3507e5fa0dad84::t_78db40ac0023ac 27
+  s_3507e5fa0dad84::t_97599a80e98c2c 154-187
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f367e7558972086ca67ee3584793b4ec6a6cb947",
+  "prompts": {},
+  "sessions": {
+    "s_3507e5fa0dad84": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e832ef8e-288a-40bc-9074-f4378b299e0b",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
