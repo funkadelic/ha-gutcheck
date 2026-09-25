@@ -156,3 +156,41 @@ async def test_a_reload_mid_press_cancels_the_run_and_keeps_one_budget_count(
 
     assert hass_storage[BUDGET_STORE_KEY]["data"]["spent"] == new_gate.spent_today
     assert new_gate.spent_today == 10
+
+
+async def test_presses_beyond_one_waiting_run_are_dropped(
+    hass: HomeAssistant,
+    aioclient_mock: AiohttpClientMocker,
+    mock_config_entry: MockConfigEntry,
+) -> None:
+    """Pressing four times while a pressed run is held sends two runs, and a later press runs again."""
+    register_unavailable_entity(hass)
+    started, hold = asyncio.Event(), asyncio.Event()
+    calls = 0
+
+    async def _serve(method: str, url: Any, data: Any) -> AiohttpClientMockResponse:
+        """Answer every POST, holding the second one open until released."""
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            started.set()
+            await hold.wait()
+        body = api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})
+        return AiohttpClientMockResponse(method=method, url=url, status=200, json=body)
+
+    aioclient_mock.post(API_URL, side_effect=_serve)
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+    button_entity_id = _health_button_entity_id(hass, mock_config_entry)
+    assert button_entity_id is not None
+
+    for _ in range(4):
+        await hass.services.async_call("button", "press", {"entity_id": button_entity_id}, blocking=True)
+    await started.wait()
+    hold.set()
+    await hass.async_block_till_done(wait_background_tasks=True)
+    assert calls == 3
+
+    await _press(hass, button_entity_id)
+    assert calls == 4
