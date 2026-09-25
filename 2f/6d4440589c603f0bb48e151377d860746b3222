@@ -1,0 +1,24 @@
+tests/test_summary_sensor.py
+  s_e59b77fcad7659::t_160829104bc05b 41,76-82
+custom_components/gutcheck/sensor.py
+  s_e59b77fcad7659::t_160829104bc05b 9,132-151
+  s_e59b77fcad7659::t_b27292f9b24de8 152
+README.md
+  s_e59b77fcad7659::t_de7bcf60b10abe 119
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2f6d4440589c603f0bb48e151377d860746b3222",
+  "prompts": {},
+  "sessions": {
+    "s_e59b77fcad7659": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a08e295a-439d-4108-9761-9f1f957361b0",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
