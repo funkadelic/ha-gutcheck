@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.5.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.4.1...v0.5.0) (2026-09-25)
+
+
+### Added
+
+* show which way the health check leans on unsure entities ([#34](https://github.com/funkadelic/ha-gutcheck/issues/34)) ([809803a](https://github.com/funkadelic/ha-gutcheck/commit/809803a103a0ad383faa99ae3799db52450ad50e))
+* split a large run into several requests instead of failing ([#35](https://github.com/funkadelic/ha-gutcheck/issues/35)) ([2c77fb8](https://github.com/funkadelic/ha-gutcheck/commit/2c77fb86747177f9bd201984cddaf67b12c95b85))
+
+
+### Fixed
+
+* reserve the daily budget with a conservative token estimate ([#36](https://github.com/funkadelic/ha-gutcheck/issues/36)) ([85400e7](https://github.com/funkadelic/ha-gutcheck/commit/85400e706756d511ead586703787fbe6de36117f))
+
+
+### Performance
+
+* skip the release-notes fetch for updates carried forward ([#32](https://github.com/funkadelic/ha-gutcheck/issues/32)) ([8b674d3](https://github.com/funkadelic/ha-gutcheck/commit/8b674d31015dc727f81b8b095b574ddac48566b7))
+
 ## [0.4.1](https://github.com/funkadelic/ha-gutcheck/compare/v0.4.0...v0.4.1) (2026-09-25)
 
 
