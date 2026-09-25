@@ -1,0 +1,19 @@
+custom_components/gutcheck/coordinator.py
+  s_f27aad7d20e6e5::t_ebd77852e09db7 20,98-114,126
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6d39550325d90a05819f2a07d297178f3ef1674c",
+  "prompts": {},
+  "sessions": {
+    "s_f27aad7d20e6e5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "97a26fd2-9db4-4bcf-b2fd-a0e27b86b9d9",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
