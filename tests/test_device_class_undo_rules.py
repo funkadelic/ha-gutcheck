@@ -24,6 +24,7 @@ from custom_components.gutcheck.const import (
     DOMAIN,
     RECIPE_DEVICE_CLASS,
 )
+from custom_components.gutcheck.recipes.device_class_undo import async_change_back
 
 from .conftest import (
     api_response,
@@ -147,6 +148,55 @@ async def test_a_sensor_whose_unit_changed_still_clears_but_raises_no_card(
     assert updated is not None
     assert updated.device_class is None
     assert device_class_entry.runtime_data.applied.get(sensor.id) is None
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
+
+
+async def test_a_hand_cleared_sensor_still_gets_rejected_and_is_not_re_suggested(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
+) -> None:
+    """A sensor cleared by hand before the pick still gets a rejection card, so a later run does not re-suggest it."""
+    sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
+    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer("battery", 0.9, BATTERY_CANDIDATES)})])
+    device_class_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(device_class_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
+    await _confirm(hass, issue_id)
+    er.async_get(hass).async_update_entity(sensor.entity_id, device_class=None)
+
+    await _change_back(hass, device_class_entry, [sensor.id])
+
+    assert device_class_entry.runtime_data.applied.get(sensor.id) is None
+    card = ir.async_get(hass).async_get_issue(DOMAIN, issue_id)
+    assert card is not None
+    assert card.dismissed_version is not None
+
+    aioclient_mock.clear_requests()
+    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer("battery", 0.9, BATTERY_CANDIDATES)})])
+    await device_class_entry.runtime_data.coordinators[RECIPE_DEVICE_CLASS].async_refresh()
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    assert len(posted_bodies(aioclient_mock)) == 1
+    reran = ir.async_get(hass).async_get_issue(DOMAIN, issue_id)
+    assert reran is not None
+    assert reran.dismissed_version is not None
+    updated = er.async_get(hass).async_get(sensor.entity_id)
+    assert updated is not None
+    assert updated.device_class is None
+
+
+async def test_picking_an_id_never_recorded_leaves_it_and_raises_no_card(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
+) -> None:
+    """An id passed to the change-back that was never recorded (not reachable through the picker) is a safe no-op."""
+    register_jev_responses(aioclient_mock, [])
+    device_class_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(device_class_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    await async_change_back(hass, device_class_entry, ["never-recorded"])
+
+    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}never-recorded"
     assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
 
 

@@ -109,9 +109,12 @@ async def async_change_back(hass: HomeAssistant, entry: ConfigEntry, registry_id
         registry_entry = registry.async_get(registry_id)
         if recorded_class is None or registry_entry is None or registry_entry.device_class != recorded_class:
             left += 1
-            continue
-        registry.async_update_entity(registry_entry.entity_id, device_class=None)
-        reject_suggestion(hass, safety, names, registry_id, recorded_class)
-        cleared += 1
+        else:
+            registry.async_update_entity(registry_entry.entity_id, device_class=None)
+            cleared += 1
+        # Reject any picked, recorded sensor whether or not this call is what
+        # cleared it, so a hand-cleared or hand-changed one is not re-suggested.
+        if recorded_class is not None:
+            reject_suggestion(hass, safety, names, registry_id, recorded_class)
     await applied.async_forget(to_forget)
     _LOGGER.debug("device class change-back cleared=%s left=%s", cleared, left)
