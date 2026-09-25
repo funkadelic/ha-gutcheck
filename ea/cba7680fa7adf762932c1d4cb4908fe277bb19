@@ -1,0 +1,28 @@
+tests/test_device_class_select.py
+  s_3507e5fa0dad84::t_b844ae38c7d717 1,27-34,68,78,88,98,108,118,128,132,138,141-142,147-152,155,158-186,197-201,204,207,209,228
+custom_components/gutcheck/recipes/device_class.py
+  s_3507e5fa0dad84::t_2c6d9debad247c 51
+  s_3507e5fa0dad84::t_05f52334f5e89c 70-71,76-77,85
+tests/test_device_class_restart.py
+  s_3507e5fa0dad84::t_596cfb44c6fb39 1
+  s_3507e5fa0dad84::t_aded3e163da1c2 39,42,54
+  s_3507e5fa0dad84::t_ec416394e1cb21 98
+tests/test_device_class_size.py
+  s_3507e5fa0dad84::t_896a7940f14aec 34-37,47-49,51,63-64,94-96,116-117,127
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "eacba7680fa7adf762932c1d4cb4908fe277bb19",
+  "prompts": {},
+  "sessions": {
+    "s_3507e5fa0dad84": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e832ef8e-288a-40bc-9074-f4378b299e0b",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
