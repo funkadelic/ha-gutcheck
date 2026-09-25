@@ -128,4 +128,4 @@ class DeviceClassRecipe:
             result["counts"][option] = len(kept)
         result["unsure"] = [item for item in result["unsure"] if self._still_qualifies(hass, item)]
         names = await class_names(hass)
-        sync_device_class_cards(hass, self._safety, result["items"].get(OPTION_SUGGESTED, []), names)
+        sync_device_class_cards(hass, self._safety, result["items"].get(OPTION_SUGGESTED, []), names, restoring=True)

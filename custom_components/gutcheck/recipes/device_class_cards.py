@@ -60,7 +60,9 @@ def reject_suggestion(
     async_create_ignored_issue(hass, issue_id, ISSUE_DEVICE_CLASS_SUGGESTION, item.placeholders, item.data)
 
 
-def sync_device_class_cards(hass: HomeAssistant, safety: SafetyRules, suggested: list[Item], names: dict[str, str]) -> None:
+def sync_device_class_cards(
+    hass: HomeAssistant, safety: SafetyRules, suggested: list[Item], names: dict[str, str], *, restoring: bool = False
+) -> None:
     """Create or update a capped, rejection-preserving set of device class suggestion cards."""
     resolved = _resolve(hass, safety, names, suggested)
     still_qualifies = functools.partial(_still_qualifies, hass, safety)
@@ -72,4 +74,5 @@ def sync_device_class_cards(hass: HomeAssistant, safety: SafetyRules, suggested:
         resolved,
         suggested,
         still_qualifies,
+        restoring=restoring,
     )

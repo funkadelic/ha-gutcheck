@@ -139,7 +139,7 @@ async def test_restore_drops_a_removed_device_and_deletes_its_card(
 async def test_disabling_and_reenabling_within_the_week_restores_the_open_card_and_keeps_the_ignored_one(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
 ) -> None:
-    """Re-enabling within the cadence window restores for free and brings the open card back, within the cap."""
+    """Re-enabling within the cadence window restores for free and brings the open card back."""
     areas = create_areas(hass, "Kitchen")
     open_device = register_area_device(hass, "open", name="Open Plug", entities=["sensor"])
     ignored_device = register_area_device(hass, "ignored", name="Ignored Plug", entities=["sensor"])

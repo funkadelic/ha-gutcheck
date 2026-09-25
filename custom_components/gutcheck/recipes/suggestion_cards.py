@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import issue_registry as ir
 
-from ..const import DOMAIN
+from ..const import DOMAIN, ITEM_HELD_BACK
 from ..repairs import async_sync_issues
 from .shapes import Item
 
@@ -57,6 +57,23 @@ def _attempted_ids(prefix: str, suggested: list[Item]) -> set[str]:
     return {f"{prefix}{item['registry_id']}" for item in suggested}
 
 
+def _accept_new(prefix: str, suggested: list[Item], new_ids: list[str], cap: int, restoring: bool) -> list[str]:
+    """New card ids to raise now; a run marks the rest held back on their own stored items.
+
+    A run takes the cap's worth. A restore takes no cap of its own: it
+    re-raises every card the run raised, including one a switch-off
+    deleted, and none the run held back.
+    """
+    if restoring:
+        held = {f"{prefix}{item['registry_id']}" for item in suggested if item.get(ITEM_HELD_BACK)}
+        return [issue_id for issue_id in new_ids if issue_id not in held]
+    deferred = set(new_ids[cap:])
+    for item in suggested:
+        if f"{prefix}{item['registry_id']}" in deferred:
+            item[ITEM_HELD_BACK] = True
+    return new_ids[:cap]
+
+
 def sync_suggestion_cards(
     hass: HomeAssistant,
     prefix: str,
@@ -65,6 +82,8 @@ def sync_suggestion_cards(
     resolved: dict[str, Resolved],
     suggested: list[Item],
     still_qualifies: Callable[[str], bool],
+    *,
+    restoring: bool = False,
 ) -> None:
     """Create or update a capped, rejection-preserving set of suggestion cards.
 
@@ -72,8 +91,9 @@ def sync_suggestion_cards(
     run's own suggestion, which is what lets an ignored card's content
     follow the model while HA's own re-create keeps dismissed_version
     untouched. A new card arrives only up to cap per run, most confident
-    first. An existing card for a subject this run never suggested at all
-    (an unsure or none-of-these answer) is passed straight through
+    first; a restore re-raises the run's own cards instead. An existing
+    card for a subject this run never suggested at all (an unsure or
+    none-of-these answer) is passed straight through
     untouched as long as its target still qualifies, which is what lets a
     rejection outlive a noisy run; once the target stops qualifying, its
     card is swept like any other stale one. A subject this run did
@@ -86,8 +106,7 @@ def sync_suggestion_cards(
     existing_ids = {issue_id for domain, issue_id in registry.issues if domain == DOMAIN and issue_id.startswith(prefix)}
 
     open_ids, ordered_new = _split_new(existing_ids, resolved)
-    accepted_new = ordered_new[:cap]
-    deferred_new = ordered_new[cap:]
+    accepted_new = _accept_new(prefix, suggested, ordered_new, cap, restoring)
     wanted_ids = open_ids | set(accepted_new)
 
     kept = {issue_id for issue_id in existing_ids - wanted_ids if issue_id not in attempted and still_qualifies(issue_id)}
@@ -108,6 +127,6 @@ def sync_suggestion_cards(
         prefix,
         len(open_ids),
         len(accepted_new),
-        len(deferred_new),
+        len(ordered_new) - len(accepted_new),
         len(kept),
     )

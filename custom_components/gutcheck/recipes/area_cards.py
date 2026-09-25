@@ -50,11 +50,18 @@ def _still_qualifies(hass: HomeAssistant, safety: SafetyRules, issue_id: str) ->
     return isinstance(device, dr.DeviceEntry) and not safety.excludes_device(hass, device)
 
 
-def sync_area_cards(hass: HomeAssistant, safety: SafetyRules, suggested: list[Item]) -> None:
+def sync_area_cards(hass: HomeAssistant, safety: SafetyRules, suggested: list[Item], *, restoring: bool = False) -> None:
     """Create or update a capped, rejection-preserving set of area suggestion cards."""
     options = area_options(hass)
     resolved = _resolve(hass, options, suggested)
     still_qualifies = functools.partial(_still_qualifies, hass, safety)
     sync_suggestion_cards(
-        hass, AREA_ISSUE_PREFIX, ISSUE_AREA_SUGGESTION, MAX_NEW_AREA_CARDS_PER_RUN, resolved, suggested, still_qualifies
+        hass,
+        AREA_ISSUE_PREFIX,
+        ISSUE_AREA_SUGGESTION,
+        MAX_NEW_AREA_CARDS_PER_RUN,
+        resolved,
+        suggested,
+        still_qualifies,
+        restoring=restoring,
     )

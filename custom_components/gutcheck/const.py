@@ -195,6 +195,8 @@ ATTR_LAST_PAYLOAD: Final = "last_payload"
 ATTR_LAST_RUN: Final = "last_run"
 
 OPTION_SUGGESTED: Final = "suggested"
+# Set on a suggestion the per-run card cap held back, so a restore never raises its card.
+ITEM_HELD_BACK: Final = "held_back"
 # A single fixed bucket, never one per area: the coordinator seeds result
 # buckets from this tuple, and an install's areas are neither fixed nor
 # small. The chosen area rides along on the item's own choice field instead.
