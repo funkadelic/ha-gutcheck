@@ -1,0 +1,49 @@
+# hassfest never opens this file for a custom integration (validate_iqs_file()
+# returns early when not integration.core), so tests/test_quality_scale.py in
+# this repo is the only thing keeping the claim below honest.
+rules:
+  action-setup:
+    status: exempt
+    comment: No services.async_register call exists anywhere in this integration.
+  # const.py:46 sets RECIPE_INTERVAL to a 7-day timedelta; button.py gives every
+  # recipe an on-demand run button for immediacy between those runs.
+  appropriate-polling: done
+  brands:
+    status: exempt
+    comment: >
+      brand/logo.png and brand/icon.png already ship in the release asset. A
+      submission to the upstream home-assistant/brands repository is tracked
+      separately and is not a precondition for a HACS custom-repository install.
+  common-modules:
+    status: exempt
+    comment: >
+      RecipeCoordinator lives in recipes/base.py as part of the shared recipe
+      framework every recipe imports from, rather than in a coordinator.py.
+      Moving it would touch every recipe's imports and the tests that patch them.
+  config-flow: done
+  # pyproject.toml:2 sets fail_under = 100 under [tool.coverage.report], and
+  # tests/test_config_flow.py exists, so the config flow's coverage is enforced
+  # by the repo-wide gate rather than by a rule-specific one.
+  config-flow-test-coverage: done
+  dependency-transparency: done
+  docs-actions:
+    status: exempt
+    comment: No services.async_register call exists anywhere in this integration.
+  docs-conditions:
+    status: exempt
+    comment: This integration does not provide any conditions.
+  docs-high-level-description: done
+  docs-installation-instructions: done
+  docs-removal-instructions: done
+  docs-triggers:
+    status: exempt
+    comment: This integration does not provide any triggers.
+  entity-event-setup:
+    status: exempt
+    comment: No entity subscribes to the event bus; all state arrives through the coordinator refresh cycle.
+  entity-unique-id: done
+  has-entity-name: done
+  runtime-data: done
+  test-before-configure: done
+  test-before-setup: done
+  unique-config-entry: done
