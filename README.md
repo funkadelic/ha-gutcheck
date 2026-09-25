@@ -6,9 +6,9 @@ Home Assistant is good at following rules you write. It isn't good at judgment c
 
 ## How Gut Check decides
 
-Gut Check uses Jev, a decision model from TypeSafe that answers one kind of question: given these facts, which of these answers fits? Gut Check sends a short description of each item along with a fixed list of answers. Jev picks one and says how likely it is to be right.
+Gut Check uses Jev, a decision model from [TypeSafe AI](https://typesafe.ai/) that answers one kind of question: given these facts, which of these answers fits? Gut Check sends a short description of each item along with a fixed list of answers. Jev picks one and says how likely it is to be right.
 
-Jev can't write a reply, make up a new option, or tell Home Assistant to do anything. When it isn't confident, Gut Check marks the item unsure and leaves it alone. TypeSafe charges only for the text Gut Check sends, so a weekly checkup costs a fraction of a cent.
+Jev can't write a reply, make up a new option, or tell Home Assistant to do anything. When it isn't confident, Gut Check marks the item unsure and leaves it alone. TypeSafe AI charges only for the text Gut Check sends, so a weekly checkup costs a fraction of a cent.
 
 ## What it does
 
@@ -33,14 +33,14 @@ All three run once a week on their own, and each has a button to run it on deman
 
    `https://github.com/funkadelic/ha-gutcheck`
 
-2. Create a TypeSafe account and an API key at [console.typesafe.ai/keys](https://console.typesafe.ai/keys). The key is the only setup. There is no add-on or local model to run.
+2. Create a TypeSafe AI account and an API key at [console.typesafe.ai/keys](https://console.typesafe.ai/keys). The key is the only setup. There is no add-on or local model to run.
 3. Add the integration from **Settings > Devices & services** and paste the key. Gut Check tries it with one cheap question before creating the entry, so a wrong key is caught right away rather than at the first run.
 
 If the key is ever rejected later, Home Assistant opens a repair asking for a new one, and each check goes unavailable the next time it runs, until you supply it.
 
 ## Cost
 
-TypeSafe measures usage in tokens, roughly four characters of text each, and charges only for what Gut Check sends. Measured on a real install with about 1,300 entities:
+TypeSafe AI measures usage in tokens, roughly four characters of text each, and charges only for what Gut Check sends. Measured on a real install with about 1,300 entities:
 
 | Check | Tokens per run | Cost per run |
 |---|---|---|
