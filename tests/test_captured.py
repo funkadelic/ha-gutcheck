@@ -10,11 +10,14 @@ from custom_components.gutcheck.client import validate_response
 from custom_components.gutcheck.const import (
     CHOICE_CONFIDENCE_THRESHOLD,
     HEALTH_OPTIONS,
+    LEAN_NEEDS_ATTENTION,
+    OPTION_EXPECTED,
     OPTION_ROUTINE,
     UPDATE_CRITERIA,
     UPDATE_INSTRUCTIONS,
 )
 from custom_components.gutcheck.recipes.gate import classify, gate_choice
+from custom_components.gutcheck.recipes.health import HealthRecipe
 from custom_components.gutcheck.recipes.shapes import Batch
 from custom_components.gutcheck.recipes.updates import UpdateRecipe
 
@@ -76,6 +79,23 @@ def test_captured_answers_classify_with_every_subject_accounted_for() -> None:
     assert accepted + len(result["unsure"]) == len(payload["questions"])
     for option in result["counts"]:
         assert option in HEALTH_OPTIONS
+
+
+def test_captured_unsure_answers_lean_only_toward_the_two_documented_sides() -> None:
+    """The captured pair's unsure entries lean only needs_attention or expected, never a confident entry."""
+    payload = _load("health_payload.json")
+    response = _load("health_response.json")
+    subjects = {question_id: {"entity_id": question_id} for question_id in payload["questions"]}
+    batch = Batch(state=payload["state"], questions=payload["questions"], subjects=subjects)
+    recipe = HealthRecipe(None)
+
+    result = classify(batch, response, HEALTH_OPTIONS, payload, recipe.gate, lean=recipe.lean)  # type: ignore[arg-type]
+
+    leans = [item["lean"] for item in result["unsure"] if "lean" in item]
+    assert leans, "expected at least one unsure entry to carry a lean"
+    assert set(leans) <= {LEAN_NEEDS_ATTENTION, OPTION_EXPECTED}
+    for bucket in result["items"].values():
+        assert all("lean" not in item for item in bucket)
 
 
 def test_validate_response_answer_is_a_noul_with_no_confidence() -> None:

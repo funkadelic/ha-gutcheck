@@ -50,14 +50,21 @@ def gate_score(answer: object, allowed: tuple[str, ...], threshold: float) -> st
     return allowed[level]
 
 
+def unit_interval(value: object) -> float | None:
+    """value, but only as a real number in [0, 1] the API contract allows.
+
+    Compare before converting: float() on an oversized int raises. The
+    range check also rejects NaN and both infinities, which fail every compare.
+    """
+    if not isinstance(value, bool) and isinstance(value, int | float) and 0.0 <= value <= 1.0:
+        return float(value)
+    return None
+
+
 def _raw_confidence(answer: object) -> float | None:
     """The answer's confidence, but only as a real number the API contract allows."""
     if isinstance(answer, dict):
-        confidence = answer.get("confidence")
-        # Compare before converting: float() on an oversized int raises. The
-        # range check also rejects NaN and both infinities, which fail every compare.
-        if not isinstance(confidence, bool) and isinstance(confidence, int | float) and 0.0 <= confidence <= 1.0:
-            return float(confidence)
+        return unit_interval(answer.get("confidence"))
     return None
 
 
@@ -122,14 +129,29 @@ def carry_forward(batch: Batch, allowed: tuple[str, ...], payload: SystemOneRequ
     }
 
 
+def _mark_lean(entry: Item, answer: object, lean: Callable[[object], str | None] | None) -> None:
+    """Set entry's lean field from the recipe's lean callable, only when offered and it returns one."""
+    if lean is None:
+        return
+    result = lean(answer)
+    if result is not None:
+        entry["lean"] = result
+
+
 def classify(
     batch: Batch,
     response: SystemOneResponse,
     allowed: tuple[str, ...],
     payload: SystemOneRequest,
     gate: Callable[[object], str | None],
+    *,
+    lean: Callable[[object], str | None] | None = None,
 ) -> RecipeResult:
-    """Turn a response into a RecipeResult, gating every answer through the recipe's own gate."""
+    """Turn a response into a RecipeResult, gating every answer through the recipe's own gate.
+
+    lean, when the recipe offers one, marks an unsure entry only: it never
+    changes which bucket or count an answer lands in.
+    """
     counts, items = _seed(batch, allowed)
     unsure: list[Item] = []
     answers = response["answers"]
@@ -151,6 +173,7 @@ def classify(
             items[chosen].append(entry)
             counts[chosen] += 1
         else:
+            _mark_lean(entry, answer, lean)
             unsure.append(entry)
 
     return {
