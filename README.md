@@ -36,17 +36,17 @@ All three run once a week on their own, and each has a button to run it on deman
 2. Create a TypeSafe account and an API key at [console.typesafe.ai/keys](https://console.typesafe.ai/keys). The key is the only setup. There is no add-on or local model to run.
 3. Add the integration from **Settings > Devices & services** and paste the key. Gut Check tries it with one cheap question before creating the entry, so a wrong key is caught right away rather than at the first run.
 
-If the key is ever rejected later, Home Assistant opens a repair asking for a new one, and the checks go unavailable until you supply it.
+If the key is ever rejected later, Home Assistant opens a repair asking for a new one, and each check goes unavailable the next time it runs, until you supply it.
 
 ## Cost
 
-TypeSafe measures usage in tokens, roughly four characters of text each, and charges only for what Gut Check sends. Measured on a real install:
+TypeSafe measures usage in tokens, roughly four characters of text each, and charges only for what Gut Check sends. Measured on a real install with about 1,300 entities:
 
 | Check | Tokens per run | Cost per run |
 |---|---|---|
-| Home health check (109 unavailable entities) | 32,700 | about $0.0014 |
+| Home health check | 32,700 | about $0.0014 |
 | Area suggestions | 16,548 | under $0.001 |
-| Update review | depends on pending updates, 0 when nothing is pending | under $0.002 at the 50-update cap |
+| Update review | 0 when nothing is pending or changed; about 41,000 estimated at the 50-update cap | under $0.002 |
 
 Gut Check enforces a daily token budget so cost stays predictable. `sensor.gut_check_tokens_used_today` and `sensor.gut_check_cost_today` show what has been spent and what it cost, both resetting at local midnight. The default of 150,000 tokens covers the weekly schedule with room to spare; running checks by hand several times in one day can reach it.
 
@@ -80,7 +80,7 @@ The integration's three-dot menu also offers a diagnostics download. It replaces
 
 The home health check skips disabled entities, locks, alarm panels, garage doors and covers, and anything carrying the label you chose to exclude.
 
-The update review reads every pending update, including firmware for locks, alarm panels, garage doors and covers, since each is an ordinary update entity; it only scores them. To keep a device's updates out of the review, put the label you chose to exclude on the device.
+The update review reads every pending update except disabled ones, including firmware for locks, alarm panels, garage doors and covers, since each is an ordinary update entity; it only scores them. To keep a device's updates out of the review, put the label you chose to exclude on the device.
 
 Area suggestions skip service devices such as add-ons and accounts, disabled devices, devices that already have an area, devices with no entities, anything with a device tracker, devices where you placed any entity's area by hand, and anything carrying the label you chose to exclude, on the device or on any of its entities. They do cover devices with locks, alarm panels, garage doors or covers, because an area is only a label on the device, and it changes only when you confirm the card.
 
