@@ -8,7 +8,7 @@ from typing import Any
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
-from ..const import AREA_CONFIDENCE_THRESHOLD, AREA_INSTRUCTIONS, OPTION_SUGGESTED, RECIPE_AREAS
+from ..const import AREA_CONFIDENCE_THRESHOLD, AREA_INSTRUCTIONS, AREA_ISSUE_PREFIX, OPTION_SUGGESTED, RECIPE_AREAS
 from ..models import Question
 from .area_cards import sync_area_cards
 from .area_describe import area_criteria, area_options, describe
@@ -24,6 +24,7 @@ class AreaRecipe:
 
     recipe_id = RECIPE_AREAS
     options: tuple[str, ...] = (OPTION_SUGGESTED,)
+    issue_prefix = AREA_ISSUE_PREFIX
     # An unsure item carries no choice, so the registry id is the one field
     # every stored item has.
     stored_item_keys: frozenset[str] = frozenset({"registry_id"})

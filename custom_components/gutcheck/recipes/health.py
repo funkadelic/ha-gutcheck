@@ -57,6 +57,7 @@ class HealthRecipe:
 
     recipe_id = RECIPE_HEALTH
     options: tuple[str, ...] = HEALTH_OPTIONS
+    issue_prefix = HEALTH_ISSUE_PREFIX
     # Every field a restore reads off a stored item before the next run replaces it.
     stored_item_keys: frozenset[str] = frozenset({"entity_id", "registry_id", "unavailable_for"})
 

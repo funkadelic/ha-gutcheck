@@ -274,7 +274,9 @@ async def test_a_removed_update_entity_drops_out_with_no_pruning_step(
     removed = register_pending_update(hass, "update_removed")
     register_jev_responses(aioclient_mock, [api_response({"u0": score_answer(0, 0.9), "u1": score_answer(1, 0.9)})])
     entry = await _setup(hass)
-    assert _sensor_state(hass, entry).state == "2"
+    state_after_first_run = _sensor_state(hass, entry)
+    assert state_after_first_run.state == "0"
+    assert sum(state_after_first_run.attributes["counts"].values()) == 2
 
     er.async_get(hass).async_remove(removed.entity_id)
     aioclient_mock.clear_requests()
@@ -282,7 +284,7 @@ async def test_a_removed_update_entity_drops_out_with_no_pruning_step(
 
     assert posted_bodies(aioclient_mock) == []
     state = _sensor_state(hass, entry)
-    assert state.state == "1"
+    assert state.state == "0"
     remaining_ids = {item["entity_id"] for bucket in state.attributes["items"].values() for item in bucket}
     assert remaining_ids == {kept.entity_id}
 

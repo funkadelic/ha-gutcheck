@@ -103,7 +103,7 @@ async def test_two_pending_updates_are_scored_in_one_request(
 
     state = hass.states.get(updates_sensor_entity_id(hass, mock_config_entry))
     assert state is not None
-    assert state.state == "2"
+    assert state.state == "1"
     assert state.attributes["counts"][OPTION_ROUTINE] == 1
     assert state.attributes["counts"][OPTION_POSSIBLY_BREAKING] == 1
     assert state.attributes["counts"][OPTION_FEATURE] == 0
@@ -167,7 +167,7 @@ async def test_stored_update_result_restores_after_a_reload_with_no_request(
     assert len(posted_bodies(aioclient_mock)) == 1
     state = hass.states.get(updates_sensor_entity_id(hass, mock_config_entry))
     assert state is not None
-    assert state.state == "1"
+    assert state.state == "0"
     assert state.attributes["counts"][OPTION_ROUTINE] == 1
 
 

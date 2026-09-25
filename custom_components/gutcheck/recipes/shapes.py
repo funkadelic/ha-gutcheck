@@ -49,6 +49,8 @@ class Recipe(Protocol):
     recipe_id: str
     options: tuple[str, ...]
     stored_item_keys: frozenset[str]
+    # The id prefix of this recipe's Repairs cards, which the summary sensor counts.
+    issue_prefix: str
 
     def gate(self, answer: object) -> str | None:
         """Gate one answer through this recipe's own confidence threshold and answer type."""
