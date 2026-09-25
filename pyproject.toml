@@ -11,6 +11,42 @@ addopts = [
     "--cov-report=term-missing",
 ]
 
+# Kept out of requirements-test.txt so CI never installs a tool no job runs.
+# Capped below 4 because mutmut 3 rewrote this config format once already, and a
+# 4.x could invalidate the block below without failing loudly.
+[dependency-groups]
+mutation = ["mutmut>=3.8.0,<4"]
+
+# Mutation testing. mutmut mutates a copy of the source under ./mutants/ and runs
+# the suite from there, so the copy needs anything the tests open by path.
+# tests/fixtures/ holds the captured API payloads, and pyproject.toml carries the
+# pytest config the suite needs to run at all.
+[tool.mutmut]
+source_paths = ["custom_components/"]
+also_copy = ["tests/", "pyproject.toml", "sonar-project.properties"]
+# Mutated log calls test nothing but log text. mutmut matches only the line a
+# statement starts on, and it keeps old mutants, so delete mutants/ after editing this.
+do_not_mutate_patterns = ['_LOGGER\.']
+# At the default 15x, a mutant that breaks a loop eats memory for a minute before
+# mutmut stops it. 5x kills it sooner, at the price of a slow mutant timing out
+# rather than surviving.
+timeout_multiplier = 5.0
+# The default, "warn", keeps a cache built under an older config. A stale cache can
+# skip every mutant and finish green having tested nothing.
+on_dependency_change = "rerun"
+pytest_add_cli_args = [
+    # A mutant exercises only part of the tree, so the suite's 100% coverage gate
+    # fails under every one of them, reporting each killed by the gate, not by a test.
+    "--no-cov",
+    # Both read the source tree, which mutmut rewrites with every mutant inlined, so
+    # they fail on the unmutated baseline. Ordinary pytest runs still cover them.
+    "--deselect",
+    "tests/test_docstrings.py",
+    "--deselect",
+    "tests/test_version_sync.py",
+]
+pytest_add_cli_args_test_selection = ["tests/"]
+
 [tool.ruff]
 target-version = "py314"
 line-length = 130
