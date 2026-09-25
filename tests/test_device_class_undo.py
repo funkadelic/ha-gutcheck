@@ -6,6 +6,7 @@ from homeassistant.components.repairs import repairs_flow_manager
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.storage import Store
 from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -23,6 +24,7 @@ from custom_components.gutcheck.const import (
     DEVICE_CLASS_APPLIED_STORE_KEY,
     DEVICE_CLASS_ISSUE_PREFIX,
     DOMAIN,
+    RECIPE_DEVICE_CLASS,
     STORE_VERSION,
 )
 from custom_components.gutcheck.recipes.device_class_cards import sync_device_class_cards
@@ -32,6 +34,7 @@ from custom_components.gutcheck.recipes.safety import SafetyRules
 from .conftest import (
     api_response,
     area_answer,
+    posted_bodies,
     register_jev_responses,
     register_unit_sensor,
 )
@@ -212,13 +215,19 @@ async def test_undo_choices_omits_a_recorded_sensor_removed_from_the_registry(ha
 async def test_picking_a_sensor_whose_override_still_matches_clears_it_and_drops_the_record(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
 ) -> None:
-    """Picking a sensor whose live override still equals the recorded class clears it and drops the record."""
+    """Picking a sensor whose live override still equals the recorded class clears it and drops the record.
+
+    The change-back also raises the sensor's rejection as a fixable,
+    persistent, already-ignored card carrying the sensor and the class it
+    cleared, exactly like a Don't suggest rejection.
+    """
     sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
     register_jev_responses(aioclient_mock, [api_response({"s0": area_answer("battery", 0.9, BATTERY_CANDIDATES)})])
     device_class_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(device_class_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
-    await _confirm(hass, f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}")
+    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
+    await _confirm(hass, issue_id)
 
     result = await _open_undo_step(hass, device_class_entry)
     result = await hass.config_entries.options.async_configure(result["flow_id"], {CONF_UNDO_SENSORS: [sensor.id]})
@@ -231,6 +240,16 @@ async def test_picking_a_sensor_whose_override_still_matches_clears_it_and_drops
     assert updated.original_device_class is None
     assert updated.unit_of_measurement == "%"
     assert device_class_entry.runtime_data.applied.get(sensor.id) is None
+
+    card = ir.async_get(hass).async_get_issue(DOMAIN, issue_id)
+    assert card is not None
+    assert card.is_fixable is True
+    assert card.is_persistent is True
+    assert card.dismissed_version is not None
+    assert card.data == {"registry_id": sensor.id, "device_class": "battery"}
+    assert card.translation_placeholders is not None
+    assert card.translation_placeholders["entity_id"] == sensor.entity_id
+    assert card.translation_placeholders["class_name"] == "Battery"
 
 
 async def test_picking_a_sensor_hand_changed_since_leaves_it_and_drops_the_record(
@@ -339,6 +358,40 @@ async def test_confirm_restart_change_back_timeline_clears_the_class(
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done(wait_background_tasks=True)
 
+    updated = er.async_get(hass).async_get(sensor.entity_id)
+    assert updated is not None
+    assert updated.device_class is None
+
+
+async def test_a_run_after_the_change_back_re_asks_and_keeps_no_card(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
+) -> None:
+    """Continuing the timeline: a run after the change-back posts the sensor again but raises no visible card.
+
+    The card's dismissed_version stays set, and device_class stays None: the
+    change-back is remembered exactly like a Don't suggest rejection.
+    """
+    sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
+    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer("battery", 0.9, BATTERY_CANDIDATES)})])
+    device_class_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(device_class_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
+    await _confirm(hass, issue_id)
+
+    result = await _open_undo_step(hass, device_class_entry)
+    await hass.config_entries.options.async_configure(result["flow_id"], {CONF_UNDO_SENSORS: [sensor.id]})
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    aioclient_mock.clear_requests()
+    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer("battery", 0.9, BATTERY_CANDIDATES)})])
+    await device_class_entry.runtime_data.coordinators[RECIPE_DEVICE_CLASS].async_refresh()
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    assert len(posted_bodies(aioclient_mock)) == 1
+    reran = ir.async_get(hass).async_get_issue(DOMAIN, issue_id)
+    assert reran is not None
+    assert reran.dismissed_version is not None
     updated = er.async_get(hass).async_get(sensor.entity_id)
     assert updated is not None
     assert updated.device_class is None
