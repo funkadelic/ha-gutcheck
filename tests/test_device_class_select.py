@@ -1,4 +1,4 @@
-"""Tests for sensor selection, unit narrowing, the code-decided single-class path, and question alignment."""
+"""Tests for sensor selection, unit narrowing, and question alignment."""
 
 from __future__ import annotations
 
@@ -24,7 +24,14 @@ from custom_components.gutcheck.recipes.gate import classify
 from custom_components.gutcheck.recipes.safety import SafetyRules
 from custom_components.gutcheck.split import split_batch
 
-from .conftest import area_answer, device_class_sensor_entity_id, posted_bodies, register_unit_sensor
+from .conftest import (
+    api_response,
+    area_answer,
+    device_class_sensor_entity_id,
+    posted_bodies,
+    register_jev_responses,
+    register_unit_sensor,
+)
 
 LIMIT = "custom_components.gutcheck.budget.REQUEST_TOKEN_LIMIT"
 PERCENT_CANDIDATES = ["battery", "humidity", "moisture", "power_factor"]
@@ -58,7 +65,7 @@ async def test_a_sensor_with_no_unit_is_never_selected(hass: HomeAssistant) -> N
     batch = await DeviceClassRecipe(critical_label=None).async_prepare(hass)
 
     assert batch.subjects == {}
-    assert batch.carried.get(OPTION_SUGGESTED, []) == []
+    assert batch.questions == {}
 
 
 async def test_a_sensor_with_an_original_device_class_is_never_selected(hass: HomeAssistant) -> None:
@@ -68,7 +75,7 @@ async def test_a_sensor_with_an_original_device_class_is_never_selected(hass: Ho
     batch = await DeviceClassRecipe(critical_label=None).async_prepare(hass)
 
     assert batch.subjects == {}
-    assert batch.carried.get(OPTION_SUGGESTED, []) == []
+    assert batch.questions == {}
 
 
 async def test_a_sensor_with_a_user_set_device_class_is_never_selected(hass: HomeAssistant) -> None:
@@ -78,7 +85,7 @@ async def test_a_sensor_with_a_user_set_device_class_is_never_selected(hass: Hom
     batch = await DeviceClassRecipe(critical_label=None).async_prepare(hass)
 
     assert batch.subjects == {}
-    assert batch.carried.get(OPTION_SUGGESTED, []) == []
+    assert batch.questions == {}
 
 
 async def test_a_disabled_sensor_is_never_selected(hass: HomeAssistant) -> None:
@@ -88,7 +95,7 @@ async def test_a_disabled_sensor_is_never_selected(hass: HomeAssistant) -> None:
     batch = await DeviceClassRecipe(critical_label=None).async_prepare(hass)
 
     assert batch.subjects == {}
-    assert batch.carried.get(OPTION_SUGGESTED, []) == []
+    assert batch.questions == {}
 
 
 async def test_a_sensor_carrying_the_critical_label_is_never_selected(hass: HomeAssistant) -> None:
@@ -98,7 +105,7 @@ async def test_a_sensor_carrying_the_critical_label_is_never_selected(hass: Home
     batch = await DeviceClassRecipe(critical_label="critical").async_prepare(hass)
 
     assert batch.subjects == {}
-    assert batch.carried.get(OPTION_SUGGESTED, []) == []
+    assert batch.questions == {}
 
 
 async def test_a_sensor_whose_device_carries_the_critical_label_is_never_selected(hass: HomeAssistant) -> None:
@@ -108,7 +115,7 @@ async def test_a_sensor_whose_device_carries_the_critical_label_is_never_selecte
     batch = await DeviceClassRecipe(critical_label="critical").async_prepare(hass)
 
     assert batch.subjects == {}
-    assert batch.carried.get(OPTION_SUGGESTED, []) == []
+    assert batch.questions == {}
 
 
 async def test_a_non_sensor_entity_with_a_unit_is_never_selected(hass: HomeAssistant) -> None:
@@ -118,57 +125,88 @@ async def test_a_non_sensor_entity_with_a_unit_is_never_selected(hass: HomeAssis
     batch = await DeviceClassRecipe(critical_label=None).async_prepare(hass)
 
     assert batch.subjects == {}
-    assert batch.carried.get(OPTION_SUGGESTED, []) == []
+    assert batch.questions == {}
 
 
 async def test_a_unit_no_class_accepts_is_never_asked_suggested_or_unsure(hass: HomeAssistant) -> None:
-    """A sensor whose unit no device class accepts is dropped entirely, not even carried."""
+    """A sensor whose unit no device class accepts is never asked, never suggested, never unsure."""
     register_unit_sensor(hass, "pages", unit="pages")
 
     batch = await DeviceClassRecipe(critical_label=None).async_prepare(hass)
 
     assert batch.subjects == {}
-    assert batch.carried.get(OPTION_SUGGESTED, []) == []
+    assert batch.questions == {}
 
 
-async def test_a_unit_one_class_accepts_is_carried_at_full_confidence_with_no_question(hass: HomeAssistant) -> None:
-    """A sensor whose unit exactly one device class accepts is decided in code, not asked."""
+async def test_a_unit_one_class_accepts_is_asked_with_that_class_and_none_of_these(hass: HomeAssistant) -> None:
+    """A sensor whose unit exactly one device class accepts is asked, never decided in code."""
     sensor = register_unit_sensor(hass, "meters", unit="m")
 
     batch = await DeviceClassRecipe(critical_label=None).async_prepare(hass)
 
-    assert batch.questions == {}
-    assert batch.carried[OPTION_SUGGESTED] == [
-        {"registry_id": sensor.id, "entity_id": sensor.entity_id, "choice": "distance", "confidence": 1.0}
-    ]
+    assert batch.carried == {}
+    assert list(batch.questions) == ["s0"]
+    question = batch.questions["s0"]
+    assert set(question["criteria"].keys()) == {"distance", OPTION_NONE}
+    assert question["instructions"] == DEVICE_CLASS_INSTRUCTIONS.format(index=0)
+    assert batch.subjects["s0"]["registry_id"] == sensor.id
 
 
-async def test_with_only_one_class_sensors_setup_posts_nothing_and_still_raises_a_card(
+async def test_a_one_class_sensor_is_asked_and_a_confident_none_of_these_raises_no_card(
     hass: HomeAssistant, aioclient_mock, device_class_entry
 ) -> None:
-    """A run where every qualifying sensor narrows to one class sends no request and still raises a card."""
-    sensor = register_unit_sensor(hass, "meters", unit="m", name="Distance Sensor")
+    """A one-class sensor is asked that class plus none of these; a confident none of these leaves it unsure with no card."""
+    sensor = register_unit_sensor(hass, "meters", unit="m", name="Water filter used", device_name="Refrigerator")
+    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer(OPTION_NONE, 0.9, ["distance"])})])
     device_class_entry.add_to_hass(hass)
 
     assert await hass.config_entries.async_setup(device_class_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    assert posted_bodies(aioclient_mock) == []
+    bodies = posted_bodies(aioclient_mock)
+    assert len(bodies) == 1
+    question = bodies[0]["questions"]["s0"]
+    assert set(question["criteria"].keys()) == {"distance", OPTION_NONE}
+    assert question["instructions"] == DEVICE_CLASS_INSTRUCTIONS.format(index=0)
+
     state = hass.states.get(device_class_sensor_entity_id(hass, device_class_entry))
     assert state is not None
-    assert state.state == "1"
+    assert state.state == "0"
+    assert state.attributes["items"]["suggested"] == []
+    unsure_ids = {item["registry_id"] for item in state.attributes["unsure"]}
+    assert unsure_ids == {sensor.id}
+    assert not any(issue_id.startswith(DEVICE_CLASS_ISSUE_PREFIX) for _domain, issue_id in ir.async_get(hass).issues)
+
+
+async def test_a_confident_answer_for_a_one_class_sensor_raises_a_card_with_the_models_own_confidence(
+    hass: HomeAssistant, aioclient_mock, device_class_entry
+) -> None:
+    """A confident class answer for a one-class sensor raises a card at the model's own confidence, never 1.0."""
+    sensor = register_unit_sensor(hass, "meters", unit="m", name="Water filter used", device_name="Refrigerator")
+    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer("distance", 0.8, ["distance"])})])
+    device_class_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(device_class_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    state = hass.states.get(device_class_sensor_entity_id(hass, device_class_entry))
+    assert state is not None
     suggested = state.attributes["items"]["suggested"]
     assert len(suggested) == 1
     assert suggested[0]["registry_id"] == sensor.id
-    assert suggested[0]["confidence"] == 1.0
+    assert suggested[0]["choice"] == "distance"
+    assert suggested[0]["confidence"] == 0.8
+
+    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
 
 
-async def test_a_carried_sensor_between_two_asked_ones_does_not_desync_the_question_index(
+async def test_an_unmatched_sensor_between_two_asked_ones_does_not_desync_the_question_index(
     hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """A code-decided sensor sitting between two asked ones leaves the state list and question index aligned."""
+    """A sensor whose unit no class accepts, sitting between two asked ones, leaves state and question index aligned."""
     percent = register_unit_sensor(hass, "a", unit="%", name="A")
-    meters = register_unit_sensor(hass, "b", unit="m", name="B")
+    register_unit_sensor(hass, "b", unit="pages", name="B")
     gallons = register_unit_sensor(hass, "c", unit="gal", name="C")
 
     recipe = DeviceClassRecipe(critical_label=None)
@@ -179,9 +217,6 @@ async def test_a_carried_sensor_between_two_asked_ones_does_not_desync_the_quest
     assert batch.subjects["s1"]["registry_id"] == gallons.id
     assert batch.state["sensors"][1]["name"] == "C"
     assert batch.questions["s1"]["instructions"] == DEVICE_CLASS_INSTRUCTIONS.format(index=1)
-    assert batch.carried[OPTION_SUGGESTED] == [
-        {"registry_id": meters.id, "entity_id": meters.entity_id, "choice": "distance", "confidence": 1.0}
-    ]
 
     response = {
         "model": "jev-latest",
@@ -190,7 +225,7 @@ async def test_a_carried_sensor_between_two_asked_ones_does_not_desync_the_quest
     }
     result = classify(batch, response, recipe.options, None, recipe.gate)
     suggested = {item["registry_id"]: item["choice"] for item in result["items"][OPTION_SUGGESTED]}
-    assert suggested == {meters.id: "distance", gallons.id: "water"}
+    assert suggested == {gallons.id: "water"}
 
     whole = {"state": batch.state, "model": "jev-latest", "questions": batch.questions}
     monkeypatch.setattr(LIMIT, estimate_tokens(whole) - 1)

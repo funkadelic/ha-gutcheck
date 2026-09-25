@@ -1,4 +1,4 @@
-"""Timeline test: confident, code-decided and unsure-kept device class cards survive a real restart."""
+"""Timeline test: confident and unsure-kept device class cards survive a real restart."""
 
 from __future__ import annotations
 
@@ -36,13 +36,12 @@ async def _restart(hass: HomeAssistant, entry: MockConfigEntry) -> None:
     await hass.async_block_till_done(wait_background_tasks=True)
 
 
-async def test_confident_code_decided_and_kept_cards_survive_a_restart_and_the_confident_one_still_confirms(
+async def test_confident_and_kept_cards_survive_a_restart_and_the_confident_one_still_confirms(
     hass: HomeAssistant, freezer: Any, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
 ) -> None:
-    """A confident answer, a code-decided suggestion, and a card kept through an unsure run all survive a restart."""
+    """A confident answer and a card kept through an unsure run both survive a restart."""
     freezer.move_to("2026-01-01T00:00:00-08:00")
     confident_sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    decided_sensor = register_unit_sensor(hass, "distance_m", unit="m", name="Distance")
     kept_sensor = register_unit_sensor(hass, "kept_pct", unit="%", name="Kept")
     run1_answer = area_answer("battery", 0.9, BATTERY_CANDIDATES)
     register_jev_responses(aioclient_mock, [api_response({"s0": run1_answer, "s1": run1_answer})])
@@ -51,9 +50,8 @@ async def test_confident_code_decided_and_kept_cards_survive_a_restart_and_the_c
     await hass.async_block_till_done(wait_background_tasks=True)
 
     confident_issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{confident_sensor.id}"
-    decided_issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{decided_sensor.id}"
     kept_issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{kept_sensor.id}"
-    for issue_id in (confident_issue_id, decided_issue_id, kept_issue_id):
+    for issue_id in (confident_issue_id, kept_issue_id):
         assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
 
     # Run 2: kept_sensor now answers unsure. Its card is attempted-but-unsure, not resolved, so it is
@@ -74,10 +72,8 @@ async def test_confident_code_decided_and_kept_cards_survive_a_restart_and_the_c
     assert ir.async_get(hass).async_get_issue(DOMAIN, kept_issue_id) is not None
 
     before_confident = ir.async_get(hass).async_get_issue(DOMAIN, confident_issue_id)
-    before_decided = ir.async_get(hass).async_get_issue(DOMAIN, decided_issue_id)
     before_kept = ir.async_get(hass).async_get_issue(DOMAIN, kept_issue_id)
     assert before_confident is not None
-    assert before_decided is not None
     assert before_kept is not None
 
     freezer.move_to("2026-01-04T00:00:00-08:00")
@@ -90,13 +86,6 @@ async def test_confident_code_decided_and_kept_cards_survive_a_restart_and_the_c
     assert after_confident.translation_placeholders == before_confident.translation_placeholders
     assert after_confident.data == before_confident.data
 
-    after_decided = ir.async_get(hass).async_get_issue(DOMAIN, decided_issue_id)
-    assert after_decided is not None
-    assert after_decided.active
-    assert after_decided.dismissed_version is None
-    assert after_decided.translation_placeholders == before_decided.translation_placeholders
-    assert after_decided.data == before_decided.data
-
     after_kept = ir.async_get(hass).async_get_issue(DOMAIN, kept_issue_id)
     assert after_kept is not None
     assert after_kept.active
@@ -106,7 +95,7 @@ async def test_confident_code_decided_and_kept_cards_survive_a_restart_and_the_c
 
     state = hass.states.get(device_class_sensor_entity_id(hass, device_class_entry))
     assert state is not None
-    assert state.state == "3"
+    assert state.state == "2"
 
     assert await async_setup_component(hass, "repairs", {})
     manager = repairs_flow_manager(hass)

@@ -91,30 +91,3 @@ async def test_ignoring_a_card_through_the_flow_manager_survives_a_rerun(
     state = hass.states.get(device_class_sensor_entity_id(hass, device_class_entry))
     assert state is not None
     assert state.state == "0"
-
-
-async def test_a_code_decided_suggestion_ignored_stays_ignored_with_no_request(
-    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
-) -> None:
-    """A single-candidate sensor's card, once ignored, stays ignored after a rerun that posts nothing."""
-    sensor = register_unit_sensor(hass, "distance_m", unit="m", name="Distance")
-    device_class_entry.add_to_hass(hass)
-    assert await hass.config_entries.async_setup(device_class_entry.entry_id)
-    await hass.async_block_till_done(wait_background_tasks=True)
-    assert posted_bodies(aioclient_mock) == []
-
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
-    ir.async_ignore_issue(hass, DOMAIN, issue_id, True)
-
-    button_entity_id = _button_entity_id(hass, device_class_entry)
-    assert button_entity_id is not None
-    await _press(hass, button_entity_id)
-
-    assert posted_bodies(aioclient_mock) == []
-    reran = ir.async_get(hass).async_get_issue(DOMAIN, issue_id)
-    assert reran is not None
-    assert reran.dismissed_version is not None
-    updated = er.async_get(hass).async_get(sensor.entity_id)
-    assert updated is not None
-    assert updated.device_class is None
