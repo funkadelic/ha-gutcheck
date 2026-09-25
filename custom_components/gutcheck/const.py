@@ -83,6 +83,8 @@ HEALTH_OPTIONS: Final = (OPTION_EXPECTED, OPTION_WORTH_FIXING, OPTION_SAFE_TO_RE
 # not the API's confidence field, which runs about 0.1 below the top probability.
 HEALTH_LEAN_THRESHOLD: Final = 0.7
 LEAN_NEEDS_ATTENTION: Final = "needs_attention"
+# Probabilities arrive rounded to two decimals, so a valid spread can sum a little over 1.
+PROBABILITY_ROUNDING_ALLOWANCE: Final = 0.02
 
 # A restored entity gone at least this many days, with its integration loaded
 # or no config entry, is sorted as safe to remove without asking. Capped at the

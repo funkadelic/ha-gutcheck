@@ -20,6 +20,7 @@ from ..const import (
     OPTION_EXPECTED,
     OPTION_SAFE_TO_REMOVE,
     OPTION_WORTH_FIXING,
+    PROBABILITY_ROUNDING_ALLOWANCE,
     RECIPE_HEALTH,
 )
 from ..history import async_unavailable_since
@@ -81,6 +82,9 @@ class HealthRecipe:
         needs_attention = _side_total(probabilities, _NEEDS_ATTENTION_OPTIONS)
         expected = _side_total(probabilities, (OPTION_EXPECTED,))
         if needs_attention is None or expected is None:
+            return None
+        # Mutually exclusive options summing past 1 is a malformed spread, not a lean.
+        if needs_attention + expected > 1.0 + PROBABILITY_ROUNDING_ALLOWANCE:
             return None
         attention_clears = needs_attention >= HEALTH_LEAN_THRESHOLD
         expected_clears = expected >= HEALTH_LEAN_THRESHOLD

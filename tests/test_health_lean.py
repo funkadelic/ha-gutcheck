@@ -101,6 +101,17 @@ def test_malformed_used_probability_value_has_no_lean(value: object) -> None:
     assert RECIPE.lean(_answer({OPTION_EXPECTED: value})) is None
 
 
+def test_spread_summing_past_one_has_no_lean() -> None:
+    """Probabilities that cannot all be true together never lean, even when one side clears."""
+    assert RECIPE.lean(_answer({OPTION_EXPECTED: 0.8, OPTION_WORTH_FIXING: 0.3})) is None
+
+
+def test_spread_rounded_just_past_one_still_leans() -> None:
+    """Two-decimal rounding can push a valid spread slightly over 1; it still leans."""
+    answer = _answer({OPTION_EXPECTED: 0.28, OPTION_WORTH_FIXING: 0.43, OPTION_SAFE_TO_REMOVE: 0.30})
+    assert RECIPE.lean(answer) == LEAN_NEEDS_ATTENTION
+
+
 def test_none_answer_has_no_lean() -> None:
     """No answer at all never leans."""
     assert RECIPE.lean(None) is None
