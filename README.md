@@ -20,6 +20,7 @@ Home Assistant is good at following rules you write. It isn't good at judgment c
 - [What it does](#what-it-does)
 - [What Gut Check will never do](#what-gut-check-will-never-do)
 - [Install and set up](#install-and-set-up)
+- [Running the checks](#running-the-checks)
 - [Cost](#cost)
 - [Options](#options)
 - [What gets sent, and what does not](#what-gets-sent-and-what-does-not)
@@ -44,8 +45,6 @@ Jev can't write a reply, make up a new option, or tell Home Assistant to do anyt
 
 **Area suggestions.** Gut Check suggests one of your existing areas for each device that has none, or suggests nothing when it isn't sure or nothing fits. Each suggestion is a Repairs card with two choices: assign the area, or tell Gut Check not to suggest one for that device. It never creates an area and never moves a device on its own.
 
-All three run once a week on their own, and each has a button to run it on demand. Pressing a check's button while that check is already running shows an error and starts nothing. The other checks' buttons still work.
-
 ## What Gut Check will never do
 
 - Control a lock, alarm panel, garage door or cover. The health check leaves them out entirely.
@@ -63,6 +62,12 @@ All three run once a week on their own, and each has a button to run it on deman
 3. Add the integration from **Settings > Devices & services** and paste the key. Gut Check tries it with one cheap question before creating the entry, so a wrong key is caught right away rather than at the first run.
 
 If the key is ever rejected later, Home Assistant opens a repair asking for a new one, and each check goes unavailable the next time it runs, until you supply it.
+
+## Running the checks
+
+You don't need to set up a schedule. Once you add the integration, each check that is switched on runs by itself when Home Assistant finishes starting, then once a week after that. Restarting Home Assistant doesn't start an extra run: Gut Check keeps the last result and runs again when the week is up. If a run fails, it tries again an hour later.
+
+To run a check now, go to **Settings > Devices & services > Gut Check**, open the Gut Check service, and press **Run home health check**, **Run update review** or **Run area suggestions**. Pressing a check's button while that check is already running shows an error and starts nothing. The other checks' buttons still work.
 
 ## Cost
 
