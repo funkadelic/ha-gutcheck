@@ -35,7 +35,7 @@ async def _restart(hass: HomeAssistant, entry: MockConfigEntry) -> None:
 async def test_an_open_card_kept_through_an_unsure_run_is_still_shown_and_counted_after_a_restart(
     hass: HomeAssistant, freezer: Any, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
 ) -> None:
-    """Run 1 suggests the device, run 2 is unsure, then a restart restores: the card stays active and counted."""
+    """Run 1 suggests the device, run 2 is unsure, then a restart restores, and the card stays active and counted."""
     freezer.move_to("2026-01-01T00:00:00-08:00")
     areas = create_areas(hass, "Kitchen", "Garage")
     device = register_area_device(hass, "a", name="Device A", entities=["sensor"])
