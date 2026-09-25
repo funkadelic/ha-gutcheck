@@ -61,6 +61,19 @@ def test_a_run_that_fits_goes_out_untouched() -> None:
     assert payloads[0]["questions"] is batch.questions
 
 
+@pytest.mark.parametrize("missing", ["list_key", "template"])
+def test_a_batch_without_split_metadata_goes_out_whole(monkeypatch: pytest.MonkeyPatch, missing: str) -> None:
+    """Without both split fields an oversized batch is sent whole, so the gate refuses it as too large."""
+    batch, payload, _response = _captured_batch()
+    setattr(batch, missing, "")
+    monkeypatch.setattr(LIMIT, estimate_tokens(payload) // 2)
+
+    payloads = split_batch(batch)
+
+    assert len(payloads) == 1
+    assert not request_fits(payloads[0])
+
+
 def test_captured_run_forced_to_split_keeps_every_subject_once(monkeypatch: pytest.MonkeyPatch) -> None:
     """At half the captured size, each request fits and the slices rebuild the captured run in order."""
     batch, payload, _response = _captured_batch()

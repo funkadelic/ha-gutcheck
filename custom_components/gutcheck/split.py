@@ -34,10 +34,11 @@ def split_batch(batch: Batch) -> list[SystemOneRequest]:
     """The run as one request when it fits, else as consecutive slices that each fit.
 
     A lone subject too large for any request still goes out alone, so the
-    budget gate's own size check refuses it.
+    budget gate's own size check refuses it. So does a batch that never said
+    how to split, rather than failing on a missing state key.
     """
     whole: SystemOneRequest = {"state": batch.state, "model": MODEL, "questions": batch.questions}
-    if len(batch.questions) < 2 or request_fits(whole):
+    if len(batch.questions) < 2 or not (batch.list_key and batch.template) or request_fits(whole):
         return [whole]
     ids = list(batch.questions)
     payloads: list[SystemOneRequest] = []
