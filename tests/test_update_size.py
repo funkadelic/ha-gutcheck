@@ -194,7 +194,8 @@ async def test_an_update_cut_by_the_cap_keeps_its_prior_classification_and_its_c
 
     assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
     state = _sensor_state(hass, entry, RECIPE_UPDATES)
-    assert state.state == str(MAX_UPDATES_PER_RUN + 1)
+    assert state.state == "1"
+    assert sum(state.attributes["counts"].values()) == MAX_UPDATES_PER_RUN + 1
     assert state.attributes["items"][OPTION_POSSIBLY_BREAKING] == [classified_before]
 
 

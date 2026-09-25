@@ -116,13 +116,13 @@ A restored entity is one its integration no longer provides. The health check so
 
 ### Sensors
 
-Each enabled check gets one sensor.
+Each enabled check gets one sensor. Its state is how many of that check's Repairs cards are open, not counting cards you ignored, and it changes as soon as a card is ignored, fixed or cleared. The size of every group is in its `counts` attribute.
 
-`sensor.gut_check_home_health_check` shows the number of entities it sorted confidently (expected plus worth fixing plus safe to remove). Its attributes carry the full list for each group, plus an `unsure` list for anything below the confidence threshold or that did not clearly fit any group. Unsure entities are never counted in the sensor's number, never turned into a Repairs card, and never treated as worth fixing. An unsure entity can also carry a `lean`: `needs_attention` when worth fixing and safe to remove together reach 70 percent probability, or `expected` when expected alone does. A lean never raises a Repairs card.
+`sensor.gut_check_home_health_check` counts the open worth-fixing cards. Its attributes carry the full list for each group, plus an `unsure` list for anything below the confidence threshold or that did not clearly fit any group. Unsure entities are never turned into a Repairs card, and never treated as worth fixing. An unsure entity can also carry a `lean`: `needs_attention` when worth fixing and safe to remove together reach 70 percent probability, or `expected` when expected alone does. A lean never raises a Repairs card.
 
-`sensor.gut_check_update_review` shows the number of updates it scored confidently, split into routine, feature, and possibly breaking. Its attributes carry the full list for each level, plus an `unsure` list the same way. An update Gut Check already scored is re-read only when its installed, offered or skipped version changes, and one that landed in unsure is re-read on every run. Pressing the Run update review button re-reads every pending update whether or not anything changed, still at most 50 per run; the rest, and any update entity that is unavailable at the time, keep their last score until a later run reaches them.
+`sensor.gut_check_update_review` counts the open possibly-breaking cards, while every pending update is still scored routine, feature, or possibly breaking. Its attributes carry the full list for each level, plus an `unsure` list the same way. An update Gut Check already scored is re-read only when its installed, offered or skipped version changes, and one that landed in unsure is re-read on every run. Pressing the Run update review button re-reads every pending update whether or not anything changed, still at most 50 per run; the rest, and any update entity that is unavailable at the time, keep their last score until a later run reaches them.
 
-`sensor.gut_check_area_suggestions` shows the number of confident suggestions. Its attributes list each one with its suggested area and confidence, plus an `unsure` list for anything below the confidence threshold or where none of the listed areas clearly fit.
+`sensor.gut_check_area_suggestions` counts the suggestion cards waiting in Repairs. Suggestions held back by the ten-new-cards-per-run cap, and ones you chose not to have, are not counted. Its attributes list each one with its suggested area and confidence, plus an `unsure` list for anything below the confidence threshold or where none of the listed areas clearly fit.
 
 ### Repairs cards
 

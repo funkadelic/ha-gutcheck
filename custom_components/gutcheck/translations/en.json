@@ -61,7 +61,7 @@
         "name": "Tokens used today"
       },
       "cost_today": {
-        "name": "Cost today"
+        "name": "Token cost today"
       }
     },
     "button": {

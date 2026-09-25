@@ -6,7 +6,8 @@ from typing import Any
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import Event, HomeAssistant, callback
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -21,6 +22,7 @@ from .const import (
     ATTR_LAST_RUN,
     ATTR_REMAINING,
     ATTR_UNSURE,
+    DOMAIN,
     PRICE_PER_MTOK_USD,
     SIGNAL_BUDGET_UPDATED,
 )
@@ -111,7 +113,7 @@ class CostTodaySensor(_UsageSensorBase):
 
 
 class RecipeSummarySensor(CoordinatorEntity[RecipeCoordinator], SensorEntity):
-    """Count in state; items, unsure and the last payload in unrecorded attributes."""
+    """Open card count in state; items, unsure and the last payload in unrecorded attributes."""
 
     _attr_has_entity_name = True
     _attr_state_class = SensorStateClass.MEASUREMENT
@@ -127,6 +129,27 @@ class RecipeSummarySensor(CoordinatorEntity[RecipeCoordinator], SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_{coordinator.recipe.recipe_id}"
         self._attr_device_info = device_info(entry)
 
+    async def async_added_to_hass(self) -> None:
+        """Also redraw when one of this recipe's cards is ignored, fixed or cleared between runs."""
+        await super().async_added_to_hass()
+        self.async_on_remove(
+            self.hass.bus.async_listen(
+                ir.EVENT_REPAIRS_ISSUE_REGISTRY_UPDATED,
+                self._handle_issue_update,
+                event_filter=self._is_own_issue,
+            )
+        )
+
+    @callback
+    def _is_own_issue(self, event_data: ir.EventIssueRegistryUpdatedData) -> bool:
+        """True for an issue this recipe raised."""
+        return event_data["domain"] == DOMAIN and event_data["issue_id"].startswith(self._recipe_coordinator.recipe.issue_prefix)
+
+    @callback
+    def _handle_issue_update(self, _event: Event[ir.EventIssueRegistryUpdatedData]) -> None:
+        """Recount the open cards."""
+        self.async_write_ha_state()
+
     @property
     def _data(self) -> RecipeResult | None:
         """The coordinator's latest result, or None before the first run completes."""
@@ -134,11 +157,18 @@ class RecipeSummarySensor(CoordinatorEntity[RecipeCoordinator], SensorEntity):
 
     @property
     def native_value(self) -> int | None:
-        """Sum of every option's count, or None before the first run completes."""
+        """Open, unignored Repairs cards this recipe raised, or None before the first run completes."""
         data = self._data
         if data is None:
             return None
-        return sum(data["counts"].values(), start=0)
+        prefix = self._recipe_coordinator.recipe.issue_prefix
+        # Only active issues show in Repairs; a stored one stays inactive
+        # after a restart until this recipe's next run or restore recreates it.
+        return sum(
+            1
+            for (domain, issue_id), issue in ir.async_get(self.hass).issues.items()
+            if domain == DOMAIN and issue_id.startswith(prefix) and issue.active and issue.dismissed_version is None
+        )
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:

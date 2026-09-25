@@ -55,7 +55,7 @@ async def test_restart_within_a_week_restores_the_sensor_and_cards_with_no_reque
     assert len(posted_bodies(aioclient_mock)) == 1
     state = hass.states.get(areas_sensor_entity_id(hass, mock_config_entry))
     assert state is not None
-    assert state.state == "1"
+    assert state.state == "0"
     assert len(state.attributes["items"]["suggested"]) == 1
     issue = ir.async_get(hass).async_get_issue(DOMAIN, issue_id)
     assert issue is not None

@@ -17,6 +17,7 @@ from ..const import (
     UPDATE_CRITERIA,
     UPDATE_INSTRUCTIONS,
     UPDATE_OPTIONS,
+    UPDATES_ISSUE_PREFIX,
 )
 from ..models import Question
 from .gate import gate_score
@@ -34,6 +35,7 @@ class UpdateRecipe:
 
     recipe_id = RECIPE_UPDATES
     options: tuple[str, ...] = UPDATE_OPTIONS
+    issue_prefix = UPDATES_ISSUE_PREFIX
     # Every field a restore reads off a stored item before the next run replaces it.
     stored_item_keys: frozenset[str] = frozenset({"entity_id", "registry_id", "latest_version"})
 

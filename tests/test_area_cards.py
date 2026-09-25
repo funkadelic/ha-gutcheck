@@ -201,6 +201,7 @@ async def test_twelve_confident_devices_yield_ten_cards_most_confident_first_the
     state = hass.states.get(areas_sensor_entity_id(hass, mock_config_entry))
     assert state is not None
     assert len(state.attributes["items"]["suggested"]) == 12
+    assert state.state == str(MAX_NEW_AREA_CARDS_PER_RUN)
 
     card_ids = {
         issue_id for domain, issue_id in ir.async_get(hass).issues if domain == DOMAIN and issue_id.startswith(AREA_ISSUE_PREFIX)
@@ -219,6 +220,10 @@ async def test_twelve_confident_devices_yield_ten_cards_most_confident_first_the
         issue_id for domain, issue_id in ir.async_get(hass).issues if domain == DOMAIN and issue_id.startswith(AREA_ISSUE_PREFIX)
     }
     assert len(card_ids_after) == 12
+
+    state_after = hass.states.get(areas_sensor_entity_id(hass, mock_config_entry))
+    assert state_after is not None
+    assert state_after.state == "12"
 
 
 async def test_three_open_cards_plus_twenty_five_new_confident_suggestions_yield_thirteen_cards(

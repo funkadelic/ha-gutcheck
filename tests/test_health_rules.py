@@ -69,7 +69,7 @@ async def test_leftover_carries_forward_while_the_ordinary_entity_is_asked(
 
     state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
     assert state is not None
-    assert state.state == "2"
+    assert state.state == "1"
     safe_to_remove = state.attributes["items"][OPTION_SAFE_TO_REMOVE]
     assert [item["entity_id"] for item in safe_to_remove] == [leftover.entity_id]
     assert "confidence" not in safe_to_remove[0]
@@ -106,7 +106,7 @@ async def test_all_leftover_run_sends_nothing(
     assert posted_bodies(aioclient_mock) == []
     state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
     assert state is not None
-    assert state.state == "1"
+    assert state.state == "0"
     assert [item["entity_id"] for item in state.attributes["items"][OPTION_SAFE_TO_REMOVE]] == [leftover.entity_id]
 
     budget = mock_config_entry.runtime_data.budget
