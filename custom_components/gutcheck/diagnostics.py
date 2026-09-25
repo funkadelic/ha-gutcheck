@@ -10,6 +10,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.diagnostics import async_redact_data
+from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import CONF_API_KEY
 from homeassistant.core import HomeAssistant
 
@@ -24,12 +25,17 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: GutChec
 
     Nothing is awaited, so a download cannot race a recipe run.
     """
-    data = entry.runtime_data
     payload: dict[str, Any] = {
         "entry": {
             "data": dict(entry.data),
             "options": dict(entry.options),
         },
+    }
+    # HA serves this view for any entry; runtime data exists only once setup finished.
+    if entry.state is not ConfigEntryState.LOADED:
+        return async_redact_data(payload, TO_REDACT)
+    data = entry.runtime_data
+    payload |= {
         "budget": {
             "daily_budget": data.budget.daily_budget,
             "spent_today": data.budget.spent_today,

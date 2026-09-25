@@ -123,6 +123,7 @@ async def test_a_never_run_recipe_dumps_as_null(hass: HomeAssistant, mock_config
     budget = BudgetGate(hass, client, 150_000)
     await budget.async_load()
     mock_config_entry.add_to_hass(hass)
+    mock_config_entry.mock_state(hass, config_entries.ConfigEntryState.LOADED)
     mock_config_entry.runtime_data = GutCheckData(
         client=client, budget=budget, coordinators={RECIPE_HEALTH: SimpleNamespace(data=None)}
     )
@@ -150,3 +151,19 @@ async def test_an_entry_with_every_recipe_off_dumps_an_empty_recipe_map(
     result = await get_diagnostics_for_config_entry(hass, hass_client, entry)
 
     assert result["recipes"] == {}
+
+
+async def test_an_entry_that_never_finished_setup_still_downloads(
+    hass: HomeAssistant,
+    hass_client: ClientSessionGenerator,
+) -> None:
+    """A setup-retry entry has no runtime data; the download carries the entry alone."""
+    assert await async_setup_component(hass, "diagnostics", {})
+    entry = MockConfigEntry(domain=DOMAIN, data={CONF_API_KEY: " "}, options={CONF_HEALTH_ENABLED: False})
+    entry.add_to_hass(hass)
+    await hass.config_entries.async_setup(entry.entry_id)
+    assert entry.state is config_entries.ConfigEntryState.SETUP_RETRY
+
+    result = await get_diagnostics_for_config_entry(hass, hass_client, entry)
+
+    assert result == {"entry": {"data": {CONF_API_KEY: REDACTED}, "options": {CONF_HEALTH_ENABLED: False}}}
