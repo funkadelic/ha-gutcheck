@@ -1,0 +1,22 @@
+tests/test_diagnostics.py
+  s_069908700551fe::t_289d21431b986b 56-112,125,129,131-152
+  s_069908700551fe::t_d0170ff7b390a9 113-124,126-128,130
+  s_069908700551fe::t_e0ff66e8857346 7,9,13,23-29,32
+  s_069908700551fe::t_5278f2ad5bc654 6,14,20-22,30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "225750fdbb2ae44db3ccced5e9a2afb7a6ad367e",
+  "prompts": {},
+  "sessions": {
+    "s_069908700551fe": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e951db7-9589-4a7e-9fde-deecbb81d80a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
