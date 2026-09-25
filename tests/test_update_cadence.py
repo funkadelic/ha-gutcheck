@@ -19,7 +19,7 @@ from custom_components.gutcheck.const import (
     RECIPE_UPDATES,
     UPDATES_ISSUE_PREFIX,
 )
-from custom_components.gutcheck.recipes.base import RecipeCoordinator
+from custom_components.gutcheck.coordinator import RecipeCoordinator
 
 from .conftest import api_response, posted_bodies, register_jev_responses, register_pending_update, score_answer
 

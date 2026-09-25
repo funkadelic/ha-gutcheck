@@ -1,0 +1,41 @@
+# hassfest never opens this file for a custom integration (validate_iqs_file()
+# returns early when not integration.core), so tests/test_quality_scale.py in
+# this repo is the only thing keeping the claim below honest.
+rules:
+  action-setup:
+    status: exempt
+    comment: No services.async_register call exists anywhere in this integration.
+  # const.py:46 sets RECIPE_INTERVAL to a 7-day timedelta; button.py gives every
+  # recipe a button to run it on demand between those runs.
+  appropriate-polling: done
+  # brand/icon.png and brand/logo.png ship in the release asset, and every HA
+  # release from the hacs.json minimum (2026.9.0) serves them from there.
+  brands: done
+  common-modules: done
+  config-flow: done
+  # pyproject.toml:2 sets fail_under = 100 under [tool.coverage.report], and
+  # tests/test_config_flow.py exists, so the config flow's coverage is enforced
+  # by the repo-wide gate rather than by a rule-specific one.
+  config-flow-test-coverage: done
+  dependency-transparency: done
+  docs-actions:
+    status: exempt
+    comment: No services.async_register call exists anywhere in this integration.
+  docs-conditions:
+    status: exempt
+    comment: This integration does not provide any conditions.
+  docs-high-level-description: done
+  docs-installation-instructions: done
+  docs-removal-instructions: done
+  docs-triggers:
+    status: exempt
+    comment: This integration does not provide any triggers.
+  entity-event-setup:
+    status: exempt
+    comment: No entity subscribes to the event bus; all state arrives through the coordinator refresh cycle.
+  entity-unique-id: done
+  has-entity-name: done
+  runtime-data: done
+  test-before-configure: done
+  test-before-setup: done
+  unique-config-entry: done

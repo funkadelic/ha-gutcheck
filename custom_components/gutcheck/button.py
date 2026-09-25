@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import GutCheckConfigEntry, device_info
-from .recipes.base import RecipeCoordinator
+from .coordinator import RecipeCoordinator
 
 
 async def async_setup_entry(

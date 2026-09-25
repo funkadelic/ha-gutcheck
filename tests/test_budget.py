@@ -31,7 +31,7 @@ from custom_components.gutcheck.const import (
     RECIPE_HEALTH,
     STORE_VERSION,
 )
-from custom_components.gutcheck.recipes.base import RecipeCoordinator
+from custom_components.gutcheck.coordinator import RecipeCoordinator
 from custom_components.gutcheck.recipes.shapes import Batch, RecipeResult
 
 from .conftest import api_response, choice_answer, health_sensor_entity_id, posted_bodies, register_jev_responses

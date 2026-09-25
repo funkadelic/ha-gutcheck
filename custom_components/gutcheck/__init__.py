@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_API_KEY, Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
@@ -32,8 +33,8 @@ from .const import (
     STORE_VERSION,
     UPDATES_ISSUE_PREFIX,
 )
+from .coordinator import RecipeCoordinator
 from .recipes.areas import AreaRecipe
-from .recipes.base import RecipeCoordinator
 from .recipes.health import HealthRecipe
 from .recipes.shapes import recipe_store_key
 from .recipes.updates import UpdateRecipe
@@ -74,7 +75,11 @@ type GutCheckConfigEntry = ConfigEntry[GutCheckData]
 
 async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> bool:
     """Set up Gut Check from a config entry."""
-    client = GutCheckClient(async_get_clientsession(hass), entry.data[CONF_API_KEY])
+    api_key = entry.data.get(CONF_API_KEY)
+    if not isinstance(api_key, str) or not api_key.strip():
+        raise ConfigEntryAuthFailed("stored api key is missing or blank")
+
+    client = GutCheckClient(async_get_clientsession(hass), api_key)
     budget = BudgetGate(hass, client, entry.options.get(CONF_DAILY_BUDGET, DEFAULT_DAILY_BUDGET))
     await budget.async_load()
 

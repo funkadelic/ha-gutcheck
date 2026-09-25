@@ -40,9 +40,32 @@ jobs:
 
       - name: Package integration
         if: ${{ steps.release.outputs.release_created }}
+        env:
+          TAG_NAME: ${{ steps.release.outputs.tag_name }}
         run: |
+          set -euo pipefail
           cd custom_components/gutcheck
           zip -r ../../gutcheck.zip .
+          cd ../..
+
+          listing=$(unzip -Z1 gutcheck.zip)
+
+          if ! grep -qx manifest.json <<< "$listing"; then
+            echo "::error::gutcheck.zip has no manifest.json at its archive root."
+            exit 1
+          fi
+
+          if grep -q '^custom_components/' <<< "$listing"; then
+            echo "::error::gutcheck.zip is wrapped in a custom_components/ directory instead of being zipped from inside it."
+            exit 1
+          fi
+
+          zip_version=$(unzip -p gutcheck.zip manifest.json | jq -r .version)
+          tag_version="${TAG_NAME#v}"
+          if [ "$zip_version" != "$tag_version" ]; then
+            echo "::error::gutcheck.zip's manifest.json version ($zip_version) does not match the release tag ($TAG_NAME)."
+            exit 1
+          fi
 
       - name: Upload release asset
         if: ${{ steps.release.outputs.release_created }}

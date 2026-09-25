@@ -1,4 +1,4 @@
-# Gut Check
+# ha-gutcheck
 
 Home Assistant is good at following rules you write. It isn't good at judgment calls like "is this a problem?", "is now a good time?", or "should I bother anyone about this?" Gut Check adds a fast AI that makes those small calls, tells you how sure it is, and asks you instead of guessing when it isn't sure.
 
@@ -40,6 +40,8 @@ For each pending update, Gut Check sends the integration name, the installed and
 
 To see exactly what was sent on the last completed run, open **Developer tools > States**, find the sensor, and look at its `last_payload` attribute. A run that fails partway leaves the previous run's payload in place.
 
+The integration's three-dot menu also offers a diagnostics download. It replaces the API key with a redacted marker; everything else, your device and area names and the last payload among them, comes through as it is, so read the file before attaching it to an issue.
+
 For each device with no area, Gut Check sends its name (as you or its maker named it, cleaned and shortened), manufacturer, model, integration, and the kinds and device classes of its entities, plus your existing area names as the options it can pick from. It never sends entity names or entity IDs, never another device's area, and never the area of a hub or account the device sits behind. The device's name is read only as a description, never as an instruction.
 
 ## Budget
@@ -68,7 +70,7 @@ Gut Check never controls a lock, alarm panel, garage door or cover, and the heal
 
 ## Install
 
-Add this repository to HACS as a custom repository (category: Integration), then install Gut Check from HACS as usual.
+HACS must already be installed; see [hacs.xyz](https://hacs.xyz) if it is not. Add this repository to HACS as a custom repository (category: Integration), then install Gut Check from HACS as usual.
 
 `https://github.com/funkadelic/ha-gutcheck`
 
@@ -77,3 +79,9 @@ Add this repository to HACS as a custom repository (category: Integration), then
 Add the integration from **Settings > Devices & services**, then paste the API key from [console.typesafe.ai/keys](https://console.typesafe.ai/keys). Gut Check tries the key with one cheap question before creating the entry, so a wrong one is caught right away rather than at the first run.
 
 If the key is ever rejected later, Home Assistant opens a repair prompting you for a new one, and the health check stays unavailable until you supply it.
+
+## Remove
+
+Delete the integration from **Settings > Devices & services**. That removes its entities, clears every Repairs card it created (ignored ones included), and deletes its stored budget and recipe results. Then remove the download from HACS.
+
+Nothing Gut Check suggested and you accepted is undone: a device you moved to an area, for example, stays where you put it.
