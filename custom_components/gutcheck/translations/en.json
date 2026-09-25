@@ -34,12 +34,14 @@
           "health_enabled": "Run the weekly home health check",
           "updates_enabled": "Run the weekly update review",
           "areas_enabled": "Run the weekly area suggestions",
+          "device_class_enabled": "Run the weekly device class suggestions",
           "daily_budget": "Daily token budget (input tokens)",
           "critical_label": "Critical label"
         },
         "data_description": {
           "updates_enabled": "Scores pending updates as routine, feature, or possibly breaking. Advisory only, never installs anything.",
           "areas_enabled": "Suggests an existing area for each device that has none. Nothing is assigned until you confirm a suggestion in Repairs.",
+          "device_class_enabled": "Suggests a device class for sensors that report a unit but have none. Nothing is set until you confirm a suggestion in Repairs.",
           "daily_budget": "A hard stop for the day. It resets at local midnight.",
           "critical_label": "Entities or devices with this label are never sent or checked. Locks, alarms and covers are never checked either, label or not."
         }

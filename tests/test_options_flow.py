@@ -18,6 +18,7 @@ from custom_components.gutcheck.const import (
     CONF_AREAS_ENABLED,
     CONF_CRITICAL_LABEL,
     CONF_DAILY_BUDGET,
+    CONF_DEVICE_CLASS_ENABLED,
     CONF_HEALTH_ENABLED,
     CONF_UPDATES_ENABLED,
     DEFAULT_DAILY_BUDGET,
@@ -84,6 +85,7 @@ async def test_defaults_apply_when_options_never_saved(
     defaults = _schema_defaults(result["data_schema"])
     assert defaults[CONF_HEALTH_ENABLED] is True
     assert defaults[CONF_AREAS_ENABLED] is True
+    assert defaults[CONF_DEVICE_CLASS_ENABLED] is False
     assert defaults[CONF_DAILY_BUDGET] == DEFAULT_DAILY_BUDGET
     assert CONF_CRITICAL_LABEL not in defaults
 

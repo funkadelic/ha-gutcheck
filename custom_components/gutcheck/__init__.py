@@ -26,9 +26,11 @@ from .const import (
     CONF_HEALTH_ENABLED,
     CONF_UPDATES_ENABLED,
     DEFAULT_DAILY_BUDGET,
+    DEVICE_CLASS_ISSUE_PREFIX,
     DOMAIN,
     HEALTH_ISSUE_PREFIX,
     RECIPE_AREAS,
+    RECIPE_DEVICE_CLASS,
     RECIPE_HEALTH,
     RECIPE_UPDATES,
     STORE_VERSION,
@@ -106,17 +108,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
         area_recipe = AreaRecipe(entry.options.get(CONF_CRITICAL_LABEL))
         coordinators[area_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, area_recipe)
     else:
-        # Only this recipe keeps ignored cards on disable: an ignored area
-        # card is the one record that the user rejected that suggestion, and
-        # switching the recipe off and on must not bring it back.
+        # An ignored area card is the one record that the user rejected that
+        # suggestion, and switching the recipe off and on must not bring it back.
         async_delete_issues(hass, AREA_ISSUE_PREFIX, keep_ignored=True)
         _async_remove_recipe_entities(hass, entry, RECIPE_AREAS)
 
-    # Off until switched on: an upgraded install must not start raising cards
-    # unasked. The options toggle and disabled branch follow in a later plan.
+    # Off by default, unlike the other three: an upgraded install must not
+    # start raising device class cards unasked (DCLS-05).
     if entry.options.get(CONF_DEVICE_CLASS_ENABLED, False):
         device_class_recipe = DeviceClassRecipe(entry.options.get(CONF_CRITICAL_LABEL))
         coordinators[device_class_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, device_class_recipe)
+    else:
+        # An ignored device class card is the one record that the user
+        # rejected that suggestion, and switching the recipe off and on must
+        # not bring it back.
+        async_delete_issues(hass, DEVICE_CLASS_ISSUE_PREFIX, keep_ignored=True)
+        _async_remove_recipe_entities(hass, entry, RECIPE_DEVICE_CLASS)
 
     entry.runtime_data = GutCheckData(client=client, budget=budget, coordinators=coordinators)
     entry.async_on_unload(budget.async_start())
