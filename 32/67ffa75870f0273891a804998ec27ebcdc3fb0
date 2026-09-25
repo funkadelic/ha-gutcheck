@@ -1,0 +1,26 @@
+custom_components/gutcheck/sensor.py
+  s_4ae744b3f5c527::t_5e2aa195e187b6 165
+custom_components/gutcheck/recipes/area_cards.py
+  s_4ae744b3f5c527::t_5e2aa195e187b6 140-141
+tests/test_area_restart.py
+  s_4ae744b3f5c527::t_7d479f85c94022 73
+  s_4ae744b3f5c527::t_e2b4dd0b535e0c 1-72,74-79
+custom_components/gutcheck/repairs.py
+  s_4ae744b3f5c527::t_5e2aa195e187b6 67,82,90
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3267ffa75870f0273891a804998ec27ebcdc3fb0",
+  "prompts": {},
+  "sessions": {
+    "s_4ae744b3f5c527": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "04674ba3-9e08-4ffe-8f6d-df209048e58e",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
