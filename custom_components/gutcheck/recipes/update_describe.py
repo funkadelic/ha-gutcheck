@@ -43,12 +43,24 @@ async def async_fetch_notes(
     )
 
 
-def describe(entry: er.RegistryEntry, state: State, fetched_notes: str | BaseException | None) -> tuple[Item, Item]:
-    """Build one update's model-visible state fields and its code-only subject fields.
+def describe_subject(entry: er.RegistryEntry, state: State) -> Item:
+    """Build one update's code-only subject fields, which never reach the model.
 
-    release_url lives only in the subject, never in the state, so it
-    never reaches the model and only ever reaches the Repairs card.
+    release_url lives only here, so it only ever reaches the Repairs card.
     """
+    attributes = state.attributes
+    return {
+        "entity_id": entry.entity_id,
+        "registry_id": entry.id,
+        "installed_version": attributes.get("installed_version"),
+        "latest_version": attributes.get("latest_version"),
+        "skipped_version": attributes.get("skipped_version"),
+        "release_url": attributes.get("release_url"),
+    }
+
+
+def describe(entry: er.RegistryEntry, state: State, fetched_notes: str | BaseException | None) -> Item:
+    """Build one update's model-visible state fields."""
     attributes = state.attributes
     installed_version = attributes.get("installed_version")
     latest_version = attributes.get("latest_version")
@@ -63,7 +75,7 @@ def describe(entry: er.RegistryEntry, state: State, fetched_notes: str | BaseExc
         notes_text = release_summary
     else:
         notes_text = fetched_notes or release_summary
-    state_item: Item = {
+    return {
         "integration": entry.platform,
         "installed_version": installed_version,
         "latest_version": latest_version,
@@ -72,12 +84,3 @@ def describe(entry: er.RegistryEntry, state: State, fetched_notes: str | BaseExc
         "release_summary": clean_release_notes(release_summary),
         "release_notes": clean_release_notes(notes_text),
     }
-    subject: Item = {
-        "entity_id": entry.entity_id,
-        "registry_id": entry.id,
-        "installed_version": installed_version,
-        "latest_version": latest_version,
-        "skipped_version": attributes.get("skipped_version"),
-        "release_url": attributes.get("release_url"),
-    }
-    return state_item, subject

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from ..const import (
-    OPTION_POSSIBLY_BREAKING,
     VERSION_JUMP_MAJOR,
     VERSION_JUMP_MINOR,
     VERSION_JUMP_PATCH,
@@ -19,24 +18,14 @@ _JUMP_RANK: dict[str, int] = {
 }
 
 
-def carry_bucket(
-    previous: RecipeResult | None,
-    options: tuple[str, ...],
-    state_item: Item,
-    subject: Item,
-) -> tuple[str, Item] | None:
-    """The bucket this update carries into with no question, or None to ask about it.
+def carry_prior(previous: RecipeResult | None, options: tuple[str, ...], subject: Item) -> tuple[str, Item] | None:
+    """The prior bucket this update carries into with no question, or None to ask about it.
 
-    An empty-notes, major-version-jump update is decided in code: both
-    inputs are already known, so it carries into possibly breaking with no
-    confidence or score, showing plainly that no model answer stands
-    behind it. Otherwise, a prior accepted item whose installed, latest and
-    skipped version all match carries forward with the prior confidence
-    and score. Anything else, including no prior item or one that landed
-    in unsure, means asking again.
+    A prior accepted item whose installed, latest and skipped version all
+    match carries forward with the prior confidence and score. Anything
+    else, including no prior item or one that landed in unsure, means
+    asking again. Needs no release notes, so it runs before the fetch.
     """
-    if not state_item["release_notes"] and state_item["version_jump"] == VERSION_JUMP_MAJOR:
-        return OPTION_POSSIBLY_BREAKING, dict(subject)
     if previous is None:
         return None
     registry_id = subject["registry_id"]
@@ -55,6 +44,15 @@ def carry_bucket(
                 return option, carried_item
             return None
     return None
+
+
+def decided_in_code(state_item: Item) -> bool:
+    """Whether an empty-notes, major-version-jump update goes straight to possibly breaking.
+
+    Both inputs are already known, so no model answer stands behind it and
+    it carries with no confidence or score.
+    """
+    return not state_item["release_notes"] and state_item["version_jump"] == VERSION_JUMP_MAJOR
 
 
 def most_significant_first(pairs: list[tuple[Item, Item]], cap: int) -> tuple[list[tuple[Item, Item]], list[tuple[Item, Item]]]:

@@ -21,7 +21,15 @@ from custom_components.gutcheck.const import (
 )
 from custom_components.gutcheck.coordinator import RecipeCoordinator
 
-from .conftest import api_response, posted_bodies, register_jev_responses, register_pending_update, score_answer
+from .conftest import (
+    FakeUpdateEntity,
+    api_response,
+    install_update_entities,
+    posted_bodies,
+    register_jev_responses,
+    register_pending_update,
+    score_answer,
+)
 
 
 async def _setup(hass: HomeAssistant) -> MockConfigEntry:
@@ -277,3 +285,26 @@ async def test_a_removed_update_entity_drops_out_with_no_pruning_step(
     assert state.state == "1"
     remaining_ids = {item["entity_id"] for bucket in state.attributes["items"].values() for item in bucket}
     assert remaining_ids == {kept.entity_id}
+
+
+async def test_carried_update_skips_the_notes_fetch(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
+    """A second run fetches release notes only for the update whose version moved, not the one carried forward."""
+    unchanged = register_pending_update(hass, "update_a")
+    moved = register_pending_update(hass, "update_b")
+    fakes = {unchanged.entity_id: FakeUpdateEntity(notes="Notes."), moved.entity_id: FakeUpdateEntity(notes="Notes.")}
+    install_update_entities(hass, fakes)
+    register_jev_responses(
+        aioclient_mock,
+        [
+            api_response({"u0": score_answer(0, 0.9), "u1": score_answer(0, 0.9)}),
+            api_response({"u0": score_answer(0, 0.9)}),
+        ],
+    )
+    entry = await _setup(hass)
+    assert [fake.fetches for fake in fakes.values()] == [1, 1]
+
+    register_pending_update(hass, "update_b", latest_version="2.1.0")
+    await _run_again(hass, entry)
+
+    assert [fake.fetches for fake in fakes.values()] == [1, 2]
+    assert len(posted_bodies(aioclient_mock)) == 2

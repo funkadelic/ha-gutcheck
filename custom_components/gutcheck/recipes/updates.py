@@ -22,8 +22,8 @@ from ..models import Question
 from .gate import gate_score
 from .safety import SafetyRules
 from .shapes import Batch, Item, RecipeResult
-from .update_cadence import carry_bucket, carry_unasked, most_significant_first
-from .update_describe import async_fetch_notes, describe
+from .update_cadence import carry_prior, carry_unasked, decided_in_code, most_significant_first
+from .update_describe import async_fetch_notes, describe, describe_subject
 from .update_repairs import UpdateIssueTracker
 
 _LOGGER = logging.getLogger(__name__)
@@ -85,16 +85,21 @@ class UpdateRecipe:
         classification they already have.
         """
         selected, silent = self._select(hass)
-        fetched_notes = await async_fetch_notes(hass, selected)
-        described = [describe(entry, state, notes) for (entry, state), notes in zip(selected, fetched_notes, strict=True)]
-
         carried: dict[str, list[Item]] = {}
-        to_ask: list[tuple[Item, Item]] = []
-        for state_item, subject in described:
-            carry = carry_bucket(None if force else previous, self.options, state_item, subject)
+        to_fetch: list[tuple[er.RegistryEntry, State]] = []
+        for entry, state in selected:
+            carry = carry_prior(None if force else previous, self.options, describe_subject(entry, state))
             if carry is not None:
-                option, carried_item = carry
-                carried.setdefault(option, []).append(carried_item)
+                carried.setdefault(carry[0], []).append(carry[1])
+            else:
+                to_fetch.append((entry, state))
+
+        fetched_notes = await async_fetch_notes(hass, to_fetch)
+        to_ask: list[tuple[Item, Item]] = []
+        for (entry, state), notes in zip(to_fetch, fetched_notes, strict=True):
+            state_item, subject = describe(entry, state, notes), describe_subject(entry, state)
+            if decided_in_code(state_item):
+                carried.setdefault(OPTION_POSSIBLY_BREAKING, []).append(subject)
             else:
                 to_ask.append((state_item, subject))
 
