@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.6.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.5.0...v0.6.0) (2026-09-25)
+
+
+### Added
+
+* show open repairs cards as each check's sensor state ([#39](https://github.com/funkadelic/ha-gutcheck/issues/39)) ([3d37436](https://github.com/funkadelic/ha-gutcheck/commit/3d37436521bad84709db5154bac3b71180bb574f))
+
+
+### Fixed
+
+* keep the daily budget accurate when a reload cuts a run short ([#37](https://github.com/funkadelic/ha-gutcheck/issues/37)) ([03e27f4](https://github.com/funkadelic/ha-gutcheck/commit/03e27f45218f2d04c25fa144d0a139d4690348ba))
+
 ## [0.5.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.4.1...v0.5.0) (2026-09-25)
 
 
