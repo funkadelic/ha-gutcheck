@@ -22,6 +22,7 @@ from .const import (
     CONF_AREAS_ENABLED,
     CONF_CRITICAL_LABEL,
     CONF_DAILY_BUDGET,
+    CONF_DEVICE_CLASS_ENABLED,
     CONF_HEALTH_ENABLED,
     CONF_UPDATES_ENABLED,
     DEFAULT_DAILY_BUDGET,
@@ -35,6 +36,7 @@ from .const import (
 )
 from .coordinator import RecipeCoordinator
 from .recipes.areas import AreaRecipe
+from .recipes.device_class import DeviceClassRecipe
 from .recipes.health import HealthRecipe
 from .recipes.shapes import recipe_store_key
 from .recipes.updates import UpdateRecipe
@@ -109,6 +111,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
         # switching the recipe off and on must not bring it back.
         async_delete_issues(hass, AREA_ISSUE_PREFIX, keep_ignored=True)
         _async_remove_recipe_entities(hass, entry, RECIPE_AREAS)
+
+    # Off until switched on: an upgraded install must not start raising cards
+    # unasked. The options toggle and disabled branch follow in a later plan.
+    if entry.options.get(CONF_DEVICE_CLASS_ENABLED, False):
+        device_class_recipe = DeviceClassRecipe(entry.options.get(CONF_CRITICAL_LABEL))
+        coordinators[device_class_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, device_class_recipe)
 
     entry.runtime_data = GutCheckData(client=client, budget=budget, coordinators=coordinators)
     entry.async_on_unload(budget.async_start())

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Protocol, TypedDict
@@ -15,6 +16,8 @@ from ..models import Question, SystemOneRequest
 Item = dict[str, str | float | bool | None]
 # One dict for a run sent as one request, or the requests in send order for a split run.
 LastPayload = SystemOneRequest | list[SystemOneRequest]
+# The data a fixable Repairs issue's flow reads back to act on the card.
+IssueData = Mapping[str, str | int | float | None]
 
 
 @dataclass

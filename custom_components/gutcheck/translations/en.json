@@ -57,6 +57,9 @@
       "areas": {
         "name": "Area suggestions"
       },
+      "device_class": {
+        "name": "Device class suggestions"
+      },
       "tokens_today": {
         "name": "Tokens used today"
       },
@@ -73,6 +76,9 @@
       },
       "areas_run": {
         "name": "Run area suggestions"
+      },
+      "device_class_run": {
+        "name": "Run device class suggestions"
       }
     }
   },
@@ -101,6 +107,25 @@
         "abort": {
           "suggestion_outdated": "The device or the area changed since this suggestion was made, so nothing was changed and the card was removed.",
           "suggestion_ignored": "Gut Check will stop suggesting an area for this device. The card is now in your ignored repairs."
+        }
+      }
+    },
+    "device_class_suggestion": {
+      "title": "{entity_id} has no device class",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Suggested device class",
+            "description": "Gut Check suggests **{class_name}** for `{entity_id}`, which reports in {unit}, and nothing changes unless you set it.",
+            "menu_options": {
+              "confirm": "Set this device class",
+              "ignore": "Don't suggest a device class for this sensor"
+            }
+          }
+        },
+        "abort": {
+          "suggestion_outdated": "The sensor changed since this suggestion was made, so nothing was changed and the card was removed.",
+          "suggestion_ignored": "Gut Check will stop suggesting a device class for this sensor. The card is now in your ignored repairs."
         }
       }
     }

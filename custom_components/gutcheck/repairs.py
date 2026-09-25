@@ -15,7 +15,7 @@ from homeassistant.helpers.event import async_track_state_change_event
 from .const import DOMAIN, NO_VERDICT_STATES
 
 # Re-export so the repairs platform loader finds this hook on this module.
-from .recipes.area_repairs import async_create_fix_flow as async_create_fix_flow
+from .recipes.suggestion_flow import async_create_fix_flow as async_create_fix_flow
 
 _LOGGER = logging.getLogger(__name__)
 

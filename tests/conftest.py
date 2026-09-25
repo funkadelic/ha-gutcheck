@@ -25,10 +25,15 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
 
 from custom_components.gutcheck.const import (
     API_URL,
+    CONF_AREAS_ENABLED,
+    CONF_DEVICE_CLASS_ENABLED,
+    CONF_HEALTH_ENABLED,
+    CONF_UPDATES_ENABLED,
     DOMAIN,
     HEALTH_OPTIONS,
     OPTION_NONE,
     RECIPE_AREAS,
+    RECIPE_DEVICE_CLASS,
     RECIPE_HEALTH,
     RECIPE_UPDATES,
     UPDATE_CRITERIA,
@@ -375,7 +380,100 @@ def register_area_device(
     return resolved
 
 
+def register_unit_sensor(
+    hass: HomeAssistant,
+    unique: str,
+    *,
+    unit: str | None,
+    name: str | None = "Sensor",
+    platform: str = "test",
+    device_class: str | None = None,
+    original_device_class: str | None = None,
+    entity_category: er.EntityCategory | None = None,
+    disabled_by: er.RegistryEntryDisabler | None = None,
+    labels: frozenset[str] = frozenset(),
+    device_name: str | None = None,
+    manufacturer: str | None = None,
+    model: str | None = None,
+    device_labels: frozenset[str] = frozenset(),
+) -> er.RegistryEntry:
+    """Register (or reuse) a sensor with the given unit and fields, for the device class recipe to select.
+
+    A device is created under its own config entry only when device_name,
+    manufacturer or model is given; device_class and labels are set through a
+    registry update after creation, since async_get_or_create has no
+    device_class parameter of its own (only original_device_class).
+    """
+    device_id: str | None = None
+    if device_name is not None or manufacturer is not None or model is not None:
+        config_entry = MockConfigEntry(domain=platform, unique_id=f"device_class_device_{platform}_{unique}")
+        config_entry.add_to_hass(hass)
+        device_registry = dr.async_get(hass)
+        device = device_registry.async_get_or_create(
+            config_entry_id=config_entry.entry_id,
+            identifiers={(platform, unique)},
+            name=device_name or "unnamed",
+            manufacturer=manufacturer,
+            model=model,
+        )
+        if device_labels:
+            device_registry.async_update_device(device.id, labels=set(device_labels))
+        device_id = device.id
+
+    entity_registry = er.async_get(hass)
+    entry = entity_registry.async_get_or_create(
+        "sensor",
+        platform,
+        unique,
+        device_id=device_id,
+        unit_of_measurement=unit,
+        original_name=name,
+        original_device_class=original_device_class,
+        entity_category=entity_category,
+        disabled_by=disabled_by,
+    )
+    if device_class is not None:
+        entity_registry.async_update_entity(entry.entity_id, device_class=device_class)
+    if labels:
+        entity_registry.async_update_entity(entry.entity_id, labels=set(labels))
+
+    resolved = entity_registry.async_get(entry.entity_id)
+    assert resolved is not None
+    return resolved
+
+
+def find_device_class_sensor(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
+    """The device class recipe's sensor entity id, or None when the recipe is switched off."""
+    return er.async_get(hass).async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{RECIPE_DEVICE_CLASS}")
+
+
+def device_class_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
+    """The device class recipe's sensor entity id, for the tests where it must exist."""
+    entity_id = find_device_class_sensor(hass, entry)
+    assert entity_id is not None
+    return entity_id
+
+
 @pytest.fixture
 def mock_config_entry() -> MockConfigEntry:
     """A Gut Check config entry with a test API key."""
     return MockConfigEntry(domain=DOMAIN, data={CONF_API_KEY: "test-key"})
+
+
+@pytest.fixture
+def device_class_entry() -> MockConfigEntry:
+    """A Gut Check config entry with only device class suggestions switched on.
+
+    Health, updates and areas are switched off, so every POST in a test using
+    this fixture is this recipe's own.
+    """
+    return MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_API_KEY: "test-key"},
+        options={
+            CONF_HEALTH_ENABLED: False,
+            CONF_UPDATES_ENABLED: False,
+            CONF_AREAS_ENABLED: False,
+            CONF_DEVICE_CLASS_ENABLED: True,
+        },
+    )
