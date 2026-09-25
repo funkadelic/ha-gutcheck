@@ -82,9 +82,14 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
         else:
             self.config_entry.async_on_unload(async_at_started(self.hass, self._handle_started_refresh))
 
-    async def _handle_scheduled_refresh(self, _now: datetime) -> None:
-        """Run the catch-up refresh scheduled 7 days after a restored last_run."""
-        await self.async_request_refresh()
+    @callback
+    def _handle_scheduled_refresh(self, _now: datetime) -> None:
+        """Start the catch-up run, due 7 days after a restored last_run, as a task unload cancels."""
+        self.config_entry.async_create_background_task(
+            self.hass,
+            self.async_refresh(),
+            f"{self.config_entry.entry_id}_{self.recipe.recipe_id}_catch_up",
+        )
 
     @callback
     def _handle_started_refresh(self, _hass: HomeAssistant) -> None:
