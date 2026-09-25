@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 import pytest
 from homeassistant.const import CONF_API_KEY
 from homeassistant.core import HomeAssistant
@@ -11,20 +9,15 @@ from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.budget import _estimate, estimate_tokens
+from custom_components.gutcheck.budget import _estimate, _reservation, estimate_tokens
 from custom_components.gutcheck.const import (
     DEFAULT_DAILY_BUDGET,
     DEVICE_TEXT_MAX_CHARS,
     DOMAIN,
-    MAX_UPDATES_PER_RUN,
     MODEL,
     RECIPE_AREAS,
-    RELEASE_NOTES_MAX_CHARS,
     REQUEST_TOKEN_LIMIT,
     STATE_TOKEN_LIMIT,
-    UPDATE_CRITERIA,
-    UPDATE_INSTRUCTIONS,
-    VERSION_JUMP_MAJOR,
 )
 from custom_components.gutcheck.recipes.areas import AreaRecipe
 
@@ -152,45 +145,22 @@ async def test_an_oversized_area_request_is_refused_with_no_partial_result(
     assert tokens_state.state == "0"
 
 
-def _full_size_update_body() -> dict[str, Any]:
-    """A synthetic full request body for MAX_UPDATES_PER_RUN full-size update items."""
-    updates = [
-        {
-            "integration": "homeassistant_supervisor",
-            "installed_version": "2026.9.1",
-            "latest_version": "2026.10.0",
-            "version_jump": VERSION_JUMP_MAJOR,
-            "title": "Home Assistant Supervisor 2026.10.0",
-            "release_summary": "x" * 255,
-            "release_notes": "x" * RELEASE_NOTES_MAX_CHARS,
-        }
-        for _ in range(MAX_UPDATES_PER_RUN)
-    ]
-    questions = {
-        f"u{index}": {"type": "score", "instructions": UPDATE_INSTRUCTIONS.format(index=index), "criteria": UPDATE_CRITERIA}
-        for index in range(MAX_UPDATES_PER_RUN)
-    }
-    return {"state": {"updates": updates}, "model": MODEL, "questions": questions}
-
-
-async def test_a_health_run_a_full_update_run_and_a_realistic_area_run_together_fit_the_default_budget(
+async def test_the_captured_installs_first_day_runs_reserved_at_once_fit_the_default_budget(
     hass: HomeAssistant,
 ) -> None:
-    """The real captured health payload, a full-size update run and a realistic area run together fit day one."""
+    """The captured install's health, update and area runs, admitted concurrently, still fit day one."""
     health_payload = load_fixture("captured", "health_payload.json")
-    health_factored = estimate_tokens(health_payload) * SAFETY_FACTOR
+    health_reserved = _reservation(health_payload)
 
-    update_factored = estimate_tokens(_full_size_update_body()) * SAFETY_FACTOR
+    update_payload = load_fixture("captured", "update_payload.json")
+    update_reserved = _reservation(update_payload)
 
     _build_realistic_devices(hass)
     recipe = AreaRecipe(critical_label=None)
     batch = await recipe.async_prepare(hass)
     area_body = {"state": batch.state, "model": MODEL, "questions": batch.questions}
-    area_factored = estimate_tokens(area_body) * SAFETY_FACTOR
+    area_reserved = _reservation(area_body)
 
-    total = health_factored + update_factored + area_factored
-    print(
-        f"first-day total, factored: health={health_factored:.0f} update={update_factored:.0f} "
-        f"area={area_factored:.0f} total={total:.0f}"
-    )
+    total = health_reserved + update_reserved + area_reserved
+    print(f"first-day total, reserved: health={health_reserved} update={update_reserved} area={area_reserved} total={total}")
     assert total <= DEFAULT_DAILY_BUDGET

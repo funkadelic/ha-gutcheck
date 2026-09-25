@@ -16,10 +16,16 @@ CONF_CRITICAL_LABEL: Final = "critical_label"
 CONF_HEALTH_ENABLED: Final = "health_enabled"
 CONF_AREAS_ENABLED: Final = "areas_enabled"
 
-# Both coordinators refresh on a fresh install's first day, at about 46,000
-# input tokens each; 100,000 left one button press that day over budget.
+# A fresh install's first-day runs reserve at once: about 80,000 for the
+# health check and 38,000 for area suggestions on a 1,300-entity install.
+# A full 50-update review adds about 71,000, so a large update backlog can
+# push one first-day run to the next day.
 DEFAULT_DAILY_BUDGET: Final = 150_000
 CHARS_PER_TOKEN: Final = 4
+# Budget reservations only, held until the API reports real usage; captured
+# runs have billed as few as 2.3 characters per token, so 2 stays under the
+# lowest captured ratio. Request caps and split.py keep CHARS_PER_TOKEN at 4.
+BUDGET_CHARS_PER_TOKEN: Final = 2
 REQUEST_TIMEOUT: Final = 30  # seconds
 RELEASE_NOTES_FETCH_TIMEOUT: Final = 10  # seconds
 

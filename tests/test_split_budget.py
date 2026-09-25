@@ -13,7 +13,7 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMockResponse,
 )
 
-from custom_components.gutcheck.budget import BudgetExceededError, BudgetGate, RunOverDailyBudgetError, estimate_tokens
+from custom_components.gutcheck.budget import BudgetExceededError, BudgetGate, RunOverDailyBudgetError, _reservation
 from custom_components.gutcheck.client import GutCheckApiError, GutCheckClient
 from custom_components.gutcheck.const import API_URL
 from custom_components.gutcheck.models import SystemOneRequest
@@ -24,7 +24,7 @@ PAYLOADS: list[SystemOneRequest] = [
     {"state": {"slice": index}, "model": "jev-latest", "questions": {f"q{index}": {"type": "noul", "instructions": "?"}}}
     for index in range(3)
 ]
-E1, E2, E3 = (estimate_tokens(payload) for payload in PAYLOADS)
+E1, E2, E3 = (_reservation(payload) for payload in PAYLOADS)
 FAILED = (500, {"error": "boom"})
 
 
@@ -67,7 +67,7 @@ async def _gate(hass: HomeAssistant, daily_budget: int = 100_000) -> BudgetGate:
 
 
 async def test_run_one_token_over_what_is_left_is_refused_whole(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
-    """A run whose summed estimate is one token over what is left sends nothing, even though its first request fits."""
+    """A run whose summed reservation is one token over what is left sends nothing, even though its first request fits."""
     _serve(aioclient_mock, [10, 20, 30])
     gate = await _gate(hass, E1 + E2 + E3 + 1)
     gate._data["spent"] = 2

@@ -20,7 +20,7 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMockResponse,
 )
 
-from custom_components.gutcheck.budget import BudgetExceededError, BudgetGate, RequestTooLargeError, estimate_tokens
+from custom_components.gutcheck.budget import BudgetExceededError, BudgetGate, RequestTooLargeError, _reservation, estimate_tokens
 from custom_components.gutcheck.client import GutCheckApiError, GutCheckClient
 from custom_components.gutcheck.const import (
     API_URL,
@@ -34,7 +34,7 @@ from custom_components.gutcheck.const import (
 from custom_components.gutcheck.coordinator import RecipeCoordinator
 from custom_components.gutcheck.recipes.shapes import Batch, RecipeResult
 
-from .conftest import api_response, choice_answer, health_sensor_entity_id, posted_bodies, register_jev_responses
+from .conftest import api_response, choice_answer, health_sensor_entity_id, load_fixture, posted_bodies, register_jev_responses
 
 PAYLOAD: dict[str, Any] = {
     "state": {"check": "ping"},
@@ -85,8 +85,8 @@ async def test_overlapping_calls_that_exactly_fit_both_succeed(hass: HomeAssista
     aioclient_mock.post(API_URL, side_effect=_side_effect)
 
     payload = _padded_payload(2_000)
-    estimate = estimate_tokens(payload)
-    gate = BudgetGate(hass, _client(hass), daily_budget=2 * estimate)
+    reservation = _reservation(payload)
+    gate = BudgetGate(hass, _client(hass), daily_budget=2 * reservation)
     await gate.async_load()
 
     task_a = asyncio.create_task(gate.async_ask(payload))
@@ -120,8 +120,8 @@ async def test_overlapping_calls_one_token_short_refuses_the_second(
     aioclient_mock.post(API_URL, side_effect=_side_effect)
 
     payload = _padded_payload(2_000)
-    estimate = estimate_tokens(payload)
-    gate = BudgetGate(hass, _client(hass), daily_budget=2 * estimate - 1)
+    reservation = _reservation(payload)
+    gate = BudgetGate(hass, _client(hass), daily_budget=2 * reservation - 1)
     await gate.async_load()
 
     task_a = asyncio.create_task(gate.async_ask(payload))
@@ -135,6 +135,29 @@ async def test_overlapping_calls_one_token_short_refuses_the_second(
 
     assert call_count == 1
     assert gate.spent_today == 300
+
+
+async def test_a_run_whose_real_bill_would_break_the_cap_is_refused(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
+) -> None:
+    """A payload whose real bill runs well over the 4-char estimate is refused rather than posted."""
+    payload = load_fixture("captured", "health_payload.json")
+    response = load_fixture("captured", "health_response.json")
+    aioclient_mock.post(API_URL, status=200, json=response)
+
+    gate = BudgetGate(hass, _client(hass), daily_budget=_reservation(payload))
+    await gate.async_load()
+    gate._data["spent"] = gate.daily_budget - estimate_tokens(payload)
+
+    # A 4-char estimate would admit this run: it fits what remains, but the
+    # real bill breaks the cap.
+    assert estimate_tokens(payload) <= gate.remaining < response["usage"]["input_tokens"]
+
+    with pytest.raises(BudgetExceededError):
+        await gate.async_ask(payload)
+
+    assert posted_bodies(aioclient_mock) == []
+    assert gate.spent_today == gate.daily_budget - estimate_tokens(payload)
 
 
 async def test_failed_call_releases_its_reservation(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:

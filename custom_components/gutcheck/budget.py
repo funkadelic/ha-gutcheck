@@ -16,7 +16,15 @@ from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
 from .client import GutCheckClient
-from .const import BUDGET_STORE_KEY, CHARS_PER_TOKEN, REQUEST_TOKEN_LIMIT, SIGNAL_BUDGET_UPDATED, STATE_TOKEN_LIMIT, STORE_VERSION
+from .const import (
+    BUDGET_CHARS_PER_TOKEN,
+    BUDGET_STORE_KEY,
+    CHARS_PER_TOKEN,
+    REQUEST_TOKEN_LIMIT,
+    SIGNAL_BUDGET_UPDATED,
+    STATE_TOKEN_LIMIT,
+    STORE_VERSION,
+)
 from .models import SystemOneRequest, SystemOneResponse
 
 _LOGGER = logging.getLogger(__name__)
@@ -49,6 +57,11 @@ def _estimate(value: Any) -> int:
 def estimate_tokens(payload: SystemOneRequest) -> int:
     """Estimate a whole request's token cost from its serialized character count."""
     return _estimate(payload)
+
+
+def _reservation(payload: SystemOneRequest) -> int:
+    """What a request holds against the daily budget until the API reports its real usage."""
+    return math.ceil(len(json.dumps(payload)) / BUDGET_CHARS_PER_TOKEN)
 
 
 def _sizes(payload: SystemOneRequest) -> tuple[int, int]:
@@ -163,7 +176,7 @@ class BudgetGate:
                 )
                 raise RequestTooLargeError("request exceeds the per-request token cap")
 
-        estimates = [estimate_tokens(payload) for payload in payloads]
+        estimates = [_reservation(payload) for payload in payloads]
         unsent = sum(estimates)
         if unsent > self._daily_budget:
             raise RunOverDailyBudgetError("run needs more than the whole daily budget")

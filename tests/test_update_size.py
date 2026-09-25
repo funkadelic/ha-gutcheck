@@ -12,11 +12,12 @@ from homeassistant.helpers import issue_registry as ir
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.budget import _estimate, estimate_tokens
+from custom_components.gutcheck.budget import _estimate, _reservation, estimate_tokens
 from custom_components.gutcheck.const import (
     DEFAULT_DAILY_BUDGET,
     DOMAIN,
     MAX_UPDATES_PER_RUN,
+    MODEL,
     OPTION_POSSIBLY_BREAKING,
     OPTION_WORTH_FIXING,
     RECIPE_HEALTH,
@@ -24,6 +25,8 @@ from custom_components.gutcheck.const import (
     RELEASE_NOTES_MAX_CHARS,
     REQUEST_TOKEN_LIMIT,
     STATE_TOKEN_LIMIT,
+    UPDATE_CRITERIA,
+    UPDATE_INSTRUCTIONS,
     UPDATES_ISSUE_PREFIX,
     VERSION_JUMP_MAJOR,
 )
@@ -120,6 +123,20 @@ def test_max_updates_per_run_is_set_from_the_measured_ceiling_with_the_safety_fa
     print(f"full-size update estimate, factored: {per_item:.0f} tokens; STATE_TOKEN_LIMIT trips past {ceiling} updates")
 
     assert ceiling >= MAX_UPDATES_PER_RUN
+
+
+def test_a_full_size_update_run_reserves_within_the_default_budget() -> None:
+    """The largest run update review sends, held at the budget reservation, still fits a day's default budget."""
+    body = {
+        "state": {"updates": [_full_size_state_item() for _ in range(MAX_UPDATES_PER_RUN)]},
+        "model": MODEL,
+        "questions": {
+            f"u{i}": {"type": "score", "instructions": UPDATE_INSTRUCTIONS.format(index=i), "criteria": UPDATE_CRITERIA}
+            for i in range(MAX_UPDATES_PER_RUN)
+        },
+    }
+
+    assert _reservation(body) <= DEFAULT_DAILY_BUDGET
 
 
 async def test_more_pending_than_the_cap_asks_about_the_highest_jump_ones_first(

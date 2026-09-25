@@ -66,7 +66,7 @@ If the key is ever rejected later, Home Assistant opens a repair asking for a ne
 
 ## Cost
 
-TypeSafe AI measures usage in tokens, roughly four characters of text each, and charges only for what Gut Check sends. Measured on a real install with about 1,300 entities:
+TypeSafe AI measures usage in tokens, about three characters of text each, and charges only for what Gut Check sends. Measured on a real install with about 1,300 entities:
 
 | Check | Tokens per run | Cost per run |
 | --- | --- | --- |
@@ -76,7 +76,7 @@ TypeSafe AI measures usage in tokens, roughly four characters of text each, and 
 
 Gut Check enforces a daily token budget so cost stays predictable. `sensor.gut_check_tokens_used_today` and `sensor.gut_check_cost_today` show what has been spent and what it cost, both resetting at local midnight. The default of 150,000 tokens covers the weekly schedule with room to spare; running checks by hand several times in one day can reach it.
 
-Gut Check sizes up every run before sending it and refuses one that would go over what is left, so a refused run spends nothing. A run on a large install can go out as several requests, and Gut Check weighs the whole run against what is left, so it never stops halfway because the budget ran out. The affected sensor goes unavailable until the budget resets or you raise it. A run that needs more than the whole daily budget is refused every day until you raise it. The size comes from the length of the request rather than an exact count, so a run that does go through can land a little over the cap before the counter is corrected to what the API reports.
+Gut Check sizes up every run before sending it and refuses one that would go over what is left, so a refused run spends nothing. A run on a large install can go out as several requests, and Gut Check weighs the whole run against what is left, so it never stops halfway because the budget ran out. The affected sensor goes unavailable until the budget resets or you raise it. A run that needs more than the whole daily budget is refused every day until you raise it. Gut Check sets aside more than any run has been billed so far, then corrects the counter to what the API reports, so a run that goes through should stay under the cap, and once the counter is over, every later run that day is refused.
 
 ## Options
 
