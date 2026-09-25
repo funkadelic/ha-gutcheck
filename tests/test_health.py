@@ -11,6 +11,10 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 from custom_components.gutcheck.const import (
     CONF_DAILY_BUDGET,
     DEFAULT_DAILY_BUDGET,
+    LEAN_NEEDS_ATTENTION,
+    OPTION_EXPECTED,
+    OPTION_NONE,
+    OPTION_SAFE_TO_REMOVE,
     OPTION_WORTH_FIXING,
 )
 
@@ -81,6 +85,40 @@ async def test_one_batched_post_fills_the_sensor(
     budget = mock_config_entry.runtime_data.budget
     assert budget.daily_budget == DEFAULT_DAILY_BUDGET
     assert budget.spent_today == 10
+
+
+async def test_unsure_entity_carries_its_lean_in_the_sensor(
+    hass: HomeAssistant,
+    aioclient_mock: AiohttpClientMocker,
+    mock_config_entry: MockConfigEntry,
+) -> None:
+    """An unsure answer whose probabilities clearly lean toward needing attention carries that lean."""
+    hass.set_state(CoreState.not_running)
+    _register_entities(hass)
+    answer = {
+        "type": "choice",
+        "choice": OPTION_WORTH_FIXING,
+        "confidence": 0.35,
+        "probabilities": {
+            OPTION_EXPECTED: 0.2,
+            OPTION_WORTH_FIXING: 0.45,
+            OPTION_SAFE_TO_REMOVE: 0.3,
+            OPTION_NONE: 0.05,
+        },
+    }
+    register_jev_responses(aioclient_mock, [api_response({"e0": answer})])
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    hass.bus.async_fire(EVENT_HOMEASSISTANT_STARTED)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    assert state is not None
+    assert state.state == "0"
+    assert sum(state.attributes["counts"].values()) == 0
+    assert state.attributes["unsure"][0]["lean"] == LEAN_NEEDS_ATTENTION
 
 
 async def test_budget_refusal_leaves_sensor_unavailable_with_no_post(

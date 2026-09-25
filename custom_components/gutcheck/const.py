@@ -79,6 +79,12 @@ OPTION_NONE: Final = "none_of_these"
 
 HEALTH_OPTIONS: Final = (OPTION_EXPECTED, OPTION_WORTH_FIXING, OPTION_SAFE_TO_REMOVE)
 
+# A summed-probability threshold for the coarser lean hint on unsure entries.
+# Its own constant, not the API's confidence field, which runs about 0.1
+# below the top probability.
+HEALTH_LEAN_THRESHOLD: Final = 0.7
+LEAN_NEEDS_ATTENTION: Final = "needs_attention"
+
 # A restored entity gone at least this many days, with its integration loaded
 # or no config entry, is sorted as safe to remove without asking. Capped at the
 # recorder's retention (purge_keep_days) when that is shorter.

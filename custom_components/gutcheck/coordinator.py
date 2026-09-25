@@ -123,7 +123,10 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
                 raise UpdateFailed("run was too large to send") from err
             except GutCheckApiError as err:
                 raise UpdateFailed("recipe run failed", retry_after=FAILED_RUN_RETRY.total_seconds()) from err
-            result = classify(batch, response, self.recipe.options, payload, self.recipe.gate)
+            # getattr: only the health recipe offers a lean; the Recipe Protocol stays untouched.
+            result = classify(
+                batch, response, self.recipe.options, payload, self.recipe.gate, lean=getattr(self.recipe, "lean", None)
+            )
 
         await self.recipe.async_act(self.hass, result)
         await self._store.async_save(result)
