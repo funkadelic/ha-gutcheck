@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import functools
 from datetime import datetime, timedelta
+from typing import Any
 
 from homeassistant.components.recorder import history
 from homeassistant.const import STATE_UNAVAILABLE
@@ -45,22 +46,7 @@ async def async_unavailable_since(hass: HomeAssistant, entity_ids: list[str]) ->
 
     result: dict[str, datetime | None] = {}
     for entity_id, rows in changes.items():
-        run_start: datetime | None = None
-        seen_available = False
-        for row in rows:
-            if not isinstance(row, State):
-                continue
-            if row.state == "":
-                # The recorder writes this marker when a state is removed from
-                # the state machine (a restart's remove-then-restore). Skipping
-                # it keeps that gap from looking like a recovery.
-                continue
-            if row.state == STATE_UNAVAILABLE:
-                if run_start is None:
-                    run_start = row.last_changed
-            else:
-                seen_available = True
-                run_start = None
+        run_start, seen_available = _current_outage(rows)
         if run_start is None:
             # The current outage has no retained row yet (not flushed), so the
             # caller falls back to last_changed rather than reading a full window.
@@ -70,3 +56,21 @@ async def async_unavailable_since(hass: HomeAssistant, entity_ids: list[str]) ->
         result[entity_id] = run_start if seen_available or run_start > start_time else None
 
     return keep_days, result
+
+
+def _current_outage(rows: list[State | dict[str, Any]]) -> tuple[datetime | None, bool]:
+    """Return (start of the trailing unavailable run, whether an available row was seen)."""
+    run_start: datetime | None = None
+    seen_available = False
+    for row in rows:
+        # An empty state is the marker the recorder writes when a state is removed
+        # (a restart's remove-then-restore). Skipping it keeps that gap from looking
+        # like a recovery.
+        if not isinstance(row, State) or row.state == "":
+            continue
+        if row.state != STATE_UNAVAILABLE:
+            seen_available = True
+            run_start = None
+        elif run_start is None:
+            run_start = row.last_changed
+    return run_start, seen_available
