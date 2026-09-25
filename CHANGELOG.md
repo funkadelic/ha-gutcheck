@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.1](https://github.com/funkadelic/ha-gutcheck/compare/v0.4.0...v0.4.1) (2026-09-25)
+
+
+### Changed
+
+* clear the open SonarCloud findings ([#31](https://github.com/funkadelic/ha-gutcheck/issues/31)) ([6e11d28](https://github.com/funkadelic/ha-gutcheck/commit/6e11d2874dda88fc9d22c8bc60aaf635523d4f18))
+
+
+### Other Changes
+
+* pass the app token's client-id instead of the deprecated app-id ([#29](https://github.com/funkadelic/ha-gutcheck/issues/29)) ([0c321d4](https://github.com/funkadelic/ha-gutcheck/commit/0c321d4c3fb83ae95dd67ebadb9a8b8a8c391297))
+
 ## [0.4.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.3.1...v0.4.0) (2026-09-25)
 
 
