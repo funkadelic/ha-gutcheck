@@ -233,9 +233,11 @@ class FakeUpdateEntity:
     notes: str | None = None
     raises: Exception | None = None
     hangs: bool = False
+    fetches: int = 0
 
     async def async_release_notes(self) -> str | None:
         """Return the configured notes, raise the configured exception, or hang forever."""
+        self.fetches += 1
         if self.hangs:
             await asyncio.Event().wait()
         if self.raises is not None:
