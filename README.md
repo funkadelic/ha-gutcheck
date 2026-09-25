@@ -2,7 +2,15 @@
 
 ![Gut Check](https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/custom_components/gutcheck/brand/logo.png)
 
+[![Build](https://github.com/funkadelic/ha-gutcheck/actions/workflows/tests.yml/badge.svg)](https://github.com/funkadelic/ha-gutcheck/actions/workflows/tests.yml)
+[![Codecov](https://img.shields.io/codecov/c/github/funkadelic/ha-gutcheck?logo=codecov)](https://codecov.io/gh/funkadelic/ha-gutcheck)
+[![Release](https://img.shields.io/github/release/funkadelic/ha-gutcheck.svg)](https://github.com/funkadelic/ha-gutcheck/releases)
+[![License](https://img.shields.io/github/license/funkadelic/ha-gutcheck.svg)](LICENSE)
+[![HACS](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz/docs/faq/custom_repositories/)
+
 Home Assistant is good at following rules you write. It isn't good at judgment calls like "is this a problem?", "is now a good time?", or "should I bother anyone about this?" Gut Check adds an AI that makes those small calls, shows you how sure it is, and leaves alone anything it isn't sure about. Nothing changes until you say so.
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=funkadelic&repository=ha-gutcheck&category=integration)
 
 ## How Gut Check decides
 
