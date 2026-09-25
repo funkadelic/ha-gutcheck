@@ -1,0 +1,25 @@
+tests/test_device_class_restart.py
+  s_4ae744b3f5c527::t_406347042341fd 47-48
+  s_4ae744b3f5c527::t_ba862a5d4efecd 1-46,49-121
+tests/test_device_class_fix_flow.py
+  s_4ae744b3f5c527::t_2b7bd25619899e 1-14,16-304
+  s_4ae744b3f5c527::t_b82c8cd3a8d7ca 15
+tests/test_device_class_reject.py
+  s_4ae744b3f5c527::t_7477a5095d354e 1-120
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "16a5dfe61edeadd710198ec3a0955a56dd8f92ca",
+  "prompts": {},
+  "sessions": {
+    "s_4ae744b3f5c527": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "04674ba3-9e08-4ffe-8f6d-df209048e58e",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
