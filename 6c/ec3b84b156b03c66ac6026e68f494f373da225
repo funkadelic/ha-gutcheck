@@ -1,0 +1,51 @@
+tests/test_update_cadence.py
+  s_e59b77fcad7659::t_5d309f88111693 277-279,287
+custom_components/gutcheck/recipes/updates.py
+  s_e59b77fcad7659::t_8a9a3e5e34788c 20
+  s_e59b77fcad7659::t_45ab9095097448 38
+tests/test_update_size.py
+  s_e59b77fcad7659::t_5709038f9b8215 197-198
+custom_components/gutcheck/recipes/shapes.py
+  s_e59b77fcad7659::t_363fa5b6c57354 52-53
+custom_components/gutcheck/recipes/health.py
+  s_e59b77fcad7659::t_eb180908593a16 60
+tests/test_updates.py
+  s_e59b77fcad7659::t_ef1a53b59783ac 106
+  s_e59b77fcad7659::t_124724a49c21ea 170
+custom_components/gutcheck/sensor.py
+  s_e59b77fcad7659::t_4ccf4b34996fe7 139,143-150
+  s_e59b77fcad7659::t_86caf74bdcce1d 10,25
+  s_e59b77fcad7659::t_66f847d69daf17 116
+tests/test_summary_sensor.py
+  s_e59b77fcad7659::t_366a0c59b97727 1-14,16-66,68-72,76-88
+  s_e59b77fcad7659::t_a8acbfd8c1556b 15
+  s_e59b77fcad7659::t_cc30470aaa3848 73-75
+  s_e59b77fcad7659::t_811f5f5a845c68 67
+tests/test_area_cards.py
+  s_e59b77fcad7659::t_0d4756eb60f9a2 204
+  s_e59b77fcad7659::t_9d473900ecf386 224-227
+custom_components/gutcheck/recipes/areas.py
+  s_e59b77fcad7659::t_5c98f871084236 11
+  s_e59b77fcad7659::t_c2c455d04bb8e9 27
+tests/test_area_restore.py
+  s_e59b77fcad7659::t_32498f622b5089 58
+tests/test_health_rules.py
+  s_e59b77fcad7659::t_5ec3ec2705b611 109
+  s_e59b77fcad7659::t_cc5201e937e9b5 72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6cec3b84b156b03c66ac6026e68f494f373da225",
+  "prompts": {},
+  "sessions": {
+    "s_e59b77fcad7659": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a08e295a-439d-4108-9761-9f1f957361b0",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
