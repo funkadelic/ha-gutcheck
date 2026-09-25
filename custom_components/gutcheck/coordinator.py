@@ -14,7 +14,7 @@ from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
-from .budget import BudgetExceededError, BudgetGate, RequestTooLargeError
+from .budget import BudgetExceededError, BudgetGate, RequestTooLargeError, RunOverDailyBudgetError
 from .client import GutCheckApiError, GutCheckAuthError
 from .const import DOMAIN, FAILED_RUN_RETRY, RECIPE_INTERVAL, STORE_VERSION
 from .models import SystemOneRequest, SystemOneResponse
@@ -109,6 +109,8 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
             raise UpdateFailed("daily budget reached", retry_after=_seconds_until_budget_retry()) from err
         except RequestTooLargeError as err:
             raise UpdateFailed("run was too large to send") from err
+        except RunOverDailyBudgetError as err:
+            raise UpdateFailed("run needs more than the whole daily budget; raise the budget to let it run") from err
         except GutCheckApiError as err:
             raise UpdateFailed("recipe run failed", retry_after=FAILED_RUN_RETRY.total_seconds()) from err
 

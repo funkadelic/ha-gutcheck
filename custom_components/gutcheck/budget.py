@@ -26,6 +26,10 @@ class BudgetExceededError(Exception):
     """Raised when a run would exceed what remains of the daily budget."""
 
 
+class RunOverDailyBudgetError(Exception):
+    """Raised when a run needs more than the whole daily budget, so waiting for midnight never helps."""
+
+
 class RequestTooLargeError(Exception):
     """Raised when a single request exceeds the per-request or per-state token cap."""
 
@@ -161,16 +165,20 @@ class BudgetGate:
 
         estimates = [estimate_tokens(payload) for payload in payloads]
         unsent = sum(estimates)
-        async with self._lock:
-            self._roll()
-            if self.spent_today + unsent > self._daily_budget:
-                raise BudgetExceededError("daily budget reached")
-            reservation_date = self._data["date"]
-            self._data["spent"] += unsent
-            await self._save_and_notify()
+        if unsent > self._daily_budget:
+            raise RunOverDailyBudgetError("run needs more than the whole daily budget")
 
+        reservation_date = ""
         responses: list[SystemOneResponse] = []
         try:
+            async with self._lock:
+                self._roll()
+                if self.spent_today + unsent > self._daily_budget:
+                    raise BudgetExceededError("daily budget reached")
+                reservation_date = self._data["date"]
+                self._data["spent"] += unsent
+                # Inside the try: a cancel during this save must still release the reservation.
+                await self._save_and_notify()
             for payload, estimate in zip(payloads, estimates, strict=True):
                 response = await self._client.async_ask(payload)
                 # Billed now, so a failure from here on must not release this estimate.
@@ -180,8 +188,9 @@ class BudgetGate:
                     await self._save_and_notify()
                 responses.append(response)
         except BaseException:
-            async with self._lock:
-                self._release(reservation_date, unsent)
-                await self._save_and_notify()
+            if reservation_date:
+                async with self._lock:
+                    self._release(reservation_date, unsent)
+                    await self._save_and_notify()
             raise
         return responses

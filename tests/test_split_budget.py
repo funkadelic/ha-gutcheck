@@ -13,7 +13,7 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMockResponse,
 )
 
-from custom_components.gutcheck.budget import BudgetExceededError, BudgetGate, estimate_tokens
+from custom_components.gutcheck.budget import BudgetExceededError, BudgetGate, RunOverDailyBudgetError, estimate_tokens
 from custom_components.gutcheck.client import GutCheckApiError, GutCheckClient
 from custom_components.gutcheck.const import API_URL
 from custom_components.gutcheck.models import SystemOneRequest
@@ -67,11 +67,50 @@ async def _gate(hass: HomeAssistant, daily_budget: int = 100_000) -> BudgetGate:
 
 
 async def test_run_one_token_over_what_is_left_is_refused_whole(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
-    """A run whose summed estimate is one token over the cap sends nothing, even though its first request fits."""
+    """A run whose summed estimate is one token over what is left sends nothing, even though its first request fits."""
+    _serve(aioclient_mock, [10, 20, 30])
+    gate = await _gate(hass, E1 + E2 + E3 + 1)
+    gate._data["spent"] = 2
+
+    with pytest.raises(BudgetExceededError):
+        await gate.async_ask_all(PAYLOADS)
+
+    assert posted_bodies(aioclient_mock) == []
+    assert gate.spent_today == 2
+
+
+async def test_run_over_the_whole_budget_is_refused_as_such(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
+    """A run bigger than the whole daily cap gets its own error, sends nothing and spends nothing."""
     _serve(aioclient_mock, [10, 20, 30])
     gate = await _gate(hass, E1 + E2 + E3 - 1)
 
-    with pytest.raises(BudgetExceededError):
+    with pytest.raises(RunOverDailyBudgetError):
+        await gate.async_ask_all(PAYLOADS)
+
+    assert posted_bodies(aioclient_mock) == []
+    assert gate.spent_today == 0
+
+
+async def test_cancel_during_the_reservation_save_releases_it(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A cancel while the reservation is being saved leaves nothing reserved and sends nothing."""
+    _serve(aioclient_mock, [10, 20, 30])
+    gate = await _gate(hass)
+    save = gate._store.async_save
+    calls = 0
+
+    async def _cancel_first(data: Any) -> None:
+        """Cancel the first save, the reservation's; let the release's save through."""
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            raise asyncio.CancelledError
+        await save(data)
+
+    monkeypatch.setattr(gate._store, "async_save", _cancel_first)
+
+    with pytest.raises(asyncio.CancelledError):
         await gate.async_ask_all(PAYLOADS)
 
     assert posted_bodies(aioclient_mock) == []

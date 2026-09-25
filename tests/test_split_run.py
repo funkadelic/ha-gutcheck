@@ -88,7 +88,8 @@ async def test_oversized_health_run_goes_out_as_several_requests(
 
     state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
     assert state is not None
-    assert sum(state.attributes["counts"].values()) + len(state.attributes["unsure"]) == 5
+    assert state.attributes["counts"][OPTION_EXPECTED] == 5
+    assert state.attributes["unsure"] == []
     assert state.attributes["last_payload"] == expected
     assert mock_config_entry.runtime_data.budget.spent_today == 60
 
@@ -157,6 +158,23 @@ async def test_lone_subject_too_large_for_any_request_still_fails(
 
     assert posted_bodies(aioclient_mock) == []
     assert coordinator.budget.spent_today == 0
+
+
+async def test_run_over_the_whole_daily_budget_says_to_raise_it(
+    hass: HomeAssistant,
+    aioclient_mock: AiohttpClientMocker,
+    mock_config_entry: MockConfigEntry,
+) -> None:
+    """A run bigger than the whole daily cap fails with a message pointing at the budget, not at midnight."""
+    register_unavailable_entity(hass, "split_0")
+    register_jev_responses(aioclient_mock, [])
+    coordinator = await _coordinator(hass, mock_config_entry)
+    coordinator.budget._daily_budget = 1
+
+    with pytest.raises(UpdateFailed, match="raise the budget"):
+        await coordinator._async_update_data()
+
+    assert posted_bodies(aioclient_mock) == []
 
 
 async def test_stored_single_request_payload_restores_without_a_call(
