@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/funkadelic/ha-gutcheck/compare/v0.3.0...v0.3.1) (2026-09-25)
+
+
+### Other Changes
+
+* add mutmut mutation testing ([#21](https://github.com/funkadelic/ha-gutcheck/issues/21)) ([02f447e](https://github.com/funkadelic/ha-gutcheck/commit/02f447e83c8d49ff3ba6c391f9b347079e25b42b))
+
 ## [0.3.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.2.2...v0.3.0) (2026-09-24)
 
 
