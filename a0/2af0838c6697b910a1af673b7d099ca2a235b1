@@ -1,0 +1,22 @@
+custom_components/gutcheck/recipes/gate.py
+  s_4ae744b3f5c527::t_5c60cc99fbe02a 85
+  s_4ae744b3f5c527::t_fe5a3598214c33 44
+  s_4ae744b3f5c527::t_fe4ea58bfac418 103-104
+  s_4ae744b3f5c527::t_9154c9f0defbb1 54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a02af0838c6697b910a1af673b7d099ca2a235b1",
+  "prompts": {},
+  "sessions": {
+    "s_4ae744b3f5c527": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "04674ba3-9e08-4ffe-8f6d-df209048e58e",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
