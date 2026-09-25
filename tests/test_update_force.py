@@ -2,16 +2,13 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
 from typing import Any
 
 from homeassistant.const import CONF_API_KEY, STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
-from homeassistant.helpers.update_coordinator import REQUEST_REFRESH_DEFAULT_COOLDOWN
-from homeassistant.util import dt as dt_util
-from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker, AiohttpClientMockResponse
 
 from custom_components.gutcheck.const import (
@@ -137,11 +134,6 @@ async def test_a_press_during_a_forced_run_forces_the_next_run_too(
     aioclient_mock.clear_requests()
     aioclient_mock.post(API_URL, side_effect=_press_mid_run)
     await _press(hass, entry)
-    assert len(posted_bodies(aioclient_mock)) == 1
-
-    # The mid-run press queued a debounced run for the end of the cooldown.
-    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=REQUEST_REFRESH_DEFAULT_COOLDOWN + 1))
-    await hass.async_block_till_done(wait_background_tasks=True)
 
     bodies = posted_bodies(aioclient_mock)
     assert len(bodies) == 2

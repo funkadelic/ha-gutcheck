@@ -38,6 +38,12 @@ class RecipeRunButton(ButtonEntity):
         self._attr_device_info = device_info(entry)
 
     async def async_press(self) -> None:
-        """Force a full re-score, then request an immediate recipe run."""
-        self._coordinator.force_full_rescore()
-        await self._coordinator.async_request_refresh()
+        """Force a full re-score, then start the run as a task the entry owns, so unload cancels it."""
+        coordinator = self._coordinator
+        coordinator.force_full_rescore()
+        # A debounced request can defer the run to a timer task that unload never cancels.
+        coordinator.config_entry.async_create_background_task(
+            self.hass,
+            coordinator.async_refresh(),
+            f"{coordinator.config_entry.entry_id}_{coordinator.recipe.recipe_id}_run",
+        )
