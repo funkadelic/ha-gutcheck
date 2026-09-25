@@ -101,6 +101,26 @@ def _asked_choice(question: Question, answer: object) -> str | None:
     return choice
 
 
+def _off_criteria(question: Question | None, answer: object) -> bool:
+    """Whether a choice answer names something outside its own question's criteria.
+
+    Only a choice question answered with a choice answer can be off-criteria;
+    anything else (a score question, a malformed answer) has no criteria to
+    be off from. A recipe's gate checks its own confidence and its own
+    allow-list, which can span every question in a run rather than one
+    question's own options, so this check is separate and always wins:
+    whatever the gate returns, an answer naming something its own question
+    never offered is never a suggestion.
+    """
+    if question is None or question.get("type") != "choice" or not isinstance(answer, dict) or answer.get("type") != "choice":
+        return False
+    choice = answer.get("choice")
+    if not isinstance(choice, str):
+        return False
+    criteria = question.get("criteria")
+    return not (isinstance(criteria, dict) and choice in criteria)
+
+
 def _seed(batch: Batch, allowed: tuple[str, ...]) -> tuple[dict[str, int], dict[str, list[Item]]]:
     """Counts and items, seeded from the batch's carried field.
 
@@ -168,7 +188,7 @@ def classify(
             choice = _asked_choice(question, answer)
             if choice is not None:
                 entry["choice"] = choice
-        chosen = gate(answer)
+        chosen = None if _off_criteria(question, answer) else gate(answer)
         if chosen is not None:
             items[chosen].append(entry)
             counts[chosen] += 1

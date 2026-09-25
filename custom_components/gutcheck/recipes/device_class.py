@@ -63,14 +63,25 @@ class DeviceClassRecipe:
         sensors: list[dict[str, Any]] = []
         questions: dict[str, Question] = {}
         subjects: dict[str, Item] = {}
+        decided: list[Item] = []
         for entry in selected:
             candidates = candidate_classes(entry.unit_of_measurement)
-            if len(candidates) < 2:
+            if not candidates:
+                continue
+            if len(candidates) == 1:
+                # Code-certain: only one Home Assistant class accepts this
+                # unit. classify() never runs on a carried item, so the
+                # confidence has to be set here, or the card sync's
+                # most-confident-first ranking would read it as 0.0 and sort
+                # every code-decided suggestion behind every model answer.
+                decided.append(
+                    {"registry_id": entry.id, "entity_id": entry.entity_id, "choice": candidates[0], "confidence": 1.0}
+                )
                 continue
             # index tracks how many sensors have been asked so far, never the
-            # loop position: a future code-decided sensor sitting between two
-            # asked ones must not desynchronize the question index from the
-            # state list split.py slices.
+            # loop position: a code-decided sensor sitting between two asked
+            # ones must not desynchronize the question index from the state
+            # list split.py slices.
             index = len(sensors)
             state_item, subject = describe(hass, entry)
             sensors.append(state_item)
@@ -82,11 +93,12 @@ class DeviceClassRecipe:
             }
             subjects[question_id] = subject
 
-        _LOGGER.debug("device class suggestions selected=%s asked=%s", len(selected), len(sensors))
+        _LOGGER.debug("device class suggestions selected=%s asked=%s decided=%s", len(selected), len(sensors), len(decided))
         return Batch(
             state={"sensors": sensors},
             questions=questions,
             subjects=subjects,
+            carried={OPTION_SUGGESTED: decided},
             list_key="sensors",
             template=DEVICE_CLASS_INSTRUCTIONS,
         )

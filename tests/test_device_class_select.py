@@ -5,17 +5,23 @@ from __future__ import annotations
 import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import issue_registry as ir
 
 from custom_components.gutcheck.budget import estimate_tokens
 from custom_components.gutcheck.const import (
     DEVICE_CLASS_CONFIDENCE_THRESHOLD,
     DEVICE_CLASS_INSTRUCTIONS,
+    DEVICE_CLASS_ISSUE_PREFIX,
+    DOMAIN,
     OPTION_NONE,
     OPTION_SUGGESTED,
 )
 from custom_components.gutcheck.recipes.device_class import DeviceClassRecipe
+from custom_components.gutcheck.recipes.device_class_cards import sync_device_class_cards
 from custom_components.gutcheck.recipes.device_class_describe import candidate_classes
+from custom_components.gutcheck.recipes.device_class_repairs import set_device_class
 from custom_components.gutcheck.recipes.gate import classify
+from custom_components.gutcheck.recipes.safety import SafetyRules
 from custom_components.gutcheck.split import split_batch
 
 from .conftest import area_answer, device_class_sensor_entity_id, posted_bodies, register_unit_sensor
@@ -265,3 +271,42 @@ async def test_sensors_are_asked_in_entity_id_order_and_two_runs_post_identical_
     assert first_batch.questions == second_batch.questions
     order = [subject["entity_id"] for subject in first_batch.subjects.values()]
     assert order == sorted(order)
+
+
+async def test_restore_resyncs_a_card_from_a_stored_result_with_no_api_call(hass: HomeAssistant) -> None:
+    """restore re-creates a card from a stored suggestion, without asking the model anything."""
+    sensor = register_unit_sensor(hass, "battery_pct", unit="%")
+    result = {
+        "last_run": "",
+        "counts": {},
+        "items": {
+            OPTION_SUGGESTED: [{"registry_id": sensor.id, "entity_id": sensor.entity_id, "choice": "battery", "confidence": 0.9}]
+        },
+        "unsure": [],
+        "last_payload": None,
+    }
+
+    await DeviceClassRecipe(critical_label=None).restore(hass, result)
+
+    issue = ir.async_get(hass).async_get_issue(DOMAIN, f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}")
+    assert issue is not None
+
+
+async def test_an_existing_card_is_swept_once_its_sensor_stops_qualifying(hass: HomeAssistant) -> None:
+    """An existing card for a sensor this run never suggested, and which no longer qualifies, is swept."""
+    sensor = register_unit_sensor(hass, "battery_pct", unit="%")
+    suggested = [{"registry_id": sensor.id, "choice": "battery", "confidence": 0.9}]
+    sync_device_class_cards(hass, SafetyRules(None), suggested, {"battery": "Battery"})
+    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
+
+    er.async_get(hass).async_update_entity(sensor.entity_id, device_class="battery")
+    sync_device_class_cards(hass, SafetyRules(None), [], {"battery": "Battery"})
+
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
+
+
+async def test_set_device_class_refuses_malformed_issue_data(hass: HomeAssistant) -> None:
+    """A card whose data is missing the registry id or the device class refuses to write anything."""
+    assert set_device_class(hass, SafetyRules(None), {"registry_id": "x"}) is False
+    assert set_device_class(hass, SafetyRules(None), {"device_class": "battery"}) is False
