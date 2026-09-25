@@ -1,0 +1,19 @@
+README.md
+  s_e59b77fcad7659::t_5946fbd3793966 119
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5b6a02ee52480ce0425212da181a7a6d664db14d",
+  "prompts": {},
+  "sessions": {
+    "s_e59b77fcad7659": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a08e295a-439d-4108-9761-9f1f957361b0",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
