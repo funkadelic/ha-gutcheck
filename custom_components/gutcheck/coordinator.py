@@ -14,12 +14,13 @@ from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
-from .budget import BudgetExceededError, BudgetGate, RequestTooLargeError
+from .budget import BudgetExceededError, BudgetGate, RequestTooLargeError, RunOverDailyBudgetError
 from .client import GutCheckApiError, GutCheckAuthError
-from .const import DOMAIN, FAILED_RUN_RETRY, MODEL, RECIPE_INTERVAL, STORE_VERSION
-from .models import SystemOneRequest
+from .const import DOMAIN, FAILED_RUN_RETRY, RECIPE_INTERVAL, STORE_VERSION
+from .models import SystemOneRequest, SystemOneResponse
 from .recipes.gate import carry_forward, classify
-from .recipes.shapes import Recipe, RecipeResult, _parse_stored_result, recipe_store_key
+from .recipes.shapes import LastPayload, Recipe, RecipeResult, _parse_stored_result, recipe_store_key
+from .split import merge, split_batch
 
 if TYPE_CHECKING:
     from . import GutCheckConfigEntry
@@ -94,6 +95,25 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
             f"{self.config_entry.entry_id}_{self.recipe.recipe_id}_first_refresh",
         )
 
+    async def _async_send(self, payloads: list[SystemOneRequest]) -> list[SystemOneResponse]:
+        """Send a run's requests through the budget gate, mapping each failure to the coordinator's own."""
+        try:
+            return await self.budget.async_ask_all(payloads)
+        except GutCheckAuthError as err:
+            raise ConfigEntryAuthFailed("api key rejected") from err
+        except BudgetExceededError as err:
+            if self.last_update_success:
+                _LOGGER.info("%s paused until the daily budget resets after midnight", self.name)
+                # Marked failed first so the coordinator skips its own ERROR line for an expected state.
+                self.last_update_success = False
+            raise UpdateFailed("daily budget reached", retry_after=_seconds_until_budget_retry()) from err
+        except RequestTooLargeError as err:
+            raise UpdateFailed("run was too large to send") from err
+        except RunOverDailyBudgetError as err:
+            raise UpdateFailed("run needs more than the whole daily budget; raise the budget to let it run") from err
+        except GutCheckApiError as err:
+            raise UpdateFailed("recipe run failed", retry_after=FAILED_RUN_RETRY.total_seconds()) from err
+
     async def _async_update_data(self) -> RecipeResult:
         """Run one select/describe/ask/act cycle, or carry the prior result forward when nothing changed."""
         generation = self._force_requested
@@ -104,28 +124,18 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
             last_payload = previous["last_payload"] if previous is not None else None
             result = carry_forward(batch, self.recipe.options, last_payload)
         else:
-            payload: SystemOneRequest = {
-                "state": batch.state,
-                "model": MODEL,
-                "questions": batch.questions,
-            }
-            try:
-                response = await self.budget.async_ask(payload)
-            except GutCheckAuthError as err:
-                raise ConfigEntryAuthFailed("api key rejected") from err
-            except BudgetExceededError as err:
-                if self.last_update_success:
-                    _LOGGER.info("%s paused until the daily budget resets after midnight", self.name)
-                    # Marked failed first so the coordinator skips its own ERROR line for an expected state.
-                    self.last_update_success = False
-                raise UpdateFailed("daily budget reached", retry_after=_seconds_until_budget_retry()) from err
-            except RequestTooLargeError as err:
-                raise UpdateFailed("run was too large to send") from err
-            except GutCheckApiError as err:
-                raise UpdateFailed("recipe run failed", retry_after=FAILED_RUN_RETRY.total_seconds()) from err
+            payloads = split_batch(batch)
+            responses = await self._async_send(payloads)
+            # One request keeps the single-dict shape stored results already hold.
+            sent: LastPayload = payloads[0] if len(payloads) == 1 else payloads
             # getattr: only the health recipe offers a lean; the Recipe Protocol stays untouched.
             result = classify(
-                batch, response, self.recipe.options, payload, self.recipe.gate, lean=getattr(self.recipe, "lean", None)
+                batch,
+                merge(payloads, responses),
+                self.recipe.options,
+                sent,
+                self.recipe.gate,
+                lean=getattr(self.recipe, "lean", None),
             )
 
         await self.recipe.async_act(self.hass, result)

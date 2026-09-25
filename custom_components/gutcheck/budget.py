@@ -26,6 +26,10 @@ class BudgetExceededError(Exception):
     """Raised when a run would exceed what remains of the daily budget."""
 
 
+class RunOverDailyBudgetError(Exception):
+    """Raised when a run needs more than the whole daily budget, so waiting for midnight never helps."""
+
+
 class RequestTooLargeError(Exception):
     """Raised when a single request exceeds the per-request or per-state token cap."""
 
@@ -45,6 +49,18 @@ def _estimate(value: Any) -> int:
 def estimate_tokens(payload: SystemOneRequest) -> int:
     """Estimate a whole request's token cost from its serialized character count."""
     return _estimate(payload)
+
+
+def _sizes(payload: SystemOneRequest) -> tuple[int, int]:
+    """The whole request's estimate, and its state's estimate plus its longest question's."""
+    longest_question = max((_estimate(question) for question in payload["questions"].values()), default=0)
+    return estimate_tokens(payload), _estimate(payload["state"]) + longest_question
+
+
+def request_fits(payload: SystemOneRequest) -> bool:
+    """Whether one request is within both the per-request and the per-state token cap."""
+    estimate, state_plus_longest = _sizes(payload)
+    return estimate <= REQUEST_TOKEN_LIMIT and state_plus_longest <= STATE_TOKEN_LIMIT
 
 
 def _today() -> str:
@@ -132,36 +148,49 @@ class BudgetGate:
 
     async def async_ask(self, payload: SystemOneRequest) -> SystemOneResponse:
         """Reserve an estimate, call the client, then reconcile to actual usage."""
-        estimate = estimate_tokens(payload)
-        state_estimate = _estimate(payload["state"])
-        longest_question = max((_estimate(question) for question in payload["questions"].values()), default=0)
-        if estimate > REQUEST_TOKEN_LIMIT or state_estimate + longest_question > STATE_TOKEN_LIMIT:
-            _LOGGER.debug(
-                "request too large estimate=%s state_plus_longest_question=%s questions=%s",
-                estimate,
-                state_estimate + longest_question,
-                len(payload["questions"]),
-            )
-            raise RequestTooLargeError("request exceeds the per-request token cap")
+        return (await self.async_ask_all([payload]))[0]
 
-        async with self._lock:
-            self._roll()
-            if self.spent_today + estimate > self._daily_budget:
-                raise BudgetExceededError("daily budget reached")
-            reservation_date = self._data["date"]
-            self._data["spent"] += estimate
-            await self._save_and_notify()
+    async def async_ask_all(self, payloads: list[SystemOneRequest]) -> list[SystemOneResponse]:
+        """Reserve a run's requests as a whole, send them in order, and reconcile each to actual usage."""
+        for payload in payloads:
+            if not request_fits(payload):
+                estimate, state_plus_longest = _sizes(payload)
+                _LOGGER.debug(
+                    "request too large estimate=%s state_plus_longest_question=%s questions=%s",
+                    estimate,
+                    state_plus_longest,
+                    len(payload["questions"]),
+                )
+                raise RequestTooLargeError("request exceeds the per-request token cap")
 
+        estimates = [estimate_tokens(payload) for payload in payloads]
+        unsent = sum(estimates)
+        if unsent > self._daily_budget:
+            raise RunOverDailyBudgetError("run needs more than the whole daily budget")
+
+        reservation_date = ""
+        responses: list[SystemOneResponse] = []
         try:
-            response = await self._client.async_ask(payload)
-        except BaseException:
             async with self._lock:
-                self._release(reservation_date, estimate)
+                self._roll()
+                if self.spent_today + unsent > self._daily_budget:
+                    raise BudgetExceededError("daily budget reached")
+                reservation_date = self._data["date"]
+                self._data["spent"] += unsent
+                # Inside the try: a cancel during this save must still release the reservation.
                 await self._save_and_notify()
+            for payload, estimate in zip(payloads, estimates, strict=True):
+                response = await self._client.async_ask(payload)
+                # Billed now, so a failure from here on must not release this estimate.
+                unsent -= estimate
+                async with self._lock:
+                    self._reconcile(reservation_date, estimate, response["usage"]["input_tokens"])
+                    await self._save_and_notify()
+                responses.append(response)
+        except BaseException:
+            if reservation_date:
+                async with self._lock:
+                    self._release(reservation_date, unsent)
+                    await self._save_and_notify()
             raise
-
-        async with self._lock:
-            self._reconcile(reservation_date, estimate, response["usage"]["input_tokens"])
-            await self._save_and_notify()
-
-        return response
+        return responses

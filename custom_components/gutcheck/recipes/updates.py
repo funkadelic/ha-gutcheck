@@ -123,7 +123,14 @@ class UpdateRecipe:
 
         carried_count = sum(len(bucket) for bucket in carried.values())
         _LOGGER.debug("update review selected=%s asked=%s carried=%s", len(selected), len(updates), carried_count)
-        return Batch(state={"updates": updates}, questions=questions, subjects=subjects, carried=carried)
+        return Batch(
+            state={"updates": updates},
+            questions=questions,
+            subjects=subjects,
+            carried=carried,
+            list_key="updates",
+            template=UPDATE_INSTRUCTIONS,
+        )
 
     async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:
         """Sync a Repairs issue per possibly-breaking update, re-arm recovery tracking, and log counts."""
