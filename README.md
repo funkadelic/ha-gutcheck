@@ -82,6 +82,6 @@ If the key is ever rejected later, Home Assistant opens a repair prompting you f
 
 ## Remove
 
-Delete the integration from **Settings > Devices & services**. That removes its entities, clears every Repairs card it created (ignored ones included), and deletes its stored budget and recipe results. Removing the integration is what clears those cards; there is no separate step for it. Then remove the download from HACS.
+Delete the integration from **Settings > Devices & services**. That removes its entities, clears every Repairs card it created (ignored ones included), and deletes its stored budget and recipe results. Then remove the download from HACS.
 
 Nothing Gut Check suggested and you accepted is undone: a device you moved to an area, for example, stays where you put it.

@@ -1,25 +1,8 @@
-"""Diagnostics support for Gut Check config entries.
+"""Diagnostics download for Gut Check config entries.
 
-Home Assistant discovers this module by file presence and renders a
-"Download diagnostics" action on the config entry page. The download is
-admin-only.
-
-The redaction policy here is narrower than the project's logging rule, and
-deliberately so. A log line is emitted without anyone asking for it, so the
-logging house style keeps device, area and entity names out of it entirely.
-A diagnostics file is different: it is downloaded on purpose by someone who
-can read it before deciding whether to send it on, most often attached to a
-GitHub issue. So this dump redacts only the one field that authenticates,
-the API key, and keeps everything else: the options, the budget counters,
-and each recipe's classified items and last request, names included. A file
-that hid those details would not be worth attaching to a bug report.
-
-Every value in this payload is built from TypedDicts defined in this
-repository (RecipeResult, SystemOneRequest). There is no vendor-controlled
-shape riding along that could grow an unreviewed field, so a flat deny-list
-is enough; an allow-list per record, as some other diagnostics modules use
-for an untrusted third-party shape, would defend against a threat this
-integration does not have.
+Only the API key is redacted. Names and payloads stay in: the user reads the
+file before sharing it, and a bug report needs them. Every value comes from
+this repo's own TypedDicts, so a deny-list is enough.
 """
 
 from __future__ import annotations
@@ -37,12 +20,9 @@ TO_REDACT = {CONF_API_KEY}
 
 
 async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: GutCheckConfigEntry) -> dict[str, Any]:
-    """Return a snapshot of one Gut Check config entry, with the API key redacted.
+    """Return a snapshot of one config entry with the API key redacted.
 
-    Awaits nothing and mutates nothing: the whole payload is read from
-    entry.data, entry.options and entry.runtime_data as they stand at the
-    instant this function runs, so a download can never race a concurrent
-    recipe run or a second download.
+    Nothing is awaited, so a download cannot race a recipe run.
     """
     data = entry.runtime_data
     payload: dict[str, Any] = {

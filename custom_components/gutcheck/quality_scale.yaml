@@ -6,7 +6,7 @@ rules:
     status: exempt
     comment: No services.async_register call exists anywhere in this integration.
   # const.py:46 sets RECIPE_INTERVAL to a 7-day timedelta; button.py gives every
-  # recipe an on-demand run button for immediacy between those runs.
+  # recipe a button to run it on demand between those runs.
   appropriate-polling: done
   brands:
     status: exempt

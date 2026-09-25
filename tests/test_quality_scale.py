@@ -2,8 +2,7 @@
 
 hassfest never opens quality_scale.yaml for a custom integration
 (validate_iqs_file() in script/hassfest/quality_scale.py returns immediately
-when not integration.core), so nothing upstream catches a stale or dishonest
-verdict here. This repo is the only thing that can.
+when not integration.core), so this test is the only check on the verdicts.
 
 The 20-rule Bronze set below is hardcoded from home-assistant/core's own
 ALL_RULES at the time this file was written. A future HA release that changes
@@ -55,13 +54,13 @@ def _rules() -> dict[str, object]:
 
 
 def test_the_rule_key_set_matches_the_bronze_tier_exactly() -> None:
-    """An extra key and a missing key are both a lie about what was checked."""
+    """The file lists exactly the Bronze rules, no more and no fewer."""
     rules = _rules()
     assert set(rules) == BRONZE_RULES, f"quality_scale.yaml rule keys drifted from the Bronze tier: {set(rules) ^ BRONZE_RULES}"
 
 
 def test_every_rule_is_done_or_exempt_with_a_reason_when_exempt() -> None:
-    """A todo or missing status ships an unfinished claim as if it were final."""
+    """Every rule is done or exempt; a todo or missing status fails."""
     for name, entry in _rules().items():
         status = entry if isinstance(entry, str) else entry.get("status")
         assert status in ("done", "exempt"), f"{name}: status must be 'done' or 'exempt', got {status!r}"
@@ -71,12 +70,12 @@ def test_every_rule_is_done_or_exempt_with_a_reason_when_exempt() -> None:
 
 
 def test_manifest_claims_the_same_tier_the_yaml_documents() -> None:
-    """The two files must never drift: the manifest is the part hassfest actually validates."""
+    """The manifest claims Bronze, and hassfest validates the manifest."""
     manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
     assert manifest.get("quality_scale") == "bronze"
 
 
 def test_the_readme_still_carries_the_removal_heading_docs_removal_instructions_relies_on() -> None:
-    """docs-removal-instructions is marked done against this heading; losing it makes that a lie."""
+    """The README keeps the Remove heading that docs-removal-instructions points at."""
     lines = README_PATH.read_text(encoding="utf-8").splitlines()
     assert "## Remove" in lines
