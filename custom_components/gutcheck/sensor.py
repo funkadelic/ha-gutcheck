@@ -162,7 +162,7 @@ class RecipeSummarySensor(CoordinatorEntity[RecipeCoordinator], SensorEntity):
         if data is None:
             return None
         prefix = self._recipe_coordinator.recipe.issue_prefix
-        # Only active issues show in Repairs; a stored one stays inactive
+        # Only active issues show in Repairs; a non-persistent one stays inactive
         # after a restart until this recipe's next run or restore recreates it.
         return sum(
             1
