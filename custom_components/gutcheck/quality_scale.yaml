@@ -8,12 +8,9 @@ rules:
   # const.py:46 sets RECIPE_INTERVAL to a 7-day timedelta; button.py gives every
   # recipe a button to run it on demand between those runs.
   appropriate-polling: done
-  brands:
-    status: exempt
-    comment: >
-      brand/logo.png and brand/icon.png already ship in the release asset. A
-      submission to the upstream home-assistant/brands repository is tracked
-      separately and is not a precondition for a HACS custom-repository install.
+  # brand/icon.png and brand/logo.png ship in the release asset, and every HA
+  # release from the hacs.json minimum (2026.9.0) serves them from there.
+  brands: done
   common-modules:
     status: exempt
     comment: >
