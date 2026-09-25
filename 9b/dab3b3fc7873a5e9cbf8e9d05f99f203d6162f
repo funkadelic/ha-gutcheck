@@ -1,0 +1,23 @@
+custom_components/gutcheck/recipes/health.py
+  s_f27aad7d20e6e5::t_3b101d3995d0fb 74
+custom_components/gutcheck/const.py
+  s_f27aad7d20e6e5::t_3b101d3995d0fb 82-83
+README.md
+  s_f27aad7d20e6e5::t_3b101d3995d0fb 121
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9bdab3b3fc7873a5e9cbf8e9d05f99f203d6162f",
+  "prompts": {},
+  "sessions": {
+    "s_f27aad7d20e6e5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "97a26fd2-9db4-4bcf-b2fd-a0e27b86b9d9",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
