@@ -11,7 +11,10 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.selector import SelectOptionDict
 from homeassistant.helpers.storage import Store
 
-from ..const import DEVICE_CLASS_APPLIED_STORE_KEY, STORE_VERSION
+from ..const import CONF_CRITICAL_LABEL, DEVICE_CLASS_APPLIED_STORE_KEY, STORE_VERSION
+from .device_class_cards import reject_suggestion
+from .device_class_describe import class_names
+from .safety import SafetyRules
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -85,14 +88,20 @@ def undo_choices(hass: HomeAssistant, applied: AppliedClasses) -> list[SelectOpt
 
 
 async def async_change_back(hass: HomeAssistant, entry: ConfigEntry, registry_ids: Collection[str]) -> None:
-    """Clear a class Gut Check set for each picked sensor still holding it, then drop it from the record.
+    """Clear a class Gut Check set for each picked sensor still holding it, record it as a rejection, then forget it.
 
+    Also drops every recorded id no longer registered, in the same save.
     Takes the whole config entry, left untyped, since importing the
     integration's own GutCheckData here would close an import cycle through
     the integration's own package module.
     """
     applied = entry.runtime_data.applied
     registry = er.async_get(hass)
+    safety = SafetyRules(entry.options.get(CONF_CRITICAL_LABEL))
+    names = await class_names(hass)
+
+    to_forget = {registry_id for registry_id in applied.ids() if registry.async_get(registry_id) is None}
+    to_forget.update(registry_ids)
     cleared = 0
     left = 0
     for registry_id in registry_ids:
@@ -102,6 +111,7 @@ async def async_change_back(hass: HomeAssistant, entry: ConfigEntry, registry_id
             left += 1
             continue
         registry.async_update_entity(registry_entry.entity_id, device_class=None)
+        reject_suggestion(hass, safety, names, registry_id, recorded_class)
         cleared += 1
-    await applied.async_forget(registry_ids)
+    await applied.async_forget(to_forget)
     _LOGGER.debug("device class change-back cleared=%s left=%s", cleared, left)

@@ -37,12 +37,38 @@ def sanitize_placeholder(value: str) -> str:
     return _MARKDOWN_ACTIVE_RE.sub(r"\\\1", collapsed)
 
 
+def _create_issue(
+    hass: HomeAssistant,
+    issue_id: str,
+    translation_key: str,
+    placeholders: Mapping[str, str],
+    *,
+    is_fixable: bool = False,
+    is_persistent: bool = False,
+    learn_more_url: str | None = None,
+    data: dict[str, str | int | float | None] | None = None,
+) -> None:
+    """Create or update one issue, sanitizing its placeholders."""
+    ir.async_create_issue(
+        hass,
+        DOMAIN,
+        issue_id,
+        is_fixable=is_fixable,
+        is_persistent=is_persistent,
+        severity=ir.IssueSeverity.WARNING,
+        translation_key=translation_key,
+        translation_placeholders={key: sanitize_placeholder(value) for key, value in placeholders.items()},
+        learn_more_url=learn_more_url,
+        data=data,
+    )
+
+
 def safe_url(value: str | None) -> str | None:
     """Return value only when it parses as an http or https URL with a network location.
 
-    A release url comes from the update's publisher and a Repairs card
-    renders learn_more_url as a clickable link, so a script or data scheme
-    reaching it is an execution vector, not a cosmetic problem.
+    A release url comes from the update's publisher and renders as a
+    clickable link, so a script or data scheme reaching it is an execution
+    vector, not a cosmetic problem.
     """
     if not value:
         return None
@@ -72,25 +98,20 @@ def async_sync_issues(
 
     Re-creating an existing issue id leaves its dismissed_version untouched,
     which is what keeps a user's ignore across runs, renames and reloads.
-    learn_more_urls maps an issue id to its validated link; an id absent
-    from it gets no link, same as omitting learn_more_url entirely.
-    issue_data maps an issue id to the data a fixable issue's flow reads;
-    an id absent from it gets no data, same as every non-fixable issue today.
-    keep names existing issue ids the stale sweep must leave alone: neither
-    re-created nor deleted, so their dismissed_version and placeholders stay
-    exactly as they are. Existing call sites pass nothing and behave as before.
-    is_persistent makes HA store the whole issue and reload it active at startup.
+    learn_more_urls and issue_data map an issue id to its link or its fixable
+    flow's data; an id absent from either gets none, as before. keep names
+    existing issue ids the stale sweep must leave untouched, dismissed_version
+    included. is_persistent makes HA store the whole issue and reload it
+    active at startup.
     """
     for issue_id, placeholders in wanted.items():
-        ir.async_create_issue(
+        _create_issue(
             hass,
-            DOMAIN,
             issue_id,
+            translation_key,
+            placeholders,
             is_fixable=is_fixable,
             is_persistent=is_persistent,
-            severity=ir.IssueSeverity.WARNING,
-            translation_key=translation_key,
-            translation_placeholders={key: sanitize_placeholder(value) for key, value in placeholders.items()},
             learn_more_url=learn_more_urls.get(issue_id) if learn_more_urls else None,
             data=issue_data.get(issue_id) if issue_data else None,
         )
@@ -107,12 +128,24 @@ def async_sync_issues(
 
 
 @callback
+def async_create_ignored_issue(
+    hass: HomeAssistant,
+    issue_id: str,
+    translation_key: str,
+    placeholders: Mapping[str, str],
+    data: dict[str, str | int | float | None],
+) -> None:
+    """Create a fixable, persistent issue already ignored: the record of a rejection made outside a run."""
+    _create_issue(hass, issue_id, translation_key, placeholders, is_fixable=True, is_persistent=True, data=data)
+    ir.async_ignore_issue(hass, DOMAIN, issue_id, True)
+
+
+@callback
 def async_delete_issues(hass: HomeAssistant, prefix: str = "", *, keep_ignored: bool = False) -> None:
     """Delete every Gut Check issue whose id starts with prefix (default: every issue).
 
-    keep_ignored leaves an issue in place when its dismissed_version is set:
-    an ignored card is the one record that the user rejected that finding,
-    and switching a recipe off and back on must not bring it back.
+    keep_ignored leaves an ignored issue in place: it is the user's
+    rejection record, and a recipe off/on toggle must not lose it.
     """
     registry = ir.async_get(hass)
     stale = [
@@ -133,10 +166,8 @@ def _is_ignored(registry: ir.IssueRegistry, issue_id: str) -> bool:
 def _has_recovered(state: str, problem_state: str) -> bool:
     """Whether a state says the problem is over, rather than saying nothing at all.
 
-    An entity reports unavailable or unknown on an integration reload, a
-    device dropping off the network or a source going quiet. None of those
-    resolve what the card warns about, and clearing on one of them takes
-    the user's dismissal with it, since a delete is not a re-create.
+    A reload, a device dropping off, or a source going quiet resolve
+    nothing, and clearing on one of them would take the dismissal with it.
     """
     if state == problem_state:
         return False
@@ -149,13 +180,9 @@ def async_track_recovery(
 ) -> CALLBACK_TYPE:
     """Delete a watched issue the moment its entity recovers from problem_state.
 
-    The issue stays while the entity holds problem_state, and clears the
-    moment it reaches a state that means recovery. Checks current state
-    immediately, since an entity may have already recovered since it was
-    classified, then subscribes for future changes. A removed or renamed
-    entity reports new_state as None, which is left alone: the issue stays
-    until the next run reclassifies it, which is what keeps an ignored
-    issue alive across a rename.
+    Checks current state immediately, then subscribes for future changes. A
+    removed or renamed entity reports new_state as None and is left alone,
+    which keeps an ignored issue alive across a rename.
     """
     for entity_id, issue_id in watched.items():
         state = hass.states.get(entity_id)

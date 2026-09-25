@@ -7,6 +7,7 @@ import functools
 from homeassistant.core import HomeAssistant
 
 from ..const import DEVICE_CLASS_ISSUE_PREFIX, ISSUE_DEVICE_CLASS_SUGGESTION, MAX_NEW_DEVICE_CLASS_CARDS_PER_RUN
+from ..repairs import async_create_ignored_issue
 from .device_class_describe import candidate_classes, qualifying_entry
 from .safety import SafetyRules
 from .shapes import Item
@@ -40,6 +41,23 @@ def _resolve(hass: HomeAssistant, safety: SafetyRules, names: dict[str, str], su
 def _still_qualifies(hass: HomeAssistant, safety: SafetyRules, issue_id: str) -> bool:
     """Whether the sensor behind an existing card (the issue id, prefix stripped) still qualifies."""
     return qualifying_entry(hass, safety, issue_id.removeprefix(DEVICE_CLASS_ISSUE_PREFIX)) is not None
+
+
+def reject_suggestion(
+    hass: HomeAssistant, safety: SafetyRules, names: dict[str, str], registry_id: str, device_class: str
+) -> None:
+    """Record a change-back as this sensor's rejection: an ignored card, exactly like Don't suggest.
+
+    Resolves through the same _resolve every run uses, so a class the
+    sensor's live unit no longer accepts raises no card: that class can no
+    longer be suggested for it anyway.
+    """
+    resolved = _resolve(hass, safety, names, [{"registry_id": registry_id, "choice": device_class}])
+    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{registry_id}"
+    item = resolved.get(issue_id)
+    if item is None:
+        return
+    async_create_ignored_issue(hass, issue_id, ISSUE_DEVICE_CLASS_SUGGESTION, item.placeholders, item.data)
 
 
 def sync_device_class_cards(hass: HomeAssistant, safety: SafetyRules, suggested: list[Item], names: dict[str, str]) -> None:
