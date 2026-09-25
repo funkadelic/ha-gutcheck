@@ -1,12 +1,18 @@
-"""Options flow: toggle the four recipes, set the daily budget and critical label."""
+"""Options flow: toggle the four recipes, set the daily budget and critical label, and change a device class back."""
 
 from __future__ import annotations
 
 from typing import Any
 
 import voluptuous as vol
-from homeassistant.config_entries import ConfigFlowResult, OptionsFlowWithReload
-from homeassistant.helpers.selector import BooleanSelector, LabelSelector
+from homeassistant.config_entries import ConfigEntryState, ConfigFlowResult, OptionsFlowWithReload
+from homeassistant.helpers.selector import (
+    BooleanSelector,
+    LabelSelector,
+    SelectSelector,
+    SelectSelectorConfig,
+    SelectSelectorMode,
+)
 
 from .const import (
     CONF_AREAS_ENABLED,
@@ -14,9 +20,12 @@ from .const import (
     CONF_DAILY_BUDGET,
     CONF_DEVICE_CLASS_ENABLED,
     CONF_HEALTH_ENABLED,
+    CONF_UNDO_DEVICE_CLASS,
+    CONF_UNDO_SENSORS,
     CONF_UPDATES_ENABLED,
     DEFAULT_DAILY_BUDGET,
 )
+from .recipes.device_class_undo import async_change_back, undo_choices
 
 OPTIONS_SCHEMA = vol.Schema(
     {
@@ -33,12 +42,36 @@ OPTIONS_SCHEMA = vol.Schema(
 
 
 class GutCheckOptionsFlow(OptionsFlowWithReload):
-    """The four recipe toggles, the daily token budget, and the critical label."""
+    """The four recipe toggles, the daily token budget, the critical label, and the device class change-back."""
+
+    _held_options: dict[str, Any]
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        """Show the options form, prefilled with the entry's saved options."""
+        """Show the options form, plus the change-back checkbox when something is recorded and the entry is loaded."""
         if user_input is not None:
+            if user_input.pop(CONF_UNDO_DEVICE_CLASS, False):
+                self._held_options = user_input
+                return await self.async_step_undo_device_class()
             return self.async_create_entry(data=user_input)
 
-        schema = self.add_suggested_values_to_schema(OPTIONS_SCHEMA, self.config_entry.options)
+        schema = OPTIONS_SCHEMA
+        if self.config_entry.state is ConfigEntryState.LOADED and self.config_entry.runtime_data.applied.has_records:
+            schema = schema.extend({vol.Optional(CONF_UNDO_DEVICE_CLASS, default=False): BooleanSelector()})
+        schema = self.add_suggested_values_to_schema(schema, self.config_entry.options)
         return self.async_show_form(step_id="init", data_schema=schema)
+
+    async def async_step_undo_device_class(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """List the recorded, still-registered sensors, then clear the picked ones back."""
+        if user_input is not None:
+            await async_change_back(self.hass, self.config_entry, user_input.get(CONF_UNDO_SENSORS, []))
+            return self.async_create_entry(data=self._held_options)
+
+        choices = undo_choices(self.hass, self.config_entry.runtime_data.applied)
+        schema = vol.Schema(
+            {
+                vol.Optional(CONF_UNDO_SENSORS, default=[]): SelectSelector(
+                    SelectSelectorConfig(options=choices, multiple=True, mode=SelectSelectorMode.LIST)
+                )
+            }
+        )
+        return self.async_show_form(step_id="undo_device_class", data_schema=schema)

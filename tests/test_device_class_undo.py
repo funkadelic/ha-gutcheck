@@ -18,6 +18,7 @@ from custom_components.gutcheck.const import (
     CONF_HEALTH_ENABLED,
     CONF_UNDO_DEVICE_CLASS,
     CONF_UNDO_SENSORS,
+    CONF_UPDATES_ENABLED,
     DEFAULT_DAILY_BUDGET,
     DEVICE_CLASS_APPLIED_STORE_KEY,
     DEVICE_CLASS_ISSUE_PREFIX,
@@ -25,6 +26,7 @@ from custom_components.gutcheck.const import (
     STORE_VERSION,
 )
 from custom_components.gutcheck.recipes.device_class_cards import sync_device_class_cards
+from custom_components.gutcheck.recipes.device_class_undo import AppliedClasses, undo_choices
 from custom_components.gutcheck.recipes.safety import SafetyRules
 
 from .conftest import (
@@ -38,6 +40,7 @@ BATTERY_CANDIDATES = ["battery", "humidity", "moisture", "power_factor"]
 
 _KEPT_OPTIONS = {
     CONF_HEALTH_ENABLED: False,
+    CONF_UPDATES_ENABLED: True,
     CONF_AREAS_ENABLED: False,
     CONF_DEVICE_CLASS_ENABLED: True,
     CONF_DAILY_BUDGET: DEFAULT_DAILY_BUDGET,
@@ -184,6 +187,26 @@ async def test_change_back_step_lists_recorded_sensors_sorted_by_label_with_no_r
     assert [option["label"] for option in options] == ["Alpha Battery", "Zeta Battery"]
     assert {option["value"] for option in options} == {zeta.id, alpha.id}
     assert all(zeta.id not in option["label"] and alpha.id not in option["label"] for option in options)
+
+
+async def test_undo_choices_prefers_the_live_friendly_name_over_the_registered_name(hass: HomeAssistant) -> None:
+    """A sensor with a live state is labelled with its friendly name, not its registered name."""
+    sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
+    hass.states.async_set(sensor.entity_id, "50", {"friendly_name": "Kitchen Battery"})
+    applied = AppliedClasses(hass)
+    applied.record(sensor.id, "battery")
+
+    choices = undo_choices(hass, applied)
+
+    assert choices == [{"value": sensor.id, "label": "Kitchen Battery"}]
+
+
+async def test_undo_choices_omits_a_recorded_sensor_removed_from_the_registry(hass: HomeAssistant) -> None:
+    """A registry id recorded but no longer registered is left out of the change-back list."""
+    applied = AppliedClasses(hass)
+    applied.record("gone", "battery")
+
+    assert undo_choices(hass, applied) == []
 
 
 async def test_picking_a_sensor_whose_override_still_matches_clears_it_and_drops_the_record(

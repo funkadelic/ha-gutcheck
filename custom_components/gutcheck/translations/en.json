@@ -36,14 +36,23 @@
           "areas_enabled": "Run the weekly area suggestions",
           "device_class_enabled": "Run the weekly device class suggestions",
           "daily_budget": "Daily token budget (input tokens)",
-          "critical_label": "Critical label"
+          "critical_label": "Critical label",
+          "undo_device_class": "Change back a device class Gut Check set"
         },
         "data_description": {
           "updates_enabled": "Scores pending updates as routine, feature, or possibly breaking. Advisory only, never installs anything.",
           "areas_enabled": "Suggests an existing area for each device that has none. Nothing is assigned until you confirm a suggestion in Repairs.",
           "device_class_enabled": "Suggests a device class for sensors that report a unit but have none. Nothing is set until you confirm a suggestion in Repairs.",
           "daily_budget": "A hard stop for the day. It resets at local midnight.",
-          "critical_label": "Entities or devices with this label are never sent or checked. Locks, alarms and covers are never checked either, label or not."
+          "critical_label": "Entities or devices with this label are never sent or checked. Locks, alarms and covers are never checked either, label or not.",
+          "undo_device_class": "Opens a list of the sensors whose device class you set from a Gut Check suggestion, so you can change any of them back."
+        }
+      },
+      "undo_device_class": {
+        "title": "Change back device classes",
+        "description": "Pick the sensors to change back. Gut Check clears the device class it set, leaves any that were changed since, and stops suggesting a device class for them.",
+        "data": {
+          "sensors": "Sensors"
         }
       }
     }
@@ -118,7 +127,7 @@
         "step": {
           "init": {
             "title": "Suggested device class",
-            "description": "Gut Check suggests **{class_name}** for `{entity_id}`, which reports in {unit}, and nothing changes unless you set it.",
+            "description": "Gut Check suggests **{class_name}** for `{entity_id}`, which reports in {unit}, and nothing changes unless you set it. You can change it back later from Gut Check's Configure screen.",
             "menu_options": {
               "confirm": "Set this device class",
               "ignore": "Don't suggest a device class for this sensor"
