@@ -79,9 +79,8 @@ OPTION_NONE: Final = "none_of_these"
 
 HEALTH_OPTIONS: Final = (OPTION_EXPECTED, OPTION_WORTH_FIXING, OPTION_SAFE_TO_REMOVE)
 
-# A summed-probability threshold for the coarser lean hint on unsure entries.
-# Its own constant, not the API's confidence field, which runs about 0.1
-# below the top probability.
+# Lean hint on unsure health entries. Compared against summed probabilities,
+# not the API's confidence field, which runs about 0.1 below the top probability.
 HEALTH_LEAN_THRESHOLD: Final = 0.7
 LEAN_NEEDS_ATTENTION: Final = "needs_attention"
 

@@ -71,7 +71,7 @@ class HealthRecipe:
     def lean(self, answer: object) -> str | None:
         """Which side an unsure choice answer clearly leans toward, if only one side clears the threshold.
 
-        none_of_these is never read: its mass pushes neither side.
+        none_of_these is ignored, so its probability counts toward neither side.
         """
         if not isinstance(answer, dict) or answer.get("type") != "choice":
             return None
