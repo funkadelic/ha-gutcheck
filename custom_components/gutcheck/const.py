@@ -51,8 +51,6 @@ RECIPE_AREAS: Final = "areas"
 ALL_RECIPE_IDS: Final = (RECIPE_HEALTH, RECIPE_UPDATES, RECIPE_AREAS)
 RECIPE_INTERVAL: Final = timedelta(days=7)
 FAILED_RUN_RETRY: Final = timedelta(hours=1)
-# Run presses kept at once: one in flight, one waiting behind it.
-MAX_QUEUED_PRESSES: Final = 2
 
 ISSUE_UNAVAILABLE_ENTITY: Final = "unavailable_entity"
 HEALTH_ISSUE_PREFIX: Final = "unavailable_"

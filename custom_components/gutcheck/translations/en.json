@@ -104,5 +104,10 @@
         }
       }
     }
+  },
+  "exceptions": {
+    "run_in_progress": {
+      "message": "This recipe is already running. Try again when it finishes."
+    }
   }
 }

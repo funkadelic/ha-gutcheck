@@ -9,10 +9,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 from pytest_homeassistant_custom_component.common import MockConfigEntry
-from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker, AiohttpClientMockResponse
+from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.gutcheck.const import (
-    API_URL,
     DOMAIN,
     MAX_UPDATES_PER_RUN,
     OPTION_POSSIBLY_BREAKING,
@@ -113,28 +112,3 @@ async def test_a_failed_forced_run_leaves_the_next_run_forced(hass: HomeAssistan
     bodies = posted_bodies(aioclient_mock)
     assert len(bodies) == 1
     assert len(bodies[0]["questions"]) == 1
-
-
-async def test_a_press_during_a_forced_run_forces_the_next_run_too(
-    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
-) -> None:
-    """A second press landing while the first forced run is in flight is not cleared by that run finishing."""
-    register_pending_update(hass, "update_a")
-    register_jev_responses(aioclient_mock, [api_response({"u0": score_answer(0, 0.9)})])
-    entry = await _setup(hass)
-
-    responses = [api_response({"u0": score_answer(0, 0.9)}), api_response({"u0": score_answer(0, 0.9)})]
-
-    async def _press_mid_run(method: str, url: Any, data: Any) -> AiohttpClientMockResponse:
-        """Press Run again while this forced run's request is in flight, then answer it."""
-        if len(responses) == 2:
-            await hass.services.async_call("button", "press", {"entity_id": _button(hass, entry)}, blocking=True)
-        return AiohttpClientMockResponse(method=method, url=url, status=200, json=responses.pop(0))
-
-    aioclient_mock.clear_requests()
-    aioclient_mock.post(API_URL, side_effect=_press_mid_run)
-    await _press(hass, entry)
-
-    bodies = posted_bodies(aioclient_mock)
-    assert len(bodies) == 2
-    assert len(bodies[1]["questions"]) == 1
