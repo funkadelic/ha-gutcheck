@@ -56,10 +56,10 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
         self.budget = budget
         self.recipe = recipe
         self._store: Store[RecipeResult] = Store(hass, STORE_VERSION, recipe_store_key(recipe.recipe_id))
-        # Only a saved run advances _force_done, so a failed forced run stays
-        # pending and a press during a run forces the next run too.
+        # Only a saved run advances _force_done, so a failed forced run stays pending.
         self._force_requested = 0
         self._force_done = 0
+        self.running = False
 
     @callback
     def force_full_rescore(self) -> None:
@@ -82,9 +82,14 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
         else:
             self.config_entry.async_on_unload(async_at_started(self.hass, self._handle_started_refresh))
 
-    async def _handle_scheduled_refresh(self, _now: datetime) -> None:
-        """Run the catch-up refresh scheduled 7 days after a restored last_run."""
-        await self.async_request_refresh()
+    @callback
+    def _handle_scheduled_refresh(self, _now: datetime) -> None:
+        """Start the catch-up run, due 7 days after a restored last_run, as a task unload cancels."""
+        self.config_entry.async_create_background_task(
+            self.hass,
+            self.async_refresh(),
+            f"{self.config_entry.entry_id}_{self.recipe.recipe_id}_catch_up",
+        )
 
     @callback
     def _handle_started_refresh(self, _hass: HomeAssistant) -> None:
@@ -115,6 +120,14 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
             raise UpdateFailed("recipe run failed", retry_after=FAILED_RUN_RETRY.total_seconds()) from err
 
     async def _async_update_data(self) -> RecipeResult:
+        """Run the recipe with running set for its whole length, whoever started it."""
+        self.running = True
+        try:
+            return await self._async_run()
+        finally:
+            self.running = False
+
+    async def _async_run(self) -> RecipeResult:
         """Run one select/describe/ask/act cycle, or carry the prior result forward when nothing changed."""
         generation = self._force_requested
         previous = self.data

@@ -44,7 +44,7 @@ Jev can't write a reply, make up a new option, or tell Home Assistant to do anyt
 
 **Area suggestions.** Gut Check suggests one of your existing areas for each device that has none, or suggests nothing when it isn't sure or nothing fits. Each suggestion is a Repairs card with two choices: assign the area, or tell Gut Check not to suggest one for that device. It never creates an area and never moves a device on its own.
 
-All three run once a week on their own, and each has a button to run it on demand.
+All three run once a week on their own, and each has a button to run it on demand. Pressing a check's button while that check is already running shows an error and starts nothing. The other checks' buttons still work.
 
 ## What Gut Check will never do
 

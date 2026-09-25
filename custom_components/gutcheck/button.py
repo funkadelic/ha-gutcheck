@@ -5,9 +5,11 @@ from __future__ import annotations
 from homeassistant.components.button import ButtonEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import GutCheckConfigEntry, device_info
+from .const import DOMAIN
 from .coordinator import RecipeCoordinator
 
 
@@ -38,6 +40,15 @@ class RecipeRunButton(ButtonEntity):
         self._attr_device_info = device_info(entry)
 
     async def async_press(self) -> None:
-        """Force a full re-score, then request an immediate recipe run."""
-        self._coordinator.force_full_rescore()
-        await self._coordinator.async_request_refresh()
+        """Force a full re-score, then start the run as a task the entry owns, so unload cancels it."""
+        coordinator = self._coordinator
+        if coordinator.running:
+            raise HomeAssistantError(translation_domain=DOMAIN, translation_key="run_in_progress")
+        coordinator.force_full_rescore()
+        # A debounced request can defer the run to a timer task that unload never cancels. The task
+        # starts eagerly, so running is already set when a second press arrives.
+        coordinator.config_entry.async_create_background_task(
+            self.hass,
+            coordinator.async_refresh(),
+            f"{coordinator.config_entry.entry_id}_{coordinator.recipe.recipe_id}_run",
+        )
