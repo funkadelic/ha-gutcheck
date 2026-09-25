@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.4.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.3.1...v0.4.0) (2026-09-25)
+
+
+### Added
+
+* add diagnostics download and Bronze quality scale ([#23](https://github.com/funkadelic/ha-gutcheck/issues/23)) ([f2d63f3](https://github.com/funkadelic/ha-gutcheck/commit/f2d63f36aebf7b00a3b56b05a8a3d3bc60703f4e))
+* refresh the brand icon and logo ([#25](https://github.com/funkadelic/ha-gutcheck/issues/25)) ([2a659a8](https://github.com/funkadelic/ha-gutcheck/commit/2a659a8cddf1c9155838236aa101dd224d56825f))
+
+
+### Other Changes
+
+* add a table of contents to the README ([#28](https://github.com/funkadelic/ha-gutcheck/issues/28)) ([0572933](https://github.com/funkadelic/ha-gutcheck/commit/05729332cc219e1f9e34228c2f20ec2de6eea259))
+* explain how Gut Check decides ([#26](https://github.com/funkadelic/ha-gutcheck/issues/26)) ([15f6b8e](https://github.com/funkadelic/ha-gutcheck/commit/15f6b8e5d57cfbce60f6c01186595a2a5943285e))
+* publish a test-count badge ([#27](https://github.com/funkadelic/ha-gutcheck/issues/27)) ([347c0cb](https://github.com/funkadelic/ha-gutcheck/commit/347c0cb2e55b661c294849071df4d208207b46f3))
+
 ## [0.3.1](https://github.com/funkadelic/ha-gutcheck/compare/v0.3.0...v0.3.1) (2026-09-25)
 
 
