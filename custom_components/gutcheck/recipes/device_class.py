@@ -17,7 +17,7 @@ from ..const import (
 )
 from ..models import Question
 from .device_class_cards import sync_device_class_cards
-from .device_class_describe import KNOWN_CLASSES, candidate_classes, class_names, criteria, describe, qualifies
+from .device_class_describe import KNOWN_CLASSES, candidate_classes, class_names, criteria, describe, qualifies, qualifying_entry
 from .gate import gate_choice
 from .safety import SafetyRules
 from .shapes import Batch, Item, RecipeResult
@@ -109,7 +109,23 @@ class DeviceClassRecipe:
         sync_device_class_cards(hass, self._safety, result["items"].get(OPTION_SUGGESTED, []), names)
         _LOGGER.debug("device class suggestions run complete, counts=%s", result["counts"])
 
+    def _still_qualifies(self, hass: HomeAssistant, item: Item) -> bool:
+        """Whether a stored suggestion's sensor, looked up by registry_id, still exists and still qualifies."""
+        return qualifying_entry(hass, self._safety, str(item["registry_id"])) is not None
+
     async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
-        """Re-sync cards for a restored result, without calling the API."""
+        """Filter every bucket and unsure for sensors that no longer qualify, then re-sync cards.
+
+        A restore calls no API, so a sensor given a class by hand, labelled
+        critical, disabled or removed since the run must still drop out of
+        the stored result, rather than sitting exposed for up to a week
+        until the next paid run notices. Every persistent effect async_act
+        has (the card sync) is reproduced here too.
+        """
+        for option, items in result["items"].items():
+            kept = [item for item in items if self._still_qualifies(hass, item)]
+            result["items"][option] = kept
+            result["counts"][option] = len(kept)
+        result["unsure"] = [item for item in result["unsure"] if self._still_qualifies(hass, item)]
         names = await class_names(hass)
         sync_device_class_cards(hass, self._safety, result["items"].get(OPTION_SUGGESTED, []), names)

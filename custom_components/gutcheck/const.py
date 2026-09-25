@@ -20,7 +20,9 @@ CONF_DEVICE_CLASS_ENABLED: Final = "device_class_enabled"
 # A fresh install's first-day runs reserve at once: about 80,000 for the
 # health check and 38,000 for area suggestions on a 1,300-entity install.
 # A full 50-update review adds about 71,000, so a large update backlog can
-# push one first-day run to the next day.
+# push one first-day run to the next day. A device class run at the target
+# install's real counts (53 asked, 5 decided in code) reserves about 30,900,
+# and only runs once switched on.
 DEFAULT_DAILY_BUDGET: Final = 150_000
 CHARS_PER_TOKEN: Final = 4
 # Budget reservations only, held until the API reports real usage; captured
