@@ -16,6 +16,9 @@ CONF_CRITICAL_LABEL: Final = "critical_label"
 CONF_HEALTH_ENABLED: Final = "health_enabled"
 CONF_AREAS_ENABLED: Final = "areas_enabled"
 CONF_DEVICE_CLASS_ENABLED: Final = "device_class_enabled"
+# The Configure checkbox and step id for changing a device class back; never saved as an option.
+CONF_UNDO_DEVICE_CLASS: Final = "undo_device_class"
+CONF_UNDO_SENSORS: Final = "sensors"
 
 # A fresh install's first-day runs reserve at once: about 80,000 for the
 # health check and 38,000 for area suggestions on a 1,300-entity install.
@@ -241,3 +244,7 @@ MAX_NEW_DEVICE_CLASS_CARDS_PER_RUN: Final = 10
 # Assistant's own translated names for each sensor device class.
 DEVICE_CLASS_NAMES_LANGUAGE: Final = "en"
 DEVICE_CLASS_NAME_KEY: Final = "component.sensor.entity_component.{device_class}.name"
+
+# Which device classes Gut Check set, kept out of the recipe's own Store
+# because every run rewrites that one while confirms land between runs.
+DEVICE_CLASS_APPLIED_STORE_KEY: Final = f"{DOMAIN}.recipe_device_class_applied"
