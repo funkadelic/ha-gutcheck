@@ -64,6 +64,7 @@ def async_sync_issues(
     learn_more_urls: dict[str, str] | None = None,
     *,
     is_fixable: bool = False,
+    is_persistent: bool = False,
     issue_data: Mapping[str, dict[str, str | int | float | None]] | None = None,
     keep: Collection[str] = (),
 ) -> None:
@@ -78,6 +79,7 @@ def async_sync_issues(
     keep names existing issue ids the stale sweep must leave alone: neither
     re-created nor deleted, so their dismissed_version and placeholders stay
     exactly as they are. Existing call sites pass nothing and behave as before.
+    is_persistent makes HA store the whole issue and reload it active at startup.
     """
     for issue_id, placeholders in wanted.items():
         ir.async_create_issue(
@@ -85,7 +87,7 @@ def async_sync_issues(
             DOMAIN,
             issue_id,
             is_fixable=is_fixable,
-            is_persistent=False,
+            is_persistent=is_persistent,
             severity=ir.IssueSeverity.WARNING,
             translation_key=translation_key,
             translation_placeholders={key: sanitize_placeholder(value) for key, value in placeholders.items()},

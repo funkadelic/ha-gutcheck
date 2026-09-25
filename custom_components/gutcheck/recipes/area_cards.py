@@ -137,6 +137,8 @@ def sync_area_cards(hass: HomeAssistant, safety: SafetyRules, suggested: list[It
         ISSUE_AREA_SUGGESTION,
         {issue_id: resolved[issue_id].placeholders for issue_id in wanted_ids},
         is_fixable=True,
+        # A kept card's area came from an earlier run and cannot be rebuilt after a restart.
+        is_persistent=True,
         issue_data={issue_id: resolved[issue_id].data for issue_id in wanted_ids},
         keep=kept,
     )
