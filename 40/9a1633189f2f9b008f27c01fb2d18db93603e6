@@ -1,0 +1,37 @@
+custom_components/gutcheck/recipes/device_class_repairs.py
+  s_4ae744b3f5c527::t_61bcedfb8dcd43 8,15,19-20,27-28,31
+custom_components/gutcheck/recipes/device_class_undo.py
+  s_4ae744b3f5c527::t_5fb368ae57f5bc 1-70,72-107
+  s_4ae744b3f5c527::t_ed791c5a626721 71
+custom_components/gutcheck/__init__.py
+  s_4ae744b3f5c527::t_ccdd476512be6c 152-154,156,161,164
+  s_4ae744b3f5c527::t_ec3af622cc19d8 29,43
+  s_4ae744b3f5c527::t_42a63a1d3e76ca 135
+  s_4ae744b3f5c527::t_12d43ce54683a6 77,92-95
+custom_components/gutcheck/options_flow.py
+  s_4ae744b3f5c527::t_8570252f63a890 1,8-15,23-24,28,45-47,50,52-54,57-60,62-77
+custom_components/gutcheck/translations/en.json
+  s_4ae744b3f5c527::t_9bc802d89697fd 130
+  s_4ae744b3f5c527::t_cc092efb820e29 39-40,47-55
+tests/test_device_class_undo.py
+  s_4ae744b3f5c527::t_1b97d1b0d0917b 43
+  s_4ae744b3f5c527::t_89268ca9e96eee 29
+  s_4ae744b3f5c527::t_dc54e5408008b1 192-211
+  s_4ae744b3f5c527::t_a8868d6f3250b7 21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "409a1633189f2f9b008f27c01fb2d18db93603e6",
+  "prompts": {},
+  "sessions": {
+    "s_4ae744b3f5c527": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "04674ba3-9e08-4ffe-8f6d-df209048e58e",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
