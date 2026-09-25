@@ -8,10 +8,10 @@ from typing import TYPE_CHECKING
 
 from homeassistant.util import dt as dt_util
 
-from ..models import Question, SystemOneRequest, SystemOneResponse
+from ..models import Question, SystemOneResponse
 
 if TYPE_CHECKING:
-    from .shapes import Batch, Item, RecipeResult
+    from .shapes import Batch, Item, LastPayload, RecipeResult
 
 
 def gate_choice(answer: object, allowed: tuple[str, ...], threshold: float) -> str | None:
@@ -112,7 +112,7 @@ def _seed(batch: Batch, allowed: tuple[str, ...]) -> tuple[dict[str, int], dict[
     return counts, items
 
 
-def carry_forward(batch: Batch, allowed: tuple[str, ...], payload: SystemOneRequest | None) -> RecipeResult:
+def carry_forward(batch: Batch, allowed: tuple[str, ...], payload: LastPayload | None) -> RecipeResult:
     """Build a RecipeResult from the batch's carried field alone, for a run with nothing to ask.
 
     payload is the prior result's last_payload: no request was made this
@@ -142,7 +142,7 @@ def classify(
     batch: Batch,
     response: SystemOneResponse,
     allowed: tuple[str, ...],
-    payload: SystemOneRequest,
+    payload: LastPayload,
     gate: Callable[[object], str | None],
     *,
     lean: Callable[[object], str | None] | None = None,

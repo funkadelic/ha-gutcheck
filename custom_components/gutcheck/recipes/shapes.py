@@ -13,6 +13,8 @@ from ..const import DOMAIN
 from ..models import Question, SystemOneRequest
 
 Item = dict[str, str | float | bool | None]
+# One dict for a run sent as one request, or the requests in send order for a split run.
+LastPayload = SystemOneRequest | list[SystemOneRequest]
 
 
 @dataclass
@@ -25,6 +27,10 @@ class Batch:
     # Classifications a recipe decided without asking, keyed by option. Never
     # includes unsure: an unsure verdict is never carried forward.
     carried: dict[str, list[Item]] = field(default_factory=dict)
+    # For splitting: the n-th question describes state[list_key][n], and
+    # template is the recipe's instructions with {index} still in place.
+    list_key: str = ""
+    template: str = ""
 
 
 class RecipeResult(TypedDict):
@@ -34,7 +40,7 @@ class RecipeResult(TypedDict):
     counts: dict[str, int]
     items: dict[str, list[Item]]
     unsure: list[Item]
-    last_payload: SystemOneRequest | None
+    last_payload: LastPayload | None
 
 
 class Recipe(Protocol):

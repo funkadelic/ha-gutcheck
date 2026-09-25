@@ -141,7 +141,14 @@ class HealthRecipe:
             len(carried[OPTION_SAFE_TO_REMOVE]),
             excluded_by_safety_rules,
         )
-        return Batch(state={"entities": entities}, questions=questions, subjects=subjects, carried=carried)
+        return Batch(
+            state={"entities": entities},
+            questions=questions,
+            subjects=subjects,
+            carried=carried,
+            list_key="entities",
+            template=HEALTH_INSTRUCTIONS,
+        )
 
     async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:
         """Sync a Repairs issue per worth-fixing entity, re-arm recovery tracking, and log counts."""

@@ -47,10 +47,6 @@ class AreaRecipe:
         previous and force are unused, since nothing carries forward between
         runs.
         """
-        # ponytail: no per-run ask cap. A realistic run (18 areas, 60 devices)
-        # measures well inside REQUEST_TOKEN_LIMIT, and the budget gate refuses
-        # an oversized run loudly with nothing spent. Add a cap that rotates
-        # devices not asked last run to the front if an install ever needs one.
         options = area_options(hass)
         self._allowed = tuple(options.keys())
         if not options:
@@ -79,7 +75,9 @@ class AreaRecipe:
             subjects[question_id] = subject
 
         _LOGGER.debug("area suggestions selected=%s asked=%s areas=%s", len(selected), len(devices), len(options))
-        return Batch(state={"devices": devices}, questions=questions, subjects=subjects)
+        return Batch(
+            state={"devices": devices}, questions=questions, subjects=subjects, list_key="devices", template=AREA_INSTRUCTIONS
+        )
 
     async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:
         """Sync one fixable Repairs card per suggested device, and log counts."""
