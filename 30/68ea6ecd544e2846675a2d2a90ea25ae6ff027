@@ -1,0 +1,28 @@
+custom_components/gutcheck/recipes/update_cadence.py
+  s_682a25d3fa30b4::t_c7c6ad2e7907cc 21-22,24-27,49-55
+  s_682a25d3fa30b4::t_6f38a5c842ea15 56-57
+tests/conftest.py
+  s_682a25d3fa30b4::t_fc4e8199f2fa07 236,240
+custom_components/gutcheck/recipes/updates.py
+  s_682a25d3fa30b4::t_c7c6ad2e7907cc 25-26,89-91,93-102
+custom_components/gutcheck/recipes/update_describe.py
+  s_682a25d3fa30b4::t_c7c6ad2e7907cc 46-47,49,52-64,78
+tests/test_update_cadence.py
+  s_682a25d3fa30b4::t_fc4e8199f2fa07 24-32,288-310
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3068ea6ecd544e2846675a2d2a90ea25ae6ff027",
+  "prompts": {},
+  "sessions": {
+    "s_682a25d3fa30b4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5949d84e-d96f-4227-a588-3f1d10186f95",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
