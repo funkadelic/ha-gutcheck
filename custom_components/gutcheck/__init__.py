@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_API_KEY, Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
@@ -77,7 +77,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
     """Set up Gut Check from a config entry."""
     api_key = entry.data.get(CONF_API_KEY)
     if not isinstance(api_key, str) or not api_key.strip():
-        raise ConfigEntryNotReady("stored api key is missing or blank")
+        raise ConfigEntryAuthFailed("stored api key is missing or blank")
 
     client = GutCheckClient(async_get_clientsession(hass), api_key)
     budget = BudgetGate(hass, client, entry.options.get(CONF_DAILY_BUDGET, DEFAULT_DAILY_BUDGET))

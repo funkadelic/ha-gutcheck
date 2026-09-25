@@ -157,12 +157,12 @@ async def test_an_entry_that_never_finished_setup_still_downloads(
     hass: HomeAssistant,
     hass_client: ClientSessionGenerator,
 ) -> None:
-    """A setup-retry entry has no runtime data; the download carries the entry alone."""
+    """An entry that failed setup has no runtime data; the download carries the entry alone."""
     assert await async_setup_component(hass, "diagnostics", {})
     entry = MockConfigEntry(domain=DOMAIN, data={CONF_API_KEY: " "}, options={CONF_HEALTH_ENABLED: False})
     entry.add_to_hass(hass)
     await hass.config_entries.async_setup(entry.entry_id)
-    assert entry.state is config_entries.ConfigEntryState.SETUP_RETRY
+    assert entry.state is config_entries.ConfigEntryState.SETUP_ERROR
 
     result = await get_diagnostics_for_config_entry(hass, hass_client, entry)
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from homeassistant.config_entries import ConfigEntryState
+from homeassistant.config_entries import SOURCE_REAUTH, ConfigEntryState
 from homeassistant.const import CONF_API_KEY
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
@@ -29,7 +29,7 @@ async def test_a_recipe_id_that_prefixes_another_ones_id_keeps_the_other_recipes
     assert registry.async_get(removed_button.entity_id) is None
 
 
-async def test_setup_retries_with_no_network_call_when_the_stored_key_is_missing(
+async def test_setup_starts_reauth_with_no_network_call_when_the_stored_key_is_missing(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
 ) -> None:
     """A config entry with no stored key at all must not reach the API."""
@@ -38,11 +38,12 @@ async def test_setup_retries_with_no_network_call_when_the_stored_key_is_missing
 
     assert not await hass.config_entries.async_setup(entry.entry_id)
 
-    assert entry.state is ConfigEntryState.SETUP_RETRY
+    assert entry.state is ConfigEntryState.SETUP_ERROR
+    assert [flow["context"]["source"] for flow in entry.async_get_active_flows(hass, {SOURCE_REAUTH})] == [SOURCE_REAUTH]
     assert aioclient_mock.mock_calls == []
 
 
-async def test_setup_retries_with_no_network_call_when_the_stored_key_is_blank(
+async def test_setup_starts_reauth_with_no_network_call_when_the_stored_key_is_blank(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
 ) -> None:
     """A stored key that is empty or only whitespace must not reach the API either."""
@@ -51,7 +52,8 @@ async def test_setup_retries_with_no_network_call_when_the_stored_key_is_blank(
 
     assert not await hass.config_entries.async_setup(entry.entry_id)
 
-    assert entry.state is ConfigEntryState.SETUP_RETRY
+    assert entry.state is ConfigEntryState.SETUP_ERROR
+    assert [flow["context"]["source"] for flow in entry.async_get_active_flows(hass, {SOURCE_REAUTH})] == [SOURCE_REAUTH]
     assert aioclient_mock.mock_calls == []
 
 
