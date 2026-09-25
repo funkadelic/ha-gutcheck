@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD013 -->
 # ha-gutcheck
 
 ![Gut Check](https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/custom_components/gutcheck/brand/logo.png)
@@ -11,6 +12,22 @@
 Home Assistant is good at following rules you write. It isn't good at judgment calls like "is this a problem?", "is now a good time?", or "should I bother anyone about this?" Gut Check adds an AI that makes those small calls, shows you how sure it is, and leaves alone anything it isn't sure about. Nothing changes until you say so.
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=funkadelic&repository=ha-gutcheck&category=integration)
+
+## Contents
+
+- [How Gut Check decides](#how-gut-check-decides)
+- [What it does](#what-it-does)
+- [What Gut Check will never do](#what-gut-check-will-never-do)
+- [Install and set up](#install-and-set-up)
+- [Cost](#cost)
+- [Options](#options)
+- [What gets sent, and what does not](#what-gets-sent-and-what-does-not)
+- [Reference](#reference)
+  - [What each check leaves out](#what-each-check-leaves-out)
+  - [Restored entities](#restored-entities)
+  - [Sensors](#sensors)
+  - [Repairs cards](#repairs-cards)
+- [Remove](#remove)
 
 ## How Gut Check decides
 
@@ -51,7 +68,7 @@ If the key is ever rejected later, Home Assistant opens a repair asking for a ne
 TypeSafe AI measures usage in tokens, roughly four characters of text each, and charges only for what Gut Check sends. Measured on a real install with about 1,300 entities:
 
 | Check | Tokens per run | Cost per run |
-|---|---|---|
+| --- | --- | --- |
 | Home health check | 32,700 | about $0.0014 |
 | Area suggestions | 16,548 | under $0.001 |
 | Update review | 0 when nothing is pending or changed; about 41,000 estimated at the 50-update cap | under $0.002 |
