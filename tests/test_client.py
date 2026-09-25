@@ -80,8 +80,9 @@ async def test_401_raises_auth_error(hass: HomeAssistant, aioclient_mock: Aiohtt
     """A 401 raises GutCheckAuthError."""
     _queue_responses(aioclient_mock, [{"status": 401, "json": {"error": "unauthorized"}}])
 
+    client = _client(hass)
     with pytest.raises(GutCheckAuthError) as excinfo:
-        await _client(hass).async_ask(PAYLOAD)  # type: ignore[arg-type]
+        await client.async_ask(PAYLOAD)  # type: ignore[arg-type]
     assert excinfo.value.status == 401
 
 
@@ -89,8 +90,9 @@ async def test_422_raises_validation_error(hass: HomeAssistant, aioclient_mock: 
     """A 422 raises GutCheckValidationError."""
     _queue_responses(aioclient_mock, [{"status": 422, "json": {"error": "bad request"}}])
 
+    client = _client(hass)
     with pytest.raises(GutCheckValidationError) as excinfo:
-        await _client(hass).async_ask(PAYLOAD)  # type: ignore[arg-type]
+        await client.async_ask(PAYLOAD)  # type: ignore[arg-type]
     assert excinfo.value.status == 422
 
 
@@ -99,8 +101,9 @@ async def test_other_bad_status_raises_base_error(hass: HomeAssistant, aioclient
     """400, 500 and 503 raise the base class with the status set."""
     _queue_responses(aioclient_mock, [{"status": status, "json": {"error": "boom"}}])
 
+    client = _client(hass)
     with pytest.raises(GutCheckApiError) as excinfo:
-        await _client(hass).async_ask(PAYLOAD)  # type: ignore[arg-type]
+        await client.async_ask(PAYLOAD)  # type: ignore[arg-type]
     assert excinfo.value.status == status
     assert type(excinfo.value) is GutCheckApiError
 
@@ -109,24 +112,27 @@ async def test_client_error_raises_connection_error(hass: HomeAssistant, aioclie
     """A transport-level aiohttp.ClientError raises GutCheckConnectionError."""
     aioclient_mock.post(API_URL, exc=aiohttp.ClientConnectionError())
 
+    client = _client(hass)
     with pytest.raises(GutCheckConnectionError):
-        await _client(hass).async_ask(PAYLOAD)  # type: ignore[arg-type]
+        await client.async_ask(PAYLOAD)  # type: ignore[arg-type]
 
 
 async def test_timeout_raises_connection_error(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
     """A TimeoutError raises GutCheckConnectionError."""
     aioclient_mock.post(API_URL, exc=TimeoutError())
 
+    client = _client(hass)
     with pytest.raises(GutCheckConnectionError):
-        await _client(hass).async_ask(PAYLOAD)  # type: ignore[arg-type]
+        await client.async_ask(PAYLOAD)  # type: ignore[arg-type]
 
 
 async def test_html_body_raises_response_error(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
     """A 200 text/html body raises GutCheckResponseError."""
     _queue_responses(aioclient_mock, [{"status": 200, "text": "<html>nope</html>"}])
 
+    client = _client(hass)
     with pytest.raises(GutCheckResponseError):
-        await _client(hass).async_ask(PAYLOAD)  # type: ignore[arg-type]
+        await client.async_ask(PAYLOAD)  # type: ignore[arg-type]
 
 
 @pytest.mark.parametrize(
@@ -213,11 +219,12 @@ async def test_key_validation_gives_up_on_the_first_429(hass: HomeAssistant, aio
     """Key validation runs behind an interactive form, so it must not sleep and retry."""
     _queue_responses(aioclient_mock, [{"status": 429, "json": {"error": "slow down"}} for _ in range(4)])
 
+    client = _client(hass)
     with (
         patch("custom_components.gutcheck.client.asyncio.sleep", new_callable=AsyncMock) as sleep_mock,
         pytest.raises(GutCheckRateLimitError),
     ):
-        await _client(hass).async_validate_key()
+        await client.async_validate_key()
 
     assert sleep_mock.await_count == 0
     assert len(posted_bodies(aioclient_mock)) == 1
@@ -227,11 +234,12 @@ async def test_529_four_times_raises_after_three_retries(hass: HomeAssistant, ai
     """529 four times raises GutCheckOverloadedError after sleeps of 1, 2 and 4 seconds."""
     _queue_responses(aioclient_mock, [{"status": 529, "json": {"error": "overloaded"}} for _ in range(4)])
 
+    client = _client(hass)
     with (
         patch("custom_components.gutcheck.client.asyncio.sleep", new_callable=AsyncMock) as sleep_mock,
         pytest.raises(GutCheckOverloadedError),
     ):
-        await _client(hass).async_ask(PAYLOAD)  # type: ignore[arg-type]
+        await client.async_ask(PAYLOAD)  # type: ignore[arg-type]
 
     assert [call.args[0] for call in sleep_mock.await_args_list] == [1.0, 2.0, 4.0]
 
@@ -259,11 +267,12 @@ async def test_retry_after_over_60_raises_without_sleeping(hass: HomeAssistant, 
         [{"status": 429, "json": {"error": "slow down"}, "headers": {"Retry-After": "61"}}],
     )
 
+    client = _client(hass)
     with (
         patch("custom_components.gutcheck.client.asyncio.sleep", new_callable=AsyncMock) as sleep_mock,
         pytest.raises(GutCheckRateLimitError),
     ):
-        await _client(hass).async_ask(PAYLOAD)  # type: ignore[arg-type]
+        await client.async_ask(PAYLOAD)  # type: ignore[arg-type]
 
     sleep_mock.assert_not_awaited()
 
@@ -321,11 +330,12 @@ async def test_api_key_never_appears_in_errors_or_logs(
         ],
     )
 
+    client = _client(hass, api_key=secret_key)
     with (
         patch("custom_components.gutcheck.client.asyncio.sleep", new_callable=AsyncMock),
         pytest.raises(GutCheckAuthError) as excinfo,
     ):
-        await _client(hass, api_key=secret_key).async_ask(PAYLOAD)  # type: ignore[arg-type]
+        await client.async_ask(PAYLOAD)  # type: ignore[arg-type]
 
     assert secret_key not in str(excinfo.value)
     assert secret_key not in caplog.text

@@ -125,7 +125,7 @@ class HealthRecipe:
         bucket is filtered, not just worth-fixing: a newly critical entity must
         not sit in safe-to-remove either, waiting for the next paid run.
         """
-        for option, items in list(result["items"].items()):
+        for option, items in result["items"].items():
             kept = [item for item in items if not self._now_excluded(hass, item)]
             result["items"][option] = kept
             result["counts"][option] = len(kept)
