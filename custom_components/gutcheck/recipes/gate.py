@@ -41,9 +41,7 @@ def gate_score(answer: object, allowed: tuple[str, ...], threshold: float) -> st
     confidence = _raw_confidence(answer)
     if confidence is None or confidence < threshold:
         return None
-    # floor(score + 0.5), not round(): a value exactly half-way between two
-    # levels always rounds up, rather than round()'s banker's rounding
-    # falling to the even level.
+    # floor(score + 0.5), not round(): a value exactly halfway always rounds up, never to the even level.
     level = math.floor(score + 0.5)
     if not 0 <= level < len(allowed):
         return None
@@ -53,8 +51,7 @@ def gate_score(answer: object, allowed: tuple[str, ...], threshold: float) -> st
 def unit_interval(value: object) -> float | None:
     """value, but only as a real number in [0, 1] the API contract allows.
 
-    Compare before converting: float() on an oversized int raises. The
-    range check also rejects NaN and both infinities, which fail every compare.
+    Compare before converting: float() on an oversized int raises; the range check also rejects NaN and both infinities.
     """
     if not isinstance(value, bool) and isinstance(value, int | float) and 0.0 <= value <= 1.0:
         return float(value)
@@ -85,8 +82,7 @@ def _raw_score(answer: object) -> float | None:
 def _asked_choice(question: Question, answer: object) -> str | None:
     """The answer's choice, but only when the question asked was itself a choice question.
 
-    The str type is checked before the membership test: an unhashable choice
-    such as a list would otherwise raise inside the dict lookup.
+    The str type is checked first: an unhashable choice such as a list would otherwise raise in the dict lookup.
     """
     if question.get("type") != "choice":
         return None
@@ -104,13 +100,8 @@ def _asked_choice(question: Question, answer: object) -> str | None:
 def _off_criteria(question: Question | None, answer: object) -> bool:
     """Whether a choice answer names something outside its own question's criteria.
 
-    Only a choice question answered with a choice answer can be off-criteria;
-    anything else (a score question, a malformed answer) has no criteria to
-    be off from. A recipe's gate checks its own confidence and its own
-    allow-list, which can span every question in a run rather than one
-    question's own options, so this check is separate and always wins:
-    whatever the gate returns, an answer naming something its own question
-    never offered is never a suggestion.
+    Wins over the recipe's own gate: a per-question criteria set can be
+    narrower than the recipe's overall allow-list.
     """
     if question is None or question.get("type") != "choice" or not isinstance(answer, dict) or answer.get("type") != "choice":
         return False
