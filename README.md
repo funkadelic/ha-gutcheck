@@ -29,6 +29,7 @@ Home Assistant is good at following rules you write. It isn't good at judgment c
   - [Restored entities](#restored-entities)
   - [Sensors](#sensors)
   - [Repairs cards](#repairs-cards)
+  - [Changing a class back](#changing-a-class-back)
 - [Remove](#remove)
 
 ## How Gut Check decides
@@ -44,6 +45,8 @@ Jev can't write a reply, make up a new option, or tell Home Assistant to do anyt
 **Update review.** Gut Check reads the release notes on every pending update and scores each one routine (nothing to do beyond installing it), feature (adds something while every existing setup keeps working), or possibly breaking (removes or renames something, or needs a migration or a manual step). Each possibly-breaking update gets a card in Repairs. It never installs, skips, or changes an update.
 
 **Area suggestions.** Gut Check suggests one of your existing areas for each device that has none, or suggests nothing when it isn't sure or nothing fits. Each suggestion is a Repairs card with two choices: assign the area, or tell Gut Check not to suggest one for that device. It never creates an area and never moves a device on its own.
+
+**Device class suggestions.** Gut Check suggests a device class for sensors that report a unit but have none. When only one device class fits a sensor's unit, Gut Check decides on its own; otherwise it asks. Each suggestion is a Repairs card with two choices: set the class, or tell Gut Check not to suggest one for that sensor. It never sets a class on its own, and it is off until you switch it on.
 
 ## What Gut Check will never do
 
@@ -78,6 +81,7 @@ TypeSafe AI measures usage in tokens, about three characters of text each, and c
 | Home health check | 32,700 | about $0.0014 |
 | Area suggestions | 16,548 | under $0.001 |
 | Update review | 0 when nothing is pending or changed; about 41,000 estimated at the 50-update cap | under $0.002 |
+| Device class suggestions | 16,045 for 53 asked sensors on a real run; 0 when every qualifying sensor is decided from its unit alone | under $0.001 |
 
 Gut Check enforces a daily token budget so cost stays predictable. `sensor.gut_check_tokens_used_today` and `sensor.gut_check_cost_today` show what has been spent and what it cost, both resetting at local midnight. The default of 150,000 tokens covers the weekly schedule with room to spare; running checks by hand several times in one day can reach it.
 
@@ -90,8 +94,10 @@ Open the integration's **Configure** screen to:
 - Turn the home health check on or off
 - Turn the weekly update review on or off
 - Turn area suggestions on or off
+- Turn device class suggestions on or off (off by default)
 - Set the daily token budget (default 150,000 tokens)
 - Pick a label; anything carrying that label on the entity or its device is left out of every check entirely
+- Change back a device class Gut Check set, once anything is recorded
 
 ## What gets sent, and what does not
 
@@ -100,6 +106,8 @@ For each unavailable entity, Gut Check sends only: its domain, device class, int
 For each pending update, Gut Check sends the integration name, the installed and latest version, a code-computed size for the jump between them, the update's title, and a cleaned excerpt of its release summary and its release notes, each capped at 1,500 characters. The update's release url is never sent; Gut Check keeps it only to build the Repairs card's link. The title, release summary and release notes all come from whoever publishes the update, and Gut Check treats all three only as a description, never as instructions: the three levels it can choose between are fixed in code, so nothing in an update's own text can add a fourth option, widen the scale, or make Gut Check act instead of just scoring.
 
 For each device with no area, Gut Check sends its name (as you or its maker named it, cleaned and shortened), manufacturer, model, integration, and the kinds and device classes of its entities, plus your existing area names as the options it can pick from. It never sends entity names or entity IDs, never another device's area, and never the area of a hub or account the device sits behind. The device's name is read only as a description, never as an instruction.
+
+For each sensor with a unit but no device class, when more than one device class accepts that unit, Gut Check sends the sensor's name, its device's name, manufacturer, model, integration, unit and entity category, plus the device classes that accept its unit as the options it can pick from. It never sends the sensor's reading, its entity ID, or its area, and it never sends any other entity. The name and device name are read only as a description, never as an instruction. When exactly one device class accepts a sensor's unit, Gut Check decides in code and sends nothing for that sensor.
 
 To see exactly what was sent on the last completed run, open **Developer tools > States**, find the check's sensor, and look at its `last_payload` attribute. A run that fails partway leaves the previous run's payload in place.
 
@@ -115,6 +123,8 @@ The update review reads every pending update except disabled ones, including fir
 
 Area suggestions skip service devices such as add-ons and accounts, disabled devices, devices that already have an area, devices with no entities, anything with a device tracker, devices where you placed any entity's area by hand, and anything carrying the label you chose to exclude, on the device or on any of its entities. They do cover devices with locks, alarm panels, garage doors or covers, because an area is only a label on the device, and it changes only when you confirm the card.
 
+Device class suggestions skip sensors with no unit, sensors that already have a device class (their own or one set by their integration), disabled sensors, sensors or devices carrying the label you chose to exclude, Gut Check's own sensors, and units that no device class accepts.
+
 ### Restored entities
 
 A restored entity is one its integration no longer provides. The health check sorts it as safe to remove without asking the model once it has been gone for 31 days, as long as its integration is still loaded or it has none. If the recorder keeps less history than that (`purge_keep_days`, 10 days by default) and has recorded the outage, being gone for that whole history is enough. With the recorder off this rarely applies, because a restart resets the entity's last-changed time, the only other date Gut Check has. These entities carry no confidence value in the sensor's attributes.
@@ -129,6 +139,8 @@ Each enabled check gets one sensor. Its state is how many of that check's Repair
 
 `sensor.gut_check_area_suggestions` counts the suggestion cards waiting in Repairs. Suggestions held back by the ten-new-cards-per-run cap, and ones you chose not to have, are not counted. Its attributes list each one with its suggested area and confidence, plus an `unsure` list for anything below the confidence threshold or where none of the listed areas clearly fit.
 
+`sensor.gut_check_device_class_suggestions` counts the device class cards waiting in Repairs, held back the same way. Its attributes list each suggested sensor with its class and confidence, where a confidence of 1.0 means Gut Check decided the class from the sensor's unit alone rather than asking, plus an `unsure` list for the rest.
+
 ### Repairs cards
 
 Worth-fixing entities get one card each under **Settings > Repairs**. A card clears itself once the entity it names is available again. Ignoring a card hides it and Gut Check remembers that choice on later runs.
@@ -136,6 +148,12 @@ Worth-fixing entities get one card each under **Settings > Repairs**. A card cle
 A possibly-breaking update gets one card, linking to its release notes where the integration provides them. The card clears itself the moment the update is installed or skipped, not on a version bump alone, so an open card still has an unread update behind it.
 
 An area suggestion gets one card per device, up to ten new cards per run, most confident first; the rest wait for a later run or a button press. A card clears when you assign its area, or when the device gets an area another way or stops qualifying. Choosing not to have an area suggested moves the card to your ignored repairs, where it stays for as long as the device still qualifies, including across turning area suggestions off and back on. If the device or the suggested area changed by the time you open a card, assigning does nothing, tells you so, and removes the card.
+
+A device class suggestion gets one card per sensor, up to ten new cards per run: the sensors Gut Check decided from their unit alone come first, then the rest most confident first. A card clears when you set its class, or when the sensor gets a class another way or stops qualifying. Choosing not to have a class suggested moves the card to your ignored repairs, where it stays for as long as the sensor still qualifies, including across turning device class suggestions off and back on. If the sensor changed by the time you open a card, setting its class does nothing and tells you so.
+
+### Changing a class back
+
+Home Assistant's own entity settings have no device class control for a sensor, so Gut Check gives you one. Open the integration's Configure screen, tick **Change back a device class Gut Check set**, and pick the sensors. Gut Check clears the device class it set, leaves any that were changed since, and stops suggesting a device class for them. Removing Gut Check keeps the classes it set, so change them back first if you want those gone too.
 
 ## Remove
 
