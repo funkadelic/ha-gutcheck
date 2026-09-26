@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.7.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.6.0...v0.7.0) (2026-09-26)
+
+
+### Added
+
+* flag integrations stuck failing to set up ([#45](https://github.com/funkadelic/ha-gutcheck/issues/45)) ([1babf7b](https://github.com/funkadelic/ha-gutcheck/commit/1babf7bae0ff0842c10dcf0f068bbd54c2efff06))
+* suggest a device class for sensors that report a unit but have none ([#44](https://github.com/funkadelic/ha-gutcheck/issues/44)) ([f8a0007](https://github.com/funkadelic/ha-gutcheck/commit/f8a0007ab18062465e717696d7fbd154d63e0937))
+
+
+### Fixed
+
+* keep area suggestion cards visible after a restart ([#40](https://github.com/funkadelic/ha-gutcheck/issues/40)) ([fba9920](https://github.com/funkadelic/ha-gutcheck/commit/fba9920ef95afb81382f424a7768978a6edd45b0))
+
+
+### Other Changes
+
+* bump the pip group with 2 updates ([#43](https://github.com/funkadelic/ha-gutcheck/issues/43)) ([2b76e08](https://github.com/funkadelic/ha-gutcheck/commit/2b76e082a7e09fd3c85877887c5caec448d0bf78))
+* explain how and when the checks run ([#42](https://github.com/funkadelic/ha-gutcheck/issues/42)) ([384041d](https://github.com/funkadelic/ha-gutcheck/commit/384041dbe528dadb137cde2a956e38124e026e32))
+
 ## [0.6.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.5.0...v0.6.0) (2026-09-25)
 
 
