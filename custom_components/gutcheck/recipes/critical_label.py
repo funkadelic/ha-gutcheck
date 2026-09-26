@@ -122,12 +122,21 @@ class CriticalLabelRecipe:
         A restore calls no API, so an entity given the label by hand,
         disabled, removed, or moved to a blocked domain since the run must
         still drop out of the stored result, rather than sitting exposed for
-        up to a week until the next paid run notices. Every persistent
-        effect async_act has (the card sync) is reproduced here too.
+        up to a week until the next paid run notices. With no critical label
+        configured, or the configured one no longer resolving in the label
+        registry, the whole result empties instead, since the recipe does
+        nothing until a label is picked. Every persistent effect async_act
+        has (the card sync) is reproduced here too.
         """
-        for option, items in result["items"].items():
-            kept = [item for item in items if self._still_qualifies(hass, item)]
-            result["items"][option] = kept
-            result["counts"][option] = len(kept)
-        result["unsure"] = [item for item in result["unsure"] if self._still_qualifies(hass, item)]
+        if configured_label(hass, self._safety) is None:
+            for option in result["items"]:
+                result["items"][option] = []
+                result["counts"][option] = 0
+            result["unsure"] = []
+        else:
+            for option, items in result["items"].items():
+                kept = [item for item in items if self._still_qualifies(hass, item)]
+                result["items"][option] = kept
+                result["counts"][option] = len(kept)
+            result["unsure"] = [item for item in result["unsure"] if self._still_qualifies(hass, item)]
         sync_critical_label_cards(hass, self._safety, result["items"].get(OPTION_SUGGESTED, []), restoring=True)

@@ -82,7 +82,7 @@ class SafetyRules:
         )
 
     def excludes_entity_id(self, hass: HomeAssistant, entity_id_or_uuid: str) -> bool:
-        """The same rules for a stored finding, which may no longer be registered.
+        """The same rules as excludes(), for a stored finding which may no longer be registered.
 
         Takes either form the registry accepts. Prefer the registry id, which
         outlives a rename.
@@ -92,3 +92,15 @@ class SafetyRules:
             # Unknown now (removed). Left alone, so an ignore survives it.
             return False
         return self.excludes(hass, entry)
+
+    def always_excludes_entity_id(self, hass: HomeAssistant, entity_id_or_uuid: str) -> bool:
+        """The same rules as always_excludes(), for a stored finding which may no longer be registered.
+
+        Takes either form the registry accepts. Prefer the registry id, which
+        outlives a rename. Used only by the home health check's restore path.
+        """
+        entry = er.async_get(hass).async_get(entity_id_or_uuid)
+        if entry is None:
+            # Unknown now (removed). Left alone, so an ignore survives it.
+            return False
+        return self.always_excludes(entry)

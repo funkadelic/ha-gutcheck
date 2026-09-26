@@ -161,18 +161,18 @@ class HealthRecipe:
         Looks the entity up by registry id, which survives a rename that leaves
         the stored entity id resolving to nothing.
         """
-        return self._safety.excludes_entity_id(hass, str(item["registry_id"]))
+        return self._safety.always_excludes_entity_id(hass, str(item["registry_id"]))
 
     async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
         """Re-sync issues and re-arm recovery tracking for a restored result, without calling the API.
 
         A restore can follow a disable/re-enable, which deletes every issue under
         HEALTH_ISSUE_PREFIX, so the restored result's issues must be recreated too.
-        Findings whose entity has since been labelled critical, disabled or moved
-        into a blocked domain are dropped rather than raised again, out of the
-        result itself so the summary sensor does not list them either. Every
-        bucket is filtered, not just worth-fixing: a newly critical entity must
-        not sit in safe-to-remove either, waiting for the next paid run.
+        Findings whose entity has since been disabled, moved into a blocked domain,
+        or turned into one of Gut Check's own are dropped rather than raised again,
+        out of the result itself so the summary sensor does not list them either.
+        A newly critical-labelled entity is kept: the label means never acted on
+        or changed here, not never sent.
         """
         for option, items in result["items"].items():
             kept = [item for item in items if not self._now_excluded(hass, item)]
