@@ -4,632 +4,677 @@
     "s0": {
       "type": "choice",
       "choice": "volume",
-      "confidence": 0.62,
+      "confidence": 0.66,
       "probabilities": {
+        "none_of_these": 0.03,
+        "volume": 0.74,
         "volume_storage": 0.01,
-        "volume": 0.72,
-        "none_of_these": 0.02,
-        "water": 0.25
+        "water": 0.22
       }
     },
     "s1": {
       "type": "choice",
       "choice": "volume",
-      "confidence": 0.55,
+      "confidence": 0.72,
       "probabilities": {
-        "volume_storage": 0.01,
-        "volume": 0.67,
         "none_of_these": 0.03,
-        "water": 0.29
+        "water": 0.17,
+        "volume_storage": 0.01,
+        "volume": 0.79
       }
     },
     "s2": {
       "type": "choice",
       "choice": "volume",
-      "confidence": 0.51,
+      "confidence": 0.6,
       "probabilities": {
-        "volume_storage": 0.02,
-        "volume": 0.63,
-        "none_of_these": 0.07,
-        "water": 0.28
+        "none_of_these": 0.08,
+        "water": 0.2,
+        "volume": 0.69,
+        "volume_storage": 0.03
       }
     },
     "s3": {
       "type": "choice",
       "choice": "volume",
-      "confidence": 0.56,
+      "confidence": 0.63,
       "probabilities": {
-        "volume_storage": 0.01,
-        "volume": 0.67,
         "none_of_these": 0.03,
-        "water": 0.28
+        "water": 0.23,
+        "volume_storage": 0.01,
+        "volume": 0.73
       }
     },
     "s4": {
       "type": "choice",
       "choice": "volume",
-      "confidence": 0.42,
+      "confidence": 0.54,
       "probabilities": {
+        "none_of_these": 0.08,
+        "water": 0.27,
         "volume_storage": 0.01,
-        "volume": 0.56,
-        "none_of_these": 0.07,
-        "water": 0.36
+        "volume": 0.64
       }
     },
     "s5": {
       "type": "choice",
       "choice": "volume",
-      "confidence": 0.46,
+      "confidence": 0.44,
       "probabilities": {
+        "none_of_these": 0.08,
         "volume_storage": 0.01,
-        "volume": 0.59,
-        "none_of_these": 0.07,
-        "water": 0.33
+        "water": 0.33,
+        "volume": 0.58
       }
     },
     "s6": {
       "type": "choice",
       "choice": "volume",
-      "confidence": 0.37,
+      "confidence": 0.36,
       "probabilities": {
-        "volume_storage": 0.03,
-        "volume": 0.53,
-        "none_of_these": 0.17,
-        "water": 0.27
+        "none_of_these": 0.25,
+        "water": 0.2,
+        "volume_storage": 0.04,
+        "volume": 0.51
       }
     },
     "s7": {
       "type": "choice",
       "choice": "volume",
-      "confidence": 0.4,
+      "confidence": 0.35,
       "probabilities": {
-        "volume_storage": 0.02,
-        "volume": 0.54,
-        "none_of_these": 0.05,
-        "water": 0.39
+        "none_of_these": 0.06,
+        "volume": 0.51,
+        "volume_storage": 0.01,
+        "water": 0.42
       }
     },
     "s8": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.99,
+      "confidence": 1.0,
       "probabilities": {
-        "humidity": 0.01,
-        "battery": 0.0,
         "moisture": 0.0,
-        "none_of_these": 0.99,
-        "power_factor": 0.0
+        "none_of_these": 1.0,
+        "humidity": 0.0,
+        "power_factor": 0.0,
+        "battery": 0.0
       }
     },
     "s9": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.98,
+      "confidence": 1.0,
       "probabilities": {
-        "humidity": 0.01,
-        "battery": 0.0,
-        "moisture": 0.01,
-        "none_of_these": 0.98,
-        "power_factor": 0.0
+        "none_of_these": 1.0,
+        "moisture": 0.0,
+        "humidity": 0.0,
+        "power_factor": 0.0,
+        "battery": 0.0
       }
     },
     "s10": {
       "type": "choice",
       "choice": "water",
-      "confidence": 0.39,
+      "confidence": 0.35,
       "probabilities": {
-        "volume_storage": 0.02,
-        "volume": 0.42,
         "none_of_these": 0.02,
-        "water": 0.54
+        "water": 0.52,
+        "volume_storage": 0.01,
+        "volume": 0.45
       }
     },
     "s11": {
       "type": "choice",
       "choice": "water",
-      "confidence": 0.67,
+      "confidence": 0.54,
       "probabilities": {
-        "volume_storage": 0.03,
-        "volume": 0.2,
-        "none_of_these": 0.03,
-        "water": 0.74
+        "none_of_these": 0.05,
+        "water": 0.65,
+        "volume_storage": 0.02,
+        "volume": 0.28
       }
     },
     "s12": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.98,
+      "confidence": 0.97,
       "probabilities": {
-        "humidity": 0.0,
-        "battery": 0.01,
         "moisture": 0.0,
-        "none_of_these": 0.99,
+        "none_of_these": 0.98,
+        "humidity": 0.0,
+        "battery": 0.02,
         "power_factor": 0.0
       }
     },
     "s13": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.98,
+      "confidence": 0.99,
       "probabilities": {
-        "humidity": 0.01,
-        "battery": 0.01,
         "moisture": 0.0,
-        "none_of_these": 0.98,
+        "none_of_these": 0.99,
+        "humidity": 0.0,
+        "battery": 0.01,
         "power_factor": 0.0
       }
     },
     "s14": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.85,
+      "confidence": 0.98,
       "probabilities": {
-        "humidity": 0.03,
-        "battery": 0.08,
         "moisture": 0.0,
-        "none_of_these": 0.89,
+        "none_of_these": 0.99,
+        "humidity": 0.0,
+        "battery": 0.01,
         "power_factor": 0.0
       }
     },
     "s15": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.63,
+      "confidence": 0.97,
       "probabilities": {
-        "humidity": 0.01,
-        "battery": 0.28,
         "moisture": 0.0,
-        "none_of_these": 0.7,
-        "power_factor": 0.01
+        "none_of_these": 0.98,
+        "humidity": 0.0,
+        "power_factor": 0.0,
+        "battery": 0.02
       }
     },
     "s16": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.67,
+      "confidence": 0.98,
       "probabilities": {
-        "humidity": 0.01,
-        "battery": 0.25,
+        "none_of_these": 0.99,
         "moisture": 0.0,
-        "none_of_these": 0.74,
+        "humidity": 0.0,
+        "battery": 0.01,
         "power_factor": 0.0
       }
     },
     "s17": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.95,
+      "confidence": 0.93,
       "probabilities": {
-        "humidity": 0.01,
-        "battery": 0.02,
         "moisture": 0.0,
-        "none_of_these": 0.96,
-        "power_factor": 0.01
+        "none_of_these": 0.95,
+        "humidity": 0.0,
+        "battery": 0.01,
+        "power_factor": 0.04
       }
     },
     "s18": {
       "type": "choice",
       "choice": "carbon_dioxide",
-      "confidence": 0.95,
+      "confidence": 0.82,
       "probabilities": {
-        "carbon_dioxide": 0.96,
+        "none_of_these": 0.14,
         "ozone": 0.0,
-        "none_of_these": 0.04,
-        "carbon_monoxide": 0.0,
         "volatile_organic_compounds_parts": 0.0,
-        "nitrogen_dioxide": 0.0
+        "nitrogen_dioxide": 0.0,
+        "carbon_monoxide": 0.0,
+        "carbon_dioxide": 0.86
       }
     },
     "s19": {
       "type": "choice",
-      "choice": "humidity",
-      "confidence": 0.46,
+      "choice": "none_of_these",
+      "confidence": 0.43,
       "probabilities": {
-        "humidity": 0.56,
-        "battery": 0.0,
+        "none_of_these": 0.54,
         "moisture": 0.01,
-        "none_of_these": 0.43,
-        "power_factor": 0.0
+        "humidity": 0.45,
+        "power_factor": 0.0,
+        "battery": 0.0
       }
     },
     "s20": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.55,
+      "confidence": 0.79,
       "probabilities": {
-        "humidity": 0.36,
-        "battery": 0.0,
         "moisture": 0.0,
-        "none_of_these": 0.64,
+        "none_of_these": 0.84,
+        "humidity": 0.16,
+        "battery": 0.0,
         "power_factor": 0.0
       }
     },
     "s21": {
       "type": "choice",
       "choice": "pm25",
-      "confidence": 0.61,
+      "confidence": 0.62,
       "probabilities": {
-        "carbon_monoxide": 0.0,
-        "nitrous_oxide": 0.0,
-        "sulphur_dioxide": 0.0,
-        "pm4": 0.0,
-        "nitrogen_monoxide": 0.0,
         "none_of_these": 0.21,
-        "nitrogen_dioxide": 0.0,
-        "pm10": 0.0,
-        "ozone": 0.0,
-        "pm25": 0.65,
+        "nitrous_oxide": 0.0,
+        "nitrogen_monoxide": 0.0,
+        "carbon_monoxide": 0.0,
         "pm1": 0.0,
-        "volatile_organic_compounds": 0.14
+        "pm10": 0.0,
+        "pm4": 0.0,
+        "sulphur_dioxide": 0.0,
+        "ozone": 0.0,
+        "nitrogen_dioxide": 0.0,
+        "pm25": 0.66,
+        "volatile_organic_compounds": 0.13
       }
     },
     "s22": {
       "type": "choice",
-      "choice": "none_of_these",
-      "confidence": 0.41,
+      "choice": "volatile_organic_compounds_parts",
+      "confidence": 0.71,
       "probabilities": {
-        "none_of_these": 0.49,
         "ozone": 0.01,
+        "volatile_organic_compounds_parts": 0.75,
+        "none_of_these": 0.23,
         "nitrogen_monoxide": 0.0,
         "sulphur_dioxide": 0.0,
-        "carbon_monoxide": 0.01,
-        "volatile_organic_compounds_parts": 0.49,
-        "nitrogen_dioxide": 0.0
+        "nitrogen_dioxide": 0.0,
+        "carbon_monoxide": 0.01
       }
     },
     "s23": {
       "type": "choice",
-      "choice": "temperature",
+      "choice": "duration",
       "confidence": 0.38,
       "probabilities": {
-        "temperature": 0.59,
-        "temperature_delta": 0.0,
-        "none_of_these": 0.41
+        "none_of_these": 0.31,
+        "duration": 0.69
       }
     },
     "s24": {
       "type": "choice",
-      "choice": "pressure",
-      "confidence": 0.24,
+      "choice": "temperature",
+      "confidence": 0.37,
       "probabilities": {
-        "pressure": 0.49,
-        "atmospheric_pressure": 0.41,
-        "none_of_these": 0.1
+        "none_of_these": 0.42,
+        "temperature": 0.58,
+        "temperature_delta": 0.0
       }
     },
     "s25": {
       "type": "choice",
-      "choice": "none_of_these",
-      "confidence": 0.71,
+      "choice": "atmospheric_pressure",
+      "confidence": 0.23,
       "probabilities": {
-        "temperature": 0.19,
-        "temperature_delta": 0.0,
-        "none_of_these": 0.81
+        "none_of_these": 0.17,
+        "atmospheric_pressure": 0.49,
+        "pressure": 0.34
       }
     },
     "s26": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.41,
+      "confidence": 0.0,
       "probabilities": {
-        "humidity": 0.46,
-        "battery": 0.0,
-        "moisture": 0.01,
-        "none_of_these": 0.53,
-        "power_factor": 0.0
+        "none_of_these": 0.5,
+        "signal_strength": 0.5
       }
     },
     "s27": {
       "type": "choice",
-      "choice": "humidity",
-      "confidence": 0.59,
+      "choice": "temperature",
+      "confidence": 0.28,
       "probabilities": {
-        "humidity": 0.67,
-        "battery": 0.0,
-        "moisture": 0.01,
-        "none_of_these": 0.32,
-        "power_factor": 0.0
+        "none_of_these": 0.47,
+        "temperature": 0.53,
+        "temperature_delta": 0.0
       }
     },
     "s28": {
       "type": "choice",
-      "choice": "humidity",
-      "confidence": 0.65,
+      "choice": "none_of_these",
+      "confidence": 0.89,
       "probabilities": {
-        "humidity": 0.72,
+        "none_of_these": 0.92,
+        "moisture": 0.0,
+        "humidity": 0.08,
         "battery": 0.0,
-        "moisture": 0.01,
-        "none_of_these": 0.27,
         "power_factor": 0.0
       }
     },
     "s29": {
       "type": "choice",
-      "choice": "humidity",
-      "confidence": 0.62,
+      "choice": "none_of_these",
+      "confidence": 0.74,
       "probabilities": {
-        "humidity": 0.71,
-        "battery": 0.0,
         "moisture": 0.0,
-        "none_of_these": 0.29,
-        "power_factor": 0.0
+        "none_of_these": 0.8,
+        "humidity": 0.2,
+        "power_factor": 0.0,
+        "battery": 0.0
       }
     },
     "s30": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.45,
+      "confidence": 0.69,
       "probabilities": {
-        "humidity": 0.42,
-        "battery": 0.01,
         "moisture": 0.0,
-        "none_of_these": 0.5700000000000001,
+        "none_of_these": 0.76,
+        "humidity": 0.24,
+        "battery": 0.0,
         "power_factor": 0.0
       }
     },
     "s31": {
       "type": "choice",
-      "choice": "humidity",
-      "confidence": 0.48,
+      "choice": "none_of_these",
+      "confidence": 0.77,
       "probabilities": {
-        "humidity": 0.59,
+        "moisture": 0.0,
+        "none_of_these": 0.82,
+        "humidity": 0.18,
         "battery": 0.0,
-        "moisture": 0.01,
-        "none_of_these": 0.4,
         "power_factor": 0.0
       }
     },
     "s32": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.51,
+      "confidence": 0.79,
       "probabilities": {
-        "humidity": 0.38,
-        "battery": 0.01,
-        "moisture": 0.01,
-        "none_of_these": 0.6,
+        "none_of_these": 0.84,
+        "moisture": 0.0,
+        "humidity": 0.16,
+        "battery": 0.0,
         "power_factor": 0.0
       }
     },
     "s33": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.38,
+      "confidence": 0.92,
       "probabilities": {
-        "humidity": 0.48,
-        "battery": 0.01,
         "moisture": 0.0,
-        "none_of_these": 0.51,
-        "power_factor": 0.0
+        "none_of_these": 0.95,
+        "humidity": 0.05,
+        "power_factor": 0.0,
+        "battery": 0.0
       }
     },
     "s34": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.37,
+      "confidence": 0.9,
       "probabilities": {
-        "humidity": 0.49,
-        "battery": 0.01,
         "moisture": 0.0,
-        "none_of_these": 0.5,
+        "none_of_these": 0.93,
+        "humidity": 0.07,
+        "battery": 0.0,
         "power_factor": 0.0
       }
     },
     "s35": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.49,
+      "confidence": 0.87,
       "probabilities": {
-        "humidity": 0.39,
-        "battery": 0.01,
-        "moisture": 0.01,
-        "none_of_these": 0.59,
+        "moisture": 0.0,
+        "none_of_these": 0.9,
+        "humidity": 0.1,
+        "battery": 0.0,
         "power_factor": 0.0
       }
     },
     "s36": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.76,
+      "confidence": 0.93,
       "probabilities": {
-        "humidity": 0.18,
-        "battery": 0.01,
         "moisture": 0.0,
-        "none_of_these": 0.81,
+        "none_of_these": 0.95,
+        "humidity": 0.05,
+        "battery": 0.0,
         "power_factor": 0.0
       }
     },
     "s37": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.76,
+      "confidence": 0.94,
       "probabilities": {
-        "humidity": 0.18,
-        "battery": 0.01,
         "moisture": 0.0,
-        "none_of_these": 0.81,
-        "power_factor": 0.0
+        "none_of_these": 0.95,
+        "humidity": 0.04,
+        "power_factor": 0.0,
+        "battery": 0.01
       }
     },
     "s38": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.79,
+      "confidence": 0.93,
       "probabilities": {
-        "humidity": 0.16,
-        "battery": 0.01,
-        "moisture": 0.01,
-        "none_of_these": 0.82,
-        "power_factor": 0.0
+        "moisture": 0.0,
+        "none_of_these": 0.95,
+        "humidity": 0.04,
+        "power_factor": 0.0,
+        "battery": 0.01
       }
     },
     "s39": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.82,
+      "confidence": 0.95,
       "probabilities": {
-        "humidity": 0.13,
-        "battery": 0.0,
+        "none_of_these": 0.97,
         "moisture": 0.0,
-        "none_of_these": 0.87,
-        "power_factor": 0.0
+        "humidity": 0.02,
+        "power_factor": 0.0,
+        "battery": 0.01
       }
     },
     "s40": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.89,
+      "confidence": 0.96,
       "probabilities": {
-        "humidity": 0.07,
-        "battery": 0.01,
         "moisture": 0.0,
-        "none_of_these": 0.92,
+        "none_of_these": 0.96,
+        "humidity": 0.03,
+        "battery": 0.01,
         "power_factor": 0.0
       }
     },
     "s41": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.89,
+      "confidence": 0.96,
       "probabilities": {
-        "humidity": 0.08,
-        "battery": 0.01,
+        "none_of_these": 0.97,
         "moisture": 0.0,
-        "none_of_these": 0.91,
+        "humidity": 0.02,
+        "battery": 0.01,
         "power_factor": 0.0
       }
     },
     "s42": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.87,
+      "confidence": 0.97,
       "probabilities": {
-        "humidity": 0.09,
-        "battery": 0.01,
         "moisture": 0.0,
-        "none_of_these": 0.9,
+        "none_of_these": 0.98,
+        "humidity": 0.01,
+        "battery": 0.01,
         "power_factor": 0.0
       }
     },
     "s43": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.84,
+      "confidence": 0.96,
       "probabilities": {
-        "humidity": 0.12,
-        "battery": 0.0,
         "moisture": 0.0,
-        "none_of_these": 0.88,
+        "none_of_these": 0.97,
+        "humidity": 0.02,
+        "battery": 0.01,
         "power_factor": 0.0
       }
     },
     "s44": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.75,
+      "confidence": 0.96,
       "probabilities": {
-        "humidity": 0.19,
-        "battery": 0.01,
         "moisture": 0.0,
-        "none_of_these": 0.8,
+        "none_of_these": 0.97,
+        "humidity": 0.02,
+        "battery": 0.01,
         "power_factor": 0.0
       }
     },
     "s45": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.85,
+      "confidence": 0.95,
       "probabilities": {
-        "humidity": 0.11,
-        "battery": 0.0,
         "moisture": 0.0,
-        "none_of_these": 0.89,
+        "none_of_these": 0.96,
+        "humidity": 0.03,
+        "battery": 0.01,
         "power_factor": 0.0
       }
     },
     "s46": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.87,
+      "confidence": 0.94,
       "probabilities": {
-        "humidity": 0.09,
-        "battery": 0.01,
         "moisture": 0.0,
-        "none_of_these": 0.9,
+        "none_of_these": 0.96,
+        "humidity": 0.03,
+        "battery": 0.01,
         "power_factor": 0.0
       }
     },
     "s47": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.93,
+      "confidence": 0.95,
       "probabilities": {
-        "humidity": 0.05,
-        "battery": 0.01,
+        "none_of_these": 0.97,
         "moisture": 0.0,
-        "none_of_these": 0.94,
+        "humidity": 0.02,
+        "battery": 0.01,
         "power_factor": 0.0
       }
     },
     "s48": {
       "type": "choice",
-      "choice": "speed",
-      "confidence": 0.49,
+      "choice": "none_of_these",
+      "confidence": 0.91,
       "probabilities": {
-        "speed": 0.66,
-        "none_of_these": 0.33,
-        "wind_speed": 0.01
+        "none_of_these": 0.93,
+        "moisture": 0.01,
+        "humidity": 0.02,
+        "battery": 0.03,
+        "power_factor": 0.0
       }
     },
     "s49": {
       "type": "choice",
-      "choice": "speed",
-      "confidence": 0.59,
+      "choice": "none_of_these",
+      "confidence": 0.95,
       "probabilities": {
-        "speed": 0.73,
-        "wind_speed": 0.0,
-        "none_of_these": 0.27
+        "moisture": 0.01,
+        "none_of_these": 0.96,
+        "humidity": 0.01,
+        "battery": 0.02,
+        "power_factor": 0.0
       }
     },
     "s50": {
       "type": "choice",
-      "choice": "none_of_these",
-      "confidence": 0.97,
+      "choice": "speed",
+      "confidence": 0.43,
       "probabilities": {
-        "humidity": 0.02,
-        "battery": 0.0,
-        "moisture": 0.0,
-        "none_of_these": 0.98,
-        "power_factor": 0.0
+        "none_of_these": 0.38,
+        "wind_speed": 0.0,
+        "speed": 0.62
       }
     },
     "s51": {
       "type": "choice",
       "choice": "none_of_these",
-      "confidence": 0.96,
+      "confidence": 0.68,
       "probabilities": {
-        "humidity": 0.02,
-        "battery": 0.01,
-        "moisture": 0.0,
-        "none_of_these": 0.97,
-        "power_factor": 0.0
+        "none_of_these": 0.84,
+        "distance": 0.16
       }
     },
     "s52": {
       "type": "choice",
+      "choice": "speed",
+      "confidence": 0.31,
+      "probabilities": {
+        "none_of_these": 0.45,
+        "wind_speed": 0.01,
+        "speed": 0.54
+      }
+    },
+    "s53": {
+      "type": "choice",
+      "choice": "none_of_these",
+      "confidence": 0.74,
+      "probabilities": {
+        "none_of_these": 0.87,
+        "distance": 0.13
+      }
+    },
+    "s54": {
+      "type": "choice",
+      "choice": "none_of_these",
+      "confidence": 0.84,
+      "probabilities": {
+        "none_of_these": 0.92,
+        "distance": 0.08
+      }
+    },
+    "s55": {
+      "type": "choice",
       "choice": "none_of_these",
       "confidence": 0.93,
       "probabilities": {
-        "humidity": 0.05,
-        "battery": 0.01,
-        "moisture": 0.0,
+        "moisture": 0.01,
         "none_of_these": 0.94,
+        "humidity": 0.03,
+        "power_factor": 0.0,
+        "battery": 0.02
+      }
+    },
+    "s56": {
+      "type": "choice",
+      "choice": "none_of_these",
+      "confidence": 0.95,
+      "probabilities": {
+        "moisture": 0.01,
+        "none_of_these": 0.96,
+        "humidity": 0.02,
+        "battery": 0.01,
+        "power_factor": 0.0
+      }
+    },
+    "s57": {
+      "type": "choice",
+      "choice": "none_of_these",
+      "confidence": 0.95,
+      "probabilities": {
+        "moisture": 0.01,
+        "none_of_these": 0.95,
+        "humidity": 0.02,
+        "battery": 0.02,
         "power_factor": 0.0
       }
     }
   },
   "usage": {
-    "input_tokens": 16045,
-    "output_tokens": 3085
+    "input_tokens": 20056,
+    "output_tokens": 3281
   }
 }

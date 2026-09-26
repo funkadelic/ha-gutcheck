@@ -81,7 +81,7 @@ TypeSafe AI measures usage in tokens, about three characters of text each, and c
 | Home health check | 32,700 | about $0.0014 |
 | Area suggestions | 16,548 | under $0.001 |
 | Update review | 0 when nothing is pending or changed; about 41,000 estimated at the 50-update cap | under $0.002 |
-| Device class suggestions | 16,045 for 53 asked sensors on a real run | under $0.001 |
+| Device class suggestions | 20,056 for 58 asked sensors on a real run | under $0.001 |
 
 Gut Check enforces a daily token budget so cost stays predictable. `sensor.gut_check_tokens_used_today` and `sensor.gut_check_cost_today` show what has been spent and what it cost, both resetting at local midnight. The default of 150,000 tokens covers the weekly schedule with room to spare; running checks by hand several times in one day can reach it.
 

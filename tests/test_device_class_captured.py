@@ -6,7 +6,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 
@@ -52,7 +51,6 @@ def test_every_device_class_answer_is_a_choice_with_probabilities_matching_its_q
         assert set(answer["probabilities"]) == set(question["criteria"])
 
 
-@pytest.mark.xfail(strict=True, reason="the captured pair predates the current instructions; recapture")
 def test_the_captured_device_class_questions_match_the_current_wording() -> None:
     """A change to the instructions, their per-unit boundary cases, or the none-of-these wording leaves the pair stale."""
     payload = _load("device_class_payload.json")
@@ -68,6 +66,19 @@ def test_area_answer_builder_matches_a_captured_device_class_answer_key_set() ->
     captured_answer = next(iter(response["answers"].values()))
     built_answer = area_answer("water", 0.9, ["volume", "volume_storage"])
     assert set(built_answer) == set(captured_answer)
+
+
+def test_the_capture_asks_a_sensor_whose_unit_fits_one_class() -> None:
+    """At least one captured question offers exactly one class plus none of these, and its answer covers both."""
+    payload = _load("device_class_payload.json")
+    response = _load("device_class_response.json")
+    one_class_questions = [
+        (question_id, question) for question_id, question in payload["questions"].items() if len(question["criteria"]) == 2
+    ]
+    assert one_class_questions, "no captured question offers exactly one class plus none of these"
+    for question_id, question in one_class_questions:
+        answer = response["answers"][question_id]
+        assert set(answer["probabilities"]) == set(question["criteria"])
 
 
 def test_captured_device_class_answers_classify_with_every_sensor_accounted_for() -> None:
