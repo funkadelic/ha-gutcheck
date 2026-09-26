@@ -76,6 +76,9 @@
       "config_entries": {
         "name": "Stuck integration check"
       },
+      "critical_label": {
+        "name": "Critical label suggestions"
+      },
       "tokens_today": {
         "name": "Tokens used today"
       },
@@ -98,6 +101,9 @@
       },
       "config_entries_run": {
         "name": "Run stuck integration check"
+      },
+      "critical_label_run": {
+        "name": "Run critical label suggestions"
       }
     }
   },
@@ -161,6 +167,25 @@
         "abort": {
           "suggestion_outdated": "The sensor changed since this suggestion was made, so nothing was changed and the card was removed.",
           "suggestion_ignored": "Gut Check will stop suggesting a device class for this sensor. The card is now in your ignored repairs."
+        }
+      }
+    },
+    "critical_label_suggestion": {
+      "title": "{entity_id} may need your {label_name} label",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Suggested label",
+            "description": "Gut Check thinks `{entity_id}` guards against fire, gas or water damage, and suggests adding your **{label_name}** label to it. Gut Check never acts on or changes anything with this label, and the home health check still tells you when it goes offline. Nothing changes until you choose.",
+            "menu_options": {
+              "confirm": "Add the {label_name} label",
+              "ignore": "Don't suggest the label for this entity"
+            }
+          }
+        },
+        "abort": {
+          "suggestion_outdated": "The entity or the label changed since this suggestion was made, so nothing was changed and the card was removed.",
+          "suggestion_ignored": "Gut Check will stop suggesting the label for this entity. The card is now in your ignored repairs."
         }
       }
     }

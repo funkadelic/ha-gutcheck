@@ -17,6 +17,7 @@ CONF_HEALTH_ENABLED: Final = "health_enabled"
 CONF_AREAS_ENABLED: Final = "areas_enabled"
 CONF_DEVICE_CLASS_ENABLED: Final = "device_class_enabled"
 CONF_CONFIG_ENTRIES_ENABLED: Final = "config_entries_enabled"
+CONF_CRITICAL_LABEL_ENABLED: Final = "critical_label_enabled"
 # The Configure checkbox and step id for changing a device class back; never saved as an option.
 CONF_UNDO_DEVICE_CLASS: Final = "undo_device_class"
 CONF_UNDO_SENSORS: Final = "sensors"
@@ -55,9 +56,17 @@ RECIPE_UPDATES: Final = "updates"
 RECIPE_AREAS: Final = "areas"
 RECIPE_DEVICE_CLASS: Final = "device_class"
 RECIPE_CONFIG_ENTRIES: Final = "config_entries"
+RECIPE_CRITICAL_LABEL: Final = "critical_label"
 # Every recipe id this integration ships, so async_remove_entry can clean up
 # each one's Store without needing a line added by hand for each new recipe.
-ALL_RECIPE_IDS: Final = (RECIPE_HEALTH, RECIPE_UPDATES, RECIPE_AREAS, RECIPE_DEVICE_CLASS, RECIPE_CONFIG_ENTRIES)
+ALL_RECIPE_IDS: Final = (
+    RECIPE_HEALTH,
+    RECIPE_UPDATES,
+    RECIPE_AREAS,
+    RECIPE_DEVICE_CLASS,
+    RECIPE_CONFIG_ENTRIES,
+    RECIPE_CRITICAL_LABEL,
+)
 RECIPE_INTERVAL: Final = timedelta(days=7)
 FAILED_RUN_RETRY: Final = timedelta(hours=1)
 
@@ -70,10 +79,12 @@ ISSUE_POSSIBLY_BREAKING_UPDATE: Final = "possibly_breaking_update"
 AREA_ISSUE_PREFIX: Final = "area_"
 DEVICE_CLASS_ISSUE_PREFIX: Final = "device_class_"
 CONFIG_ENTRY_ISSUE_PREFIX: Final = "config_entry_"
+CRITICAL_LABEL_ISSUE_PREFIX: Final = "critical_label_"
 ISSUE_AREA_SUGGESTION: Final = "area_suggestion"
 ISSUE_DEVICE_CLASS_SUGGESTION: Final = "device_class_suggestion"
 ISSUE_CONFIG_ENTRY_NEEDS_REAUTH: Final = "config_entry_needs_reauth"
 ISSUE_CONFIG_ENTRY_DEAD: Final = "config_entry_dead"
+ISSUE_CRITICAL_LABEL_SUGGESTION: Final = "critical_label_suggestion"
 
 BLOCKED_DOMAINS: Final = frozenset(
     {

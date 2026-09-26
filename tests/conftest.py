@@ -40,6 +40,8 @@ from custom_components.gutcheck.const import (
     API_URL,
     CONF_AREAS_ENABLED,
     CONF_CONFIG_ENTRIES_ENABLED,
+    CONF_CRITICAL_LABEL,
+    CONF_CRITICAL_LABEL_ENABLED,
     CONF_DAILY_BUDGET,
     CONF_DEVICE_CLASS_ENABLED,
     CONF_HEALTH_ENABLED,
@@ -52,6 +54,7 @@ from custom_components.gutcheck.const import (
     RECIPE_CONFIG_ENTRIES,
     UPDATE_OPTIONS,
 )
+from custom_components.gutcheck.recipes.critical_label_const import CRITICAL_LABEL_CHOICES
 from custom_components.gutcheck.recipes.device_class_cards import sync_device_class_cards
 from custom_components.gutcheck.recipes.safety import SafetyRules
 from custom_components.gutcheck.recipes.shapes import Item, RecipeResult
@@ -123,6 +126,11 @@ def area_answer(choice: str, confidence: float, options: Sequence[str]) -> dict[
     share = remaining / len(others) if others else 0.0
     probabilities = {option: (confidence if option == choice else share) for option in all_options}
     return {"type": "choice", "choice": choice, "probabilities": probabilities, "confidence": confidence}
+
+
+def critical_label_answer(choice: str, confidence: float) -> dict[str, Any]:
+    """Build a documented-shape choice answer over the critical label recipe's own choices."""
+    return area_answer(choice, confidence, CRITICAL_LABEL_CHOICES)
 
 
 def register_jev_responses(aioclient_mock: AiohttpClientMocker, responses: list[Any]) -> None:
@@ -318,12 +326,17 @@ def find_triage_button(hass: HomeAssistant, entry: MockConfigEntry) -> str | Non
     return er.async_get(hass).async_get_entity_id("button", DOMAIN, f"{entry.entry_id}_{RECIPE_CONFIG_ENTRIES}_run")
 
 
-async def press_triage_run(hass: HomeAssistant, entry: MockConfigEntry) -> None:
-    """Press the stuck integration check's Run button and let its background run finish."""
-    entity_id = find_triage_button(hass, entry)
+async def press_recipe_run(hass: HomeAssistant, entry: MockConfigEntry, recipe_id: str) -> None:
+    """Press this recipe's Run button and let its background run finish."""
+    entity_id = er.async_get(hass).async_get_entity_id("button", DOMAIN, f"{entry.entry_id}_{recipe_id}_run")
     assert entity_id is not None
     await hass.services.async_call("button", "press", {"entity_id": entity_id}, blocking=True)
     await hass.async_block_till_done(wait_background_tasks=True)
+
+
+async def press_triage_run(hass: HomeAssistant, entry: MockConfigEntry) -> None:
+    """Press the stuck integration check's Run button and let its background run finish."""
+    await press_recipe_run(hass, entry, RECIPE_CONFIG_ENTRIES)
 
 
 async def restart_config_entry(hass: HomeAssistant, entry: MockConfigEntry) -> None:
@@ -336,8 +349,8 @@ async def restart_config_entry(hass: HomeAssistant, entry: MockConfigEntry) -> N
     await hass.async_block_till_done(wait_background_tasks=True)
 
 
-async def confirm_device_class_card(hass: HomeAssistant, issue_id: str) -> None:
-    """Confirm a device class card through Home Assistant's own repairs flow manager."""
+async def confirm_suggestion_card(hass: HomeAssistant, issue_id: str) -> None:
+    """Confirm any confirm/ignore suggestion card through Home Assistant's own repairs flow manager."""
     assert await async_setup_component(hass, "repairs", {})
     manager = repairs_flow_manager(hass)
     assert manager is not None
@@ -345,6 +358,10 @@ async def confirm_device_class_card(hass: HomeAssistant, issue_id: str) -> None:
     assert result["type"] is FlowResultType.MENU
     result = await manager.async_configure(result["flow_id"], {"next_step_id": "confirm"})
     assert result["type"] is FlowResultType.CREATE_ENTRY
+
+
+# Kept as an alias: every existing caller of the old, device-class-specific name stays unchanged.
+confirm_device_class_card = confirm_suggestion_card
 
 
 async def seed_device_class_card(
@@ -466,6 +483,7 @@ def register_unit_sensor(
     unit: str | None,
     name: str | None = "Sensor",
     platform: str = "test",
+    domain: str = "sensor",
     device_class: str | None = None,
     original_device_class: str | None = None,
     entity_category: er.EntityCategory | None = None,
@@ -476,7 +494,7 @@ def register_unit_sensor(
     model: str | None = None,
     device_labels: frozenset[str] = frozenset(),
 ) -> er.RegistryEntry:
-    """Register (or reuse) a sensor with the given unit and fields, for the device class recipe to select.
+    """Register (or reuse) any entity (a sensor by default) with the given unit and fields.
 
     A device is created under its own config entry only when device_name,
     manufacturer or model is given; device_class and labels are set through a
@@ -507,7 +525,7 @@ def register_unit_sensor(
 
     entity_registry = er.async_get(hass)
     entry = entity_registry.async_get_or_create(
-        "sensor",
+        domain,
         platform,
         unique,
         device_id=device_id,
@@ -568,6 +586,30 @@ def triage_entry() -> MockConfigEntry:
             CONF_AREAS_ENABLED: False,
             CONF_DEVICE_CLASS_ENABLED: False,
             CONF_CONFIG_ENTRIES_ENABLED: True,
+        },
+    )
+
+
+@pytest.fixture
+def critical_label_entry() -> MockConfigEntry:
+    """A Gut Check config entry with only critical label suggestions switched on, and a critical label configured.
+
+    Every other recipe is switched off, so every POST in a test using this
+    fixture is this recipe's own. Tests create the matching label
+    (lr.async_get(hass).async_create("Critical")) themselves, whose label id
+    is "critical".
+    """
+    return MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_API_KEY: "test-key"},
+        options={
+            CONF_HEALTH_ENABLED: False,
+            CONF_UPDATES_ENABLED: False,
+            CONF_AREAS_ENABLED: False,
+            CONF_DEVICE_CLASS_ENABLED: False,
+            CONF_CONFIG_ENTRIES_ENABLED: False,
+            CONF_CRITICAL_LABEL_ENABLED: True,
+            CONF_CRITICAL_LABEL: "critical",
         },
     )
 

@@ -17,6 +17,11 @@ class SafetyRules:
         """Store the label that marks an entity or device as critical."""
         self._critical_label = critical_label
 
+    @property
+    def critical_label(self) -> str | None:
+        """The configured critical label, or None when unset."""
+        return self._critical_label
+
     def is_critical(self, hass: HomeAssistant, entry: er.RegistryEntry) -> bool:
         """Whether the configured label sits on the entity or on the device behind it."""
         if not self._critical_label:
