@@ -1,0 +1,32 @@
+tests/test_critical_label_cards.py
+  s_0ca126db176e56::t_8c9c7ebb472a99 61,63-64
+  s_0ca126db176e56::t_8d9d5123e1604a 88-89,92
+custom_components/gutcheck/recipes/critical_label.py
+  s_0ca126db176e56::t_212c9e1d1c81de 1,31,61-62
+custom_components/gutcheck/recipes/critical_label_const.py
+  s_0ca126db176e56::t_b2284c6056ca72 14-16,21-22,33-37,42-49,60-61
+custom_components/gutcheck/recipes/critical_label_describe.py
+  s_0ca126db176e56::t_bdae6a67136a9a 20-24,30,34-39
+  s_0ca126db176e56::t_d9345b260c7b23 15
+  s_0ca126db176e56::t_7f2030155c51fa 52
+tests/test_critical_label_select.py
+  s_0ca126db176e56::t_c799cacde16618 195
+  s_0ca126db176e56::t_1605a35e5d8e57 40,53-54,59-79
+  s_0ca126db176e56::t_a01c024523b254 225
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0d55b5665c980919b6c4853492efa212f55dee1f",
+  "prompts": {},
+  "sessions": {
+    "s_0ca126db176e56": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "efd7e666-75f2-4b3e-b4f5-327f7c3687ab",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
