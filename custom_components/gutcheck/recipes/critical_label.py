@@ -19,7 +19,7 @@ from .critical_label_const import (
     OPTION_CRITICAL,
     OPTION_NOT_CRITICAL,
 )
-from .critical_label_describe import describe, qualifies, qualifying_entry
+from .critical_label_describe import configured_label, decided_in_code, describe, qualifies, qualifying_entry
 from .gate import gate_choice
 from .safety import SafetyRules
 from .shapes import Batch, Item, RecipeResult
@@ -54,11 +54,19 @@ class CriticalLabelRecipe:
         return OPTION_SUGGESTED if choice == OPTION_CRITICAL else choice
 
     async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None, *, force: bool = False) -> Batch:
-        """Select every qualifying valve, switch or siren and ask one choice question per entity.
+        """Select every qualifying entity and ask one choice question per asked one.
 
         previous and force are unused, since nothing carries forward between
-        runs.
+        runs. A binary sensor decided in code goes straight into suggested
+        with no question; every other qualifying entity (a valve, switch or
+        siren) is asked, its index counting only asked entities so a
+        code-decided one never shifts it. With no critical label configured,
+        nothing is scanned and nothing is asked.
         """
+        if configured_label(hass, self._safety) is None:
+            _LOGGER.debug("critical label suggestions: no critical label configured, nothing to ask")
+            return Batch(state={"entities": []}, questions={}, subjects={})
+
         registry = er.async_get(hass)
         selected = sorted(
             (entry for entry in registry.entities.values() if qualifies(hass, self._safety, entry)),
@@ -68,9 +76,13 @@ class CriticalLabelRecipe:
         entities: list[dict[str, Any]] = []
         questions: dict[str, Question] = {}
         subjects: dict[str, Item] = {}
+        carried: dict[str, list[Item]] = {OPTION_SUGGESTED: []}
         for entry in selected:
-            index = len(entities)
             state_item, subject = describe(hass, entry)
+            if decided_in_code(entry):
+                carried[OPTION_SUGGESTED].append(subject)
+                continue
+            index = len(entities)
             entities.append(state_item)
             question_id = f"k{index}"
             questions[question_id] = {
@@ -80,11 +92,17 @@ class CriticalLabelRecipe:
             }
             subjects[question_id] = subject
 
-        _LOGGER.debug("critical label suggestions selected=%s asked=%s", len(selected), len(entities))
+        _LOGGER.debug(
+            "critical label suggestions selected=%s asked=%s decided_in_code=%s",
+            len(selected),
+            len(entities),
+            len(carried[OPTION_SUGGESTED]),
+        )
         return Batch(
             state={"entities": entities},
             questions=questions,
             subjects=subjects,
+            carried=carried,
             list_key="entities",
             template=CRITICAL_LABEL_INSTRUCTIONS,
         )

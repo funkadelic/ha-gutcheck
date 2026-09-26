@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
@@ -11,23 +12,38 @@ from homeassistant.helpers import label_registry as lr
 
 from ..const import DEVICE_TEXT_MAX_CHARS
 from ..describe import clean_text
-from .critical_label_const import ASKED_DOMAINS
+from .critical_label_const import ASKED_DOMAINS, CODE_DECIDED_DEVICE_CLASSES
 from .safety import SafetyRules
 from .shapes import Item
+
+
+def decided_in_code(entry: er.RegistryEntry) -> bool:
+    """Whether this binary sensor's effective device class settles it with no question.
+
+    Effective means the user's own override wins over the integration's
+    original device class, so a sensor changed away from smoke, carbon
+    monoxide, gas or moisture by hand is not decided in code.
+    """
+    if entry.domain != Platform.BINARY_SENSOR:
+        return False
+    return (entry.device_class or entry.original_device_class) in CODE_DECIDED_DEVICE_CLASSES
 
 
 def qualifies(hass: HomeAssistant, safety: SafetyRules, entry: er.RegistryEntry) -> bool:
     """Whether this registry entry is a candidate this recipe may consider or re-check.
 
-    Selection reads only domain (and, once code-decided candidates are
-    added, effective device class), never name or brand. The shared
-    exclusions already drop disabled entities, Gut Check's own, locks,
-    alarm panels, covers, and anything carrying the critical label on the
-    entity or its device.
+    Selection reads only domain and effective device class, never name or
+    brand. The cheap domain test runs before the shared exclusions, which
+    already drop disabled entities, Gut Check's own, locks, alarm panels,
+    covers, and anything carrying the critical label on the entity or its
+    device.
     """
-    if safety.excludes(hass, entry):
+    if entry.domain == Platform.BINARY_SENSOR:
+        if not decided_in_code(entry):
+            return False
+    elif entry.domain not in ASKED_DOMAINS:
         return False
-    return entry.domain in ASKED_DOMAINS
+    return not safety.excludes(hass, entry)
 
 
 def qualifying_entry(hass: HomeAssistant, safety: SafetyRules, registry_id: str) -> er.RegistryEntry | None:
