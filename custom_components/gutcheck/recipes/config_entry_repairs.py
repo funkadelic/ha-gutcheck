@@ -35,8 +35,7 @@ def _wanted_issues(hass: HomeAssistant, items: list[Item]) -> dict[str, dict[str
         if resolved(hass, entry_id):
             continue
         entry = hass.config_entries.async_get_entry(entry_id)
-        if entry is None:
-            continue
+        assert entry is not None  # resolved() already confirmed the entry exists
         wanted[f"{CONFIG_ENTRY_ISSUE_PREFIX}{entry_id}"] = {"title": entry.title or entry.domain, "integration": entry.domain}
     return wanted
 

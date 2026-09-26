@@ -291,6 +291,32 @@ async def test_failing_for_carries_first_seen_and_buckets_by_elapsed_days(
     assert third_body["state"]["entries"][0]["failing_for"] == "longer than 4 weeks"
 
 
+async def test_restart_within_the_interval_restores_and_resyncs_cards_without_posting(
+    hass: HomeAssistant,
+    freezer: Any,
+    aioclient_mock: AiohttpClientMocker,
+    triage_entry: MockConfigEntry,
+    failing_entry,
+) -> None:
+    """A restart within the weekly interval restores the stored result and re-syncs its card with no POST."""
+    freezer.move_to("2026-01-01T00:00:00-08:00")
+    entry = await failing_entry("restore_hub", ConfigEntryError("device offline"), title="Restore Hub", entry_id="restore_entry")
+    register_jev_responses(aioclient_mock, [api_response({"c0": area_answer(OPTION_DEAD, 0.9, _OPTIONS)})])
+    triage_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(triage_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+    assert len(posted_bodies(aioclient_mock)) == 1
+
+    freezer.move_to("2026-01-03T00:00:00-08:00")
+    assert await hass.config_entries.async_unload(triage_entry.entry_id)
+    assert await hass.config_entries.async_setup(triage_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    assert len(posted_bodies(aioclient_mock)) == 1
+    registry = ir.async_get(hass)
+    assert registry.async_get_issue(DOMAIN, f"config_entry_{entry.entry_id}") is not None
+
+
 def test_first_seen_reads_a_missing_or_unparseable_value_as_now() -> None:
     """A prior item with no first_seen, a non-string one, or an unparseable string reads as first seen now."""
     from custom_components.gutcheck.recipes.config_entry_describe import first_seen
@@ -305,6 +331,15 @@ def test_first_seen_reads_a_missing_or_unparseable_value_as_now() -> None:
             "last_payload": None,
         }
         assert first_seen(previous, "e1", now) == now
+
+    absent_previous: RecipeResult = {
+        "last_run": "",
+        "counts": {},
+        "items": {OPTION_TRANSIENT: [{"entry_id": "some_other_entry", "first_seen": now.isoformat()}]},
+        "unsure": [],
+        "last_payload": None,
+    }
+    assert first_seen(absent_previous, "e1", now) == now
 
 
 def test_gate_edges_for_threshold_none_of_these_and_off_criteria() -> None:
