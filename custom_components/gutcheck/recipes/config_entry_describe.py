@@ -47,18 +47,13 @@ def first_seen(previous: RecipeResult | None, entry_id: str, now: datetime) -> d
     longer than the restore window resets it. A dedicated Store if that
     ever matters.
     """
-    if previous is not None:
-        for bucket in (*previous["items"].values(), previous["unsure"]):
-            for prior in bucket:
-                if prior.get("entry_id") != entry_id:
-                    continue
-                seen = prior.get("first_seen")
-                if isinstance(seen, str):
-                    parsed = dt_util.parse_datetime(seen)
-                    if parsed is not None:
-                        return parsed
-                return now
-    return now
+    if previous is None:
+        return now
+    buckets = (*previous["items"].values(), previous["unsure"])
+    prior = next((item for bucket in buckets for item in bucket if item.get("entry_id") == entry_id), None)
+    seen = prior.get("first_seen") if prior is not None else None
+    parsed = dt_util.parse_datetime(seen) if isinstance(seen, str) else None
+    return parsed or now
 
 
 def failing_for(seen: datetime, now: datetime) -> str:
