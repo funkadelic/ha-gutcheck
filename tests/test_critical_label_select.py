@@ -37,12 +37,11 @@ from .conftest import (
 async def test_code_decided_binary_sensors_carry_with_no_request_and_still_raise_cards(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, critical_label_entry: MockConfigEntry
 ) -> None:
-    """Smoke, CO, gas and moisture binary sensors carry with no question; a run with only these makes no POST."""
+    """Smoke, CO and gas binary sensors carry with no question; a run with only these makes no POST."""
     lr.async_get(hass).async_create("Critical")
     smoke = register_unit_sensor(hass, "smoke1", domain="binary_sensor", unit=None, original_device_class="smoke")
     co = register_unit_sensor(hass, "co1", domain="binary_sensor", unit=None, original_device_class="carbon_monoxide")
     gas = register_unit_sensor(hass, "gas1", domain="binary_sensor", unit=None, original_device_class="gas")
-    moisture = register_unit_sensor(hass, "moisture1", domain="binary_sensor", unit=None, original_device_class="moisture")
     critical_label_entry.add_to_hass(hass)
 
     assert await hass.config_entries.async_setup(critical_label_entry.entry_id)
@@ -51,10 +50,31 @@ async def test_code_decided_binary_sensors_carry_with_no_request_and_still_raise
     assert posted_bodies(aioclient_mock) == []
     state = hass.states.get(recipe_sensor_entity_id(hass, critical_label_entry, RECIPE_CRITICAL_LABEL))
     assert state is not None
-    assert state.state == "4"
-    for entry in (smoke, co, gas, moisture):
+    assert state.state == "3"
+    for entry in (smoke, co, gas):
         issue_id = f"{CRITICAL_LABEL_ISSUE_PREFIX}{entry.id}"
         assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
+
+
+async def test_moisture_binary_sensor_is_asked_not_code_decided(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, critical_label_entry: MockConfigEntry
+) -> None:
+    """A moisture binary sensor (rain or leak alike) is asked like a valve, switch or siren, not decided in code."""
+    lr.async_get(hass).async_create("Critical")
+    rain = register_unit_sensor(hass, "rain1", domain="binary_sensor", unit=None, original_device_class="moisture", name="Rain")
+    register_jev_responses_by_question(
+        aioclient_mock, {"k0": api_response({"k0": critical_label_answer(OPTION_NOT_CRITICAL, 0.9)})}
+    )
+    critical_label_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(critical_label_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    bodies = posted_bodies(aioclient_mock)
+    assert len(bodies) == 1
+    assert bodies[0]["state"]["entities"][0]["name"] == "Rain"
+    registry = ir.async_get(hass)
+    assert registry.async_get_issue(DOMAIN, f"{CRITICAL_LABEL_ISSUE_PREFIX}{rain.id}") is None
 
 
 async def test_user_override_wins_over_original_device_class(
@@ -172,7 +192,7 @@ async def test_code_decided_entries_never_shift_question_indices(
 ) -> None:
     """Two code-decided binary sensors ahead of three asked entities in sorted order leave question indices untouched."""
     lr.async_get(hass).async_create("Critical")
-    moisture = register_unit_sensor(hass, "moisture1", domain="binary_sensor", unit=None, original_device_class="moisture")
+    co = register_unit_sensor(hass, "co1", domain="binary_sensor", unit=None, original_device_class="carbon_monoxide")
     smoke = register_unit_sensor(hass, "smoke1", domain="binary_sensor", unit=None, original_device_class="smoke")
     siren = register_unit_sensor(hass, "s1", domain="siren", unit=None, name="Siren")
     switch = register_unit_sensor(hass, "sw1", domain="switch", unit=None, name="Switch")
@@ -202,7 +222,7 @@ async def test_code_decided_entries_never_shift_question_indices(
     state = hass.states.get(recipe_sensor_entity_id(hass, critical_label_entry, RECIPE_CRITICAL_LABEL))
     assert state is not None
     suggested_ids = {item["registry_id"] for item in state.attributes["items"]["suggested"]}
-    assert suggested_ids == {siren.id, valve.id, moisture.id, smoke.id}
+    assert suggested_ids == {siren.id, valve.id, co.id, smoke.id}
     not_critical_ids = {item["registry_id"] for item in state.attributes["items"]["not_critical"]}
     assert not_critical_ids == {switch.id}
 

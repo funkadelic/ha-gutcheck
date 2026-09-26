@@ -1,4 +1,4 @@
-"""Critical label suggestions recipe: one choice question per valve, switch or siren."""
+"""Critical label suggestions recipe: one choice question per valve, switch, siren or moisture sensor."""
 
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class CriticalLabelRecipe:
-    """Selects valves, switches and sirens and classifies each with one choice question."""
+    """Selects valves, switches, sirens and moisture sensors and classifies each with one choice question."""
 
     recipe_id = RECIPE_CRITICAL_LABEL
     options: tuple[str, ...] = (OPTION_SUGGESTED, OPTION_NOT_CRITICAL)
@@ -58,8 +58,8 @@ class CriticalLabelRecipe:
 
         previous and force are unused, since nothing carries forward between
         runs. A binary sensor decided in code goes straight into suggested
-        with no question; every other qualifying entity (a valve, switch or
-        siren) is asked, its index counting only asked entities so a
+        with no question; every other qualifying entity (a valve, switch,
+        siren or moisture sensor) is asked, its index counting only asked entities so a
         code-decided one never shifts it. With no critical label configured,
         nothing is scanned and nothing is asked.
         """

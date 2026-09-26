@@ -12,9 +12,14 @@ from homeassistant.helpers import label_registry as lr
 
 from ..const import DEVICE_TEXT_MAX_CHARS
 from ..describe import clean_text
-from .critical_label_const import ASKED_DOMAINS, CODE_DECIDED_DEVICE_CLASSES
+from .critical_label_const import ASKED_BINARY_SENSOR_DEVICE_CLASSES, ASKED_DOMAINS, CODE_DECIDED_DEVICE_CLASSES
 from .safety import SafetyRules
 from .shapes import Item
+
+
+def _effective_device_class(entry: er.RegistryEntry) -> str | None:
+    """The user's own device class override, or the integration's original one when unset."""
+    return entry.device_class or entry.original_device_class
 
 
 def decided_in_code(entry: er.RegistryEntry) -> bool:
@@ -22,11 +27,16 @@ def decided_in_code(entry: er.RegistryEntry) -> bool:
 
     Effective means the user's own override wins over the integration's
     original device class, so a sensor changed away from smoke, carbon
-    monoxide, gas or moisture by hand is not decided in code.
+    monoxide or gas by hand is not decided in code.
     """
     if entry.domain != Platform.BINARY_SENSOR:
         return False
-    return (entry.device_class or entry.original_device_class) in CODE_DECIDED_DEVICE_CLASSES
+    return _effective_device_class(entry) in CODE_DECIDED_DEVICE_CLASSES
+
+
+def _asked_binary_sensor(entry: er.RegistryEntry) -> bool:
+    """Whether this binary sensor's effective device class is asked rather than decided in code."""
+    return _effective_device_class(entry) in ASKED_BINARY_SENSOR_DEVICE_CLASSES
 
 
 def qualifies(hass: HomeAssistant, safety: SafetyRules, entry: er.RegistryEntry) -> bool:
@@ -39,7 +49,7 @@ def qualifies(hass: HomeAssistant, safety: SafetyRules, entry: er.RegistryEntry)
     device.
     """
     if entry.domain == Platform.BINARY_SENSOR:
-        if not decided_in_code(entry):
+        if not decided_in_code(entry) and not _asked_binary_sensor(entry):
             return False
     elif entry.domain not in ASKED_DOMAINS:
         return False

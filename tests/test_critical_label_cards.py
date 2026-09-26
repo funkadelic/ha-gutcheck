@@ -58,10 +58,10 @@ async def test_sync_skips_an_item_whose_entity_no_longer_resolves(hass: HomeAssi
 async def test_code_decided_items_outrank_model_items_within_the_cap(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, critical_label_entry: MockConfigEntry
 ) -> None:
-    """Twelve code-decided moisture sensors and three valves answered critical: the first run cards only moisture sensors."""
+    """Twelve code-decided smoke sensors and three valves answered critical: the first run cards only smoke sensors."""
     lr.async_get(hass).async_create("Critical")
-    moisture_sensors = [
-        register_unit_sensor(hass, f"moisture{i:02d}", domain="binary_sensor", unit=None, original_device_class="moisture")
+    smoke_sensors = [
+        register_unit_sensor(hass, f"smoke{i:02d}", domain="binary_sensor", unit=None, original_device_class="smoke")
         for i in range(12)
     ]
     valve_a = register_unit_sensor(hass, "valve_a", domain="valve", unit=None)
@@ -85,11 +85,11 @@ async def test_code_decided_items_outrank_model_items_within_the_cap(
     assert state.state == "10"
 
     registry = ir.async_get(hass)
-    moisture_ids = {sensor.id for sensor in moisture_sensors}
-    all_ids = moisture_ids | {valve_a.id, valve_b.id, valve_c.id}
+    smoke_ids = {sensor.id for sensor in smoke_sensors}
+    all_ids = smoke_ids | {valve_a.id, valve_b.id, valve_c.id}
     open_after_first_run = _open_ids(registry)
     assert len(open_after_first_run) == 10
-    assert open_after_first_run <= moisture_ids, "a valve (model-decided) must never outrank a moisture sensor (code-decided)"
+    assert open_after_first_run <= smoke_ids, "a valve (model-decided) must never outrank a smoke sensor (code-decided)"
 
     suggested = state.attributes["items"]["suggested"]
     held_back_ids = {item["registry_id"] for item in suggested if item.get(ITEM_HELD_BACK)}
