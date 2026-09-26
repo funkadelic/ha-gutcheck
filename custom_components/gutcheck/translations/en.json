@@ -108,9 +108,9 @@
         "step": {
           "init": {
             "title": "Suggested area",
-            "description": "Gut Check suggests **{area_name}** for {device_name}. Nothing changes unless you assign it.",
+            "description": "Gut Check suggests **{area_name}** for {device_name}. Nothing changes until you choose.",
             "menu_options": {
-              "confirm": "Assign this area",
+              "confirm": "Assign to {area_name}",
               "ignore": "Don't suggest an area for this device"
             }
           }
