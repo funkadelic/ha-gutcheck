@@ -223,7 +223,7 @@ AREA_NAME_MAX_CHARS: Final = 40
 # Cards already open do not count against this cap.
 MAX_NEW_AREA_CARDS_PER_RUN: Final = 10
 
-# Choice answers over a sensor's own unit-narrowed device classes only. Its own
+# Choice answers over a sensor's unit-narrowed device classes only. Its own
 # constant, tuned apart from the area and health thresholds even while it starts equal.
 DEVICE_CLASS_CONFIDENCE_THRESHOLD: Final = 0.5
 
@@ -241,7 +241,7 @@ DEVICE_CLASS_NONE_DESCRIPTION: Final = (
 
 # Unit symbols Home Assistant's own device class map also accepts, but which an
 # integration commonly reuses for something else. Their question gets the
-# reused-symbol boundary case appended, on top of every other sensor's own.
+# reused-symbol boundary case appended, on top of the base every sensor gets.
 DEVICE_CLASS_REUSED_UNIT_SYMBOLS: Final = frozenset({"m"})
 
 # Cards already open do not count against this cap.

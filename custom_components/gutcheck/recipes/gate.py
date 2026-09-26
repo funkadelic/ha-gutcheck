@@ -98,7 +98,7 @@ def _asked_choice(question: Question, answer: object) -> str | None:
 
 
 def _off_criteria(question: Question | None, answer: object) -> bool:
-    """Whether a choice answer names something outside its own question's criteria.
+    """Whether a choice answer names something outside its question's criteria.
 
     Wins over the recipe's own gate: a per-question criteria set can be
     narrower than the recipe's overall allow-list.

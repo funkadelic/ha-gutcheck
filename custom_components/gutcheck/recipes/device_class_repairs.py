@@ -1,4 +1,4 @@
-"""The one device class write: on confirm or the user's own pick, and nowhere else."""
+"""The one device class write: on confirm or the user's pick, and nowhere else."""
 
 from __future__ import annotations
 

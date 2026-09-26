@@ -79,7 +79,7 @@ def criteria(candidates: tuple[str, ...], names: dict[str, str]) -> dict[str, st
 def describe(hass: HomeAssistant, entry: er.RegistryEntry) -> tuple[dict[str, Any], Item]:
     """One sensor's model-visible state and its code-only subject.
 
-    Built from this entry and its own device only: never the sensor's live
+    Built from this entry and its device only: never the sensor's live
     state, its entity id, its area, or another entity.
     """
     name = clean_text(entry.name or entry.original_name, DEVICE_TEXT_MAX_CHARS) or None

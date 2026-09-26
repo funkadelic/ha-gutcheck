@@ -1,9 +1,9 @@
-"""Per-question instructions: the shared base, plus only the boundary case a sensor's own unit needs.
+"""Per-question instructions: the shared base, plus only the boundary case a sensor's unit needs.
 
 Jev reads instructions literally, so a boundary case is spelled out only for
 the sensors it actually applies to, never appended to every question: a
 shared addition measurably lowered confidence on unrelated sensors in the
-same run (a "%" or "m" note bled into a "ppm" sensor's own answer).
+same run (a "%" or "m" note bled into a "ppm" sensor's answer).
 """
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ REUSED_SYMBOL_NOTE: Final = (
 def template_for(unit: str | None) -> str:
     """The unformatted instructions template (with `{index}` still literal) a sensor with this unit gets.
 
-    Unformatted so split.py can re-index it for a slice's own local position.
+    Unformatted so split.py can re-index it for a slice's local position.
     """
     template = DEVICE_CLASS_INSTRUCTIONS
     if unit == "%":
@@ -39,5 +39,5 @@ def template_for(unit: str | None) -> str:
 
 
 def instructions_for(unit: str | None, index: int) -> str:
-    """This sensor's own instructions, formatted for its question's index."""
+    """This sensor's instructions, formatted for its question's index."""
     return template_for(unit).format(index=index)

@@ -121,7 +121,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
         _async_remove_recipe_entities(hass, entry, RECIPE_AREAS)
 
     # Off by default, unlike the other three: an upgraded install must not
-    # start raising device class cards unasked (DCLS-05).
+    # start raising device class cards unasked.
     if entry.options.get(CONF_DEVICE_CLASS_ENABLED, False):
         device_class_recipe = DeviceClassRecipe(entry.options.get(CONF_CRITICAL_LABEL))
         coordinators[device_class_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, device_class_recipe)

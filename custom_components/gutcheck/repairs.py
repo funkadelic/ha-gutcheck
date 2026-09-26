@@ -135,7 +135,7 @@ def async_create_ignored_issue(
     placeholders: Mapping[str, str],
     data: dict[str, str | int | float | None],
 ) -> None:
-    """Create a fixable, persistent issue already ignored: the record of a rejection made outside a run."""
+    """Create an already-ignored fixable issue that records a rejection made outside a run."""
     _create_issue(hass, issue_id, translation_key, placeholders, is_fixable=True, is_persistent=True, data=data)
     ir.async_ignore_issue(hass, DOMAIN, issue_id, True)
 

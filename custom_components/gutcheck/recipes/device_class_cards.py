@@ -46,7 +46,7 @@ def _still_qualifies(hass: HomeAssistant, safety: SafetyRules, issue_id: str) ->
 def reject_suggestion(
     hass: HomeAssistant, safety: SafetyRules, names: dict[str, str], registry_id: str, device_class: str
 ) -> None:
-    """Record a change-back as this sensor's rejection: an ignored card, exactly like Don't suggest.
+    """Record a change-back as an ignored card, the same rejection Don't suggest leaves.
 
     Resolves through the same _resolve every run uses, so a class the
     sensor's live unit no longer accepts raises no card: that class can no

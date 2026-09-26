@@ -76,7 +76,7 @@ class DeviceClassRecipe:
             sensors.append(state_item)
             question_id = f"s{index}"
             # Asked even when one class fits, and the instructions carry only
-            # the boundary case this sensor's own unit needs (never every
+            # the boundary case this sensor's unit needs (never every
             # question's), since a shared addition measurably lowers
             # confidence on unrelated sensors in the same run.
             templates[question_id] = template_for(entry.unit_of_measurement)

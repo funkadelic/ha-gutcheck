@@ -33,7 +33,7 @@ OPTIONS_SCHEMA = vol.Schema(
         vol.Required(CONF_UPDATES_ENABLED, default=True): BooleanSelector(),
         vol.Required(CONF_AREAS_ENABLED, default=True): BooleanSelector(),
         # Off by default, unlike the other three: an upgraded install must
-        # not start raising device class cards unasked (DCLS-05).
+        # not start raising device class cards unasked.
         vol.Required(CONF_DEVICE_CLASS_ENABLED, default=False): BooleanSelector(),
         vol.Required(CONF_DAILY_BUDGET, default=DEFAULT_DAILY_BUDGET): vol.All(vol.Coerce(int), vol.Range(min=1)),
         vol.Optional(CONF_CRITICAL_LABEL): LabelSelector(),

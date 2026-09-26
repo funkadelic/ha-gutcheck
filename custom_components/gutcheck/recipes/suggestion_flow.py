@@ -32,12 +32,12 @@ class SuggestionRepairFlow(RepairsFlow):
     """A menu built by _menu_options (confirm, ignore, and a subclass's own steps), acting through one apply callable."""
 
     def __init__(self, data: IssueData | None, apply: Apply) -> None:
-        """Hold the card's own data and the callable that acts on a confirm or a pick."""
+        """Hold the card's data and the callable that acts on a confirm or a pick."""
         self._data: IssueData = data or {}
         self._apply = apply
 
     async def async_step_init(self, user_input: dict[str, str] | None = None) -> RepairsFlowResult:
-        """Show this flow's menu, with the card's own placeholders."""
+        """Show this flow's menu, with the card's placeholders."""
         return self.async_show_menu(
             step_id="init", menu_options=await self._menu_options(), description_placeholders=self._placeholders()
         )
@@ -55,7 +55,7 @@ class SuggestionRepairFlow(RepairsFlow):
         return self.async_abort(reason="suggestion_ignored")
 
     async def _menu_options(self) -> list[str]:
-        """The init menu's options; a subclass adds its own steps to this list."""
+        """The init menu's options; a subclass adds steps to this list."""
         return ["confirm", "ignore"]
 
     def _finish(self, data: IssueData) -> RepairsFlowResult:
@@ -72,7 +72,7 @@ class SuggestionRepairFlow(RepairsFlow):
         return self.async_abort(reason="suggestion_outdated")
 
     def _placeholders(self) -> Mapping[str, str] | None:
-        """The card's own translation placeholders, read fresh from the issue registry."""
+        """The card's translation placeholders, read fresh from the issue registry."""
         issue = ir.async_get(self.hass).async_get_issue(self.handler, self.issue_id)
         return issue.translation_placeholders if issue is not None else None
 

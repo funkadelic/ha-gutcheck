@@ -49,7 +49,7 @@ def _split_new(existing_ids: set[str], resolved: dict[str, Resolved]) -> tuple[s
 def _attempted_ids(prefix: str, suggested: list[Item]) -> set[str]:
     """Every subject this run's suggested list names, whether or not it fully resolved.
 
-    Built straight from each item's own registry_id, with no registry
+    Built straight from each item's registry_id, with no registry
     lookup: a subject the model answered about this run but whose target no
     longer resolves is still "attempted", which is what tells an existing
     card to be swept rather than kept as a rejection.
@@ -58,7 +58,7 @@ def _attempted_ids(prefix: str, suggested: list[Item]) -> set[str]:
 
 
 def _accept_new(prefix: str, suggested: list[Item], new_ids: list[str], cap: int, restoring: bool) -> list[str]:
-    """New card ids to raise now; a run marks the rest held back on their own stored items.
+    """New card ids to raise now; a run marks the rest held back on their stored items.
 
     A run takes the cap's worth. A restore takes no cap of its own: it
     re-raises every card the run raised, including one a switch-off
@@ -88,7 +88,7 @@ def sync_suggestion_cards(
     """Create or update a capped, rejection-preserving set of suggestion cards.
 
     A card this run suggests is re-created with the new suggestion (HA
-    keeps an ignored card's own dismissed_version across the re-create). A
+    keeps an ignored card's dismissed_version across the re-create). A
     new card arrives only up to cap per run, most confident first; a
     restore re-raises the run's own cards instead. A card for a subject
     this run did not suggest (an unsure or none-of-these answer) survives
