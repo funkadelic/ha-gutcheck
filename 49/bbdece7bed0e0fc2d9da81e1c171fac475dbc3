@@ -1,0 +1,43 @@
+custom_components/gutcheck/options_flow.py
+  s_777664af439b00::t_456d151991f601 36
+custom_components/gutcheck/recipes/device_class_describe.py
+  s_777664af439b00::t_0046ca86365f13 82
+custom_components/gutcheck/recipes/device_class_repairs.py
+  s_777664af439b00::t_0046ca86365f13 1
+custom_components/gutcheck/translations/en.json
+  s_777664af439b00::t_0046ca86365f13 45
+custom_components/gutcheck/recipes/suggestion_flow.py
+  s_777664af439b00::t_0046ca86365f13 35,40,58,75
+custom_components/gutcheck/recipes/device_class_wording.py
+  s_777664af439b00::t_0046ca86365f13 1,6,31,42
+custom_components/gutcheck/recipes/suggestion_cards.py
+  s_777664af439b00::t_0046ca86365f13 52,61,91
+custom_components/gutcheck/__init__.py
+  s_777664af439b00::t_456d151991f601 124
+custom_components/gutcheck/recipes/device_class.py
+  s_777664af439b00::t_0046ca86365f13 79
+custom_components/gutcheck/recipes/device_class_cards.py
+  s_777664af439b00::t_c4d2f2a5fde55b 49
+custom_components/gutcheck/const.py
+  s_777664af439b00::t_0046ca86365f13 226,244
+custom_components/gutcheck/repairs.py
+  s_777664af439b00::t_456d151991f601 138
+custom_components/gutcheck/recipes/gate.py
+  s_777664af439b00::t_0046ca86365f13 101
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "49bbdece7bed0e0fc2d9da81e1c171fac475dbc3",
+  "prompts": {},
+  "sessions": {
+    "s_777664af439b00": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "612ed214-183d-48f8-b562-7f4385a55936",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
