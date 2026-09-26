@@ -10,7 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import issue_registry as ir
 
 from ..const import DOMAIN, ITEM_HELD_BACK
-from ..repairs import async_sync_issues
+from ..repairs import async_sync_issues, is_ignored
 from .shapes import Item
 
 _LOGGER = logging.getLogger(__name__)
@@ -87,18 +87,16 @@ def sync_suggestion_cards(
 ) -> None:
     """Create or update a capped, rejection-preserving set of suggestion cards.
 
-    An open card (its id already exists) is always re-created with this
-    run's own suggestion, which is what lets an ignored card's content
-    follow the model while HA's own re-create keeps dismissed_version
-    untouched. A new card arrives only up to cap per run, most confident
-    first; a restore re-raises the run's own cards instead. An existing
-    card for a subject this run never suggested at all (an unsure or
-    none-of-these answer) is passed straight through
-    untouched as long as its target still qualifies, which is what lets a
-    rejection outlive a noisy run; once the target stops qualifying, its
-    card is swept like any other stale one. A subject this run did
-    suggest, but whose choice no longer resolves, is swept too rather than
-    kept: that suggestion is stale, not rejected.
+    A card this run suggests is re-created with the new suggestion (HA
+    keeps an ignored card's own dismissed_version across the re-create). A
+    new card arrives only up to cap per run, most confident first; a
+    restore re-raises the run's own cards instead. A card for a subject
+    this run did not suggest (an unsure or none-of-these answer) survives
+    only if the user ignored it and its subject still qualifies, since
+    that ignore is the only rejection record; an open one is deleted
+    because the model no longer backs it. A subject this run did suggest,
+    but whose choice no longer resolves, is deleted too, ignored or not:
+    that suggestion is stale, not rejected.
     """
     attempted = _attempted_ids(prefix, suggested)
 
@@ -109,7 +107,11 @@ def sync_suggestion_cards(
     accepted_new = _accept_new(prefix, suggested, ordered_new, cap, restoring)
     wanted_ids = open_ids | set(accepted_new)
 
-    kept = {issue_id for issue_id in existing_ids - wanted_ids if issue_id not in attempted and still_qualifies(issue_id)}
+    kept = {
+        issue_id
+        for issue_id in existing_ids - wanted_ids
+        if issue_id not in attempted and is_ignored(registry, issue_id) and still_qualifies(issue_id)
+    }
 
     async_sync_issues(
         hass,

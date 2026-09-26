@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
@@ -88,10 +89,11 @@ async def test_an_ignored_card_survives_a_confident_none_of_these_answer(
     assert after.dismissed_version is not None
 
 
-async def test_an_open_card_stays_open_unchanged_on_an_unsure_answer(
-    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
+@pytest.mark.parametrize(("choice", "confidence"), [("battery", 0.2), (OPTION_NONE, 0.9)])
+async def test_an_open_card_clears_when_the_next_answer_is_unsure_or_none_of_these(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry, choice: str, confidence: float
 ) -> None:
-    """A card the user has not ignored stays open when its sensor's next answer is unsure."""
+    """A card the user has not ignored is deleted once its sensor's next answer no longer backs it."""
     register_unit_sensor(hass, "a", unit="%", name="A")
     await _setup(hass, aioclient_mock, device_class_entry, {"s0": area_answer("battery", 0.9, PERCENT_CANDIDATES)})
     issue_ids = {
@@ -106,13 +108,13 @@ async def test_an_open_card_stays_open_unchanged_on_an_unsure_answer(
     assert before.dismissed_version is None
 
     aioclient_mock.clear_requests()
-    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer("battery", 0.2, PERCENT_CANDIDATES)})])
+    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer(choice, confidence, PERCENT_CANDIDATES)})])
     await _run_again(hass, device_class_entry)
 
-    after = ir.async_get(hass).async_get_issue(DOMAIN, issue_id)
-    assert after is not None
-    assert after.dismissed_version is None
-    assert after.translation_placeholders == before.translation_placeholders
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
+    state = hass.states.get(device_class_sensor_entity_id(hass, device_class_entry))
+    assert state is not None
+    assert state.state == "0"
 
 
 async def test_a_sensor_given_a_class_by_hand_is_no_longer_asked_and_its_card_is_deleted(
