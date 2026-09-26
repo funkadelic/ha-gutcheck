@@ -255,7 +255,7 @@ async def test_reenabling_within_the_week_restores_the_worth_fixing_issue(
 async def test_critical_label_no_longer_excludes_from_the_health_check(
     hass: HomeAssistant, freezer: Any, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
 ) -> None:
-    """Picking a critical label leaves a labelled entity selected: D-01 makes the label mean never acted on, not never sent.
+    """Picking a critical label leaves a labelled entity selected: the label means never acted on, not never sent.
 
     Each reload jumps the clock past the weekly cadence window first, so
     every options save reaches the API instead of restoring for free.

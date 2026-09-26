@@ -94,7 +94,7 @@ async def test_critical_labelled_device_still_selects_every_entity(hass: HomeAss
 
 
 async def test_critical_labelled_lock_is_still_not_selected(hass: HomeAssistant) -> None:
-    """A lock stays out of the health check even carrying the critical label (D-02)."""
+    """A lock stays out of the health check even carrying the critical label."""
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("lock", "test", "unique_critical_lock")
     registry.async_update_entity(entry.entity_id, labels={"critical"})
