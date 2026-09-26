@@ -16,13 +16,12 @@ from custom_components.gutcheck.const import (
     CONF_CONFIG_ENTRIES_ENABLED,
     CONF_DAILY_BUDGET,
     CONFIG_ENTRY_ISSUE_PREFIX,
-    CONFIG_ENTRY_OPTIONS,
     DEFAULT_DAILY_BUDGET,
     DOMAIN,
-    OPTION_DEAD,
     RECIPE_CONFIG_ENTRIES,
     STORE_VERSION,
 )
+from custom_components.gutcheck.recipes.config_entry_const import CONFIG_ENTRY_OPTIONS, OPTION_DEAD
 from custom_components.gutcheck.recipes.shapes import recipe_store_key
 
 from .conftest import api_response, area_answer, find_triage_sensor, posted_bodies, register_jev_responses

@@ -12,7 +12,7 @@ from homeassistant.exceptions import ConfigEntryError
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import (
+from custom_components.gutcheck.recipes.config_entry_const import (
     CONFIG_ENTRY_CRITERIA,
     CONFIG_ENTRY_INSTRUCTIONS,
     CONFIG_ENTRY_OPTIONS,

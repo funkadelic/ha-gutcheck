@@ -7,14 +7,9 @@ from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 
-from ..const import (
-    CONFIG_ENTRY_ISSUE_PREFIX,
-    CONFIG_ENTRY_PAGE_URL,
-    DOMAIN,
-    ISSUE_CONFIG_ENTRY_DEAD,
-    ISSUE_CONFIG_ENTRY_NEEDS_REAUTH,
-)
+from ..const import CONFIG_ENTRY_ISSUE_PREFIX, DOMAIN, ISSUE_CONFIG_ENTRY_DEAD, ISSUE_CONFIG_ENTRY_NEEDS_REAUTH
 from ..repairs import async_sync_issues
+from .config_entry_const import CONFIG_ENTRY_PAGE_URL
 from .config_entry_describe import resolved
 from .shapes import Item
 

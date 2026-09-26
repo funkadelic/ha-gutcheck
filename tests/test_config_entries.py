@@ -9,13 +9,8 @@ from homeassistant.helpers import issue_registry as ir
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import (
-    CONFIG_ENTRY_INSTRUCTIONS,
-    CONFIG_ENTRY_ISSUE_PREFIX,
-    CONFIG_ENTRY_OPTIONS,
-    DOMAIN,
-    OPTION_NONE,
-)
+from custom_components.gutcheck.const import CONFIG_ENTRY_ISSUE_PREFIX, DOMAIN, OPTION_NONE
+from custom_components.gutcheck.recipes.config_entry_const import CONFIG_ENTRY_INSTRUCTIONS, CONFIG_ENTRY_OPTIONS
 
 from .conftest import api_response, area_answer, posted_bodies, register_jev_responses, triage_sensor_entity_id
 

@@ -14,16 +14,9 @@ from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry, MockModule, mock_integration, mock_platform
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import (
-    CONF_CRITICAL_LABEL,
-    DOMAIN,
-    OPTION_DEAD,
-    OPTION_NEEDS_REAUTH,
-    OPTION_NONE,
-    OPTION_TRANSIENT,
-    RECIPE_CONFIG_ENTRIES,
-)
+from custom_components.gutcheck.const import CONF_CRITICAL_LABEL, DOMAIN, OPTION_NONE, RECIPE_CONFIG_ENTRIES
 from custom_components.gutcheck.recipes.config_entries import ConfigEntryRecipe
+from custom_components.gutcheck.recipes.config_entry_const import OPTION_DEAD, OPTION_NEEDS_REAUTH, OPTION_TRANSIENT
 from custom_components.gutcheck.recipes.gate import classify
 from custom_components.gutcheck.recipes.shapes import Batch, RecipeResult
 

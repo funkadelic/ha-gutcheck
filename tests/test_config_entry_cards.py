@@ -16,15 +16,17 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 
 from custom_components.gutcheck.const import (
     CONFIG_ENTRY_ISSUE_PREFIX,
-    CONFIG_ENTRY_OPTIONS,
     DOMAIN,
     ISSUE_CONFIG_ENTRY_DEAD,
     ISSUE_CONFIG_ENTRY_NEEDS_REAUTH,
+    OPTION_NONE,
+    RECIPE_CONFIG_ENTRIES,
+)
+from custom_components.gutcheck.recipes.config_entry_const import (
+    CONFIG_ENTRY_OPTIONS,
     OPTION_DEAD,
     OPTION_NEEDS_REAUTH,
-    OPTION_NONE,
     OPTION_TRANSIENT,
-    RECIPE_CONFIG_ENTRIES,
 )
 from custom_components.gutcheck.recipes.config_entry_repairs import ConfigEntryIssueTracker
 

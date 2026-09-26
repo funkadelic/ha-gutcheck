@@ -10,13 +10,8 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.gutcheck.budget import _estimate, _reservation, estimate_tokens
-from custom_components.gutcheck.const import (
-    CONFIG_ENTRY_OPTIONS,
-    CONFIG_ENTRY_REASON_MAX_CHARS,
-    OPTION_DEAD,
-    REQUEST_TOKEN_LIMIT,
-    STATE_TOKEN_LIMIT,
-)
+from custom_components.gutcheck.const import REQUEST_TOKEN_LIMIT, STATE_TOKEN_LIMIT
+from custom_components.gutcheck.recipes.config_entry_const import CONFIG_ENTRY_OPTIONS, CONFIG_ENTRY_REASON_MAX_CHARS, OPTION_DEAD
 
 from .conftest import api_response, area_answer, posted_bodies, register_jev_responses
 

@@ -8,8 +8,9 @@ from homeassistant.config_entries import SOURCE_REAUTH, ConfigEntry, ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
-from ..const import CONFIG_ENTRY_REASON_MAX_CHARS, DOMAIN
+from ..const import DOMAIN
 from ..describe import bucket_longer_than, clean_text
+from .config_entry_const import CONFIG_ENTRY_REASON_MAX_CHARS
 from .shapes import Item, RecipeResult
 
 TARGET_STATES = frozenset({ConfigEntryState.SETUP_RETRY, ConfigEntryState.SETUP_ERROR})
