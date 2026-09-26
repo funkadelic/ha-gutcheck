@@ -14,6 +14,9 @@ CONFIG_ENTRY_OPTIONS: Final = (OPTION_TRANSIENT, OPTION_NEEDS_REAUTH, OPTION_DEA
 CONFIG_ENTRY_CONFIDENCE_THRESHOLD: Final = 0.5
 
 CONFIG_ENTRY_REASON_MAX_CHARS: Final = 300
+# Stand-ins for what redaction removes from a reason; brackets survive clean_text.
+REDACTED_EMAIL: Final = "[email]"
+REDACTED: Final = "[redacted]"
 
 # Home Assistant's own route to an integration's entries page, passed as a relative link.
 CONFIG_ENTRY_PAGE_URL: Final = "/config/integrations/integration/{domain}"

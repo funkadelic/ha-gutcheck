@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from datetime import datetime
 
 from homeassistant.config_entries import SOURCE_REAUTH, ConfigEntry, ConfigEntryState
@@ -10,8 +11,12 @@ from homeassistant.util import dt as dt_util
 
 from ..const import DOMAIN
 from ..describe import bucket_longer_than, clean_text
-from .config_entry_const import CONFIG_ENTRY_REASON_MAX_CHARS
+from .config_entry_const import CONFIG_ENTRY_REASON_MAX_CHARS, REDACTED, REDACTED_EMAIL
 from .shapes import Item, RecipeResult
+
+_URL_USERINFO_RE = re.compile(r"(\w+://)[^\s/@]+@")
+_URL_QUERY_RE = re.compile(r"(\w+://[^\s?#]+)[?#]\S*")
+_EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
 
 TARGET_STATES = frozenset({ConfigEntryState.SETUP_RETRY, ConfigEntryState.SETUP_ERROR})
 # An ignored or user-disabled entry is never set up, so it stays not loaded and never matches.
@@ -61,9 +66,16 @@ def failing_for(seen: datetime, now: datetime) -> str:
     return bucket_longer_than(int((now - seen).total_seconds() // 86400))
 
 
+def redact_reason(reason: str) -> str:
+    """Drop a URL's sign-in part, query and fragment, and every email address, before anything else sees it."""
+    reason = _URL_USERINFO_RE.sub(rf"\1{REDACTED}@", reason)
+    reason = _URL_QUERY_RE.sub(rf"\1?{REDACTED}", reason)
+    return _EMAIL_RE.sub(REDACTED_EMAIL, reason)
+
+
 def describe(entry: ConfigEntry, failing_for_words: str) -> Item:
     """One entry's model-visible state: never the title, entry id, data, options, source or unique id."""
-    reason = clean_text(entry.reason, CONFIG_ENTRY_REASON_MAX_CHARS) if entry.reason else ""
+    reason = clean_text(redact_reason(entry.reason), CONFIG_ENTRY_REASON_MAX_CHARS) if entry.reason else ""
     return {
         "integration": entry.domain,
         "config_entry_state": entry.state.value.replace("_", " "),
