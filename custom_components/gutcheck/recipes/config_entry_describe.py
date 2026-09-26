@@ -14,9 +14,10 @@ from ..describe import bucket_longer_than, clean_text
 from .config_entry_const import CONFIG_ENTRY_REASON_MAX_CHARS, REDACTED, REDACTED_EMAIL
 from .shapes import Item, RecipeResult
 
-_URL_USERINFO_RE = re.compile(r"(\w+://)[^\s/@]+@")
-_URL_QUERY_RE = re.compile(r"(\w+://[^\s?#]+)[?#]\S*")
-_EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
+# Linear on any input: each match starts at "://" or at the start of a run, and possessive quantifiers never backtrack.
+_URL_USERINFO_RE = re.compile(r"://[^\s/@]++@")
+_URL_QUERY_RE = re.compile(r"(://[^\s?#]++)[?#]\S*+")
+_EMAIL_RE = re.compile(r"(?<![\w.+-])[\w.+-]++@[\w-]++(?:\.[\w-]++)++")
 
 TARGET_STATES = frozenset({ConfigEntryState.SETUP_RETRY, ConfigEntryState.SETUP_ERROR})
 # An ignored or user-disabled entry is never set up, so it stays not loaded and never matches.
@@ -68,7 +69,7 @@ def failing_for(seen: datetime, now: datetime) -> str:
 
 def redact_reason(reason: str) -> str:
     """Drop a URL's sign-in part, query and fragment, and every email address, before anything else sees it."""
-    reason = _URL_USERINFO_RE.sub(rf"\1{REDACTED}@", reason)
+    reason = _URL_USERINFO_RE.sub(f"://{REDACTED}@", reason)
     reason = _URL_QUERY_RE.sub(rf"\1?{REDACTED}", reason)
     return _EMAIL_RE.sub(REDACTED_EMAIL, reason)
 

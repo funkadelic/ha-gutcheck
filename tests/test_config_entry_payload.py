@@ -108,6 +108,14 @@ async def test_reason_loses_emails_url_sign_in_and_query_before_sending(
         assert secret not in stored
 
 
+def test_redaction_stays_linear_on_long_unmatched_runs() -> None:
+    """Long runs that almost match finish at once instead of backtracking for minutes."""
+    from custom_components.gutcheck.recipes.config_entry_describe import redact_reason
+
+    for text in ("a" * 100_000, "a" * 100_000 + "@", "http://" + "a" * 100_000, "x@" + "a" * 100_000 + "."):
+        assert len(redact_reason(text)) <= len(text) + 20
+
+
 async def test_entry_with_no_reason_sends_a_null_reason(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, triage_entry: MockConfigEntry, failing_entry: Any
 ) -> None:
