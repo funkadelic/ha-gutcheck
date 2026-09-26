@@ -10,8 +10,8 @@ from homeassistant.core import HomeAssistant, State
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 
-from ..const import HEALTH_LEFTOVER_DAYS
 from ..describe import bucket_duration, bucket_longer_than
+from .health_const import HEALTH_LEFTOVER_DAYS
 from .shapes import Item
 
 HistoryResult = tuple[int, dict[str, datetime | None]] | None

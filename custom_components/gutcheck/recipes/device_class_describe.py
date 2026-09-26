@@ -11,14 +11,9 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.translation import async_get_translations
 
-from ..const import (
-    DEVICE_CLASS_NAME_KEY,
-    DEVICE_CLASS_NAMES_LANGUAGE,
-    DEVICE_CLASS_NONE_DESCRIPTION,
-    DEVICE_TEXT_MAX_CHARS,
-    OPTION_NONE,
-)
+from ..const import DEVICE_TEXT_MAX_CHARS, OPTION_NONE
 from ..describe import clean_text
+from .device_class_const import DEVICE_CLASS_NAME_KEY, DEVICE_CLASS_NAMES_LANGUAGE, DEVICE_CLASS_NONE_DESCRIPTION
 from .safety import SafetyRules
 from .shapes import Item
 

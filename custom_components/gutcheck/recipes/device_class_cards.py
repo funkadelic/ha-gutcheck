@@ -6,8 +6,9 @@ import functools
 
 from homeassistant.core import HomeAssistant
 
-from ..const import DEVICE_CLASS_ISSUE_PREFIX, ISSUE_DEVICE_CLASS_SUGGESTION, MAX_NEW_DEVICE_CLASS_CARDS_PER_RUN
+from ..const import DEVICE_CLASS_ISSUE_PREFIX, ISSUE_DEVICE_CLASS_SUGGESTION
 from ..repairs import async_create_ignored_issue
+from .device_class_const import MAX_NEW_DEVICE_CLASS_CARDS_PER_RUN
 from .device_class_describe import candidate_classes, qualifying_entry
 from .safety import SafetyRules
 from .shapes import Item

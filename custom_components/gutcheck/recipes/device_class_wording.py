@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Final
 
-from ..const import DEVICE_CLASS_INSTRUCTIONS, DEVICE_CLASS_REUSED_UNIT_SYMBOLS
+from .device_class_const import DEVICE_CLASS_INSTRUCTIONS, DEVICE_CLASS_REUSED_UNIT_SYMBOLS
 
 PERCENT_NOTE: Final = (
     " A value in % alone is not Battery, Humidity, Moisture or Power factor unless the other fields "

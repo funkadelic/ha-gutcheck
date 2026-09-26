@@ -8,9 +8,10 @@ from typing import Any
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
-from ..const import AREA_CONFIDENCE_THRESHOLD, AREA_INSTRUCTIONS, AREA_ISSUE_PREFIX, OPTION_SUGGESTED, RECIPE_AREAS
+from ..const import AREA_ISSUE_PREFIX, OPTION_SUGGESTED, RECIPE_AREAS
 from ..models import Question
 from .area_cards import sync_area_cards
+from .area_const import AREA_CONFIDENCE_THRESHOLD, AREA_INSTRUCTIONS
 from .area_describe import area_criteria, area_options, describe
 from .gate import gate_choice
 from .safety import SafetyRules

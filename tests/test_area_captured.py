@@ -9,7 +9,8 @@ from typing import Any
 from homeassistant.core import HomeAssistant
 
 from custom_components.gutcheck.client import validate_response
-from custom_components.gutcheck.const import AREA_CONFIDENCE_THRESHOLD, AREA_INSTRUCTIONS, OPTION_NONE, OPTION_SUGGESTED
+from custom_components.gutcheck.const import OPTION_NONE, OPTION_SUGGESTED
+from custom_components.gutcheck.recipes.area_const import AREA_CONFIDENCE_THRESHOLD, AREA_INSTRUCTIONS
 from custom_components.gutcheck.recipes.area_describe import area_criteria
 from custom_components.gutcheck.recipes.areas import AreaRecipe
 from custom_components.gutcheck.recipes.gate import classify, gate_choice

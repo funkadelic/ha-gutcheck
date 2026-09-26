@@ -10,8 +10,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 
 from custom_components.gutcheck.client import validate_response
-from custom_components.gutcheck.const import DEVICE_CLASS_NONE_DESCRIPTION, OPTION_NONE, OPTION_SUGGESTED
+from custom_components.gutcheck.const import OPTION_NONE, OPTION_SUGGESTED
 from custom_components.gutcheck.recipes.device_class import DeviceClassRecipe
+from custom_components.gutcheck.recipes.device_class_const import DEVICE_CLASS_NONE_DESCRIPTION
 from custom_components.gutcheck.recipes.device_class_wording import instructions_for
 from custom_components.gutcheck.recipes.gate import classify
 from custom_components.gutcheck.recipes.shapes import Batch

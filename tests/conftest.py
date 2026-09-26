@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 from collections.abc import Sequence
+from contextlib import ExitStack
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import SimpleNamespace
@@ -13,6 +14,7 @@ from typing import Any
 import pytest
 from homeassistant.components.repairs import repairs_flow_manager
 from homeassistant.components.update import DATA_COMPONENT, UpdateEntityFeature
+from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_API_KEY, STATE_ON, STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
@@ -21,7 +23,14 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.setup import async_setup_component
-from pytest_homeassistant_custom_component.common import MockConfigEntry, flush_store
+from pytest_homeassistant_custom_component.common import (
+    MockConfigEntry,
+    MockModule,
+    flush_store,
+    mock_config_flow,
+    mock_integration,
+    mock_platform,
+)
 from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMocker,
     AiohttpClientMockResponse,
@@ -30,6 +39,7 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
 from custom_components.gutcheck.const import (
     API_URL,
     CONF_AREAS_ENABLED,
+    CONF_CONFIG_ENTRIES_ENABLED,
     CONF_DAILY_BUDGET,
     CONF_DEVICE_CLASS_ENABLED,
     CONF_HEALTH_ENABLED,
@@ -39,12 +49,13 @@ from custom_components.gutcheck.const import (
     DOMAIN,
     HEALTH_OPTIONS,
     OPTION_NONE,
-    UPDATE_CRITERIA,
+    RECIPE_CONFIG_ENTRIES,
     UPDATE_OPTIONS,
 )
 from custom_components.gutcheck.recipes.device_class_cards import sync_device_class_cards
 from custom_components.gutcheck.recipes.safety import SafetyRules
 from custom_components.gutcheck.recipes.shapes import Item, RecipeResult
+from custom_components.gutcheck.recipes.update_const import UPDATE_CRITERIA
 
 ALL_HEALTH_OPTIONS = (*HEALTH_OPTIONS, OPTION_NONE)
 
@@ -56,6 +67,7 @@ KEPT_DEVICE_CLASS_OPTIONS = {
     CONF_UPDATES_ENABLED: False,
     CONF_AREAS_ENABLED: False,
     CONF_DEVICE_CLASS_ENABLED: True,
+    CONF_CONFIG_ENTRIES_ENABLED: False,
     CONF_DAILY_BUDGET: DEFAULT_DAILY_BUDGET,
 }
 
@@ -289,6 +301,31 @@ def recipe_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry, recipe_
     return entity_id
 
 
+def find_triage_sensor(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
+    """The stuck integration check sensor's entity id, or None when the recipe is switched off."""
+    return find_recipe_sensor(hass, entry, RECIPE_CONFIG_ENTRIES)
+
+
+def triage_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
+    """The stuck integration check sensor's entity id, for the tests where it must exist."""
+    entity_id = find_triage_sensor(hass, entry)
+    assert entity_id is not None
+    return entity_id
+
+
+def find_triage_button(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
+    """The stuck integration check's Run button entity id, or None when the recipe is switched off."""
+    return er.async_get(hass).async_get_entity_id("button", DOMAIN, f"{entry.entry_id}_{RECIPE_CONFIG_ENTRIES}_run")
+
+
+async def press_triage_run(hass: HomeAssistant, entry: MockConfigEntry) -> None:
+    """Press the stuck integration check's Run button and let its background run finish."""
+    entity_id = find_triage_button(hass, entry)
+    assert entity_id is not None
+    await hass.services.async_call("button", "press", {"entity_id": entity_id}, blocking=True)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+
 async def restart_config_entry(hass: HomeAssistant, entry: MockConfigEntry) -> None:
     """Unload, reload the issue registry from storage the way HA startup does, then set up again."""
     assert await hass.config_entries.async_unload(entry.entry_id)
@@ -513,3 +550,109 @@ def device_class_entry() -> MockConfigEntry:
             CONF_DEVICE_CLASS_ENABLED: True,
         },
     )
+
+
+@pytest.fixture
+def triage_entry() -> MockConfigEntry:
+    """A Gut Check config entry with only the stuck integration check switched on.
+
+    Health, updates, areas and device class are switched off, so every POST
+    in a test using this fixture is this recipe's own.
+    """
+    return MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_API_KEY: "test-key"},
+        options={
+            CONF_HEALTH_ENABLED: False,
+            CONF_UPDATES_ENABLED: False,
+            CONF_AREAS_ENABLED: False,
+            CONF_DEVICE_CLASS_ENABLED: False,
+            CONF_CONFIG_ENTRIES_ENABLED: True,
+        },
+    )
+
+
+@pytest.fixture
+def failing_entry(hass: HomeAssistant):
+    """Factory building a MockConfigEntry that Home Assistant's own setup code puts into setup_retry or setup_error.
+
+    Each call mocks a fresh integration and config flow for the given domain,
+    so domains in tests stay distinct (for example cloud_login, retry_hub,
+    gone_service) and never gutcheck.
+    """
+    stack = ExitStack()
+
+    async def _factory(
+        domain: str,
+        *outcomes: Exception | None,
+        title: str,
+        entry_id: str,
+        reauth: bool = False,
+        data: dict[str, Any] | None = None,
+        setup: bool = True,
+    ) -> MockConfigEntry:
+        """Build and, unless setup is False, set up one config entry Home Assistant's own code drives."""
+        remaining = list(outcomes)
+
+        async def _async_setup_entry(_hass: HomeAssistant, _entry: ConfigEntry) -> bool:
+            """Raise the next queued outcome, or succeed; the last outcome repeats once the queue is spent."""
+            outcome = remaining.pop(0) if len(remaining) > 1 else remaining[0]
+            if outcome is None:
+                return True
+            raise outcome
+
+        async def _async_unload_entry(_hass: HomeAssistant, _entry: ConfigEntry) -> bool:
+            """Always succeed."""
+            return True
+
+        mock_integration(
+            hass,
+            MockModule(domain=domain, async_setup_entry=_async_setup_entry, async_unload_entry=_async_unload_entry),
+        )
+        mock_platform(hass, f"{domain}.config_flow", None)
+
+        handler: type[ConfigFlow]
+        if reauth:
+
+            class _ReauthConfigFlow(ConfigFlow):
+                """A config flow whose reauth step really shows a form, so HA starts a genuine reauth."""
+
+                VERSION = 1
+
+                async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+                    """Never reached in these tests."""
+                    return self.async_abort(reason="not_implemented")
+
+                async def async_step_reauth(self, entry_data: dict[str, Any]) -> ConfigFlowResult:
+                    """Go straight to reauth_confirm."""
+                    return await self.async_step_reauth_confirm()
+
+                async def async_step_reauth_confirm(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+                    """Show a form, so the flow stays active until answered."""
+                    return self.async_show_form(step_id="reauth_confirm")
+
+            handler = _ReauthConfigFlow
+        else:
+
+            class _PlainConfigFlow(ConfigFlow):
+                """A config flow with no reauth step."""
+
+                VERSION = 1
+
+                async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+                    """Never reached in these tests."""
+                    return self.async_abort(reason="not_implemented")
+
+            handler = _PlainConfigFlow
+
+        stack.enter_context(mock_config_flow(domain, handler))
+
+        entry = MockConfigEntry(domain=domain, title=title, entry_id=entry_id, data=data or {})
+        entry.add_to_hass(hass)
+        if setup:
+            await hass.config_entries.async_setup(entry.entry_id)
+            await hass.async_block_till_done(wait_background_tasks=True)
+        return entry
+
+    yield _factory
+    stack.close()

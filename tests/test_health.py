@@ -11,13 +11,13 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 from custom_components.gutcheck.const import (
     CONF_DAILY_BUDGET,
     DEFAULT_DAILY_BUDGET,
-    LEAN_NEEDS_ATTENTION,
     OPTION_EXPECTED,
     OPTION_NONE,
     OPTION_SAFE_TO_REMOVE,
     OPTION_WORTH_FIXING,
     RECIPE_HEALTH,
 )
+from custom_components.gutcheck.recipes.health_const import LEAN_NEEDS_ATTENTION
 
 from .conftest import (
     api_response,

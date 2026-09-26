@@ -16,7 +16,6 @@ from custom_components.gutcheck.budget import _estimate, _reservation, estimate_
 from custom_components.gutcheck.const import (
     DEFAULT_DAILY_BUDGET,
     DOMAIN,
-    MAX_UPDATES_PER_RUN,
     MODEL,
     OPTION_POSSIBLY_BREAKING,
     OPTION_WORTH_FIXING,
@@ -25,11 +24,10 @@ from custom_components.gutcheck.const import (
     RELEASE_NOTES_MAX_CHARS,
     REQUEST_TOKEN_LIMIT,
     STATE_TOKEN_LIMIT,
-    UPDATE_CRITERIA,
-    UPDATE_INSTRUCTIONS,
     UPDATES_ISSUE_PREFIX,
     VERSION_JUMP_MAJOR,
 )
+from custom_components.gutcheck.recipes.update_const import MAX_UPDATES_PER_RUN, UPDATE_CRITERIA, UPDATE_INSTRUCTIONS
 
 from .conftest import (
     api_response,

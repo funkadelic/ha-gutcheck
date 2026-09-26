@@ -10,13 +10,9 @@ from homeassistant.helpers import entity_registry as er
 
 from ..const import (
     CHOICE_CONFIDENCE_THRESHOLD,
-    HEALTH_CRITERIA,
-    HEALTH_INSTRUCTIONS,
     HEALTH_ISSUE_PREFIX,
-    HEALTH_LEAN_THRESHOLD,
     HEALTH_OPTIONS,
     ISSUE_UNAVAILABLE_ENTITY,
-    LEAN_NEEDS_ATTENTION,
     OPTION_EXPECTED,
     OPTION_SAFE_TO_REMOVE,
     OPTION_WORTH_FIXING,
@@ -27,6 +23,7 @@ from ..history import async_unavailable_since
 from ..models import Question
 from ..repairs import async_sync_issues, async_track_recovery
 from .gate import gate_choice, unit_interval
+from .health_const import HEALTH_CRITERIA, HEALTH_INSTRUCTIONS, HEALTH_LEAN_THRESHOLD, LEAN_NEEDS_ATTENTION
 from .health_describe import describe
 from .safety import SafetyRules
 from .shapes import Batch, Item, RecipeResult

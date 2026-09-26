@@ -7,18 +7,12 @@ from pathlib import Path
 from typing import Any
 
 from custom_components.gutcheck.client import validate_response
-from custom_components.gutcheck.const import (
-    CHOICE_CONFIDENCE_THRESHOLD,
-    HEALTH_OPTIONS,
-    LEAN_NEEDS_ATTENTION,
-    OPTION_EXPECTED,
-    OPTION_ROUTINE,
-    UPDATE_CRITERIA,
-    UPDATE_INSTRUCTIONS,
-)
+from custom_components.gutcheck.const import CHOICE_CONFIDENCE_THRESHOLD, HEALTH_OPTIONS, OPTION_EXPECTED, OPTION_ROUTINE
 from custom_components.gutcheck.recipes.gate import classify, gate_choice
 from custom_components.gutcheck.recipes.health import HealthRecipe
+from custom_components.gutcheck.recipes.health_const import LEAN_NEEDS_ATTENTION
 from custom_components.gutcheck.recipes.shapes import Batch
+from custom_components.gutcheck.recipes.update_const import UPDATE_CRITERIA, UPDATE_INSTRUCTIONS
 from custom_components.gutcheck.recipes.updates import UpdateRecipe
 
 from .conftest import choice_answer

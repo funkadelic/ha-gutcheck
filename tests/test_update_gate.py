@@ -6,8 +6,9 @@ import math
 
 import pytest
 
-from custom_components.gutcheck.const import UPDATE_CONFIDENCE_THRESHOLD, UPDATE_OPTIONS
+from custom_components.gutcheck.const import UPDATE_OPTIONS
 from custom_components.gutcheck.recipes.gate import gate_score
+from custom_components.gutcheck.recipes.update_const import UPDATE_CONFIDENCE_THRESHOLD
 
 ALLOWED = UPDATE_OPTIONS
 

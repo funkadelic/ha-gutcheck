@@ -4,15 +4,10 @@ from __future__ import annotations
 
 import pytest
 
-from custom_components.gutcheck.const import (
-    LEAN_NEEDS_ATTENTION,
-    OPTION_EXPECTED,
-    OPTION_NONE,
-    OPTION_SAFE_TO_REMOVE,
-    OPTION_WORTH_FIXING,
-)
+from custom_components.gutcheck.const import OPTION_EXPECTED, OPTION_NONE, OPTION_SAFE_TO_REMOVE, OPTION_WORTH_FIXING
 from custom_components.gutcheck.recipes.gate import classify
 from custom_components.gutcheck.recipes.health import HealthRecipe
+from custom_components.gutcheck.recipes.health_const import LEAN_NEEDS_ATTENTION
 from custom_components.gutcheck.recipes.shapes import Batch, _parse_stored_result
 
 RECIPE = HealthRecipe(None)

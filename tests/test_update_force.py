@@ -11,13 +11,8 @@ from homeassistant.helpers import issue_registry as ir
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import (
-    DOMAIN,
-    MAX_UPDATES_PER_RUN,
-    OPTION_POSSIBLY_BREAKING,
-    RECIPE_UPDATES,
-    UPDATES_ISSUE_PREFIX,
-)
+from custom_components.gutcheck.const import DOMAIN, OPTION_POSSIBLY_BREAKING, RECIPE_UPDATES, UPDATES_ISSUE_PREFIX
+from custom_components.gutcheck.recipes.update_const import MAX_UPDATES_PER_RUN
 
 from .conftest import api_response, posted_bodies, register_jev_responses, register_pending_update, score_answer
 

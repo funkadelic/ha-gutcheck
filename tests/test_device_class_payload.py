@@ -9,8 +9,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import area_registry as ar
 from homeassistant.helpers import entity_registry as er
 
-from custom_components.gutcheck.const import DEVICE_CLASS_INSTRUCTIONS, DEVICE_TEXT_MAX_CHARS
+from custom_components.gutcheck.const import DEVICE_TEXT_MAX_CHARS
 from custom_components.gutcheck.recipes.device_class import DeviceClassRecipe
+from custom_components.gutcheck.recipes.device_class_const import DEVICE_CLASS_INSTRUCTIONS
 from custom_components.gutcheck.recipes.device_class_describe import qualifies
 from custom_components.gutcheck.recipes.safety import SafetyRules
 

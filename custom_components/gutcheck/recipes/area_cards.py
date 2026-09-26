@@ -7,7 +7,8 @@ import functools
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
-from ..const import AREA_ISSUE_PREFIX, ISSUE_AREA_SUGGESTION, MAX_NEW_AREA_CARDS_PER_RUN
+from ..const import AREA_ISSUE_PREFIX, ISSUE_AREA_SUGGESTION
+from .area_const import MAX_NEW_AREA_CARDS_PER_RUN
 from .area_describe import area_options
 from .safety import SafetyRules
 from .shapes import Item

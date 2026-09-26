@@ -9,9 +9,10 @@ from homeassistant.components.update import DATA_COMPONENT, UpdateEntity, Update
 from homeassistant.core import HomeAssistant, State
 from homeassistant.helpers import entity_registry as er
 
-from ..const import RELEASE_NOTES_FETCH_TIMEOUT, UPDATE_TITLE_MAX_CHARS
+from ..const import RELEASE_NOTES_FETCH_TIMEOUT
 from ..describe import clean_release_notes, version_jump
 from .shapes import Item
+from .update_const import UPDATE_TITLE_MAX_CHARS
 
 _LOGGER = logging.getLogger(__name__)
 

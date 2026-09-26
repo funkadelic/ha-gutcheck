@@ -8,16 +8,10 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 
 from custom_components.gutcheck.budget import estimate_tokens
-from custom_components.gutcheck.const import (
-    DEVICE_CLASS_CONFIDENCE_THRESHOLD,
-    DEVICE_CLASS_ISSUE_PREFIX,
-    DOMAIN,
-    OPTION_NONE,
-    OPTION_SUGGESTED,
-    RECIPE_DEVICE_CLASS,
-)
+from custom_components.gutcheck.const import DEVICE_CLASS_ISSUE_PREFIX, DOMAIN, OPTION_NONE, OPTION_SUGGESTED, RECIPE_DEVICE_CLASS
 from custom_components.gutcheck.recipes.device_class import DeviceClassRecipe
 from custom_components.gutcheck.recipes.device_class_cards import sync_device_class_cards
+from custom_components.gutcheck.recipes.device_class_const import DEVICE_CLASS_CONFIDENCE_THRESHOLD
 from custom_components.gutcheck.recipes.device_class_describe import candidate_classes
 from custom_components.gutcheck.recipes.device_class_repairs import set_device_class
 from custom_components.gutcheck.recipes.device_class_wording import instructions_for

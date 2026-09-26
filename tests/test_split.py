@@ -9,12 +9,15 @@ import pytest
 from homeassistant.core import HomeAssistant
 
 from custom_components.gutcheck.budget import estimate_tokens, request_fits
-from custom_components.gutcheck.const import AREA_INSTRUCTIONS, HEALTH_INSTRUCTIONS, MODEL, UPDATE_INSTRUCTIONS
+from custom_components.gutcheck.const import MODEL
 from custom_components.gutcheck.models import SystemOneRequest, SystemOneResponse
+from custom_components.gutcheck.recipes.area_const import AREA_INSTRUCTIONS
 from custom_components.gutcheck.recipes.areas import AreaRecipe
 from custom_components.gutcheck.recipes.gate import classify
 from custom_components.gutcheck.recipes.health import HealthRecipe
+from custom_components.gutcheck.recipes.health_const import HEALTH_INSTRUCTIONS
 from custom_components.gutcheck.recipes.shapes import Batch
+from custom_components.gutcheck.recipes.update_const import UPDATE_INSTRUCTIONS
 from custom_components.gutcheck.recipes.updates import UpdateRecipe
 from custom_components.gutcheck.split import merge, split_batch
 
