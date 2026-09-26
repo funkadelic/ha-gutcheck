@@ -6,7 +6,7 @@ from typing import Final
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN, Platform
 
 DOMAIN: Final = "gutcheck"
-VERSION: Final = "0.6.0"  # x-release-please-version
+VERSION: Final = "0.7.0"  # x-release-please-version
 
 API_URL: Final = "https://api.typesafe.ai/v1/systemone"
 MODEL: Final = "jev-latest"
