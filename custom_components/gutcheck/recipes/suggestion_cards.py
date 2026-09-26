@@ -24,6 +24,9 @@ class Resolved:
     confidence: float
     placeholders: dict[str, str]
     data: dict[str, str | int | float | None]
+    # A higher tier sorts first, ahead of confidence. Every existing call
+    # site keeps the default, so its rank is unchanged.
+    tier: int = 0
 
 
 def confidence_of(item: Item) -> float:
@@ -35,14 +38,20 @@ def confidence_of(item: Item) -> float:
 
 
 def _split_new(existing_ids: set[str], resolved: dict[str, Resolved]) -> tuple[set[str], list[str]]:
-    """Resolved ids that already carry a card, and the rest ordered most confident first, subject id ascending.
+    """Resolved ids that already carry a card, and the rest ranked by tier, then confidence, then subject id.
 
-    The subject-id tie-break keeps the cut deterministic when two suggestions
-    share a confidence value.
+    A higher tier always sorts ahead of a lower one, whatever its
+    confidence: a tier is never simulated with an out-of-range confidence
+    value, since a model answer can legitimately report exactly 1.0 too.
+    The subject-id tie-break keeps the cut deterministic when two
+    suggestions share a tier and a confidence value.
     """
     open_ids = existing_ids & resolved.keys()
     new_ids = resolved.keys() - existing_ids
-    ordered_new = sorted(new_ids, key=lambda issue_id: (-resolved[issue_id].confidence, resolved[issue_id].subject_id))
+    ordered_new = sorted(
+        new_ids,
+        key=lambda issue_id: (-resolved[issue_id].tier, -resolved[issue_id].confidence, resolved[issue_id].subject_id),
+    )
     return open_ids, ordered_new
 
 

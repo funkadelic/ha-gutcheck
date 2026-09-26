@@ -9,14 +9,19 @@ from homeassistant.helpers import label_registry as lr
 
 from ..const import CRITICAL_LABEL_ISSUE_PREFIX, ISSUE_CRITICAL_LABEL_SUGGESTION
 from .critical_label_const import MAX_NEW_CRITICAL_LABEL_CARDS_PER_RUN
-from .critical_label_describe import configured_label, qualifying_entry
+from .critical_label_describe import configured_label, decided_in_code, qualifying_entry
 from .safety import SafetyRules
 from .shapes import Item
 from .suggestion_cards import Resolved, confidence_of, sync_suggestion_cards
 
 
 def _resolve(hass: HomeAssistant, safety: SafetyRules, label: lr.LabelEntry, suggested: list[Item]) -> dict[str, Resolved]:
-    """Every suggestion whose entity still resolves, keyed by its card's issue id."""
+    """Every suggestion whose entity still resolves, keyed by its card's issue id.
+
+    Ranks a code-decided entity (a smoke, carbon monoxide, gas or moisture
+    sensor) ahead of every model-decided one, following the live entry's own
+    predicate rather than a stored marker on the item.
+    """
     resolved: dict[str, Resolved] = {}
     for item in suggested:
         entry = qualifying_entry(hass, safety, str(item["registry_id"]))
@@ -28,6 +33,7 @@ def _resolve(hass: HomeAssistant, safety: SafetyRules, label: lr.LabelEntry, sug
             confidence=confidence_of(item),
             placeholders=placeholders,
             data={"registry_id": entry.id, "label_id": label.label_id},
+            tier=1 if decided_in_code(entry) else 0,
         )
     return resolved
 
