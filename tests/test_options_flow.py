@@ -16,6 +16,7 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 
 from custom_components.gutcheck.const import (
     CONF_AREAS_ENABLED,
+    CONF_CONFIG_ENTRIES_ENABLED,
     CONF_CRITICAL_LABEL,
     CONF_DAILY_BUDGET,
     CONF_DEVICE_CLASS_ENABLED,
@@ -86,6 +87,7 @@ async def test_defaults_apply_when_options_never_saved(
     assert defaults[CONF_HEALTH_ENABLED] is True
     assert defaults[CONF_AREAS_ENABLED] is True
     assert defaults[CONF_DEVICE_CLASS_ENABLED] is False
+    assert defaults[CONF_CONFIG_ENTRIES_ENABLED] is False
     assert defaults[CONF_DAILY_BUDGET] == DEFAULT_DAILY_BUDGET
     assert CONF_CRITICAL_LABEL not in defaults
 

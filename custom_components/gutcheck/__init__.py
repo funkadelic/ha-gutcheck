@@ -26,12 +26,14 @@ from .const import (
     CONF_DEVICE_CLASS_ENABLED,
     CONF_HEALTH_ENABLED,
     CONF_UPDATES_ENABLED,
+    CONFIG_ENTRY_ISSUE_PREFIX,
     DEFAULT_DAILY_BUDGET,
     DEVICE_CLASS_APPLIED_STORE_KEY,
     DEVICE_CLASS_ISSUE_PREFIX,
     DOMAIN,
     HEALTH_ISSUE_PREFIX,
     RECIPE_AREAS,
+    RECIPE_CONFIG_ENTRIES,
     RECIPE_DEVICE_CLASS,
     RECIPE_HEALTH,
     RECIPE_UPDATES,
@@ -137,12 +139,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
     else:
         _async_disable_recipe(hass, entry, DEVICE_CLASS_ISSUE_PREFIX, RECIPE_DEVICE_CLASS, keep_ignored=True)
 
-    # No options-flow toggle or disabled branch yet: switched on only by
-    # setting the option directly, until the toggle ships.
+    # Off by default, like device class suggestions: an upgraded install must
+    # not start raising stuck-integration cards unasked.
     if entry.options.get(CONF_CONFIG_ENTRIES_ENABLED, False):
         config_entry_recipe = ConfigEntryRecipe()
         coordinators[config_entry_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, config_entry_recipe)
         entry.async_on_unload(config_entry_recipe.shutdown)
+    else:
+        # Advisory-only cards, like the update review: no keep_ignored, since
+        # only the two suggestion recipes keep an ignore as rejection memory.
+        _async_disable_recipe(hass, entry, CONFIG_ENTRY_ISSUE_PREFIX, RECIPE_CONFIG_ENTRIES)
 
     entry.runtime_data = GutCheckData(client=client, budget=budget, coordinators=coordinators, applied=applied)
     entry.async_on_unload(budget.async_start())
