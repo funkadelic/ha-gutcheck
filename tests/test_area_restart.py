@@ -40,51 +40,61 @@ async def _restart(hass: HomeAssistant, entry: MockConfigEntry) -> None:
     await hass.async_block_till_done(wait_background_tasks=True)
 
 
-async def test_an_open_card_kept_through_an_unsure_run_is_still_shown_and_counted_after_a_restart(
+async def test_an_unsure_run_clears_the_open_card_and_keeps_the_ignored_one_across_a_restart(
     hass: HomeAssistant, freezer: Any, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
 ) -> None:
-    """Run 1 suggests the device, run 2 is unsure, then a restart restores, and the card stays active and counted."""
+    """Run 1 suggests both devices, run 2 is unsure for both: the open card clears, the ignored one survives a restart."""
     freezer.move_to("2026-01-01T00:00:00-08:00")
     areas = create_areas(hass, "Kitchen", "Garage")
-    device = register_area_device(hass, "a", name="Device A", entities=["sensor"])
-    register_jev_responses(
-        aioclient_mock,
-        [
-            api_response({"d0": area_answer("Kitchen", 0.9, list(areas))}),
-            api_response({"d0": area_answer("Kitchen", 0.2, list(areas))}),
-        ],
-    )
+    device_a = register_area_device(hass, "a", name="Device A", entities=["sensor"])
+    device_b = register_area_device(hass, "b", name="Device B", entities=["sensor"])
+    run1_answers = {f"d{index}": area_answer("Kitchen", 0.9, list(areas)) for index in range(2)}
+    run2_answers = {f"d{index}": area_answer("Kitchen", 0.2, list(areas)) for index in range(2)}
+    register_jev_responses(aioclient_mock, [api_response(run1_answers), api_response(run2_answers)])
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    issue_id = f"{AREA_ISSUE_PREFIX}{device.id}"
-    before = ir.async_get(hass).async_get_issue(DOMAIN, issue_id)
-    assert before is not None
-    assert before.active
+    issue_id_a = f"{AREA_ISSUE_PREFIX}{device_a.id}"
+    issue_id_b = f"{AREA_ISSUE_PREFIX}{device_b.id}"
+    for issue_id in (issue_id_a, issue_id_b):
+        issue = ir.async_get(hass).async_get_issue(DOMAIN, issue_id)
+        assert issue is not None
+        assert issue.active
+
+    ir.async_ignore_issue(hass, DOMAIN, issue_id_b, True)
+    before_b = ir.async_get(hass).async_get_issue(DOMAIN, issue_id_b)
+    assert before_b is not None
 
     await mock_config_entry.runtime_data.coordinators[RECIPE_AREAS].async_refresh()
     await hass.async_block_till_done(wait_background_tasks=True)
+
     sensor_id = areas_sensor_entity_id(hass, mock_config_entry)
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id_a) is None
+    after_run2_b = ir.async_get(hass).async_get_issue(DOMAIN, issue_id_b)
+    assert after_run2_b is not None
+    assert after_run2_b.dismissed_version is not None
+    assert after_run2_b.translation_placeholders == before_b.translation_placeholders
+    assert after_run2_b.data == before_b.data
     state = hass.states.get(sensor_id)
     assert state is not None
     assert state.attributes["items"]["suggested"] == []
-    assert [item["registry_id"] for item in state.attributes["unsure"]] == [device.id]
-    assert state.state == "1"
+    assert {item["registry_id"] for item in state.attributes["unsure"]} == {device_a.id, device_b.id}
+    assert state.state == "0"
 
     freezer.move_to("2026-01-04T00:00:00-08:00")
     await _restart(hass, mock_config_entry)
 
     assert len(posted_bodies(aioclient_mock)) == 2
-    after = ir.async_get(hass).async_get_issue(DOMAIN, issue_id)
-    assert after is not None
-    assert after.active
-    assert after.dismissed_version is None
-    assert after.translation_placeholders == before.translation_placeholders
-    assert after.data == before.data
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id_a) is None
+    after_restart_b = ir.async_get(hass).async_get_issue(DOMAIN, issue_id_b)
+    assert after_restart_b is not None
+    assert after_restart_b.dismissed_version is not None
+    assert after_restart_b.translation_placeholders == before_b.translation_placeholders
+    assert after_restart_b.data == before_b.data
     state = hass.states.get(sensor_id)
     assert state is not None
-    assert state.state == "1"
+    assert state.state == "0"
 
 
 def _area_card_ids(hass: HomeAssistant) -> set[str]:
