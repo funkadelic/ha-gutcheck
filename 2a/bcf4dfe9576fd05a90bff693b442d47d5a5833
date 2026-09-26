@@ -1,0 +1,22 @@
+tests/test_area_cards.py
+  s_777664af439b00::t_f16b1bce43acf4 5
+  s_777664af439b00::t_f8f875ae43fe7a 120-122,124,134,137-140
+tests/test_area_restart.py
+  s_777664af439b00::t_b4eada54b2741c 43,46,49-53,58-67,71,73-78,82-83,89-94,97
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2abcf4dfe9576fd05a90bff693b442d47d5a5833",
+  "prompts": {},
+  "sessions": {
+    "s_777664af439b00": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "612ed214-183d-48f8-b562-7f4385a55936",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
