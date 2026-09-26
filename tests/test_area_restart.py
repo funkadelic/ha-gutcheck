@@ -6,7 +6,7 @@ from typing import Any
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import issue_registry as ir
-from pytest_homeassistant_custom_component.common import MockConfigEntry, flush_store
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.gutcheck.const import (
@@ -22,22 +22,13 @@ from custom_components.gutcheck.const import (
 from .conftest import (
     api_response,
     area_answer,
-    areas_sensor_entity_id,
     create_areas,
     posted_bodies,
+    recipe_sensor_entity_id,
     register_area_device,
     register_jev_responses,
+    restart_config_entry,
 )
-
-
-async def _restart(hass: HomeAssistant, entry: MockConfigEntry) -> None:
-    """Unload, reload the issue registry from storage the way HA startup does, then set up again."""
-    assert await hass.config_entries.async_unload(entry.entry_id)
-    registry = ir.async_get(hass)
-    await flush_store(registry._store)
-    await ir.async_load(hass)
-    assert await hass.config_entries.async_setup(entry.entry_id)
-    await hass.async_block_till_done(wait_background_tasks=True)
 
 
 async def test_an_unsure_run_clears_the_open_card_and_keeps_the_ignored_one_across_a_restart(
@@ -69,7 +60,7 @@ async def test_an_unsure_run_clears_the_open_card_and_keeps_the_ignored_one_acro
     await mock_config_entry.runtime_data.coordinators[RECIPE_AREAS].async_refresh()
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    sensor_id = areas_sensor_entity_id(hass, mock_config_entry)
+    sensor_id = recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_AREAS)
     assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id_a) is None
     after_run2_b = ir.async_get(hass).async_get_issue(DOMAIN, issue_id_b)
     assert after_run2_b is not None
@@ -83,7 +74,7 @@ async def test_an_unsure_run_clears_the_open_card_and_keeps_the_ignored_one_acro
     assert state.state == "0"
 
     freezer.move_to("2026-01-04T00:00:00-08:00")
-    await _restart(hass, mock_config_entry)
+    await restart_config_entry(hass, mock_config_entry)
 
     assert len(posted_bodies(aioclient_mock)) == 2
     assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id_a) is None
@@ -130,7 +121,7 @@ async def test_a_restore_raises_no_card_the_run_held_back_and_every_card_the_run
     assert len(run_cards) == MAX_NEW_AREA_CARDS_PER_RUN
 
     freezer.move_to("2026-01-02T00:00:00-08:00")
-    await _restart(hass, mock_config_entry)
+    await restart_config_entry(hass, mock_config_entry)
     assert _area_card_ids(hass) == run_cards
 
     await mock_config_entry.runtime_data.coordinators[RECIPE_AREAS].async_refresh()

@@ -20,7 +20,7 @@ from custom_components.gutcheck.const import CONF_CRITICAL_LABEL, DEVICE_CLASS_I
 from custom_components.gutcheck.recipes.device_class_cards import sync_device_class_cards
 from custom_components.gutcheck.recipes.safety import SafetyRules
 
-from .conftest import register_unit_sensor
+from .conftest import register_unit_sensor, seed_device_class_card
 
 
 async def _setup_entry(hass: HomeAssistant, entry: MockConfigEntry) -> None:
@@ -30,13 +30,21 @@ async def _setup_entry(hass: HomeAssistant, entry: MockConfigEntry) -> None:
     await hass.async_block_till_done(wait_background_tasks=True)
 
 
-async def _open_and_confirm(hass: HomeAssistant, issue_id: str) -> dict[str, Any]:
-    """Open the fix flow for issue_id and choose confirm from its menu."""
+async def _open_menu(hass: HomeAssistant, issue_id: str) -> dict[str, Any]:
+    """Start the fix flow for issue_id and return its menu result."""
     assert await async_setup_component(hass, "repairs", {})
     manager = repairs_flow_manager(hass)
     assert manager is not None
     result = await manager.async_init(DOMAIN, data={"issue_id": issue_id})
     assert result["type"] is FlowResultType.MENU
+    return result
+
+
+async def _open_and_confirm(hass: HomeAssistant, issue_id: str) -> dict[str, Any]:
+    """Open the fix flow for issue_id and choose confirm from its menu."""
+    result = await _open_menu(hass, issue_id)
+    manager = repairs_flow_manager(hass)
+    assert manager is not None
     return await manager.async_configure(result["flow_id"], {"next_step_id": "confirm"})
 
 
@@ -44,10 +52,7 @@ async def test_confirming_an_unchanged_sensor_sets_the_class(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
 ) -> None:
     """The control case: nothing changed since the card was raised, so confirm sets the class."""
-    await _setup_entry(hass, device_class_entry)
-    sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    sync_device_class_cards(hass, SafetyRules(None), [{"registry_id": sensor.id, "choice": "battery"}], {"battery": "Battery"})
+    sensor, issue_id = await seed_device_class_card(hass, device_class_entry)
 
     result = await _open_and_confirm(hass, issue_id)
 
@@ -62,10 +67,7 @@ async def test_a_removed_sensor_aborts_and_changes_nothing(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
 ) -> None:
     """Confirming a card for a sensor removed since it was raised aborts as outdated."""
-    await _setup_entry(hass, device_class_entry)
-    sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    sync_device_class_cards(hass, SafetyRules(None), [{"registry_id": sensor.id, "choice": "battery"}], {"battery": "Battery"})
+    sensor, issue_id = await seed_device_class_card(hass, device_class_entry)
     er.async_get(hass).async_remove(sensor.entity_id)
 
     result = await _open_and_confirm(hass, issue_id)
@@ -79,10 +81,7 @@ async def test_a_disabled_sensor_aborts_and_changes_nothing(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
 ) -> None:
     """Confirming a card for a sensor disabled since it was raised aborts as outdated."""
-    await _setup_entry(hass, device_class_entry)
-    sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    sync_device_class_cards(hass, SafetyRules(None), [{"registry_id": sensor.id, "choice": "battery"}], {"battery": "Battery"})
+    sensor, issue_id = await seed_device_class_card(hass, device_class_entry)
     er.async_get(hass).async_update_entity(sensor.entity_id, disabled_by=er.RegistryEntryDisabler.USER)
 
     result = await _open_and_confirm(hass, issue_id)
@@ -98,10 +97,7 @@ async def test_a_sensor_given_a_class_by_hand_aborts_and_keeps_that_class(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
 ) -> None:
     """Confirming a card for a sensor manually classed since it was raised aborts without overwriting it."""
-    await _setup_entry(hass, device_class_entry)
-    sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    sync_device_class_cards(hass, SafetyRules(None), [{"registry_id": sensor.id, "choice": "battery"}], {"battery": "Battery"})
+    sensor, issue_id = await seed_device_class_card(hass, device_class_entry)
     er.async_get(hass).async_update_entity(sensor.entity_id, device_class="humidity")
 
     result = await _open_and_confirm(hass, issue_id)
@@ -117,10 +113,7 @@ async def test_a_sensor_given_an_original_class_by_its_integration_aborts_and_ke
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
 ) -> None:
     """Confirming a card for a sensor whose integration set original_device_class since it was raised aborts."""
-    await _setup_entry(hass, device_class_entry)
-    sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    sync_device_class_cards(hass, SafetyRules(None), [{"registry_id": sensor.id, "choice": "battery"}], {"battery": "Battery"})
+    sensor, issue_id = await seed_device_class_card(hass, device_class_entry)
     er.async_get(hass).async_update_entity(sensor.entity_id, original_device_class="moisture")
 
     result = await _open_and_confirm(hass, issue_id)
@@ -137,10 +130,7 @@ async def test_a_sensor_moved_to_a_unit_the_suggested_class_does_not_accept_abor
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
 ) -> None:
     """Confirming a card for a sensor moved to a unit that no longer accepts the suggested class aborts."""
-    await _setup_entry(hass, device_class_entry)
-    sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    sync_device_class_cards(hass, SafetyRules(None), [{"registry_id": sensor.id, "choice": "battery"}], {"battery": "Battery"})
+    sensor, issue_id = await seed_device_class_card(hass, device_class_entry)
     er.async_get(hass).async_update_entity(sensor.entity_id, unit_of_measurement="°C")
 
     result = await _open_and_confirm(hass, issue_id)
@@ -290,10 +280,7 @@ async def test_a_successful_confirm_makes_a_second_flow_for_the_same_issue_raise
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
 ) -> None:
     """Once a confirm succeeds the card is gone, and a second flow for the same issue id cannot start."""
-    await _setup_entry(hass, device_class_entry)
-    sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    sync_device_class_cards(hass, SafetyRules(None), [{"registry_id": sensor.id, "choice": "battery"}], {"battery": "Battery"})
+    _sensor, issue_id = await seed_device_class_card(hass, device_class_entry)
 
     result = await _open_and_confirm(hass, issue_id)
     assert result["type"] is FlowResultType.CREATE_ENTRY
@@ -302,3 +289,43 @@ async def test_a_successful_confirm_makes_a_second_flow_for_the_same_issue_raise
     assert manager is not None
     with pytest.raises(UnknownStep):
         await manager.async_init(DOMAIN, data={"issue_id": issue_id})
+
+
+async def test_confirm_aborts_when_a_run_swept_the_card_while_the_dialog_was_open(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
+) -> None:
+    """A run deleting the card between opening the menu and submitting confirm aborts as outdated."""
+    sensor, issue_id = await seed_device_class_card(hass, device_class_entry)
+    menu = await _open_menu(hass, issue_id)
+    ir.async_delete_issue(hass, DOMAIN, issue_id)
+
+    manager = repairs_flow_manager(hass)
+    assert manager is not None
+    result = await manager.async_configure(menu["flow_id"], {"next_step_id": "confirm"})
+
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "suggestion_outdated"
+    updated = er.async_get(hass).async_get(sensor.entity_id)
+    assert updated is not None
+    assert updated.device_class is None
+
+
+async def test_choose_aborts_when_a_run_swept_the_card_while_the_dialog_was_open(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
+) -> None:
+    """A run deleting the card between opening choose and submitting a pick aborts as outdated."""
+    sensor, issue_id = await seed_device_class_card(hass, device_class_entry)
+    menu = await _open_menu(hass, issue_id)
+    manager = repairs_flow_manager(hass)
+    assert manager is not None
+    form = await manager.async_configure(menu["flow_id"], {"next_step_id": "choose"})
+    assert form["type"] is FlowResultType.FORM
+    ir.async_delete_issue(hass, DOMAIN, issue_id)
+
+    result = await manager.async_configure(form["flow_id"], {"device_class": "humidity"})
+
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "suggestion_outdated"
+    updated = er.async_get(hass).async_get(sensor.entity_id)
+    assert updated is not None
+    assert updated.device_class is None

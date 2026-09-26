@@ -33,7 +33,7 @@ from custom_components.gutcheck.recipes.device_class_cards import sync_device_cl
 from custom_components.gutcheck.recipes.device_class_describe import class_names
 from custom_components.gutcheck.recipes.safety import SafetyRules
 
-from .conftest import register_unit_sensor
+from .conftest import register_unit_sensor, seed_device_class_card
 
 _KEPT_OPTIONS = {
     CONF_HEALTH_ENABLED: False,
@@ -64,12 +64,17 @@ def _flow_id(result: dict[str, Any]) -> str:
     return str(result["flow_id"])
 
 
+async def _configure(hass: HomeAssistant, flow_id: str, user_input: dict[str, Any]) -> dict[str, Any]:
+    """Submit user_input to flow_id through the repairs flow manager."""
+    manager = repairs_flow_manager(hass)
+    assert manager is not None
+    return await manager.async_configure(flow_id, user_input)
+
+
 async def _open_choose(hass: HomeAssistant, issue_id: str) -> dict[str, Any]:
     """Open the fix flow and select choose from its menu."""
     result = await _init_flow(hass, issue_id)
-    manager = repairs_flow_manager(hass)
-    assert manager is not None
-    return await manager.async_configure(_flow_id(result), {"next_step_id": "choose"})
+    return await _configure(hass, _flow_id(result), {"next_step_id": "choose"})
 
 
 @pytest.mark.parametrize(
@@ -106,10 +111,7 @@ async def test_a_removed_sensors_card_menu_has_no_choose(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
 ) -> None:
     """A card whose sensor was removed before opening falls back to confirm, ignore."""
-    await _setup_entry(hass, device_class_entry)
-    sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    sync_device_class_cards(hass, SafetyRules(None), [{"registry_id": sensor.id, "choice": "battery"}], {"battery": "Battery"})
+    sensor, issue_id = await seed_device_class_card(hass, device_class_entry)
     er.async_get(hass).async_remove(sensor.entity_id)
 
     result = await _init_flow(hass, issue_id)
@@ -121,10 +123,7 @@ async def test_choose_form_offers_every_other_fitting_class_labelled_by_name(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
 ) -> None:
     """The choose form lists humidity, moisture and power_factor for a % sensor suggested battery, not battery itself."""
-    await _setup_entry(hass, device_class_entry)
-    sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    sync_device_class_cards(hass, SafetyRules(None), [{"registry_id": sensor.id, "choice": "battery"}], {"battery": "Battery"})
+    _sensor, issue_id = await seed_device_class_card(hass, device_class_entry)
     names = await class_names(hass)
 
     result = await _open_choose(hass, issue_id)
@@ -144,15 +143,10 @@ async def test_submitting_a_fitting_pick_sets_it_records_it_and_the_change_back_
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
 ) -> None:
     """Picking humidity for a % sensor sets it, records it for change-back, removes the card; change-back then clears it."""
-    await _setup_entry(hass, device_class_entry)
-    sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    sync_device_class_cards(hass, SafetyRules(None), [{"registry_id": sensor.id, "choice": "battery"}], {"battery": "Battery"})
+    sensor, issue_id = await seed_device_class_card(hass, device_class_entry)
     result = await _open_choose(hass, issue_id)
-    manager = repairs_flow_manager(hass)
-    assert manager is not None
 
-    result = await manager.async_configure(_flow_id(result), {"device_class": "humidity"})
+    result = await _configure(hass, _flow_id(result), {"device_class": "humidity"})
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
     updated = er.async_get(hass).async_get(sensor.entity_id)
@@ -180,16 +174,12 @@ async def test_submitting_a_value_the_form_does_not_offer_raises_and_writes_noth
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry, bad_pick: str
 ) -> None:
     """A pick the select never offered is rejected by the form schema before the flow runs, and writes nothing."""
-    await _setup_entry(hass, device_class_entry)
-    sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    sync_device_class_cards(hass, SafetyRules(None), [{"registry_id": sensor.id, "choice": "battery"}], {"battery": "Battery"})
+    sensor, issue_id = await seed_device_class_card(hass, device_class_entry)
     result = await _open_choose(hass, issue_id)
-    manager = repairs_flow_manager(hass)
-    assert manager is not None
+    flow_id = _flow_id(result)
 
     with pytest.raises(InvalidData):
-        await manager.async_configure(_flow_id(result), {"device_class": bad_pick})
+        await _configure(hass, flow_id, {"device_class": bad_pick})
 
     updated = er.async_get(hass).async_get(sensor.entity_id)
     assert updated is not None
@@ -201,16 +191,11 @@ async def test_a_pick_submitted_after_the_sensor_was_hand_classed_aborts_and_kee
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
 ) -> None:
     """A pick submitted after the sensor was hand-classed since choose opened aborts, leaving the hand-set class."""
-    await _setup_entry(hass, device_class_entry)
-    sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    sync_device_class_cards(hass, SafetyRules(None), [{"registry_id": sensor.id, "choice": "battery"}], {"battery": "Battery"})
+    sensor, issue_id = await seed_device_class_card(hass, device_class_entry)
     result = await _open_choose(hass, issue_id)
-    manager = repairs_flow_manager(hass)
-    assert manager is not None
     er.async_get(hass).async_update_entity(sensor.entity_id, device_class="moisture")
 
-    result = await manager.async_configure(_flow_id(result), {"device_class": "humidity"})
+    result = await _configure(hass, _flow_id(result), {"device_class": "humidity"})
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "suggestion_outdated"
@@ -223,16 +208,11 @@ async def test_choosing_after_the_sensor_was_removed_aborts_and_removes_the_card
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
 ) -> None:
     """Selecting choose after the menu's sensor was removed aborts as outdated and removes the card."""
-    await _setup_entry(hass, device_class_entry)
-    sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    sync_device_class_cards(hass, SafetyRules(None), [{"registry_id": sensor.id, "choice": "battery"}], {"battery": "Battery"})
+    sensor, issue_id = await seed_device_class_card(hass, device_class_entry)
     result = await _init_flow(hass, issue_id)
-    manager = repairs_flow_manager(hass)
-    assert manager is not None
     er.async_get(hass).async_remove(sensor.entity_id)
 
-    result = await manager.async_configure(_flow_id(result), {"next_step_id": "choose"})
+    result = await _configure(hass, _flow_id(result), {"next_step_id": "choose"})
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "suggestion_outdated"
@@ -241,7 +221,8 @@ async def test_choosing_after_the_sensor_was_removed_aborts_and_removes_the_card
 
 def test_translations_label_every_menu_option_and_the_choose_step() -> None:
     """en.json labels confirm, choose and ignore for device class, and confirm/ignore only for area, with a choose step."""
-    translations = json.loads(Path("custom_components/gutcheck/translations/en.json").read_text(encoding="utf-8"))
+    path = Path(__file__).parent.parent / "custom_components" / "gutcheck" / "translations" / "en.json"
+    translations = json.loads(path.read_text(encoding="utf-8"))
     device_class_flow = translations["issues"]["device_class_suggestion"]["fix_flow"]
     area_flow = translations["issues"]["area_suggestion"]["fix_flow"]
 

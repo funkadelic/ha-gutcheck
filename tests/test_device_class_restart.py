@@ -12,7 +12,7 @@ from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.setup import async_setup_component
-from pytest_homeassistant_custom_component.common import MockConfigEntry, flush_store
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.gutcheck.const import DEVICE_CLASS_ISSUE_PREFIX, DOMAIN, RECIPE_DEVICE_CLASS
@@ -21,10 +21,11 @@ from custom_components.gutcheck.recipes.device_class_describe import candidate_c
 from .conftest import (
     api_response,
     area_answer,
-    device_class_sensor_entity_id,
     posted_bodies,
+    recipe_sensor_entity_id,
     register_jev_responses,
     register_unit_sensor,
+    restart_config_entry,
 )
 
 FIXTURES = Path(__file__).parent / "fixtures" / "captured"
@@ -57,16 +58,6 @@ def _register(hass: HomeAssistant, unique: str, fields: dict[str, Any]) -> er.Re
         manufacturer=fields["manufacturer"],
         model=fields["model"],
     )
-
-
-async def _restart(hass: HomeAssistant, entry: MockConfigEntry) -> None:
-    """Unload, reload the issue registry from storage the way HA startup does, then set up again."""
-    assert await hass.config_entries.async_unload(entry.entry_id)
-    registry = ir.async_get(hass)
-    await flush_store(registry._store)
-    await ir.async_load(hass)
-    assert await hass.config_entries.async_setup(entry.entry_id)
-    await hass.async_block_till_done(wait_background_tasks=True)
 
 
 async def test_a_run_that_stops_suggesting_clears_the_open_card_keeps_the_ignored_one_and_both_survive_a_restart(
@@ -135,7 +126,7 @@ async def test_a_run_that_stops_suggesting_clears_the_open_card_keeps_the_ignore
     assert after_run2_co2.data is not None
     assert after_run2_co2.data["device_class"] == "carbon_dioxide"
 
-    sensor_entity_id = device_class_sensor_entity_id(hass, device_class_entry)
+    sensor_entity_id = recipe_sensor_entity_id(hass, device_class_entry, RECIPE_DEVICE_CLASS)
     state = hass.states.get(sensor_entity_id)
     assert state is not None
     assert state.state == "1"
@@ -144,7 +135,7 @@ async def test_a_run_that_stops_suggesting_clears_the_open_card_keeps_the_ignore
     before_restart_calls = len(posted_bodies(aioclient_mock))
 
     freezer.move_to("2026-01-04T00:00:00-08:00")
-    await _restart(hass, device_class_entry)
+    await restart_config_entry(hass, device_class_entry)
 
     assert len(posted_bodies(aioclient_mock)) == before_restart_calls
     assert ir.async_get(hass).async_get_issue(DOMAIN, water_issue_id) is None

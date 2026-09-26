@@ -22,14 +22,15 @@ from custom_components.gutcheck.const import (
     DEFAULT_DAILY_BUDGET,
     DEVICE_CLASS_ISSUE_PREFIX,
     DOMAIN,
+    RECIPE_DEVICE_CLASS,
 )
 
 from .conftest import (
     api_response,
     area_answer,
-    device_class_sensor_entity_id,
-    find_device_class_sensor,
+    find_recipe_sensor,
     posted_bodies,
+    recipe_sensor_entity_id,
     register_jev_responses,
     register_unit_sensor,
 )
@@ -58,7 +59,7 @@ async def test_restart_within_a_week_restores_the_sensor_and_cards_with_no_reque
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert len(posted_bodies(aioclient_mock)) == 1
-    state = hass.states.get(device_class_sensor_entity_id(hass, device_class_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, device_class_entry, RECIPE_DEVICE_CLASS))
     assert state is not None
     assert state.state == "0"
     assert len(state.attributes["items"]["suggested"]) == 1
@@ -80,7 +81,7 @@ async def test_restore_drops_a_sensor_classed_disabled_or_labelled_critical_from
     confidence_by_id = {
         classed_by_hand.id: 0.9,
         turned_disabled.id: 0.9,
-        labelled.id: 0.2,
+        labelled.id: 0.9,
         untouched.id: 0.9,
     }
     ordered = sorted((classed_by_hand, turned_disabled, labelled, untouched), key=lambda entry: entry.entity_id)
@@ -105,9 +106,11 @@ async def test_restore_drops_a_sensor_classed_disabled_or_labelled_critical_from
 
     dropped_hand_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{classed_by_hand.id}"
     dropped_disabled_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{turned_disabled.id}"
+    dropped_labelled_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{labelled.id}"
     kept_issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{untouched.id}"
     assert ir.async_get(hass).async_get_issue(DOMAIN, dropped_hand_id) is not None
     assert ir.async_get(hass).async_get_issue(DOMAIN, dropped_disabled_id) is not None
+    assert ir.async_get(hass).async_get_issue(DOMAIN, dropped_labelled_id) is not None
     assert ir.async_get(hass).async_get_issue(DOMAIN, kept_issue_id) is not None
 
     registry = er.async_get(hass)
@@ -122,7 +125,7 @@ async def test_restore_drops_a_sensor_classed_disabled_or_labelled_critical_from
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert len(posted_bodies(aioclient_mock)) == posted_before
-    state = hass.states.get(device_class_sensor_entity_id(hass, entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, entry, RECIPE_DEVICE_CLASS))
     assert state is not None
     suggested = state.attributes["items"]["suggested"]
     unsure = state.attributes["unsure"]
@@ -131,7 +134,7 @@ async def test_restore_drops_a_sensor_classed_disabled_or_labelled_critical_from
     assert state.state == str(len(suggested))
     assert ir.async_get(hass).async_get_issue(DOMAIN, dropped_hand_id) is None
     assert ir.async_get(hass).async_get_issue(DOMAIN, dropped_disabled_id) is None
-    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{DEVICE_CLASS_ISSUE_PREFIX}{labelled.id}") is None
+    assert ir.async_get(hass).async_get_issue(DOMAIN, dropped_labelled_id) is None
     assert ir.async_get(hass).async_get_issue(DOMAIN, kept_issue_id) is not None
 
 
@@ -155,7 +158,34 @@ async def test_restore_drops_a_removed_sensor_and_deletes_its_card(
     assert await hass.config_entries.async_setup(device_class_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    state = hass.states.get(device_class_sensor_entity_id(hass, device_class_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, device_class_entry, RECIPE_DEVICE_CLASS))
+    assert state is not None
+    assert state.attributes["items"]["suggested"] == []
+    assert state.state == "0"
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
+
+
+async def test_restore_drops_a_suggested_sensor_whose_unit_changed_to_one_the_stored_class_does_not_accept(
+    hass: HomeAssistant, freezer: Any, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
+) -> None:
+    """A sensor whose live unit no longer accepts its stored suggestion drops out of suggested on restore too."""
+    freezer.move_to("2026-01-01T00:00:00-08:00")
+    sensor = register_unit_sensor(hass, "a", unit="%", name="A")
+    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer("battery", 0.9, PERCENT_CANDIDATES)})])
+    device_class_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(device_class_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
+
+    er.async_get(hass).async_update_entity(sensor.entity_id, unit_of_measurement="m")
+
+    freezer.move_to("2026-01-04T00:00:00-08:00")
+    assert await hass.config_entries.async_unload(device_class_entry.entry_id)
+    assert await hass.config_entries.async_setup(device_class_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    state = hass.states.get(recipe_sensor_entity_id(hass, device_class_entry, RECIPE_DEVICE_CLASS))
     assert state is not None
     assert state.attributes["items"]["suggested"] == []
     assert state.state == "0"
@@ -190,7 +220,7 @@ async def test_disabling_and_reenabling_within_the_week_restores_the_open_card_a
     result = await hass.config_entries.options.async_init(device_class_entry.entry_id)
     await hass.config_entries.options.async_configure(result["flow_id"], off_options)
     await hass.async_block_till_done(wait_background_tasks=True)
-    assert find_device_class_sensor(hass, device_class_entry) is None
+    assert find_recipe_sensor(hass, device_class_entry, RECIPE_DEVICE_CLASS) is None
     assert ir.async_get(hass).async_get_issue(DOMAIN, open_issue_id) is None
 
     posted_before = len(posted_bodies(aioclient_mock))

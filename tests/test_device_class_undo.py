@@ -7,20 +7,17 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
+from homeassistant.helpers import label_registry as lr
 from homeassistant.helpers.storage import Store
 from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.gutcheck.const import (
-    CONF_AREAS_ENABLED,
-    CONF_DAILY_BUDGET,
+    CONF_CRITICAL_LABEL,
     CONF_DEVICE_CLASS_ENABLED,
-    CONF_HEALTH_ENABLED,
     CONF_UNDO_DEVICE_CLASS,
     CONF_UNDO_SENSORS,
-    CONF_UPDATES_ENABLED,
-    DEFAULT_DAILY_BUDGET,
     DEVICE_CLASS_APPLIED_STORE_KEY,
     DEVICE_CLASS_ISSUE_PREFIX,
     DOMAIN,
@@ -32,39 +29,24 @@ from custom_components.gutcheck.recipes.device_class_undo import AppliedClasses,
 from custom_components.gutcheck.recipes.safety import SafetyRules
 
 from .conftest import (
+    BATTERY_CANDIDATES,
+    KEPT_DEVICE_CLASS_OPTIONS,
     api_response,
     area_answer,
+    confirm_device_class_card,
     posted_bodies,
     register_jev_responses,
     register_unit_sensor,
+    setup_and_confirm_device_class,
 )
-
-BATTERY_CANDIDATES = ["battery", "humidity", "moisture", "power_factor"]
-
-_KEPT_OPTIONS = {
-    CONF_HEALTH_ENABLED: False,
-    CONF_UPDATES_ENABLED: True,
-    CONF_AREAS_ENABLED: False,
-    CONF_DEVICE_CLASS_ENABLED: True,
-    CONF_DAILY_BUDGET: DEFAULT_DAILY_BUDGET,
-}
-
-
-async def _confirm(hass: HomeAssistant, issue_id: str) -> None:
-    """Confirm a device class card through Home Assistant's own repairs flow manager."""
-    assert await async_setup_component(hass, "repairs", {})
-    manager = repairs_flow_manager(hass)
-    assert manager is not None
-    result = await manager.async_init(DOMAIN, data={"issue_id": issue_id})
-    assert result["type"] is FlowResultType.MENU
-    result = await manager.async_configure(result["flow_id"], {"next_step_id": "confirm"})
-    assert result["type"] is FlowResultType.CREATE_ENTRY
 
 
 async def _open_undo_step(hass: HomeAssistant, entry: MockConfigEntry) -> dict:
     """Tick the change-back checkbox on the init form and return the change-back step's result."""
     result = await hass.config_entries.options.async_init(entry.entry_id)
-    result = await hass.config_entries.options.async_configure(result["flow_id"], {**_KEPT_OPTIONS, CONF_UNDO_DEVICE_CLASS: True})
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {**KEPT_DEVICE_CLASS_OPTIONS, CONF_UNDO_DEVICE_CLASS: True}
+    )
     assert result["step_id"] == "undo_device_class"
     return result
 
@@ -77,12 +59,7 @@ async def test_confirm_records_the_class_and_it_survives_a_restart(
 ) -> None:
     """A confirm records the sensor under its class; the record and the Store both survive an unload and a new setup."""
     sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer("battery", 0.9, BATTERY_CANDIDATES)})])
-    device_class_entry.add_to_hass(hass)
-    assert await hass.config_entries.async_setup(device_class_entry.entry_id)
-    await hass.async_block_till_done(wait_background_tasks=True)
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    await _confirm(hass, issue_id)
+    await setup_and_confirm_device_class(hass, aioclient_mock, device_class_entry, sensor)
 
     assert device_class_entry.runtime_data.applied.get(sensor.id) == "battery"
 
@@ -100,16 +77,11 @@ async def test_record_still_loads_and_offers_change_back_with_the_recipe_switche
 ) -> None:
     """Switching device class suggestions off keeps the record loaded and Configure still offers the change-back."""
     sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer("battery", 0.9, BATTERY_CANDIDATES)})])
-    device_class_entry.add_to_hass(hass)
-    assert await hass.config_entries.async_setup(device_class_entry.entry_id)
-    await hass.async_block_till_done(wait_background_tasks=True)
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    await _confirm(hass, issue_id)
+    await setup_and_confirm_device_class(hass, aioclient_mock, device_class_entry, sensor)
 
     result = await hass.config_entries.options.async_init(device_class_entry.entry_id)
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], {**_KEPT_OPTIONS, CONF_DEVICE_CLASS_ENABLED: False}
+        result["flow_id"], {**KEPT_DEVICE_CLASS_OPTIONS, CONF_DEVICE_CLASS_ENABLED: False}
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done(wait_background_tasks=True)
@@ -136,14 +108,21 @@ async def test_init_form_has_no_change_back_option_when_the_entry_is_not_loaded(
 ) -> None:
     """A record exists, but the entry is unloaded: the init form has no change-back checkbox."""
     sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer("battery", 0.9, BATTERY_CANDIDATES)})])
-    device_class_entry.add_to_hass(hass)
-    assert await hass.config_entries.async_setup(device_class_entry.entry_id)
-    await hass.async_block_till_done(wait_background_tasks=True)
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    await _confirm(hass, issue_id)
+    await setup_and_confirm_device_class(hass, aioclient_mock, device_class_entry, sensor)
     assert await hass.config_entries.async_unload(device_class_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
+
+    result = await hass.config_entries.options.async_init(device_class_entry.entry_id)
+    assert CONF_UNDO_DEVICE_CLASS not in {str(key) for key in result["data_schema"].schema}
+
+
+async def test_init_form_has_no_change_back_option_when_every_recorded_sensor_was_deregistered(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
+) -> None:
+    """A record exists but its sensor was removed from the registry: the init form has no change-back checkbox."""
+    sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
+    await setup_and_confirm_device_class(hass, aioclient_mock, device_class_entry, sensor)
+    er.async_get(hass).async_remove(sensor.entity_id)
 
     result = await hass.config_entries.options.async_init(device_class_entry.entry_id)
     assert CONF_UNDO_DEVICE_CLASS not in {str(key) for key in result["data_schema"].schema}
@@ -154,17 +133,12 @@ async def test_ticking_change_back_opens_the_step_and_saves_the_rest_unchanged(
 ) -> None:
     """Ticking the checkbox opens the change-back step; the entry's saved options never carry the checkbox itself."""
     sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer("battery", 0.9, BATTERY_CANDIDATES)})])
-    device_class_entry.add_to_hass(hass)
-    assert await hass.config_entries.async_setup(device_class_entry.entry_id)
-    await hass.async_block_till_done(wait_background_tasks=True)
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    await _confirm(hass, issue_id)
+    await setup_and_confirm_device_class(hass, aioclient_mock, device_class_entry, sensor)
 
     result = await _open_undo_step(hass, device_class_entry)
     result = await hass.config_entries.options.async_configure(result["flow_id"], {CONF_UNDO_SENSORS: [sensor.id]})
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert result["data"] == _KEPT_OPTIONS
+    assert result["data"] == KEPT_DEVICE_CLASS_OPTIONS
     await hass.async_block_till_done(wait_background_tasks=True)
     assert CONF_UNDO_DEVICE_CLASS not in device_class_entry.options
 
@@ -181,7 +155,7 @@ async def test_change_back_step_lists_recorded_sensors_sorted_by_label_with_no_r
     assert await hass.config_entries.async_setup(device_class_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
     for sensor in (zeta, alpha):
-        await _confirm(hass, f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}")
+        await confirm_device_class_card(hass, f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}")
 
     result = await _open_undo_step(hass, device_class_entry)
     selector = next(value for key, value in result["data_schema"].schema.items() if str(key) == CONF_UNDO_SENSORS)
@@ -222,12 +196,7 @@ async def test_picking_a_sensor_whose_override_still_matches_clears_it_and_drops
     cleared, exactly like a Don't suggest rejection.
     """
     sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer("battery", 0.9, BATTERY_CANDIDATES)})])
-    device_class_entry.add_to_hass(hass)
-    assert await hass.config_entries.async_setup(device_class_entry.entry_id)
-    await hass.async_block_till_done(wait_background_tasks=True)
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    await _confirm(hass, issue_id)
+    issue_id = await setup_and_confirm_device_class(hass, aioclient_mock, device_class_entry, sensor)
 
     result = await _open_undo_step(hass, device_class_entry)
     result = await hass.config_entries.options.async_configure(result["flow_id"], {CONF_UNDO_SENSORS: [sensor.id]})
@@ -252,16 +221,47 @@ async def test_picking_a_sensor_whose_override_still_matches_clears_it_and_drops
     assert card.translation_placeholders["class_name"] == "Battery"
 
 
+async def test_change_back_submitted_with_a_new_critical_label_uses_the_new_label(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
+) -> None:
+    """A critical label saved in the same submission as a change-back is the label the change-back uses.
+
+    The sensor carries only the old label, already configured before this
+    submission; the rejection card is still created because the new label,
+    not the stale one, is what SafetyRules checks.
+    """
+    old_label = lr.async_get(hass).async_create("Old Critical")
+    new_label = lr.async_get(hass).async_create("New Critical")
+    sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
+    issue_id = await setup_and_confirm_device_class(hass, aioclient_mock, device_class_entry, sensor)
+    er.async_get(hass).async_update_entity(sensor.entity_id, labels={old_label.label_id})
+    hass.config_entries.async_update_entry(
+        device_class_entry, options={**device_class_entry.options, CONF_CRITICAL_LABEL: old_label.label_id}
+    )
+
+    result = await hass.config_entries.options.async_init(device_class_entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {**KEPT_DEVICE_CLASS_OPTIONS, CONF_CRITICAL_LABEL: new_label.label_id, CONF_UNDO_DEVICE_CLASS: True},
+    )
+    assert result["step_id"] == "undo_device_class"
+    result = await hass.config_entries.options.async_configure(result["flow_id"], {CONF_UNDO_SENSORS: [sensor.id]})
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    updated = er.async_get(hass).async_get(sensor.entity_id)
+    assert updated is not None
+    assert updated.device_class is None
+    assert device_class_entry.runtime_data.applied.get(sensor.id) is None
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
+
+
 async def test_picking_a_sensor_hand_changed_since_leaves_it_and_drops_the_record(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
 ) -> None:
     """A sensor hand-classed to something else since the confirm keeps that class, and still drops from the record."""
     sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer("battery", 0.9, BATTERY_CANDIDATES)})])
-    device_class_entry.add_to_hass(hass)
-    assert await hass.config_entries.async_setup(device_class_entry.entry_id)
-    await hass.async_block_till_done(wait_background_tasks=True)
-    await _confirm(hass, f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}")
+    await setup_and_confirm_device_class(hass, aioclient_mock, device_class_entry, sensor)
     er.async_get(hass).async_update_entity(sensor.entity_id, device_class="humidity")
 
     result = await _open_undo_step(hass, device_class_entry)
@@ -279,11 +279,7 @@ async def test_saving_with_nothing_picked_changes_nothing_and_keeps_the_record(
 ) -> None:
     """Saving the change-back step with nothing picked leaves the sensor and the record exactly as they were."""
     sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer("battery", 0.9, BATTERY_CANDIDATES)})])
-    device_class_entry.add_to_hass(hass)
-    assert await hass.config_entries.async_setup(device_class_entry.entry_id)
-    await hass.async_block_till_done(wait_background_tasks=True)
-    await _confirm(hass, f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}")
+    await setup_and_confirm_device_class(hass, aioclient_mock, device_class_entry, sensor)
 
     result = await _open_undo_step(hass, device_class_entry)
     await hass.config_entries.options.async_configure(result["flow_id"], {})
@@ -321,11 +317,7 @@ async def test_removing_the_entry_removes_the_store_and_leaves_the_class(
 ) -> None:
     """Removing the entry deletes the applied-classes Store, but leaves the class Gut Check set on the sensor."""
     sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer("battery", 0.9, BATTERY_CANDIDATES)})])
-    device_class_entry.add_to_hass(hass)
-    assert await hass.config_entries.async_setup(device_class_entry.entry_id)
-    await hass.async_block_till_done(wait_background_tasks=True)
-    await _confirm(hass, f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}")
+    await setup_and_confirm_device_class(hass, aioclient_mock, device_class_entry, sensor)
 
     await hass.config_entries.async_remove(device_class_entry.entry_id)
     await hass.async_block_till_done()
@@ -342,11 +334,7 @@ async def test_confirm_restart_change_back_timeline_clears_the_class(
 ) -> None:
     """Confirm through the repairs flow manager, restart, then change back through the options flow manager."""
     sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer("battery", 0.9, BATTERY_CANDIDATES)})])
-    device_class_entry.add_to_hass(hass)
-    assert await hass.config_entries.async_setup(device_class_entry.entry_id)
-    await hass.async_block_till_done(wait_background_tasks=True)
-    await _confirm(hass, f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}")
+    await setup_and_confirm_device_class(hass, aioclient_mock, device_class_entry, sensor)
 
     assert await hass.config_entries.async_unload(device_class_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
@@ -372,12 +360,7 @@ async def test_a_run_after_the_change_back_re_asks_and_keeps_no_card(
     change-back is remembered exactly like a Don't suggest rejection.
     """
     sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
-    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer("battery", 0.9, BATTERY_CANDIDATES)})])
-    device_class_entry.add_to_hass(hass)
-    assert await hass.config_entries.async_setup(device_class_entry.entry_id)
-    await hass.async_block_till_done(wait_background_tasks=True)
-    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    await _confirm(hass, issue_id)
+    issue_id = await setup_and_confirm_device_class(hass, aioclient_mock, device_class_entry, sensor)
 
     result = await _open_undo_step(hass, device_class_entry)
     await hass.config_entries.options.async_configure(result["flow_id"], {CONF_UNDO_SENSORS: [sensor.id]})

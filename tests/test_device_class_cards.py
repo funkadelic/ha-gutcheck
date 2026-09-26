@@ -22,8 +22,8 @@ from custom_components.gutcheck.recipes.safety import SafetyRules
 from .conftest import (
     api_response,
     area_answer,
-    device_class_sensor_entity_id,
     posted_bodies,
+    recipe_sensor_entity_id,
     register_jev_responses,
     register_unit_sensor,
 )
@@ -45,6 +45,15 @@ async def _setup(
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
+
+
+def _device_class_card_ids(hass: HomeAssistant) -> set[str]:
+    """Every device class card in the issue registry."""
+    return {
+        issue_id
+        for domain, issue_id in ir.async_get(hass).issues
+        if domain == DOMAIN and issue_id.startswith(DEVICE_CLASS_ISSUE_PREFIX)
+    }
 
 
 async def test_an_ignored_card_survives_an_unsure_answer(
@@ -96,11 +105,7 @@ async def test_an_open_card_clears_when_the_next_answer_is_unsure_or_none_of_the
     """A card the user has not ignored is deleted once its sensor's next answer no longer backs it."""
     register_unit_sensor(hass, "a", unit="%", name="A")
     await _setup(hass, aioclient_mock, device_class_entry, {"s0": area_answer("battery", 0.9, PERCENT_CANDIDATES)})
-    issue_ids = {
-        issue_id
-        for domain, issue_id in ir.async_get(hass).issues
-        if domain == DOMAIN and issue_id.startswith(DEVICE_CLASS_ISSUE_PREFIX)
-    }
+    issue_ids = _device_class_card_ids(hass)
     assert len(issue_ids) == 1
     issue_id = next(iter(issue_ids))
     before = ir.async_get(hass).async_get_issue(DOMAIN, issue_id)
@@ -112,7 +117,7 @@ async def test_an_open_card_clears_when_the_next_answer_is_unsure_or_none_of_the
     await _run_again(hass, device_class_entry)
 
     assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
-    state = hass.states.get(device_class_sensor_entity_id(hass, device_class_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, device_class_entry, RECIPE_DEVICE_CLASS))
     assert state is not None
     assert state.state == "0"
 
@@ -170,16 +175,12 @@ async def test_twelve_confident_sensors_yield_ten_cards_most_confident_first_the
     }
     await _setup(hass, aioclient_mock, device_class_entry, answers)
 
-    state = hass.states.get(device_class_sensor_entity_id(hass, device_class_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, device_class_entry, RECIPE_DEVICE_CLASS))
     assert state is not None
     assert len(state.attributes["items"]["suggested"]) == 12
     assert state.state == str(MAX_NEW_DEVICE_CLASS_CARDS_PER_RUN)
 
-    card_ids = {
-        issue_id
-        for domain, issue_id in ir.async_get(hass).issues
-        if domain == DOMAIN and issue_id.startswith(DEVICE_CLASS_ISSUE_PREFIX)
-    }
+    card_ids = _device_class_card_ids(hass)
     assert len(card_ids) == MAX_NEW_DEVICE_CLASS_CARDS_PER_RUN
     assert f"{DEVICE_CLASS_ISSUE_PREFIX}{winner.id}" in card_ids
     assert f"{DEVICE_CLASS_ISSUE_PREFIX}{loser.id}" not in card_ids
@@ -190,14 +191,10 @@ async def test_twelve_confident_sensors_yield_ten_cards_most_confident_first_the
     register_jev_responses(aioclient_mock, [api_response(answers)])
     await _run_again(hass, device_class_entry)
 
-    card_ids_after = {
-        issue_id
-        for domain, issue_id in ir.async_get(hass).issues
-        if domain == DOMAIN and issue_id.startswith(DEVICE_CLASS_ISSUE_PREFIX)
-    }
+    card_ids_after = _device_class_card_ids(hass)
     assert len(card_ids_after) == 12
 
-    state_after = hass.states.get(device_class_sensor_entity_id(hass, device_class_entry))
+    state_after = hass.states.get(recipe_sensor_entity_id(hass, device_class_entry, RECIPE_DEVICE_CLASS))
     assert state_after is not None
     assert state_after.state == "12"
 
@@ -211,11 +208,7 @@ async def test_three_open_cards_plus_twenty_five_new_confident_suggestions_yield
     first_answers = {f"s{index}": area_answer("battery", 0.9, PERCENT_CANDIDATES) for index in range(3)}
     await _setup(hass, aioclient_mock, device_class_entry, first_answers)
 
-    card_ids = {
-        issue_id
-        for domain, issue_id in ir.async_get(hass).issues
-        if domain == DOMAIN and issue_id.startswith(DEVICE_CLASS_ISSUE_PREFIX)
-    }
+    card_ids = _device_class_card_ids(hass)
     assert len(card_ids) == 3
 
     for i in range(25):
@@ -226,18 +219,21 @@ async def test_three_open_cards_plus_twenty_five_new_confident_suggestions_yield
     register_jev_responses(aioclient_mock, [api_response(answers)])
     await _run_again(hass, device_class_entry)
 
-    card_ids_after = {
-        issue_id
-        for domain, issue_id in ir.async_get(hass).issues
-        if domain == DOMAIN and issue_id.startswith(DEVICE_CLASS_ISSUE_PREFIX)
-    }
+    card_ids_after = _device_class_card_ids(hass)
     assert len(card_ids_after) == 13
 
 
-async def test_an_item_with_no_confidence_still_becomes_a_card_sorted_last(hass: HomeAssistant) -> None:
-    """A malformed item carrying no confidence at all defaults to the lowest sort priority, not a crash."""
-    sensor = register_unit_sensor(hass, "no_confidence", unit="%")
+async def test_an_item_with_no_confidence_sorts_last_and_is_the_one_the_cap_holds_back(hass: HomeAssistant) -> None:
+    """A malformed item carrying no confidence at all defaults to the lowest sort priority, so the cap holds it back."""
+    confident = [register_unit_sensor(hass, f"c{i}", unit="%", name=f"C{i}") for i in range(MAX_NEW_DEVICE_CLASS_CARDS_PER_RUN)]
+    no_confidence = register_unit_sensor(hass, "no_confidence", unit="%")
+    items = [{"registry_id": sensor.id, "choice": "battery", "confidence": 0.9} for sensor in confident]
+    items.append({"registry_id": no_confidence.id, "choice": "battery"})
 
-    sync_device_class_cards(hass, SafetyRules(None), [{"registry_id": sensor.id, "choice": "battery"}], {"battery": "Battery"})
+    sync_device_class_cards(hass, SafetyRules(None), items, {"battery": "Battery"})
 
-    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}") is not None
+    card_ids = _device_class_card_ids(hass)
+    assert len(card_ids) == MAX_NEW_DEVICE_CLASS_CARDS_PER_RUN
+    for sensor in confident:
+        assert f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}" in card_ids
+    assert f"{DEVICE_CLASS_ISSUE_PREFIX}{no_confidence.id}" not in card_ids

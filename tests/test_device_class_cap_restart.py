@@ -10,13 +10,24 @@ import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
-from pytest_homeassistant_custom_component.common import MockConfigEntry, flush_store
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import DEVICE_CLASS_ISSUE_PREFIX, DOMAIN
+from custom_components.gutcheck.const import (
+    DEVICE_CLASS_ISSUE_PREFIX,
+    DOMAIN,
+    RECIPE_DEVICE_CLASS,
+)
 from custom_components.gutcheck.recipes.device_class import DeviceClassRecipe
 
-from .conftest import api_response, device_class_sensor_entity_id, posted_bodies, register_jev_responses, register_unit_sensor
+from .conftest import (
+    api_response,
+    posted_bodies,
+    recipe_sensor_entity_id,
+    register_jev_responses,
+    register_unit_sensor,
+    restart_config_entry,
+)
 
 FIXTURES = Path(__file__).parent / "fixtures" / "captured"
 
@@ -82,7 +93,7 @@ async def test_a_restart_raises_no_card_the_run_held_back_over_the_cap(
     assert await hass.config_entries.async_setup(device_class_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    sensor_id = device_class_sensor_entity_id(hass, device_class_entry)
+    sensor_id = recipe_sensor_entity_id(hass, device_class_entry, RECIPE_DEVICE_CLASS)
     state = hass.states.get(sensor_id)
     assert state is not None
     assert len(state.attributes["items"]["suggested"]) > CAP
@@ -92,11 +103,7 @@ async def test_a_restart_raises_no_card_the_run_held_back_over_the_cap(
     posted = len(posted_bodies(aioclient_mock))
 
     freezer.move_to("2026-01-04T00:00:00-08:00")
-    assert await hass.config_entries.async_unload(device_class_entry.entry_id)
-    await flush_store(ir.async_get(hass)._store)
-    await ir.async_load(hass)
-    assert await hass.config_entries.async_setup(device_class_entry.entry_id)
-    await hass.async_block_till_done(wait_background_tasks=True)
+    await restart_config_entry(hass, device_class_entry)
 
     assert len(posted_bodies(aioclient_mock)) == posted
     assert _card_ids(hass) == run_cards

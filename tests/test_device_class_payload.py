@@ -11,6 +11,8 @@ from homeassistant.helpers import entity_registry as er
 
 from custom_components.gutcheck.const import DEVICE_CLASS_INSTRUCTIONS, DEVICE_TEXT_MAX_CHARS
 from custom_components.gutcheck.recipes.device_class import DeviceClassRecipe
+from custom_components.gutcheck.recipes.device_class_describe import qualifies
+from custom_components.gutcheck.recipes.safety import SafetyRules
 
 from .conftest import register_unit_sensor
 
@@ -55,7 +57,7 @@ async def test_name_device_name_manufacturer_and_model_are_cleaned_and_capped(ha
         name="<b>Tank</b> " + "x" * 100,
         device_name="[Cistern](https://example.com)",
         manufacturer="**Acme**",
-        model="T1",
+        model="<i>T1</i> " + "x" * 100,
     )
 
     batch = await DeviceClassRecipe(critical_label=None).async_prepare(hass)
@@ -66,6 +68,9 @@ async def test_name_device_name_manufacturer_and_model_are_cleaned_and_capped(ha
     assert len(item["name"]) <= DEVICE_TEXT_MAX_CHARS
     assert item["device_name"] == "Cistern"
     assert item["manufacturer"] == "Acme"
+    assert item["model"] is not None
+    assert "<i>" not in item["model"]
+    assert len(item["model"]) <= DEVICE_TEXT_MAX_CHARS
 
 
 async def test_a_value_that_cleans_to_empty_is_sent_as_null(hass: HomeAssistant) -> None:
@@ -87,6 +92,13 @@ async def test_a_sensor_with_no_device_sends_null_device_name_manufacturer_and_m
     assert item["device_name"] is None
     assert item["manufacturer"] is None
     assert item["model"] is None
+
+
+async def test_a_sensor_with_an_empty_string_unit_never_qualifies(hass: HomeAssistant) -> None:
+    """An empty-string unit is treated as no unit at all, not as a unit no class accepts."""
+    sensor = register_unit_sensor(hass, "tank", unit="", name="Tank")
+
+    assert qualifies(hass, SafetyRules(None), sensor) is False
 
 
 async def test_entity_category_is_sent_as_its_plain_string_value(hass: HomeAssistant) -> None:
