@@ -47,7 +47,7 @@ def qualifies(hass: HomeAssistant, safety: SafetyRules, entry: er.RegistryEntry)
     return (
         entry.domain == Platform.SENSOR
         and not safety.excludes(hass, entry)
-        and entry.unit_of_measurement is not None
+        and bool(entry.unit_of_measurement)
         and (entry.device_class or entry.original_device_class) is None
     )
 

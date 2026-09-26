@@ -59,7 +59,9 @@ class SuggestionRepairFlow(RepairsFlow):
         return ["confirm", "ignore"]
 
     def _finish(self, data: IssueData) -> RepairsFlowResult:
-        """Apply this data, or remove the card and abort as outdated if the re-check fails."""
+        """Apply this data, or abort as outdated if a run swept the card or the re-check fails."""
+        if ir.async_get(self.hass).async_get_issue(DOMAIN, self.issue_id) is None:
+            return self._outdated()
         if not self._apply(self.hass, self._safety(), data):
             return self._outdated()
         _LOGGER.debug("suggestion confirmed")

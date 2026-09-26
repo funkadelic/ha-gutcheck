@@ -107,17 +107,25 @@ class DeviceClassRecipe:
         """Whether a stored suggestion's sensor, looked up by registry_id, still exists and still qualifies."""
         return qualifying_entry(hass, self._safety, str(item["registry_id"])) is not None
 
+    def _still_fits(self, hass: HomeAssistant, item: Item) -> bool:
+        """Whether a stored SUGGESTED item's sensor still qualifies and its stored class still fits the live unit."""
+        entry = qualifying_entry(hass, self._safety, str(item["registry_id"]))
+        if entry is None:
+            return False
+        return str(item.get("choice")) in candidate_classes(entry.unit_of_measurement)
+
     async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
         """Filter every bucket and unsure for sensors that no longer qualify, then re-sync cards.
 
         A restore calls no API, so a sensor given a class by hand, labelled
-        critical, disabled or removed since the run must still drop out of
-        the stored result, rather than sitting exposed for up to a week
-        until the next paid run notices. Every persistent effect async_act
-        has (the card sync) is reproduced here too.
+        critical, disabled, removed, or moved to a unit that no longer
+        accepts its stored class since the run must still drop out of the
+        stored result, rather than sitting exposed for up to a week until
+        the next paid run notices. Every persistent effect async_act has
+        (the card sync) is reproduced here too.
         """
         for option, items in result["items"].items():
-            kept = [item for item in items if self._still_qualifies(hass, item)]
+            kept = [item for item in items if self._still_fits(hass, item)]
             result["items"][option] = kept
             result["counts"][option] = len(kept)
         result["unsure"] = [item for item in result["unsure"] if self._still_qualifies(hass, item)]

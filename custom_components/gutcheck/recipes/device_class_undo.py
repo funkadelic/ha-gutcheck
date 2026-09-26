@@ -4,17 +4,20 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Collection
+from typing import TYPE_CHECKING
 
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.selector import SelectOptionDict
 from homeassistant.helpers.storage import Store
 
-from ..const import CONF_CRITICAL_LABEL, DEVICE_CLASS_APPLIED_STORE_KEY, STORE_VERSION
+from ..const import DEVICE_CLASS_APPLIED_STORE_KEY, STORE_VERSION
 from .device_class_cards import reject_suggestion
 from .device_class_describe import class_names
 from .safety import SafetyRules
+
+if TYPE_CHECKING:
+    from .. import GutCheckConfigEntry
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,11 +43,6 @@ class AppliedClasses:
     def get(self, registry_id: str) -> str | None:
         """The class Gut Check recorded for this registry id, or None."""
         return self._data.get(registry_id)
-
-    @property
-    def has_records(self) -> bool:
-        """Whether anything is recorded."""
-        return bool(self._data)
 
     def ids(self) -> tuple[str, ...]:
         """Every recorded registry id."""
@@ -87,17 +85,16 @@ def undo_choices(hass: HomeAssistant, applied: AppliedClasses) -> list[SelectOpt
     return sorted(choices, key=lambda choice: choice["label"])
 
 
-async def async_change_back(hass: HomeAssistant, entry: ConfigEntry, registry_ids: Collection[str]) -> None:
+async def async_change_back(
+    hass: HomeAssistant, entry: GutCheckConfigEntry, registry_ids: Collection[str], critical_label: str | None
+) -> None:
     """Clear a class Gut Check set for each picked sensor still holding it, record it as a rejection, then forget it.
 
     Also drops every recorded id no longer registered, in the same save.
-    Takes the whole config entry, left untyped, since importing the
-    integration's own GutCheckData here would close an import cycle through
-    the integration's own package module.
     """
     applied = entry.runtime_data.applied
     registry = er.async_get(hass)
-    safety = SafetyRules(entry.options.get(CONF_CRITICAL_LABEL))
+    safety = SafetyRules(critical_label)
     names = await class_names(hass)
 
     to_forget = {registry_id for registry_id in applied.ids() if registry.async_get(registry_id) is None}

@@ -55,7 +55,7 @@ class GutCheckOptionsFlow(OptionsFlowWithReload):
             return self.async_create_entry(data=user_input)
 
         schema = OPTIONS_SCHEMA
-        if self.config_entry.state is ConfigEntryState.LOADED and self.config_entry.runtime_data.applied.has_records:
+        if self.config_entry.state is ConfigEntryState.LOADED and undo_choices(self.hass, self.config_entry.runtime_data.applied):
             schema = schema.extend({vol.Optional(CONF_UNDO_DEVICE_CLASS, default=False): BooleanSelector()})
         schema = self.add_suggested_values_to_schema(schema, self.config_entry.options)
         return self.async_show_form(step_id="init", data_schema=schema)
@@ -63,7 +63,8 @@ class GutCheckOptionsFlow(OptionsFlowWithReload):
     async def async_step_undo_device_class(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """List the recorded, still-registered sensors, then clear the picked ones back."""
         if user_input is not None:
-            await async_change_back(self.hass, self.config_entry, user_input.get(CONF_UNDO_SENSORS, []))
+            critical_label = self._held_options.get(CONF_CRITICAL_LABEL)
+            await async_change_back(self.hass, self.config_entry, user_input.get(CONF_UNDO_SENSORS, []), critical_label)
             return self.async_create_entry(data=self._held_options)
 
         choices = undo_choices(self.hass, self.config_entry.runtime_data.applied)
