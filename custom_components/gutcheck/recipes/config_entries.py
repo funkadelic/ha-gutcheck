@@ -44,8 +44,9 @@ class ConfigEntryRecipe:
     async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None, *, force: bool = False) -> Batch:
         """Select every stuck entry and ask one choice question about each.
 
-        Ignores force: every stuck entry is asked every run, there being
-        nothing carried forward to re-ask about.
+        An entry Home Assistant is already reauthenticating is not asked: it
+        is carried straight into needs_reauth. Ignores force, since no answer
+        is carried forward between runs.
         """
         now = dt_util.utcnow()
         selected = select(hass)
