@@ -92,7 +92,8 @@ def resolved(hass: HomeAssistant, entry_id: str) -> bool:
     """Whether this entry has recovered: gone, disabled, or loaded.
 
     Every other state, including setup_in_progress during a retry and
-    not_loaded before startup, says nothing about recovery.
+    not_loaded before startup or after a plain unload, says nothing about
+    recovery; the next run drops an entry that is no longer stuck.
     """
     entry = hass.config_entries.async_get_entry(entry_id)
     return entry is None or entry.disabled_by is not None or entry.state is ConfigEntryState.LOADED
