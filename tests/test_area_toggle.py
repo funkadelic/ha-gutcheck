@@ -28,7 +28,7 @@ from .conftest import (
     area_answer,
     choice_answer,
     create_areas,
-    find_areas_sensor,
+    find_recipe_sensor,
     posted_bodies,
     register_area_device,
     register_jev_responses,
@@ -76,7 +76,7 @@ async def test_disable_reenable_run_and_removal_timeline(
     )
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    assert find_areas_sensor(hass, mock_config_entry) is None
+    assert find_recipe_sensor(hass, mock_config_entry, RECIPE_AREAS) is None
     assert _area_button_entity_id(hass, mock_config_entry) is None
     assert _area_issue_ids(hass) == {ignored_issue_id}
     ignored_issue = ir.async_get(hass).async_get_issue(DOMAIN, ignored_issue_id)
@@ -92,7 +92,7 @@ async def test_disable_reenable_run_and_removal_timeline(
     )
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    assert find_areas_sensor(hass, mock_config_entry) is not None
+    assert find_recipe_sensor(hass, mock_config_entry, RECIPE_AREAS) is not None
     assert len(posted_bodies(aioclient_mock)) == posted_before
     assert _area_issue_ids(hass) == {open_issue_id, ignored_issue_id}
     ignored_issue = ir.async_get(hass).async_get_issue(DOMAIN, ignored_issue_id)

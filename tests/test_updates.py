@@ -29,10 +29,10 @@ from .conftest import (
     api_response,
     install_update_entities,
     posted_bodies,
+    recipe_sensor_entity_id,
     register_jev_responses,
     register_pending_update,
     score_answer,
-    updates_sensor_entity_id,
 )
 
 UPDATES_STORE_KEY = recipe_store_key(RECIPE_UPDATES)
@@ -74,7 +74,7 @@ async def test_a_stored_unsure_entry_missing_a_field_is_treated_as_never_run(
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert len(posted_bodies(aioclient_mock)) == 1
-    state = hass.states.get(updates_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_UPDATES))
     assert state is not None
     assert state.attributes["unsure"] == []
 
@@ -101,7 +101,7 @@ async def test_two_pending_updates_are_scored_in_one_request(
     body = bodies[0]
     assert set(body["questions"].keys()) == {"u0", "u1"}
 
-    state = hass.states.get(updates_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_UPDATES))
     assert state is not None
     assert state.state == "1"
     assert state.attributes["counts"][OPTION_ROUTINE] == 1
@@ -132,7 +132,7 @@ async def test_below_threshold_answer_lands_in_unsure(
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    state = hass.states.get(updates_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_UPDATES))
     assert state is not None
     assert sum(state.attributes["counts"].values()) == 0
     assert len(state.attributes["unsure"]) == 1
@@ -165,7 +165,7 @@ async def test_stored_update_result_restores_after_a_reload_with_no_request(
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert len(posted_bodies(aioclient_mock)) == 1
-    state = hass.states.get(updates_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_UPDATES))
     assert state is not None
     assert state.state == "0"
     assert state.attributes["counts"][OPTION_ROUTINE] == 1
@@ -298,7 +298,7 @@ async def test_pressing_the_run_button_sends_one_request_and_updates_the_sensor(
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert len(posted_bodies(aioclient_mock)) == 1
-    state = hass.states.get(updates_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_UPDATES))
     assert state is not None
     assert state.state == "1"
     assert state.attributes["counts"][OPTION_POSSIBLY_BREAKING] == 1

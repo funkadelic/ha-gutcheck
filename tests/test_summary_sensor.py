@@ -15,17 +15,17 @@ from custom_components.gutcheck.const import (
     OPTION_SAFE_TO_REMOVE,
     OPTION_WORTH_FIXING,
     RECIPE_HEALTH,
+    RECIPE_UPDATES,
 )
 
 from .conftest import (
     api_response,
     choice_answer,
-    health_sensor_entity_id,
+    recipe_sensor_entity_id,
     register_jev_responses_by_question,
     register_pending_update,
     register_unavailable_entity,
     score_answer,
-    updates_sensor_entity_id,
 )
 
 _HEALTH_ANSWERS = {
@@ -61,12 +61,12 @@ async def test_each_sensor_counts_its_own_open_cards_and_skips_ignored_ones(
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    health_state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    health_state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert health_state is not None
     assert health_state.state == "2"
     assert health_state.attributes["counts"] == {OPTION_EXPECTED: 1, OPTION_WORTH_FIXING: 2, OPTION_SAFE_TO_REMOVE: 0}
 
-    updates_state = hass.states.get(updates_sensor_entity_id(hass, mock_config_entry))
+    updates_state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_UPDATES))
     assert updates_state is not None
     assert updates_state.state == "1"
 
@@ -74,10 +74,10 @@ async def test_each_sensor_counts_its_own_open_cards_and_skips_ignored_ones(
     assert first_entry is not None
     ir.async_ignore_issue(hass, DOMAIN, f"{HEALTH_ISSUE_PREFIX}{first_entry.id}", True)
     await hass.async_block_till_done()
-    ignored_state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    ignored_state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert ignored_state is not None
     assert ignored_state.state == "1"
-    updates_after_ignore = hass.states.get(updates_sensor_entity_id(hass, mock_config_entry))
+    updates_after_ignore = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_UPDATES))
     assert updates_after_ignore is not None
     assert updates_after_ignore.state == "1"
 
@@ -86,7 +86,7 @@ async def test_each_sensor_counts_its_own_open_cards_and_skips_ignored_ones(
     await mock_config_entry.runtime_data.coordinators[RECIPE_HEALTH].async_refresh()
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    recounted_state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    recounted_state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert recounted_state is not None
     assert recounted_state.state == "1"
     assert recounted_state.attributes["counts"][OPTION_WORTH_FIXING] == 2

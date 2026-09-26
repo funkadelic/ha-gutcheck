@@ -28,6 +28,7 @@ from custom_components.gutcheck.const import (
     RECIPE_HEALTH,
 )
 from custom_components.gutcheck.diagnostics import async_get_config_entry_diagnostics
+from custom_components.gutcheck.recipes.device_class_undo import AppliedClasses
 
 from .conftest import health_item, health_result
 
@@ -122,10 +123,12 @@ async def test_a_never_run_recipe_dumps_as_null(hass: HomeAssistant, mock_config
     client = GutCheckClient(async_get_clientsession(hass), "test-key")
     budget = BudgetGate(hass, client, 150_000)
     await budget.async_load()
+    applied = AppliedClasses(hass)
+    await applied.async_load()
     mock_config_entry.add_to_hass(hass)
     mock_config_entry.mock_state(hass, config_entries.ConfigEntryState.LOADED)
     mock_config_entry.runtime_data = GutCheckData(
-        client=client, budget=budget, coordinators={RECIPE_HEALTH: SimpleNamespace(data=None)}
+        client=client, budget=budget, coordinators={RECIPE_HEALTH: SimpleNamespace(data=None)}, applied=applied
     )
 
     result = await async_get_config_entry_diagnostics(hass, mock_config_entry)

@@ -16,9 +16,16 @@ from custom_components.gutcheck.const import (
     OPTION_NONE,
     OPTION_SAFE_TO_REMOVE,
     OPTION_WORTH_FIXING,
+    RECIPE_HEALTH,
 )
 
-from .conftest import api_response, choice_answer, health_sensor_entity_id, posted_bodies, register_jev_responses
+from .conftest import (
+    api_response,
+    choice_answer,
+    posted_bodies,
+    recipe_sensor_entity_id,
+    register_jev_responses,
+)
 
 
 def _register_entities(hass: HomeAssistant) -> str:
@@ -76,7 +83,7 @@ async def test_one_batched_post_fills_the_sensor(
     assert set(body["questions"].keys()) == {"e0"}
     assert len(body["state"]["entities"]) == 1
 
-    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
     assert state.state == "1"
     assert state.attributes["counts"][OPTION_WORTH_FIXING] == 1
@@ -114,7 +121,7 @@ async def test_unsure_entity_carries_its_lean_in_the_sensor(
     hass.bus.async_fire(EVENT_HOMEASSISTANT_STARTED)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
     assert state.state == "0"
     assert sum(state.attributes["counts"].values()) == 0
@@ -138,7 +145,7 @@ async def test_budget_refusal_leaves_sensor_unavailable_with_no_post(
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert posted_bodies(aioclient_mock) == []
-    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
     assert state.state == "unavailable"
 
@@ -159,7 +166,7 @@ async def test_api_failure_then_recovery(
     hass.bus.async_fire(EVENT_HOMEASSISTANT_STARTED)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
     assert state.state == "unavailable"
 
@@ -169,6 +176,6 @@ async def test_api_failure_then_recovery(
     await coordinator.async_refresh()
     await hass.async_block_till_done()
 
-    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
     assert state.state == "1"

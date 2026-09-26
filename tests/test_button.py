@@ -25,8 +25,8 @@ from custom_components.gutcheck.const import (
 from .conftest import (
     api_response,
     choice_answer,
-    health_sensor_entity_id,
     posted_bodies,
+    recipe_sensor_entity_id,
     register_jev_responses,
     register_unavailable_entity,
 )
@@ -65,7 +65,7 @@ async def test_press_after_first_run_sends_exactly_one_more_post(
     await _press(hass, button_entity_id)
 
     assert len(posted_bodies(aioclient_mock)) == 1
-    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
     assert state.state == "1"
 
@@ -82,7 +82,7 @@ async def test_button_stays_available_after_a_failed_run_and_a_press_recovers_it
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    sensor_state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    sensor_state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert sensor_state is not None
     assert sensor_state.state == STATE_UNAVAILABLE
 
@@ -96,7 +96,7 @@ async def test_button_stays_available_after_a_failed_run_and_a_press_recovers_it
     register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
     await _press(hass, button_entity_id)
 
-    sensor_state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    sensor_state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert sensor_state is not None
     assert sensor_state.state == "1"
 

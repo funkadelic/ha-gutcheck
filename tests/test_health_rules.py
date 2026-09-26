@@ -22,14 +22,15 @@ from custom_components.gutcheck.const import (
     HEALTH_ISSUE_PREFIX,
     OPTION_SAFE_TO_REMOVE,
     OPTION_WORTH_FIXING,
+    RECIPE_HEALTH,
 )
 from custom_components.gutcheck.recipes.health import HealthRecipe
 
 from .conftest import (
     api_response,
     choice_answer,
-    health_sensor_entity_id,
     posted_bodies,
+    recipe_sensor_entity_id,
     register_jev_responses,
     register_unavailable_entity,
 )
@@ -67,7 +68,7 @@ async def test_leftover_carries_forward_while_the_ordinary_entity_is_asked(
     assert set(body["questions"]) == {"e0"}
     assert body["state"]["entities"][0]["restored"] is False
 
-    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
     assert state.state == "1"
     safe_to_remove = state.attributes["items"][OPTION_SAFE_TO_REMOVE]
@@ -104,7 +105,7 @@ async def test_all_leftover_run_sends_nothing(
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert posted_bodies(aioclient_mock) == []
-    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
     assert state.state == "0"
     assert [item["entity_id"] for item in state.attributes["items"][OPTION_SAFE_TO_REMOVE]] == [leftover.entity_id]

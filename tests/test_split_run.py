@@ -34,8 +34,8 @@ from custom_components.gutcheck.recipes.shapes import Batch, recipe_store_key
 from .conftest import (
     api_response,
     choice_answer,
-    health_sensor_entity_id,
     posted_bodies,
+    recipe_sensor_entity_id,
     register_jev_responses,
     register_unavailable_entity,
 )
@@ -86,7 +86,7 @@ async def test_oversized_health_run_goes_out_as_several_requests(
     assert bodies == expected
     assert [qid for body in bodies for qid in body["questions"]] == [f"e{index}" for index in range(5)]
 
-    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
     assert state.attributes["counts"][OPTION_EXPECTED] == 5
     assert state.attributes["unsure"] == []
@@ -201,6 +201,6 @@ async def test_stored_single_request_payload_restores_without_a_call(
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert posted_bodies(aioclient_mock) == []
-    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
     assert state.attributes["last_payload"] == stored_payload

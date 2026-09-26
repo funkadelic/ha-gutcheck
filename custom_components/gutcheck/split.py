@@ -18,7 +18,8 @@ def _request(batch: Batch, ids: list[str], start: int, end: int) -> SystemOneReq
     questions: dict[str, Question] = {}
     for local, question_id in enumerate(ids[start:end]):
         question = batch.questions[question_id].copy()
-        question["instructions"] = batch.template.format(index=local)
+        template = batch.templates.get(question_id, batch.template)
+        question["instructions"] = template.format(index=local)
         questions[question_id] = question
     return {"state": {batch.list_key: batch.state[batch.list_key][start:end]}, "model": MODEL, "questions": questions}
 

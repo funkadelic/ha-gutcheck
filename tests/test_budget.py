@@ -34,7 +34,14 @@ from custom_components.gutcheck.const import (
 from custom_components.gutcheck.coordinator import RecipeCoordinator
 from custom_components.gutcheck.recipes.shapes import Batch, RecipeResult
 
-from .conftest import api_response, choice_answer, health_sensor_entity_id, load_fixture, posted_bodies, register_jev_responses
+from .conftest import (
+    api_response,
+    choice_answer,
+    load_fixture,
+    posted_bodies,
+    recipe_sensor_entity_id,
+    register_jev_responses,
+)
 
 PAYLOAD: dict[str, Any] = {
     "state": {"check": "ping"},
@@ -312,7 +319,7 @@ async def test_budget_refused_run_makes_health_unavailable_and_retries_after_mid
     assert len(posted_bodies(aioclient_mock)) == 1
     raised = [issue_id for domain, issue_id in ir.async_get(hass).issues if domain == DOMAIN]
     assert len(raised) == 1
-    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
     assert state.state != STATE_UNAVAILABLE
 
@@ -337,7 +344,7 @@ async def test_budget_refused_run_makes_health_unavailable_and_retries_after_mid
     assert [r.levelno for r in refusals] == [logging.INFO]
 
     assert len(posted_bodies(aioclient_mock)) == 1
-    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
     assert state.state == STATE_UNAVAILABLE
     assert coordinator.data["last_payload"] == first_payload
@@ -359,7 +366,7 @@ async def test_budget_refused_run_makes_health_unavailable_and_retries_after_mid
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert len(posted_bodies(aioclient_mock)) == 2
-    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
     assert state.state != STATE_UNAVAILABLE
 

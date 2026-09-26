@@ -110,4 +110,4 @@ class AreaRecipe:
             result["items"][option] = kept
             result["counts"][option] = len(kept)
         result["unsure"] = [item for item in result["unsure"] if self._still_qualifies(hass, item)]
-        sync_area_cards(hass, self._safety, result["items"].get(OPTION_SUGGESTED, []))
+        sync_area_cards(hass, self._safety, result["items"].get(OPTION_SUGGESTED, []), restoring=True)

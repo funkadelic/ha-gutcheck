@@ -11,13 +11,17 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
+from homeassistant.components.repairs import repairs_flow_manager
 from homeassistant.components.update import DATA_COMPONENT, UpdateEntityFeature
 from homeassistant.const import CONF_API_KEY, STATE_ON, STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
+from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import area_registry as ar
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from homeassistant.helpers import issue_registry as ir
+from homeassistant.setup import async_setup_component
+from pytest_homeassistant_custom_component.common import MockConfigEntry, flush_store
 from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMocker,
     AiohttpClientMockResponse,
@@ -25,18 +29,35 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
 
 from custom_components.gutcheck.const import (
     API_URL,
+    CONF_AREAS_ENABLED,
+    CONF_DAILY_BUDGET,
+    CONF_DEVICE_CLASS_ENABLED,
+    CONF_HEALTH_ENABLED,
+    CONF_UPDATES_ENABLED,
+    DEFAULT_DAILY_BUDGET,
+    DEVICE_CLASS_ISSUE_PREFIX,
     DOMAIN,
     HEALTH_OPTIONS,
     OPTION_NONE,
-    RECIPE_AREAS,
-    RECIPE_HEALTH,
-    RECIPE_UPDATES,
     UPDATE_CRITERIA,
     UPDATE_OPTIONS,
 )
+from custom_components.gutcheck.recipes.device_class_cards import sync_device_class_cards
+from custom_components.gutcheck.recipes.safety import SafetyRules
 from custom_components.gutcheck.recipes.shapes import Item, RecipeResult
 
 ALL_HEALTH_OPTIONS = (*HEALTH_OPTIONS, OPTION_NONE)
+
+BATTERY_CANDIDATES = ["battery", "humidity", "moisture", "power_factor"]
+
+# Everything but device class off, so every POST in a test using device_class_entry is this recipe's own.
+KEPT_DEVICE_CLASS_OPTIONS = {
+    CONF_HEALTH_ENABLED: False,
+    CONF_UPDATES_ENABLED: False,
+    CONF_AREAS_ENABLED: False,
+    CONF_DEVICE_CLASS_ENABLED: True,
+    CONF_DAILY_BUDGET: DEFAULT_DAILY_BUDGET,
+}
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -256,40 +277,66 @@ def install_update_entities(hass: HomeAssistant, entities: dict[str, FakeUpdateE
     hass.data[DATA_COMPONENT] = SimpleNamespace(get_entity=entities.get)
 
 
-def find_health_sensor(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
-    """The health recipe's sensor entity id, or None when the recipe is switched off."""
-    return er.async_get(hass).async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{RECIPE_HEALTH}")
+def find_recipe_sensor(hass: HomeAssistant, entry: MockConfigEntry, recipe_id: str) -> str | None:
+    """This recipe's sensor entity id, or None when the recipe is switched off."""
+    return er.async_get(hass).async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{recipe_id}")
 
 
-def health_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
-    """The health recipe's sensor entity id, for the tests where it must exist."""
-    entity_id = find_health_sensor(hass, entry)
+def recipe_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry, recipe_id: str) -> str:
+    """This recipe's sensor entity id, for the tests where it must exist."""
+    entity_id = find_recipe_sensor(hass, entry, recipe_id)
     assert entity_id is not None
     return entity_id
 
 
-def find_updates_sensor(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
-    """The update recipe's sensor entity id, or None when the recipe is switched off."""
-    return er.async_get(hass).async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{RECIPE_UPDATES}")
+async def restart_config_entry(hass: HomeAssistant, entry: MockConfigEntry) -> None:
+    """Unload, reload the issue registry from storage the way HA startup does, then set up again."""
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    registry = ir.async_get(hass)
+    await flush_store(registry._store)
+    await ir.async_load(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
 
 
-def updates_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
-    """The update recipe's sensor entity id, for the tests where it must exist."""
-    entity_id = find_updates_sensor(hass, entry)
-    assert entity_id is not None
-    return entity_id
+async def confirm_device_class_card(hass: HomeAssistant, issue_id: str) -> None:
+    """Confirm a device class card through Home Assistant's own repairs flow manager."""
+    assert await async_setup_component(hass, "repairs", {})
+    manager = repairs_flow_manager(hass)
+    assert manager is not None
+    result = await manager.async_init(DOMAIN, data={"issue_id": issue_id})
+    assert result["type"] is FlowResultType.MENU
+    result = await manager.async_configure(result["flow_id"], {"next_step_id": "confirm"})
+    assert result["type"] is FlowResultType.CREATE_ENTRY
 
 
-def find_areas_sensor(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
-    """The area recipe's sensor entity id, or None when the recipe is switched off."""
-    return er.async_get(hass).async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{RECIPE_AREAS}")
+async def seed_device_class_card(
+    hass: HomeAssistant, entry: MockConfigEntry, *, unit: str = "%", choice: str = "battery"
+) -> tuple[er.RegistryEntry, str]:
+    """Set up entry, register a sensor with unit, and raise its device class card suggesting choice.
+
+    entry must not already be set up.
+    """
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+    sensor = register_unit_sensor(hass, "battery_pct", unit=unit, name="Battery")
+    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
+    sync_device_class_cards(hass, SafetyRules(None), [{"registry_id": sensor.id, "choice": choice}], {choice: choice.title()})
+    return sensor, issue_id
 
 
-def areas_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
-    """The area recipe's sensor entity id, for the tests where it must exist."""
-    entity_id = find_areas_sensor(hass, entry)
-    assert entity_id is not None
-    return entity_id
+async def setup_and_confirm_device_class(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, entry: MockConfigEntry, sensor: er.RegistryEntry
+) -> str:
+    """Set up entry with a confident battery answer for sensor, confirm its card, and return the issue id."""
+    register_jev_responses(aioclient_mock, [api_response({"s0": area_answer("battery", 0.9, BATTERY_CANDIDATES)})])
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+    issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
+    await confirm_device_class_card(hass, issue_id)
+    return issue_id
 
 
 def create_areas(hass: HomeAssistant, *names: str) -> dict[str, str]:
@@ -375,7 +422,94 @@ def register_area_device(
     return resolved
 
 
+def register_unit_sensor(
+    hass: HomeAssistant,
+    unique: str,
+    *,
+    unit: str | None,
+    name: str | None = "Sensor",
+    platform: str = "test",
+    device_class: str | None = None,
+    original_device_class: str | None = None,
+    entity_category: er.EntityCategory | None = None,
+    disabled_by: er.RegistryEntryDisabler | None = None,
+    labels: frozenset[str] = frozenset(),
+    device_name: str | None = None,
+    manufacturer: str | None = None,
+    model: str | None = None,
+    device_labels: frozenset[str] = frozenset(),
+) -> er.RegistryEntry:
+    """Register (or reuse) a sensor with the given unit and fields, for the device class recipe to select.
+
+    A device is created under its own config entry only when device_name,
+    manufacturer or model is given; device_class and labels are set through a
+    registry update after creation, since async_get_or_create has no
+    device_class parameter of its own (only original_device_class).
+    """
+    device_id: str | None = None
+    if device_name is not None or manufacturer is not None or model is not None:
+        config_entry = MockConfigEntry(domain=platform, unique_id=f"device_class_device_{platform}_{unique}")
+        config_entry.add_to_hass(hass)
+        device_registry = dr.async_get(hass)
+        # A falsy name at creation falls back to the config entry's own title
+        # (device_registry.py's own documented behavior), so a genuinely
+        # nameless device is created with a placeholder name, then nulled
+        # out explicitly.
+        device = device_registry.async_get_or_create(
+            config_entry_id=config_entry.entry_id,
+            identifiers={(platform, unique)},
+            name=device_name or "unnamed",
+            manufacturer=manufacturer,
+            model=model,
+        )
+        if device_name is None:
+            device_registry.async_update_device(device.id, name=None)
+        if device_labels:
+            device_registry.async_update_device(device.id, labels=set(device_labels))
+        device_id = device.id
+
+    entity_registry = er.async_get(hass)
+    entry = entity_registry.async_get_or_create(
+        "sensor",
+        platform,
+        unique,
+        device_id=device_id,
+        unit_of_measurement=unit,
+        original_name=name,
+        original_device_class=original_device_class,
+        entity_category=entity_category,
+        disabled_by=disabled_by,
+    )
+    if device_class is not None:
+        entity_registry.async_update_entity(entry.entity_id, device_class=device_class)
+    if labels:
+        entity_registry.async_update_entity(entry.entity_id, labels=set(labels))
+
+    resolved = entity_registry.async_get(entry.entity_id)
+    assert resolved is not None
+    return resolved
+
+
 @pytest.fixture
 def mock_config_entry() -> MockConfigEntry:
     """A Gut Check config entry with a test API key."""
     return MockConfigEntry(domain=DOMAIN, data={CONF_API_KEY: "test-key"})
+
+
+@pytest.fixture
+def device_class_entry() -> MockConfigEntry:
+    """A Gut Check config entry with only device class suggestions switched on.
+
+    Health, updates and areas are switched off, so every POST in a test using
+    this fixture is this recipe's own.
+    """
+    return MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_API_KEY: "test-key"},
+        options={
+            CONF_HEALTH_ENABLED: False,
+            CONF_UPDATES_ENABLED: False,
+            CONF_AREAS_ENABLED: False,
+            CONF_DEVICE_CLASS_ENABLED: True,
+        },
+    )

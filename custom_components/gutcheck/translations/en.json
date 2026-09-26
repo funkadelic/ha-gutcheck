@@ -34,14 +34,25 @@
           "health_enabled": "Run the weekly home health check",
           "updates_enabled": "Run the weekly update review",
           "areas_enabled": "Run the weekly area suggestions",
+          "device_class_enabled": "Run the weekly device class suggestions",
           "daily_budget": "Daily token budget (input tokens)",
-          "critical_label": "Critical label"
+          "critical_label": "Critical label",
+          "undo_device_class": "Change back a device class Gut Check set"
         },
         "data_description": {
           "updates_enabled": "Scores pending updates as routine, feature, or possibly breaking. Advisory only, never installs anything.",
           "areas_enabled": "Suggests an existing area for each device that has none. Nothing is assigned until you confirm a suggestion in Repairs.",
+          "device_class_enabled": "Suggests a device class for sensors that report a unit but have none. Nothing is set until you confirm or pick a class in Repairs.",
           "daily_budget": "A hard stop for the day. It resets at local midnight.",
-          "critical_label": "Entities or devices with this label are never sent or checked. Locks, alarms and covers are never checked either, label or not."
+          "critical_label": "Entities or devices with this label are never sent or checked. Locks, alarms and covers are never checked either, label or not.",
+          "undo_device_class": "Opens a list of the sensors whose device class you set from a Gut Check suggestion, so you can change any of them back."
+        }
+      },
+      "undo_device_class": {
+        "title": "Change back device classes",
+        "description": "Pick the sensors to change back. Gut Check clears the device class it set, leaves any that were changed since, and stops suggesting a device class for them.",
+        "data": {
+          "sensors": "Sensors"
         }
       }
     }
@@ -56,6 +67,9 @@
       },
       "areas": {
         "name": "Area suggestions"
+      },
+      "device_class": {
+        "name": "Device class suggestions"
       },
       "tokens_today": {
         "name": "Tokens used today"
@@ -73,6 +87,9 @@
       },
       "areas_run": {
         "name": "Run area suggestions"
+      },
+      "device_class_run": {
+        "name": "Run device class suggestions"
       }
     }
   },
@@ -91,9 +108,9 @@
         "step": {
           "init": {
             "title": "Suggested area",
-            "description": "Gut Check suggests **{area_name}** for {device_name}. Nothing changes unless you assign it.",
+            "description": "Gut Check suggests **{area_name}** for {device_name}. Nothing changes until you choose.",
             "menu_options": {
-              "confirm": "Assign this area",
+              "confirm": "Assign to {area_name}",
               "ignore": "Don't suggest an area for this device"
             }
           }
@@ -101,6 +118,33 @@
         "abort": {
           "suggestion_outdated": "The device or the area changed since this suggestion was made, so nothing was changed and the card was removed.",
           "suggestion_ignored": "Gut Check will stop suggesting an area for this device. The card is now in your ignored repairs."
+        }
+      }
+    },
+    "device_class_suggestion": {
+      "title": "{entity_id} has no device class",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Suggested device class",
+            "description": "Gut Check suggests **{class_name}** for `{entity_id}`, which reports in {unit}. Nothing changes until you choose. You can change it back later from Gut Check's Configure screen.",
+            "menu_options": {
+              "confirm": "Set device class to {class_name}",
+              "choose": "Choose a different device class",
+              "ignore": "Don't suggest a device class for this sensor"
+            }
+          },
+          "choose": {
+            "title": "Choose a device class",
+            "description": "Pick the device class for `{entity_id}`. Only classes that accept {unit} are listed. You can change it back later from Gut Check's Configure screen.",
+            "data": {
+              "device_class": "Device class"
+            }
+          }
+        },
+        "abort": {
+          "suggestion_outdated": "The sensor changed since this suggestion was made, so nothing was changed and the card was removed.",
+          "suggestion_ignored": "Gut Check will stop suggesting a device class for this sensor. The card is now in your ignored repairs."
         }
       }
     }
