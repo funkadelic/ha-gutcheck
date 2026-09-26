@@ -33,9 +33,9 @@ CONFIG_ENTRY_INSTRUCTIONS: Final = (
 
 CONFIG_ENTRY_CRITERIA: Final[dict[str, str | None]] = {
     OPTION_TRANSIENT: (
-        "A temporary problem that usually clears on its own: the `reason` says the device, hub or "
-        "service is offline, unreachable, timing out, busy, rate limited or starting up, and "
-        '`failing_for` is not "longer than 4 weeks".'
+        'A temporary problem Home Assistant is still retrying: `config_entry_state` is "setup retry", '
+        "the `reason` says the device, hub or service is offline, unreachable, timing out, busy, rate "
+        'limited or starting up, and `failing_for` is not "longer than 4 weeks".'
     ),
     OPTION_NEEDS_REAUTH: (
         "The saved sign-in stopped working: the `reason` says a password, token, API key or session "
@@ -44,7 +44,9 @@ CONFIG_ENTRY_CRITERIA: Final[dict[str, str | None]] = {
     OPTION_DEAD: (
         "It will not work again as set up: the `reason` says the device, account, subscription or "
         "location is gone or not supported, or that something must change outside Home Assistant "
-        'first; or the `reason` describes a temporary problem and `failing_for` is "longer than 4 weeks".'
+        'first; or the `reason` describes a temporary problem and `failing_for` is "longer than 4 weeks"; '
+        'or the `reason` describes a temporary problem and `config_entry_state` is "setup error", since '
+        "Home Assistant has stopped retrying it."
     ),
     OPTION_NONE: ("The `reason` is missing or too vague to tell which of these fits."),
 }
