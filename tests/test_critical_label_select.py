@@ -77,6 +77,43 @@ async def test_moisture_binary_sensor_is_asked_not_code_decided(
     assert registry.async_get_issue(DOMAIN, f"{CRITICAL_LABEL_ISSUE_PREFIX}{rain.id}") is None
 
 
+async def test_config_and_diagnostic_entity_category_are_never_asked(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, critical_label_entry: MockConfigEntry
+) -> None:
+    """A config or diagnostic switch is never asked; a plain switch and a valve still are."""
+    lr.async_get(hass).async_create("Critical")
+    config_switch = register_unit_sensor(
+        hass, "config_switch", domain="switch", unit=None, name="Post data", entity_category=er.EntityCategory.CONFIG
+    )
+    diagnostic_switch = register_unit_sensor(
+        hass, "diag_switch", domain="switch", unit=None, name="Signal strength", entity_category=er.EntityCategory.DIAGNOSTIC
+    )
+    plain_switch = register_unit_sensor(hass, "plain_switch", domain="switch", unit=None, name="Lamp")
+    valve = register_unit_sensor(hass, "main_valve", domain="valve", unit=None, name="Main valve")
+    register_jev_responses_by_question(
+        aioclient_mock,
+        {
+            "k0": api_response(
+                {"k0": critical_label_answer(OPTION_NOT_CRITICAL, 0.9), "k1": critical_label_answer(OPTION_NOT_CRITICAL, 0.9)}
+            )
+        },
+    )
+    critical_label_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(critical_label_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    bodies = posted_bodies(aioclient_mock)
+    assert len(bodies) == 1
+    asked_names = {item["name"] for item in bodies[0]["state"]["entities"]}
+    assert asked_names == {"Lamp", "Main valve"}
+    registry = ir.async_get(hass)
+    for entry in (config_switch, diagnostic_switch):
+        assert registry.async_get_issue(DOMAIN, f"{CRITICAL_LABEL_ISSUE_PREFIX}{entry.id}") is None
+    for entry in (plain_switch, valve):
+        assert registry.async_get_issue(DOMAIN, f"{CRITICAL_LABEL_ISSUE_PREFIX}{entry.id}") is None
+
+
 async def test_user_override_wins_over_original_device_class(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, critical_label_entry: MockConfigEntry
 ) -> None:

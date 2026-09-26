@@ -4,6 +4,7 @@ from typing import Final
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.const import Platform
+from homeassistant.helpers.entity import EntityCategory
 
 from ..const import OPTION_NONE
 
@@ -34,6 +35,10 @@ CODE_DECIDED_DEVICE_CLASSES: Final = frozenset(
 # and to a rain or soil moisture sensor, so this one is asked rather than
 # decided in code.
 ASKED_BINARY_SENSOR_DEVICE_CLASSES: Final = frozenset({BinarySensorDeviceClass.MOISTURE})
+
+# A settings toggle or diagnostic entity is never a water or gas shutoff or a
+# siren, so it is never asked, whatever its domain.
+EXCLUDED_ASK_ENTITY_CATEGORIES: Final = frozenset({EntityCategory.CONFIG, EntityCategory.DIAGNOSTIC})
 
 # Cards already open do not count against this cap.
 MAX_NEW_CRITICAL_LABEL_CARDS_PER_RUN: Final = 10

@@ -12,7 +12,12 @@ from homeassistant.helpers import label_registry as lr
 
 from ..const import DEVICE_TEXT_MAX_CHARS
 from ..describe import clean_text
-from .critical_label_const import ASKED_BINARY_SENSOR_DEVICE_CLASSES, ASKED_DOMAINS, CODE_DECIDED_DEVICE_CLASSES
+from .critical_label_const import (
+    ASKED_BINARY_SENSOR_DEVICE_CLASSES,
+    ASKED_DOMAINS,
+    CODE_DECIDED_DEVICE_CLASSES,
+    EXCLUDED_ASK_ENTITY_CATEGORIES,
+)
 from .safety import SafetyRules
 from .shapes import Item
 
@@ -42,16 +47,23 @@ def _asked_binary_sensor(entry: er.RegistryEntry) -> bool:
 def qualifies(hass: HomeAssistant, safety: SafetyRules, entry: er.RegistryEntry) -> bool:
     """Whether this registry entry is a candidate this recipe may consider or re-check.
 
-    Selection reads only domain and effective device class, never name or
-    brand. The cheap domain test runs before the shared exclusions, which
-    already drop disabled entities, Gut Check's own, locks, alarm panels,
-    covers, and anything carrying the critical label on the entity or its
-    device.
+    Selection reads only domain, effective device class and registry
+    entity_category, never name or brand. A binary sensor decided in code
+    skips the entity_category check, since it is never sent to the model in
+    the first place. A config or diagnostic entity is a settings toggle or
+    a diagnostic reading, never a shutoff or a siren, so it is never asked.
+    The cheap domain test runs before the shared exclusions, which already
+    drop disabled entities, Gut Check's own, locks, alarm panels, covers,
+    and anything carrying the critical label on the entity or its device.
     """
     if entry.domain == Platform.BINARY_SENSOR:
-        if not decided_in_code(entry) and not _asked_binary_sensor(entry):
+        if decided_in_code(entry):
+            return not safety.excludes(hass, entry)
+        if not _asked_binary_sensor(entry):
             return False
     elif entry.domain not in ASKED_DOMAINS:
+        return False
+    if entry.entity_category in EXCLUDED_ASK_ENTITY_CATEGORIES:
         return False
     return not safety.excludes(hass, entry)
 
