@@ -48,10 +48,13 @@ Jev can't write a reply, make up a new option, or tell Home Assistant to do anyt
 
 **Device class suggestions.** Gut Check suggests a device class for sensors that report a unit but have none. It narrows the options to the device classes that accept the sensor's unit and asks the model even when only one fits, because some integrations reuse a unit symbol for something else (a water filter reporting months as "m", which Home Assistant reads as meters). Each suggestion is a Repairs card with three choices: set the suggested class, pick a different class that accepts the sensor's unit (offered when another class fits), or tell Gut Check not to suggest one for that sensor. It never sets a class on its own, and it is off until you switch it on.
 
+**Stuck integration check.** Gut Check looks at every integration that failed to set up and is stuck retrying or has stopped with an error, reads the error it reported, and sorts it as a passing glitch (Home Assistant keeps retrying and it should sort itself out), a sign-in problem (the saved login stopped working), or broken for good (for example the device or account is gone). Each sign-in problem and broken-for-good integration gets a card in Repairs, linking to that integration's page. When Home Assistant is already asking you to sign in again, Gut Check leaves it to that card instead of raising its own. It never reloads, reconfigures, signs in to, disables or removes an integration, and it is off until you switch it on.
+
 ## What Gut Check will never do
 
 - Control a lock, alarm panel, garage door or cover. The health check leaves them out entirely.
 - Install, skip or change an update, for any device.
+- Reload, reconfigure, sign in to, disable or delete an integration.
 - Act on its own. Every actionable finding waits for you in Repairs.
 - Guess. When it isn't confident in an answer, it does nothing.
 
@@ -70,7 +73,7 @@ If the key is ever rejected later, Home Assistant opens a repair asking for a ne
 
 You don't need to set up a schedule. Once you add the integration, each check that is switched on runs by itself when Home Assistant finishes starting, then once a week after that. Restarting Home Assistant doesn't start an extra run: Gut Check keeps the last result and runs again when the week is up. If a run fails, it tries again an hour later.
 
-To run a check now, go to **Settings > Devices & services > Gut Check**, open the Gut Check service, and press **Run home health check**, **Run update review** or **Run area suggestions**. Pressing a check's button while that check is already running shows an error and starts nothing. The other checks' buttons still work.
+To run a check now, go to **Settings > Devices & services > Gut Check**, open the Gut Check service, and press that check's Run button. Pressing a check's button while that check is already running shows an error and starts nothing. The other checks' buttons still work.
 
 ## Cost
 
@@ -82,6 +85,7 @@ TypeSafe AI measures usage in tokens, about three characters of text each, and c
 | Area suggestions | 16,548 | under $0.001 |
 | Update review | 0 when nothing is pending or changed; about 41,000 estimated at the 50-update cap | under $0.002 |
 | Device class suggestions | 20,056 for 58 asked sensors on a real run | under $0.001 |
+| Stuck integration check | 0 when nothing is stuck; about 550 estimated per stuck integration | under $0.0001 per stuck integration (estimated) |
 
 Gut Check enforces a daily token budget so cost stays predictable. `sensor.gut_check_tokens_used_today` and `sensor.gut_check_cost_today` show what has been spent and what it cost, both resetting at local midnight. The default of 150,000 tokens covers the weekly schedule with room to spare; running checks by hand several times in one day can reach it.
 
@@ -95,6 +99,7 @@ Open the integration's **Configure** screen to:
 - Turn the weekly update review on or off
 - Turn area suggestions on or off
 - Turn device class suggestions on or off (off by default)
+- Turn the stuck integration check on or off (off by default)
 - Set the daily token budget (default 150,000 tokens)
 - Pick a label; anything carrying that label on the entity or its device is left out of every check entirely
 - Change back a device class Gut Check set, once anything is recorded
@@ -108,6 +113,8 @@ For each pending update, Gut Check sends the integration name, the installed and
 For each device with no area, Gut Check sends its name (as you or its maker named it, cleaned and shortened), manufacturer, model, integration, and the kinds and device classes of its entities, plus your existing area names as the options it can pick from. It never sends entity names or entity IDs, never another device's area, and never the area of a hub or account the device sits behind. The device's name is read only as a description, never as an instruction.
 
 A run can ask about several qualifying sensors at once. For each sensor with a unit but no device class, when at least one device class accepts that unit, Gut Check sends the sensor's name, its device's name, manufacturer, model, integration, unit and entity category, plus the device classes that accept its unit as the options it can pick from. It never sends a reading, an entity ID, an area, or any entity that does not qualify. The name and device name are read only as a description, never as an instruction.
+
+For each integration the stuck integration check looks at, Gut Check sends its integration name, whether Home Assistant is still retrying it or has stopped, how long Gut Check has seen it failing (grouped, for example "longer than 1 week"; the first time it reads unknown), and the error message the integration reported, cleaned and cut to 300 characters. It never sends the entry's title (often an account email), its settings, or anything about its devices or entities. The error text is read only as a description, never as instructions, and the three answers it can choose between are fixed in code.
 
 To see exactly what was sent on the last completed run, open **Developer tools > States**, find the check's sensor, and look at its `last_payload` attribute. A run that fails partway leaves the previous run's payload in place.
 
@@ -125,6 +132,8 @@ Area suggestions skip service devices such as add-ons and accounts, disabled dev
 
 Device class suggestions skip sensors with no unit, sensors that already have a device class (their own or one set by their integration), disabled sensors, sensors or devices carrying the label you chose to exclude, Gut Check's own sensors, and units that no device class accepts.
 
+The stuck integration check only looks at integrations stuck retrying or stopped with a setup error; ignored and disabled integrations never start, so they are never included, and one Home Assistant is already asking you to sign in to again is counted with no question and no card. It does not use the label you chose to exclude, because it reads an integration's setup state and error, never its entities or devices, and never acts, so an integration behind a lock or alarm is checked like any other.
+
 ### Restored entities
 
 A restored entity is one its integration no longer provides. The health check sorts it as safe to remove without asking the model once it has been gone for 31 days, as long as its integration is still loaded or it has none. If the recorder keeps less history than that (`purge_keep_days`, 10 days by default) and has recorded the outage, being gone for that whole history is enough. With the recorder off this rarely applies, because a restart resets the entity's last-changed time, the only other date Gut Check has. These entities carry no confidence value in the sensor's attributes.
@@ -141,6 +150,8 @@ Each enabled check gets one sensor. Its state is how many of that check's Repair
 
 `sensor.gut_check_device_class_suggestions` counts the device class cards waiting in Repairs, held back the same way. Its attributes list each suggested sensor with its class and confidence, plus an `unsure` list for the rest.
 
+The stuck integration check's sensor, `sensor.gut_check_stuck_integration_check`, counts the open sign-in-problem and broken-for-good cards. Its attributes list every stuck integration by group with its integration name, title, when Gut Check first saw it failing, how long, and confidence. `reauth_in_progress` true means Home Assistant's own sign-in card already covers it, so there is no Gut Check card for it. Passing glitches are listed too, but never get a card, plus an `unsure` list for the rest.
+
 ### Repairs cards
 
 Worth-fixing entities get one card each under **Settings > Repairs**. A card clears itself once the entity it names is available again. Ignoring a card hides it and Gut Check remembers that choice on later runs.
@@ -150,6 +161,8 @@ A possibly-breaking update gets one card, linking to its release notes where the
 An area suggestion gets one card per device, up to ten new cards per run, most confident first; the rest wait for a later run or a button press. A card clears when you assign its area, when the device gets an area another way or stops qualifying, or when a later run no longer suggests an area for it. Choosing not to have an area suggested moves the card to your ignored repairs, where it stays for as long as the device still qualifies, including across turning area suggestions off and back on. If the device or the suggested area changed by the time you open a card, assigning does nothing, tells you so, and removes the card.
 
 A device class suggestion gets one card per sensor, up to ten new cards per run, most confident first. A card clears when you set its class, when the sensor gets a class another way or stops qualifying, or when a later run no longer suggests a class for it. Choosing not to have a class suggested moves the card to your ignored repairs, where it stays for as long as the sensor still qualifies, including across turning device class suggestions off and back on. If the sensor changed by the time you open a card, setting a class does nothing and tells you so.
+
+The stuck integration check raises one card per sign-in problem or broken-for-good integration, linking to that integration's page. It clears as soon as the integration loads again, is disabled, or is removed, but stays through a retry that fails again. Ignoring a card hides it while Gut Check keeps sorting the integration the same way, even if it moves between sign-in problem and broken for good; turning the check off clears its cards, ignored ones included.
 
 ### Changing a class back
 
