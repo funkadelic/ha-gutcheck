@@ -8,7 +8,6 @@ from typing import Any
 from homeassistant.config_entries import ConfigEntryDisabler
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryError, ConfigEntryNotReady
-from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
@@ -20,7 +19,6 @@ from custom_components.gutcheck.const import (
     ISSUE_CONFIG_ENTRY_DEAD,
     ISSUE_CONFIG_ENTRY_NEEDS_REAUTH,
     OPTION_NONE,
-    RECIPE_CONFIG_ENTRIES,
 )
 from custom_components.gutcheck.recipes.config_entry_const import (
     CONFIG_ENTRY_OPTIONS,
@@ -30,20 +28,7 @@ from custom_components.gutcheck.recipes.config_entry_const import (
 )
 from custom_components.gutcheck.recipes.config_entry_repairs import ConfigEntryIssueTracker
 
-from .conftest import api_response, area_answer, posted_bodies, register_jev_responses, triage_sensor_entity_id
-
-
-def _triage_button_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
-    """The stuck integration check's Run button entity id."""
-    entity_id = er.async_get(hass).async_get_entity_id("button", DOMAIN, f"{entry.entry_id}_{RECIPE_CONFIG_ENTRIES}_run")
-    assert entity_id is not None
-    return entity_id
-
-
-async def _press_run(hass: HomeAssistant, entry: MockConfigEntry) -> None:
-    """Press the stuck integration check's Run button and let its background run finish."""
-    await hass.services.async_call("button", "press", {"entity_id": _triage_button_entity_id(hass, entry)}, blocking=True)
-    await hass.async_block_till_done(wait_background_tasks=True)
+from .conftest import api_response, area_answer, posted_bodies, press_triage_run, register_jev_responses, triage_sensor_entity_id
 
 
 def _issue_id(entry_id: str) -> str:
@@ -113,7 +98,7 @@ async def test_kind_flip_keeps_dismissed_version(
 
     aioclient_mock.clear_requests()
     register_jev_responses(aioclient_mock, [api_response({"c0": area_answer(OPTION_DEAD, 0.9, CONFIG_ENTRY_OPTIONS)})])
-    await _press_run(hass, triage_entry)
+    await press_triage_run(hass, triage_entry)
 
     registry = ir.async_get(hass)
     issue = registry.async_get_issue(DOMAIN, issue_id)
@@ -167,7 +152,7 @@ async def test_transient_and_unsure_raise_no_card_and_clear_a_stale_one(
             )
         ],
     )
-    await _press_run(hass, triage_entry)
+    await press_triage_run(hass, triage_entry)
 
     assert registry.async_get_issue(DOMAIN, _issue_id(dead_then_transient.entry_id)) is None
 
@@ -211,15 +196,30 @@ async def test_placeholders_never_carry_reason_and_an_empty_or_markdown_title_is
     assert "\\[Evil\\]" in markdown_issue.translation_placeholders["title"]
 
 
-async def test_a_card_is_never_raised_for_a_gone_disabled_or_loaded_entry_at_sync_time(hass: HomeAssistant) -> None:
-    """sync skips an item whose entry no longer exists, is disabled, or has already loaded."""
+async def test_a_card_is_never_raised_for_a_gone_disabled_or_loaded_entry_at_sync_time(
+    hass: HomeAssistant, failing_entry: Any
+) -> None:
+    """sync skips an item whose entry no longer exists, is disabled, or has already loaded; a stuck one still gets its card."""
+    disabled = await failing_entry("disabled_hub", ConfigEntryError("offline"), title="Disabled", entry_id="disabled_entry")
+    assert await hass.config_entries.async_set_disabled_by(disabled.entry_id, ConfigEntryDisabler.USER)
+    await failing_entry("loaded_hub", None, title="Loaded", entry_id="loaded_entry")
+    await failing_entry("stuck_hub", ConfigEntryError("offline"), title="Stuck", entry_id="stuck_entry")
+    await hass.async_block_till_done()
+
     tracker = ConfigEntryIssueTracker()
     items = [
-        {"entry_id": "does_not_exist", "integration": "ghost_hub", "title": "Ghost", "first_seen": "", "failing_for": ""},
+        {"entry_id": entry_id, "integration": domain, "title": domain, "first_seen": "", "failing_for": ""}
+        for entry_id, domain in (
+            ("does_not_exist", "ghost_hub"),
+            ("disabled_entry", "disabled_hub"),
+            ("loaded_entry", "loaded_hub"),
+            ("stuck_entry", "stuck_hub"),
+        )
     ]
     tracker.sync(hass, [], items)
+    tracker.shutdown()
 
-    assert [issue_id for domain, issue_id in ir.async_get(hass).issues if domain == DOMAIN] == []
+    assert [issue_id for domain, issue_id in ir.async_get(hass).issues if domain == DOMAIN] == [_issue_id("stuck_entry")]
 
 
 async def test_setup_retry_card_survives_a_failed_retry_and_clears_when_it_succeeds(

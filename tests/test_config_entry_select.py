@@ -14,28 +14,15 @@ from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry, MockModule, mock_integration, mock_platform
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import CONF_CRITICAL_LABEL, DOMAIN, OPTION_NONE, RECIPE_CONFIG_ENTRIES
+from custom_components.gutcheck.const import CONF_CRITICAL_LABEL, DOMAIN, OPTION_NONE
 from custom_components.gutcheck.recipes.config_entries import ConfigEntryRecipe
 from custom_components.gutcheck.recipes.config_entry_const import OPTION_DEAD, OPTION_NEEDS_REAUTH, OPTION_TRANSIENT
 from custom_components.gutcheck.recipes.gate import classify
 from custom_components.gutcheck.recipes.shapes import Batch, RecipeResult
 
-from .conftest import api_response, area_answer, posted_bodies, register_jev_responses, triage_sensor_entity_id
+from .conftest import api_response, area_answer, posted_bodies, press_triage_run, register_jev_responses, triage_sensor_entity_id
 
 _OPTIONS = (OPTION_TRANSIENT, OPTION_NEEDS_REAUTH, OPTION_DEAD)
-
-
-def _triage_button_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
-    """The stuck integration check's Run button entity id."""
-    entity_id = er.async_get(hass).async_get_entity_id("button", DOMAIN, f"{entry.entry_id}_{RECIPE_CONFIG_ENTRIES}_run")
-    assert entity_id is not None
-    return entity_id
-
-
-async def _press_run(hass: HomeAssistant, entry: MockConfigEntry) -> None:
-    """Press the stuck integration check's Run button and let its background run finish."""
-    await hass.services.async_call("button", "press", {"entity_id": _triage_button_entity_id(hass, entry)}, blocking=True)
-    await hass.async_block_till_done(wait_background_tasks=True)
 
 
 def _reauth_flow_id(hass: HomeAssistant, domain: str) -> str:
@@ -142,8 +129,12 @@ async def test_entries_asked_in_entry_id_order_and_stable_across_runs(
     assert await hass.config_entries.async_setup(triage_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
+    await press_triage_run(hass, triage_entry)
+
     bodies = posted_bodies(aioclient_mock)
+    assert len(bodies) == 2
     assert [item["integration"] for item in bodies[0]["state"]["entries"]] == ["alpha_hub", "zeta_hub"]
+    assert bodies[1] == bodies[0]
 
 
 async def test_reauth_active_entry_is_skipped_and_counted_with_no_gutcheck_card(
@@ -195,7 +186,7 @@ async def test_entry_is_asked_and_carded_after_its_reauth_flow_is_aborted(
     await hass.async_block_till_done(wait_background_tasks=True)
 
     register_jev_responses(aioclient_mock, [api_response({"c0": area_answer(OPTION_NEEDS_REAUTH, 0.9, _OPTIONS)})])
-    await _press_run(hass, triage_entry)
+    await press_triage_run(hass, triage_entry)
 
     assert len(posted_bodies(aioclient_mock)) == 1
     registry = ir.async_get(hass)
@@ -273,13 +264,13 @@ async def test_failing_for_carries_first_seen_and_buckets_by_elapsed_days(
 
     freezer.move_to("2026-01-09T00:00:01-08:00")  # +8 days
     register_jev_responses(aioclient_mock, [api_response({"c0": area_answer(OPTION_NONE, 0.9, _OPTIONS)})])
-    await _press_run(hass, triage_entry)
+    await press_triage_run(hass, triage_entry)
     second_body = posted_bodies(aioclient_mock)[1]
     assert second_body["state"]["entries"][0]["failing_for"] == "longer than 1 week"
 
     freezer.move_to("2026-01-30T00:00:01-08:00")  # +29 days from first sight
     register_jev_responses(aioclient_mock, [api_response({"c0": area_answer(OPTION_NONE, 0.9, _OPTIONS)})])
-    await _press_run(hass, triage_entry)
+    await press_triage_run(hass, triage_entry)
     third_body = posted_bodies(aioclient_mock)[2]
     assert third_body["state"]["entries"][0]["failing_for"] == "longer than 4 weeks"
 
@@ -315,11 +306,11 @@ def test_first_seen_reads_a_missing_or_unparseable_value_as_now() -> None:
     from custom_components.gutcheck.recipes.config_entry_describe import first_seen
 
     now = dt_util.utcnow()
-    for bad_value in (None, 42, "not-a-date"):
+    for prior in ({"entry_id": "e1"}, *({"entry_id": "e1", "first_seen": bad} for bad in (None, 42, "not-a-date"))):
         previous: RecipeResult = {
             "last_run": "",
             "counts": {},
-            "items": {OPTION_TRANSIENT: [{"entry_id": "e1", "first_seen": bad_value}]},
+            "items": {OPTION_TRANSIENT: [prior]},
             "unsure": [],
             "last_payload": None,
         }

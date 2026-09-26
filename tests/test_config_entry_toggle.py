@@ -6,7 +6,6 @@ from typing import Any
 
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryError
-from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.storage import Store
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -24,12 +23,7 @@ from custom_components.gutcheck.const import (
 from custom_components.gutcheck.recipes.config_entry_const import CONFIG_ENTRY_OPTIONS, OPTION_DEAD
 from custom_components.gutcheck.recipes.shapes import recipe_store_key
 
-from .conftest import api_response, area_answer, find_triage_sensor, posted_bodies, register_jev_responses
-
-
-def _triage_button_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
-    """The stuck integration check's Run button entity id, or None if it was not created."""
-    return er.async_get(hass).async_get_entity_id("button", DOMAIN, f"{entry.entry_id}_{RECIPE_CONFIG_ENTRIES}_run")
+from .conftest import api_response, area_answer, find_triage_button, find_triage_sensor, posted_bodies, register_jev_responses
 
 
 def _triage_issue_ids(hass: HomeAssistant) -> set[str]:
@@ -66,7 +60,7 @@ async def test_off_by_default_then_disable_reenable_run_and_removal_timeline(
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert find_triage_sensor(hass, mock_config_entry) is None
-    assert _triage_button_entity_id(hass, mock_config_entry) is None
+    assert find_triage_button(hass, mock_config_entry) is None
     assert posted_bodies(aioclient_mock) == []
 
     both_dead = api_response(
@@ -86,7 +80,7 @@ async def test_off_by_default_then_disable_reenable_run_and_removal_timeline(
     ir.async_ignore_issue(hass, DOMAIN, ignored_issue_id, True)
 
     # Pressing Run stuck integration check posts one more request, first question id c0.
-    button_entity_id = _triage_button_entity_id(hass, mock_config_entry)
+    button_entity_id = find_triage_button(hass, mock_config_entry)
     assert button_entity_id is not None
     aioclient_mock.clear_requests()
     register_jev_responses(aioclient_mock, [both_dead])
@@ -102,7 +96,7 @@ async def test_off_by_default_then_disable_reenable_run_and_removal_timeline(
     await _switch_config_entries(hass, mock_config_entry, False)
 
     assert find_triage_sensor(hass, mock_config_entry) is None
-    assert _triage_button_entity_id(hass, mock_config_entry) is None
+    assert find_triage_button(hass, mock_config_entry) is None
     assert _triage_issue_ids(hass) == set()
     assert len(posted_bodies(aioclient_mock)) == posted_before
 

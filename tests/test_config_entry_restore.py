@@ -7,7 +7,6 @@ from typing import Any
 from homeassistant.config_entries import ConfigEntryDisabler, ConfigEntryState
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryError
-from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -27,6 +26,7 @@ from .conftest import (
     api_response,
     area_answer,
     posted_bodies,
+    press_triage_run,
     register_jev_responses,
     restart_config_entry,
     triage_sensor_entity_id,
@@ -38,19 +38,6 @@ TRIAGE_STORE_KEY = recipe_store_key(RECIPE_CONFIG_ENTRIES)
 def _issue_id(entry_id: str) -> str:
     """The advisory card's issue id for entry_id."""
     return f"{CONFIG_ENTRY_ISSUE_PREFIX}{entry_id}"
-
-
-def _triage_button_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
-    """The stuck integration check's Run button entity id."""
-    entity_id = er.async_get(hass).async_get_entity_id("button", DOMAIN, f"{entry.entry_id}_{RECIPE_CONFIG_ENTRIES}_run")
-    assert entity_id is not None
-    return entity_id
-
-
-async def _press_run(hass: HomeAssistant, entry: MockConfigEntry) -> None:
-    """Press the stuck integration check's Run button and let its background run finish."""
-    await hass.services.async_call("button", "press", {"entity_id": _triage_button_entity_id(hass, entry)}, blocking=True)
-    await hass.async_block_till_done(wait_background_tasks=True)
 
 
 def _stored_item(entry_id: str, *, integration: str, first_seen: str, extra: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -348,7 +335,7 @@ async def test_first_seen_survives_a_restart_and_buckets_correctly_on_the_next_r
     assert posted_bodies(aioclient_mock) == []
 
     register_jev_responses(aioclient_mock, [api_response({"c0": area_answer(OPTION_DEAD, 0.9, CONFIG_ENTRY_OPTIONS)})])
-    await _press_run(hass, triage_entry)
+    await press_triage_run(hass, triage_entry)
 
     body = posted_bodies(aioclient_mock)[0]
     assert body["state"]["entries"][0]["failing_for"] == "longer than 1 week"

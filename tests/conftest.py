@@ -313,6 +313,19 @@ def triage_sensor_entity_id(hass: HomeAssistant, entry: MockConfigEntry) -> str:
     return entity_id
 
 
+def find_triage_button(hass: HomeAssistant, entry: MockConfigEntry) -> str | None:
+    """The stuck integration check's Run button entity id, or None when the recipe is switched off."""
+    return er.async_get(hass).async_get_entity_id("button", DOMAIN, f"{entry.entry_id}_{RECIPE_CONFIG_ENTRIES}_run")
+
+
+async def press_triage_run(hass: HomeAssistant, entry: MockConfigEntry) -> None:
+    """Press the stuck integration check's Run button and let its background run finish."""
+    entity_id = find_triage_button(hass, entry)
+    assert entity_id is not None
+    await hass.services.async_call("button", "press", {"entity_id": entity_id}, blocking=True)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+
 async def restart_config_entry(hass: HomeAssistant, entry: MockConfigEntry) -> None:
     """Unload, reload the issue registry from storage the way HA startup does, then set up again."""
     assert await hass.config_entries.async_unload(entry.entry_id)
