@@ -1,0 +1,26 @@
+custom_components/gutcheck/recipes/critical_label_const.py
+  s_0ca126db176e56::t_419b6c9401a622 39-42
+  s_0ca126db176e56::t_cd7f17ea7c9ce9 7
+custom_components/gutcheck/recipes/critical_label_describe.py
+  s_0ca126db176e56::t_2b497e3c4e6d1e 50-57,60-62,66
+  s_0ca126db176e56::t_3fec6b7bbc9ebd 15-20
+  s_0ca126db176e56::t_687fe209e78ee1 67
+tests/test_critical_label_select.py
+  s_0ca126db176e56::t_0b0cf01c5999a0 80-116
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4173847238156b78e66d14991766015f6cda8bfa",
+  "prompts": {},
+  "sessions": {
+    "s_0ca126db176e56": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "efd7e666-75f2-4b3e-b4f5-327f7c3687ab",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
