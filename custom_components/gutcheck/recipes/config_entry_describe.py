@@ -17,7 +17,7 @@ from .shapes import Item, RecipeResult
 # Linear on any input: each match starts at "://" or at the start of a run, and possessive quantifiers never backtrack.
 _URL_USERINFO_RE = re.compile(r"://[^\s/@]++@")
 _URL_QUERY_RE = re.compile(r"(://[^\s?#]++)[?#]\S*+")
-_EMAIL_RE = re.compile(r"(?<![\w.+-])[\w.+-]++@[\w-]++(?:\.[\w-]++)++")
+_EMAIL_RE = re.compile(r"(?<![\w.+-])[\w.+-]++@[\w-]++\.[\w.-]++")
 
 TARGET_STATES = frozenset({ConfigEntryState.SETUP_RETRY, ConfigEntryState.SETUP_ERROR})
 # An ignored or user-disabled entry is never set up, so it stays not loaded and never matches.
