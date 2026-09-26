@@ -228,10 +228,10 @@ async def test_owning_entry_state_gates_the_leftover_rule(
         assert batch.carried.get(OPTION_SAFE_TO_REMOVE, []) == []
 
 
-async def test_restored_leftover_lock_and_critical_sensor_are_neither_asked_nor_carried(
+async def test_restored_leftover_lock_is_neither_asked_nor_carried_but_the_critical_sensor_is_carried(
     hass: HomeAssistant, freezer: Any
 ) -> None:
-    """A restored, long-gone lock and a restored, long-gone critical-labelled sensor never reach the rule."""
+    """A restored, long-gone lock never reaches the rule; a restored, long-gone labelled sensor is still carried by it."""
     registry = er.async_get(hass)
     freezer.move_to(_T0)
     lock = registry.async_get_or_create("lock", "test", "unique_leftover_lock")
@@ -244,4 +244,4 @@ async def test_restored_leftover_lock_and_critical_sensor_are_neither_asked_nor_
     batch = await HealthRecipe(critical_label="critical").async_prepare(hass)
 
     assert batch.subjects == {}
-    assert batch.carried.get(OPTION_SAFE_TO_REMOVE, []) == []
+    assert [item["entity_id"] for item in batch.carried.get(OPTION_SAFE_TO_REMOVE, [])] == [critical.entity_id]

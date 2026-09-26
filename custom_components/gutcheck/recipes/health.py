@@ -91,18 +91,17 @@ class HealthRecipe:
         return LEAN_NEEDS_ATTENTION if attention_clears else OPTION_EXPECTED
 
     async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None, *, force: bool = False) -> Batch:
-        """Select unavailable, non-critical entities and build the request.
+        """Select unavailable entities and build the request.
 
-        previous and force are unused, since nothing carries over from the
-        last run. A long-gone, restored entity whose owning integration is
-        loaded (or which has none) is decided in code and carried straight
-        into safe_to_remove; everything else is asked.
+        A labelled entity is still selected: the health check only reads availability and never acts. previous and force are
+        unused, since nothing carries over from the last run. A long-gone, restored entity whose owning integration is loaded (or
+        which has none) is decided in code and carried into safe_to_remove; everything else is asked.
         """
         registry = er.async_get(hass)
         excluded_by_safety_rules = 0
         selected: list[tuple[er.RegistryEntry, State]] = []
         for entry in registry.entities.values():
-            if self._safety.excludes(hass, entry):
+            if self._safety.always_excludes(entry):
                 excluded_by_safety_rules += 1
                 continue
             state = hass.states.get(entry.entity_id)

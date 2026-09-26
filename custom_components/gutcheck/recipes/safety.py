@@ -34,11 +34,23 @@ class SafetyRules:
                 return True
         return False
 
+    def always_excludes(self, entry: er.RegistryEntry) -> bool:
+        """Whether no recipe, including the home health check, may ever select this entry.
+
+        Disabled, Gut Check's own platform, and BLOCKED_DOMAINS (locks, alarm
+        panels, covers) are excluded whether or not the entry carries the
+        critical label.
+        """
+        return bool(entry.disabled or entry.platform == DOMAIN or entry.domain in BLOCKED_DOMAINS)
+
     def excludes(self, hass: HomeAssistant, entry: er.RegistryEntry) -> bool:
-        """Whether this registry entry is out of every recipe's reach."""
-        if entry.disabled or entry.platform == DOMAIN or entry.domain in BLOCKED_DOMAINS:
-            return True
-        return self.is_critical(hass, entry)
+        """Whether this registry entry is out of reach for every recipe but the home health check.
+
+        Adds the critical label on top of always_excludes: the label means
+        never acted on or changed, not never sent, so only the home health
+        check (which only reads availability) selects a labelled entry.
+        """
+        return self.always_excludes(entry) or self.is_critical(hass, entry)
 
     def excludes_device(self, hass: HomeAssistant, device: dr.DeviceEntry) -> bool:
         """Whether this device is out of the area recipe's reach.

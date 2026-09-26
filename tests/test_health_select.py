@@ -12,12 +12,17 @@ from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import issue_registry as ir
+from homeassistant.helpers import label_registry as lr
 from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import DOMAIN
+from custom_components.gutcheck.const import CONF_CRITICAL_LABEL, DOMAIN, HEALTH_ISSUE_PREFIX, OPTION_WORTH_FIXING
 from custom_components.gutcheck.describe import bucket_duration, bucket_longer_than
 from custom_components.gutcheck.recipes.health import HealthRecipe
 from custom_components.gutcheck.recipes.health_const import HEALTH_CRITERIA
+
+from .conftest import api_response, choice_answer, posted_bodies, register_jev_responses
 
 PAYLOAD_FIELDS = [
     "domain",
@@ -59,8 +64,8 @@ def test_health_criteria_quote_every_longer_than_word(days: int) -> None:
     assert f'"{bucket_longer_than(days)}"' in combined
 
 
-async def test_critical_labelled_entity_is_excluded(hass: HomeAssistant) -> None:
-    """An entity carrying the configured critical label is never selected."""
+async def test_critical_labelled_entity_is_selected(hass: HomeAssistant) -> None:
+    """An entity carrying the configured critical label is still selected: the label means never acted on, not never sent."""
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "unique_critical")
     registry.async_update_entity(entry.entity_id, labels={"critical"})
@@ -68,11 +73,11 @@ async def test_critical_labelled_entity_is_excluded(hass: HomeAssistant) -> None
 
     batch = await HealthRecipe(critical_label="critical").async_prepare(hass)
 
-    assert batch.subjects == {}
+    assert len(batch.subjects) == 1
 
 
-async def test_critical_labelled_device_excludes_every_entity(hass: HomeAssistant) -> None:
-    """A critical label on the device excludes every entity on it, not just a labelled entity."""
+async def test_critical_labelled_device_still_selects_every_entity(hass: HomeAssistant) -> None:
+    """A critical label on the device does not exclude the entities on it either."""
     config_entry = MockConfigEntry(domain="test")
     config_entry.add_to_hass(hass)
     device_registry = dr.async_get(hass)
@@ -85,7 +90,53 @@ async def test_critical_labelled_device_excludes_every_entity(hass: HomeAssistan
 
     batch = await HealthRecipe(critical_label="critical").async_prepare(hass)
 
+    assert len(batch.subjects) == 1
+
+
+async def test_critical_labelled_lock_is_still_not_selected(hass: HomeAssistant) -> None:
+    """A lock stays out of the health check even carrying the critical label (D-02)."""
+    registry = er.async_get(hass)
+    entry = registry.async_get_or_create("lock", "test", "unique_critical_lock")
+    registry.async_update_entity(entry.entity_id, labels={"critical"})
+    hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
+
+    batch = await HealthRecipe(critical_label="critical").async_prepare(hass)
+
     assert batch.subjects == {}
+
+
+async def test_labelled_unavailable_binary_sensor_gets_a_worth_fixing_card_and_clears_on_recovery(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
+) -> None:
+    """A critical-labelled entity still raises a worth-fixing card, and the card clears once it recovers."""
+    label = lr.async_get(hass).async_create("Critical")
+    registry = er.async_get(hass)
+    entry = registry.async_get_or_create("binary_sensor", "test", "unique_labelled_moisture", original_device_class="moisture")
+    registry.async_update_entity(entry.entity_id, labels={label.label_id})
+    hass.states.async_set(entry.entity_id, STATE_UNAVAILABLE)
+
+    entry_with_label = MockConfigEntry(domain=DOMAIN, data=mock_config_entry.data, options={CONF_CRITICAL_LABEL: label.label_id})
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    entry_with_label.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry_with_label.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    bodies = posted_bodies(aioclient_mock)
+    assert len(bodies) == 1
+    assert len(bodies[0]["state"]["entities"]) == 1
+    assert bodies[0]["state"]["entities"][0]["domain"] == "binary_sensor"
+    assert bodies[0]["state"]["entities"][0]["device_class"] == "moisture"
+
+    issue_id = f"{HEALTH_ISSUE_PREFIX}{entry.id}"
+    issue = ir.async_get(hass).async_get_issue(DOMAIN, issue_id)
+    assert issue is not None
+    assert issue.translation_placeholders is not None
+    assert issue.translation_placeholders["entity_id"] == entry.entity_id
+
+    hass.states.async_set(entry.entity_id, "off")
+    await hass.async_block_till_done()
+
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
 
 
 async def test_no_critical_label_set_only_applies_the_domain_rule(hass: HomeAssistant) -> None:
