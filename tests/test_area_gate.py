@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from homeassistant.core import HomeAssistant
 
-from custom_components.gutcheck.const import AREA_CONFIDENCE_THRESHOLD, OPTION_SUGGESTED
+from custom_components.gutcheck.const import OPTION_SUGGESTED
+from custom_components.gutcheck.recipes.area_const import AREA_CONFIDENCE_THRESHOLD
 from custom_components.gutcheck.recipes.areas import AreaRecipe
 from custom_components.gutcheck.recipes.gate import classify
 from custom_components.gutcheck.recipes.shapes import Batch

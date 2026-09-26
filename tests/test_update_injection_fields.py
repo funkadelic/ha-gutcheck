@@ -12,8 +12,8 @@ from typing import Any
 import pytest
 from homeassistant.core import HomeAssistant
 
-from custom_components.gutcheck.const import UPDATE_CRITERIA, UPDATE_INSTRUCTIONS, UPDATE_TITLE_MAX_CHARS
 from custom_components.gutcheck.describe import clean_release_notes
+from custom_components.gutcheck.recipes.update_const import UPDATE_CRITERIA, UPDATE_INSTRUCTIONS, UPDATE_TITLE_MAX_CHARS
 from custom_components.gutcheck.recipes.updates import UpdateRecipe
 
 from .conftest import FakeUpdateEntity, install_update_entities, load_fixture, register_pending_update

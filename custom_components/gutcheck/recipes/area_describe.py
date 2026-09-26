@@ -9,8 +9,9 @@ from homeassistant.helpers import area_registry as ar
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
-from ..const import AREA_NAME_MAX_CHARS, AREA_NONE_DESCRIPTION, DEVICE_TEXT_MAX_CHARS, OPTION_NONE
+from ..const import DEVICE_TEXT_MAX_CHARS, OPTION_NONE
 from ..describe import clean_text
+from .area_const import AREA_NAME_MAX_CHARS, AREA_NONE_DESCRIPTION
 from .shapes import Item
 
 

@@ -9,8 +9,9 @@ from homeassistant.helpers import issue_registry as ir
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import AREA_ISSUE_PREFIX, DOMAIN, MAX_NEW_AREA_CARDS_PER_RUN, OPTION_NONE, RECIPE_AREAS
+from custom_components.gutcheck.const import AREA_ISSUE_PREFIX, DOMAIN, OPTION_NONE, RECIPE_AREAS
 from custom_components.gutcheck.recipes.area_cards import sync_area_cards
+from custom_components.gutcheck.recipes.area_const import MAX_NEW_AREA_CARDS_PER_RUN
 from custom_components.gutcheck.recipes.safety import SafetyRules
 
 from .conftest import (

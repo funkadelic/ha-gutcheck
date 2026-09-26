@@ -15,9 +15,9 @@ from custom_components.gutcheck.const import (
     CONF_DAILY_BUDGET,
     DEFAULT_DAILY_BUDGET,
     DOMAIN,
-    MAX_NEW_AREA_CARDS_PER_RUN,
     RECIPE_AREAS,
 )
+from custom_components.gutcheck.recipes.area_const import MAX_NEW_AREA_CARDS_PER_RUN
 
 from .conftest import (
     api_response,

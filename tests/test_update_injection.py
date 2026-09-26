@@ -19,13 +19,13 @@ from custom_components.gutcheck.const import (
     MODEL,
     OPTION_POSSIBLY_BREAKING,
     RELEASE_NOTES_MAX_CHARS,
-    UPDATE_CONFIDENCE_THRESHOLD,
     UPDATE_OPTIONS,
     UPDATES_ISSUE_PREFIX,
 )
 from custom_components.gutcheck.describe import clean_release_notes
 from custom_components.gutcheck.recipes.gate import classify, gate_score
 from custom_components.gutcheck.recipes.shapes import Batch
+from custom_components.gutcheck.recipes.update_const import UPDATE_CONFIDENCE_THRESHOLD
 from custom_components.gutcheck.recipes.updates import UpdateRecipe
 
 from .conftest import load_fixture, update_item, update_result

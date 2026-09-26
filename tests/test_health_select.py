@@ -14,9 +14,10 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.gutcheck.const import DOMAIN, HEALTH_CRITERIA
+from custom_components.gutcheck.const import DOMAIN
 from custom_components.gutcheck.describe import bucket_duration, bucket_longer_than
 from custom_components.gutcheck.recipes.health import HealthRecipe
+from custom_components.gutcheck.recipes.health_const import HEALTH_CRITERIA
 
 PAYLOAD_FIELDS = [
     "domain",

@@ -50,12 +50,12 @@ from custom_components.gutcheck.const import (
     HEALTH_OPTIONS,
     OPTION_NONE,
     RECIPE_CONFIG_ENTRIES,
-    UPDATE_CRITERIA,
     UPDATE_OPTIONS,
 )
 from custom_components.gutcheck.recipes.device_class_cards import sync_device_class_cards
 from custom_components.gutcheck.recipes.safety import SafetyRules
 from custom_components.gutcheck.recipes.shapes import Item, RecipeResult
+from custom_components.gutcheck.recipes.update_const import UPDATE_CRITERIA
 
 ALL_HEALTH_OPTIONS = (*HEALTH_OPTIONS, OPTION_NONE)
 

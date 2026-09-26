@@ -14,14 +14,9 @@ from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import (
-    DEVICE_CLASS_ISSUE_PREFIX,
-    DEVICE_CLASS_NONE_DESCRIPTION,
-    DOMAIN,
-    OPTION_NONE,
-    RECIPE_DEVICE_CLASS,
-)
+from custom_components.gutcheck.const import DEVICE_CLASS_ISSUE_PREFIX, DOMAIN, OPTION_NONE, RECIPE_DEVICE_CLASS
 from custom_components.gutcheck.recipes.device_class_cards import sync_device_class_cards
+from custom_components.gutcheck.recipes.device_class_const import DEVICE_CLASS_NONE_DESCRIPTION
 from custom_components.gutcheck.recipes.safety import SafetyRules
 
 from .conftest import (

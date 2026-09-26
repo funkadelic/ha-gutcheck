@@ -6,7 +6,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
-from custom_components.gutcheck.const import AREA_NAME_MAX_CHARS, OPTION_NONE
+from custom_components.gutcheck.const import OPTION_NONE
+from custom_components.gutcheck.recipes.area_const import AREA_NAME_MAX_CHARS
 from custom_components.gutcheck.recipes.area_describe import area_options
 from custom_components.gutcheck.recipes.areas import AreaRecipe
 

@@ -17,18 +17,11 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 
 from custom_components.gutcheck.budget import BudgetGate, estimate_tokens
 from custom_components.gutcheck.client import GutCheckClient
-from custom_components.gutcheck.const import (
-    FAILED_RUN_RETRY,
-    HEALTH_CRITERIA,
-    HEALTH_INSTRUCTIONS,
-    MODEL,
-    OPTION_EXPECTED,
-    RECIPE_HEALTH,
-    STORE_VERSION,
-)
+from custom_components.gutcheck.const import FAILED_RUN_RETRY, MODEL, OPTION_EXPECTED, RECIPE_HEALTH, STORE_VERSION
 from custom_components.gutcheck.coordinator import RecipeCoordinator
 from custom_components.gutcheck.diagnostics import async_get_config_entry_diagnostics
 from custom_components.gutcheck.recipes.health import HealthRecipe
+from custom_components.gutcheck.recipes.health_const import HEALTH_CRITERIA, HEALTH_INSTRUCTIONS
 from custom_components.gutcheck.recipes.shapes import Batch, recipe_store_key
 
 from .conftest import (

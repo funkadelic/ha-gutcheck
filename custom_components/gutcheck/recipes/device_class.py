@@ -8,15 +8,10 @@ from typing import Any
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 
-from ..const import (
-    DEVICE_CLASS_CONFIDENCE_THRESHOLD,
-    DEVICE_CLASS_INSTRUCTIONS,
-    DEVICE_CLASS_ISSUE_PREFIX,
-    OPTION_SUGGESTED,
-    RECIPE_DEVICE_CLASS,
-)
+from ..const import DEVICE_CLASS_ISSUE_PREFIX, OPTION_SUGGESTED, RECIPE_DEVICE_CLASS
 from ..models import Question
 from .device_class_cards import sync_device_class_cards
+from .device_class_const import DEVICE_CLASS_CONFIDENCE_THRESHOLD, DEVICE_CLASS_INSTRUCTIONS
 from .device_class_describe import KNOWN_CLASSES, candidate_classes, class_names, criteria, describe, qualifies, qualifying_entry
 from .device_class_wording import instructions_for, template_for
 from .gate import gate_choice
