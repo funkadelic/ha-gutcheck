@@ -132,7 +132,7 @@ Area suggestions skip service devices such as add-ons and accounts, disabled dev
 
 Device class suggestions skip sensors with no unit, sensors that already have a device class (their own or one set by their integration), disabled sensors, sensors or devices carrying the label you chose to exclude, Gut Check's own sensors, and units that no device class accepts.
 
-The stuck integration check only looks at integrations stuck retrying or stopped with a setup error; ignored and disabled integrations never start, so they are never included, and one Home Assistant is already asking you to sign in to again is counted with no question and no card. It does not use the label you chose to exclude, because it reads an integration's setup state and error, never its entities or devices, and never acts, so an integration behind a lock or alarm is checked like any other.
+The stuck integration check only looks at integrations stuck retrying or stopped with a setup error; ignored and disabled integrations never start, so they are never included, and an integration Home Assistant is already asking you to sign in to again is counted with no question and no card. It ignores the label you chose to exclude, because it reads only an integration's setup state and error, never its entities or devices, and it never acts. An integration behind a lock or alarm is checked like any other.
 
 ### Restored entities
 
@@ -150,7 +150,7 @@ Each enabled check gets one sensor. Its state is how many of that check's Repair
 
 `sensor.gut_check_device_class_suggestions` counts the device class cards waiting in Repairs, held back the same way. Its attributes list each suggested sensor with its class and confidence, plus an `unsure` list for the rest.
 
-The stuck integration check's sensor, `sensor.gut_check_stuck_integration_check`, counts the open sign-in-problem and broken-for-good cards. Its attributes list every stuck integration by group with its integration name, title, when Gut Check first saw it failing, how long, and confidence. `reauth_in_progress` true means Home Assistant's own sign-in card already covers it, so there is no Gut Check card for it. Passing glitches are listed too, but never get a card, plus an `unsure` list for the rest.
+The stuck integration check's sensor, `sensor.gut_check_stuck_integration_check`, counts the open sign-in-problem and broken-for-good cards. Its attributes list every stuck integration by group with its integration name, title, when Gut Check first saw it failing, how long, and confidence. `reauth_in_progress` true means Home Assistant's own sign-in card already covers it, so there is no Gut Check card for it. Passing glitches are listed too but never get a card, and an `unsure` list holds the rest.
 
 ### Repairs cards
 
@@ -162,7 +162,7 @@ An area suggestion gets one card per device, up to ten new cards per run, most c
 
 A device class suggestion gets one card per sensor, up to ten new cards per run, most confident first. A card clears when you set its class, when the sensor gets a class another way or stops qualifying, or when a later run no longer suggests a class for it. Choosing not to have a class suggested moves the card to your ignored repairs, where it stays for as long as the sensor still qualifies, including across turning device class suggestions off and back on. If the sensor changed by the time you open a card, setting a class does nothing and tells you so.
 
-The stuck integration check raises one card per sign-in problem or broken-for-good integration, linking to that integration's page. It clears as soon as the integration loads again, is disabled, or is removed, but stays through a retry that fails again. Ignoring a card hides it while Gut Check keeps sorting the integration the same way, even if it moves between sign-in problem and broken for good; turning the check off clears its cards, ignored ones included.
+The stuck integration check raises one card per sign-in problem or broken-for-good integration, linking to that integration's page. A card clears as soon as the integration loads again, is disabled, or is removed, but stays through a retry that fails again. Ignoring a card hides it while Gut Check keeps sorting the integration the same way, even if it moves between sign-in problem and broken for good; turning the check off clears its cards, ignored ones included.
 
 ### Changing a class back
 
