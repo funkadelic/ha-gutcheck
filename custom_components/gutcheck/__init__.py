@@ -20,6 +20,7 @@ from .const import (
     AREA_ISSUE_PREFIX,
     BUDGET_STORE_KEY,
     CONF_AREAS_ENABLED,
+    CONF_CONFIG_ENTRIES_ENABLED,
     CONF_CRITICAL_LABEL,
     CONF_DAILY_BUDGET,
     CONF_DEVICE_CLASS_ENABLED,
@@ -39,6 +40,7 @@ from .const import (
 )
 from .coordinator import RecipeCoordinator
 from .recipes.areas import AreaRecipe
+from .recipes.config_entries import ConfigEntryRecipe
 from .recipes.device_class import DeviceClassRecipe
 from .recipes.device_class_undo import AppliedClasses
 from .recipes.health import HealthRecipe
@@ -134,6 +136,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
         coordinators[device_class_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, device_class_recipe)
     else:
         _async_disable_recipe(hass, entry, DEVICE_CLASS_ISSUE_PREFIX, RECIPE_DEVICE_CLASS, keep_ignored=True)
+
+    # No options-flow toggle or disabled branch yet: switched on only by
+    # setting the option directly, until the toggle ships.
+    if entry.options.get(CONF_CONFIG_ENTRIES_ENABLED, False):
+        config_entry_recipe = ConfigEntryRecipe()
+        coordinators[config_entry_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, config_entry_recipe)
+        entry.async_on_unload(config_entry_recipe.shutdown)
 
     entry.runtime_data = GutCheckData(client=client, budget=budget, coordinators=coordinators, applied=applied)
     entry.async_on_unload(budget.async_start())

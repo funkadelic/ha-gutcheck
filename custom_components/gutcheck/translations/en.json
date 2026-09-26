@@ -71,6 +71,9 @@
       "device_class": {
         "name": "Device class suggestions"
       },
+      "config_entries": {
+        "name": "Stuck integration check"
+      },
       "tokens_today": {
         "name": "Tokens used today"
       },
@@ -90,6 +93,9 @@
       },
       "device_class_run": {
         "name": "Run device class suggestions"
+      },
+      "config_entries_run": {
+        "name": "Run stuck integration check"
       }
     }
   },
@@ -120,6 +126,14 @@
           "suggestion_ignored": "Gut Check will stop suggesting an area for this device. The card is now in your ignored repairs."
         }
       }
+    },
+    "config_entry_needs_reauth": {
+      "title": "{title} may need you to sign in again",
+      "description": "Home Assistant could not set up **{title}** ({integration}). Gut Check read the error it reported and thinks the saved sign-in stopped working. The link below opens the integration's page, where you can sign in again, reconfigure it or remove it. Gut Check never changes an integration itself, and ignoring this card keeps it hidden on later checks."
+    },
+    "config_entry_dead": {
+      "title": "{title} may not work again",
+      "description": "Home Assistant could not set up **{title}** ({integration}). Gut Check read the error it reported and thinks it will not work again as set up, for example because the device or account is gone. The link below opens the integration's page, where you can fix or remove it. Gut Check never changes an integration itself, and ignoring this card keeps it hidden on later checks."
     },
     "device_class_suggestion": {
       "title": "{entity_id} has no device class",
