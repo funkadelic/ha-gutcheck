@@ -1,0 +1,65 @@
+tests/test_cadence.py
+  s_777664af439b00::t_f256a9b71c5101 26,108,308,321
+tests/test_area_toggle.py
+  s_777664af439b00::t_f256a9b71c5101 31,79,95
+tests/test_health.py
+  s_777664af439b00::t_f256a9b71c5101 19,22-28,86,124,148,169,179
+tests/test_device_class_reject.py
+  s_777664af439b00::t_f256a9b71c5101 20,73,91
+tests/test_device_class.py
+  s_777664af439b00::t_f256a9b71c5101 17-23,31,63,103,120,138
+tests/test_device_class_select.py
+  s_777664af439b00::t_f256a9b71c5101 17,32,173,193
+tests/test_budget.py
+  s_777664af439b00::t_f256a9b71c5101 37-44,322,347,369
+tests/test_split_run.py
+  s_777664af439b00::t_f256a9b71c5101 38,89,204
+tests/test_updates.py
+  s_777664af439b00::t_f256a9b71c5101 32,77,104,135,168,301
+tests/test_options_flow.py
+  s_777664af439b00::t_f256a9b71c5101 29,37,92,170,181,205,214,337-338,349-350,368,378
+tests/test_device_class_size.py
+  s_777664af439b00::t_f256a9b71c5101 18,27,134
+tests/test_reauth.py
+  s_777664af439b00::t_f256a9b71c5101 15-20,26,70,91
+tests/conftest.py
+  s_777664af439b00::t_25959a44f2c9d1 313-316,318-328
+  s_777664af439b00::t_a3da7e5de7c89d 280-282,285-287
+  s_777664af439b00::t_501d1225d0d973 14,18,23,33,37-38,51-60
+  s_777664af439b00::t_bb9a33e511a745 45-46
+  s_777664af439b00::t_1745b0fceb23f5 22,24
+  s_777664af439b00::t_3e8a33a7c4ceba 302-310,329-339
+  s_777664af439b00::t_2c67c14a90c914 454-457,465-466
+  s_777664af439b00::t_503b1fd06edb75 292-299
+  s_777664af439b00::t_b4b43c05cdbd57 61
+tests/test_button.py
+  s_777664af439b00::t_f256a9b71c5101 29,68,85,99
+tests/test_device_class_toggle.py
+  s_777664af439b00::t_f256a9b71c5101 26,59,73,87,103
+tests/test_area_restore.py
+  s_777664af439b00::t_f256a9b71c5101 20,27,29,57,101,133,164,202
+tests/test_health_rules.py
+  s_777664af439b00::t_f256a9b71c5101 25,33,71,108
+tests/test_summary_sensor.py
+  s_777664af439b00::t_f256a9b71c5101 18,24,64,69,77,80,89
+tests/test_areas.py
+  s_777664af439b00::t_f256a9b71c5101 25,35,64,114,133,170
+tests/test_area_cards.py
+  s_777664af439b00::t_f256a9b71c5101 21,113,138,203,226
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "88c65b0824b3d58b951d467c733ae87a5c60d3ad",
+  "prompts": {},
+  "sessions": {
+    "s_777664af439b00": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "612ed214-183d-48f8-b562-7f4385a55936",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
