@@ -51,8 +51,8 @@ async def test_renaming_the_entity_keeps_the_same_issue_id_and_ignore(hass: Home
     assert issue.translation_placeholders["entity_id"] == "sensor.a_renamed"
 
 
-async def test_restore_drops_a_finding_labelled_critical_since_the_run(hass: HomeAssistant) -> None:
-    """Tagging an entity critical must retire its card, even on the free restore path."""
+async def test_restore_keeps_a_finding_labelled_critical_since_the_run(hass: HomeAssistant) -> None:
+    """Tagging an entity critical must not retire its card: the label means never acted on, not never sent."""
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "critical_later")
     recipe = HealthRecipe(critical_label="critical")
@@ -64,14 +64,13 @@ async def test_restore_drops_a_finding_labelled_critical_since_the_run(hass: Hom
     registry.async_update_entity(entry.entity_id, labels={"critical"})
     await recipe.restore(hass, result)
 
-    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}{entry.id}") is None
-    # Out of the result too, so the summary sensor does not keep listing it.
-    assert result["items"][OPTION_WORTH_FIXING] == []
-    assert result["counts"][OPTION_WORTH_FIXING] == 0
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}{entry.id}") is not None
+    assert result["items"][OPTION_WORTH_FIXING] != []
+    assert result["counts"][OPTION_WORTH_FIXING] == 1
 
 
-async def test_restore_drops_a_newly_critical_entity_from_every_bucket(hass: HomeAssistant) -> None:
-    """A critical entity must not sit in safe-to-remove either, waiting for the next paid run."""
+async def test_restore_keeps_a_newly_critical_entity_in_every_bucket(hass: HomeAssistant) -> None:
+    """A critical entity may still sit in safe-to-remove: the label no longer retires a finding from any bucket."""
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "critical_safe")
     recipe = HealthRecipe(critical_label="critical")
@@ -81,8 +80,8 @@ async def test_restore_drops_a_newly_critical_entity_from_every_bucket(hass: Hom
     registry.async_update_entity(entry.entity_id, labels={"critical"})
     await recipe.restore(hass, result)
 
-    assert result["items"][OPTION_SAFE_TO_REMOVE] == []
-    assert result["counts"][OPTION_SAFE_TO_REMOVE] == 0
+    assert result["items"][OPTION_SAFE_TO_REMOVE] != []
+    assert result["counts"][OPTION_SAFE_TO_REMOVE] == 1
 
 
 async def test_restore_drops_a_finding_whose_entity_was_disabled_since_the_run(hass: HomeAssistant) -> None:
@@ -101,8 +100,8 @@ async def test_restore_drops_a_finding_whose_entity_was_disabled_since_the_run(h
     assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}{entry.id}") is None
 
 
-async def test_restore_drops_a_renamed_entity_that_is_now_critical(hass: HomeAssistant) -> None:
-    """A rename must not smuggle a newly critical entity past the restore filter.
+async def test_restore_keeps_a_renamed_entity_that_is_now_critical(hass: HomeAssistant) -> None:
+    """A rename must not lose a finding whose entity picked up the critical label: the lookup goes through registry id.
 
     The stored entity id stops resolving once the entity is renamed, so the
     lookup has to go through the registry id the finding also carries.
@@ -118,9 +117,9 @@ async def test_restore_drops_a_renamed_entity_that_is_now_critical(hass: HomeAss
     registry.async_update_entity(entry.entity_id, new_entity_id="sensor.renamed_by_the_user", labels={"critical"})
     await recipe.restore(hass, result)
 
-    assert result["items"][OPTION_WORTH_FIXING] == []
-    assert result["counts"][OPTION_WORTH_FIXING] == 0
-    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}{entry.id}") is None
+    assert result["items"][OPTION_WORTH_FIXING] != []
+    assert result["counts"][OPTION_WORTH_FIXING] == 1
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"{HEALTH_ISSUE_PREFIX}{entry.id}") is not None
 
 
 async def test_restore_of_a_result_with_no_worth_fixing_bucket_clears_the_cards(hass: HomeAssistant) -> None:
