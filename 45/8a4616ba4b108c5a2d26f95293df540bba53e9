@@ -1,0 +1,34 @@
+tests/test_device_class_cards.py
+  s_777664af439b00::t_0de46c5e2c8872 5
+  s_777664af439b00::t_d28e160853f874 92-94,96,111,114-117
+custom_components/gutcheck/recipes/suggestion_cards.py
+  s_777664af439b00::t_ac4f762be097af 90-99,110-114
+  s_777664af439b00::t_587190cae40336 13
+custom_components/gutcheck/repairs.py
+  s_777664af439b00::t_c6dfba06c2b559 154,160
+tests/test_device_class_restart.py
+  s_777664af439b00::t_7c062c40b40fc7 25
+  s_777664af439b00::t_62b208e14e1a9e 144,149
+  s_777664af439b00::t_28aaed99173a99 1,5-6,19,30-59,72,75,77-94,97-102,107-119,123-142,150-167,172,177,179
+  s_777664af439b00::t_32283083bfd7e9 95-96
+  s_777664af439b00::t_8f043a859aa189 143
+README.md
+  s_777664af439b00::t_442c791a9bf304 150
+  s_777664af439b00::t_935b589d4f8a81 152
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "458a4616ba4b108c5a2d26f95293df540bba53e9",
+  "prompts": {},
+  "sessions": {
+    "s_777664af439b00": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "612ed214-183d-48f8-b562-7f4385a55936",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
