@@ -26,6 +26,7 @@ from custom_components.gutcheck.const import (
     HEALTH_ISSUE_PREFIX,
     OPTION_EXPECTED,
     OPTION_WORTH_FIXING,
+    RECIPE_HEALTH,
     RECIPE_UPDATES,
     UPDATES_ISSUE_PREFIX,
 )
@@ -33,8 +34,7 @@ from custom_components.gutcheck.const import (
 from .conftest import (
     api_response,
     choice_answer,
-    find_health_sensor,
-    find_updates_sensor,
+    find_recipe_sensor,
     posted_bodies,
     register_jev_responses,
     register_jev_responses_by_question,
@@ -89,7 +89,7 @@ async def test_defaults_apply_when_options_never_saved(
     assert defaults[CONF_DAILY_BUDGET] == DEFAULT_DAILY_BUDGET
     assert CONF_CRITICAL_LABEL not in defaults
 
-    assert find_health_sensor(hass, mock_config_entry) is not None
+    assert find_recipe_sensor(hass, mock_config_entry, RECIPE_HEALTH) is not None
     assert _tokens_sensor_state(hass, mock_config_entry).attributes["daily_budget"] == DEFAULT_DAILY_BUDGET
 
 
@@ -167,7 +167,7 @@ async def test_turning_health_off_removes_entity_and_issues_and_sends_nothing(
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    assert find_health_sensor(hass, mock_config_entry) is not None
+    assert find_recipe_sensor(hass, mock_config_entry, RECIPE_HEALTH) is not None
     issue_registry = ir.async_get(hass)
     assert any(domain == DOMAIN and issue_id.startswith("unavailable_") for domain, issue_id in issue_registry.issues)
     posted_before = len(posted_bodies(aioclient_mock))
@@ -178,7 +178,7 @@ async def test_turning_health_off_removes_entity_and_issues_and_sends_nothing(
     )
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    assert find_health_sensor(hass, mock_config_entry) is None
+    assert find_recipe_sensor(hass, mock_config_entry, RECIPE_HEALTH) is None
     assert not any(domain == DOMAIN and issue_id.startswith("unavailable_") for domain, issue_id in issue_registry.issues)
     assert len(posted_bodies(aioclient_mock)) == posted_before
 
@@ -202,7 +202,7 @@ async def test_turning_health_back_on_restores_sensor_and_runs(
 
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
-    assert find_health_sensor(hass, mock_config_entry) is None
+    assert find_recipe_sensor(hass, mock_config_entry, RECIPE_HEALTH) is None
     assert len(posted_bodies(aioclient_mock)) == 0
 
     result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
@@ -211,7 +211,7 @@ async def test_turning_health_back_on_restores_sensor_and_runs(
     )
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    assert find_health_sensor(hass, mock_config_entry) is not None
+    assert find_recipe_sensor(hass, mock_config_entry, RECIPE_HEALTH) is not None
     assert len(posted_bodies(aioclient_mock)) == 1
 
 
@@ -334,8 +334,8 @@ async def test_turning_updates_off_removes_its_sensor_and_button_leaving_health_
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    assert find_health_sensor(hass, mock_config_entry) is not None
-    assert find_updates_sensor(hass, mock_config_entry) is not None
+    assert find_recipe_sensor(hass, mock_config_entry, RECIPE_HEALTH) is not None
+    assert find_recipe_sensor(hass, mock_config_entry, RECIPE_UPDATES) is not None
     assert _updates_button_entity_id(hass, mock_config_entry) is not None
     assert _has_update_issue(hass)
 
@@ -346,8 +346,8 @@ async def test_turning_updates_off_removes_its_sensor_and_button_leaving_health_
     )
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    assert find_health_sensor(hass, mock_config_entry) is not None
-    assert find_updates_sensor(hass, mock_config_entry) is None
+    assert find_recipe_sensor(hass, mock_config_entry, RECIPE_HEALTH) is not None
+    assert find_recipe_sensor(hass, mock_config_entry, RECIPE_UPDATES) is None
     assert _updates_button_entity_id(hass, mock_config_entry) is None
     assert not _has_update_issue(hass)
 
@@ -365,7 +365,7 @@ async def test_turning_updates_back_on_restores_sensor_and_runs(
 
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
-    assert find_updates_sensor(hass, mock_config_entry) is None
+    assert find_recipe_sensor(hass, mock_config_entry, RECIPE_UPDATES) is None
     assert len(posted_bodies(aioclient_mock)) == 0
 
     result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
@@ -375,7 +375,7 @@ async def test_turning_updates_back_on_restores_sensor_and_runs(
     )
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    assert find_updates_sensor(hass, mock_config_entry) is not None
+    assert find_recipe_sensor(hass, mock_config_entry, RECIPE_UPDATES) is not None
     assert len(posted_bodies(aioclient_mock)) == 1
     assert _has_update_issue(hass)
 

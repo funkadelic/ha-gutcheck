@@ -14,15 +14,21 @@ from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import DEVICE_CLASS_ISSUE_PREFIX, DEVICE_CLASS_NONE_DESCRIPTION, DOMAIN, OPTION_NONE
+from custom_components.gutcheck.const import (
+    DEVICE_CLASS_ISSUE_PREFIX,
+    DEVICE_CLASS_NONE_DESCRIPTION,
+    DOMAIN,
+    OPTION_NONE,
+    RECIPE_DEVICE_CLASS,
+)
 from custom_components.gutcheck.recipes.device_class_cards import sync_device_class_cards
 from custom_components.gutcheck.recipes.safety import SafetyRules
 
 from .conftest import (
     api_response,
     area_answer,
-    device_class_sensor_entity_id,
     posted_bodies,
+    recipe_sensor_entity_id,
     register_jev_responses,
     register_unit_sensor,
 )
@@ -54,7 +60,7 @@ async def test_confident_answer_raises_a_card_and_confirm_sets_the_class(
     assert question["criteria"]["battery"] == "Battery"
     assert question["criteria"][OPTION_NONE] == DEVICE_CLASS_NONE_DESCRIPTION
 
-    state = hass.states.get(device_class_sensor_entity_id(hass, device_class_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, device_class_entry, RECIPE_DEVICE_CLASS))
     assert state is not None
     assert state.state == "1"
     suggested = state.attributes["items"]["suggested"]
@@ -94,7 +100,7 @@ async def test_confident_answer_raises_a_card_and_confirm_sets_the_class(
     assert updated.unit_of_measurement == "%"
     assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
 
-    state = hass.states.get(device_class_sensor_entity_id(hass, device_class_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, device_class_entry, RECIPE_DEVICE_CLASS))
     assert state is not None
     assert state.state == "0"
     assert "Error processing repairs platform" not in caplog.text
@@ -111,7 +117,7 @@ async def test_a_confident_none_of_these_leaves_the_sensor_unsure_with_no_card(
     assert await hass.config_entries.async_setup(device_class_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    state = hass.states.get(device_class_sensor_entity_id(hass, device_class_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, device_class_entry, RECIPE_DEVICE_CLASS))
     assert state is not None
     assert state.attributes["items"]["suggested"] == []
     assert len(state.attributes["unsure"]) == 1
@@ -129,7 +135,7 @@ async def test_a_low_confidence_battery_answer_leaves_the_sensor_unsure_with_no_
     assert await hass.config_entries.async_setup(device_class_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    state = hass.states.get(device_class_sensor_entity_id(hass, device_class_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, device_class_entry, RECIPE_DEVICE_CLASS))
     assert state is not None
     assert state.attributes["items"]["suggested"] == []
     assert len(state.attributes["unsure"]) == 1

@@ -17,15 +17,16 @@ from custom_components.gutcheck.const import (
     CONF_DAILY_BUDGET,
     DEFAULT_DAILY_BUDGET,
     DOMAIN,
+    RECIPE_AREAS,
 )
 
 from .conftest import (
     api_response,
     area_answer,
-    areas_sensor_entity_id,
     create_areas,
-    find_areas_sensor,
+    find_recipe_sensor,
     posted_bodies,
+    recipe_sensor_entity_id,
     register_area_device,
     register_jev_responses,
 )
@@ -53,7 +54,7 @@ async def test_restart_within_a_week_restores_the_sensor_and_cards_with_no_reque
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert len(posted_bodies(aioclient_mock)) == 1
-    state = hass.states.get(areas_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_AREAS))
     assert state is not None
     assert state.state == "0"
     assert len(state.attributes["items"]["suggested"]) == 1
@@ -97,7 +98,7 @@ async def test_restore_drops_a_device_given_an_area_or_disabled_from_every_bucke
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert len(posted_bodies(aioclient_mock)) == posted_before
-    state = hass.states.get(areas_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_AREAS))
     assert state is not None
     suggested = state.attributes["items"]["suggested"]
     unsure = state.attributes["unsure"]
@@ -129,7 +130,7 @@ async def test_restore_drops_a_removed_device_and_deletes_its_card(
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    state = hass.states.get(areas_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_AREAS))
     assert state is not None
     assert state.attributes["items"]["suggested"] == []
     assert state.state == "0"
@@ -160,7 +161,7 @@ async def test_disabling_and_reenabling_within_the_week_restores_the_open_card_a
         result["flow_id"], {CONF_AREAS_ENABLED: False, CONF_DAILY_BUDGET: DEFAULT_DAILY_BUDGET}
     )
     await hass.async_block_till_done(wait_background_tasks=True)
-    assert find_areas_sensor(hass, mock_config_entry) is None
+    assert find_recipe_sensor(hass, mock_config_entry, RECIPE_AREAS) is None
     assert ir.async_get(hass).async_get_issue(DOMAIN, open_issue_id) is None
 
     posted_before = len(posted_bodies(aioclient_mock))
@@ -198,7 +199,7 @@ async def test_restore_keeps_an_item_whose_area_no_longer_resolves_in_the_sensor
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    state = hass.states.get(areas_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_AREAS))
     assert state is not None
     suggested = state.attributes["items"]["suggested"]
     assert len(suggested) == 1

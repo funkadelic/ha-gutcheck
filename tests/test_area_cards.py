@@ -16,9 +16,9 @@ from custom_components.gutcheck.recipes.safety import SafetyRules
 from .conftest import (
     api_response,
     area_answer,
-    areas_sensor_entity_id,
     create_areas,
     posted_bodies,
+    recipe_sensor_entity_id,
     register_area_device,
     register_jev_responses,
 )
@@ -110,7 +110,7 @@ async def test_an_ignored_card_updates_in_place_when_a_later_run_names_a_differe
         (DOMAIN, issue_id)
     }
 
-    state = hass.states.get(areas_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_AREAS))
     assert state is not None
     suggested = state.attributes["items"]["suggested"]
     assert len(suggested) == 1
@@ -135,7 +135,7 @@ async def test_an_open_card_clears_when_the_next_answer_is_unsure_or_none_of_the
     await _run_again(hass, mock_config_entry)
 
     assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
-    state = hass.states.get(areas_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_AREAS))
     assert state is not None
     assert state.state == "0"
 
@@ -200,7 +200,7 @@ async def test_twelve_confident_devices_yield_ten_cards_most_confident_first_the
     }
     await _setup(hass, aioclient_mock, mock_config_entry, answers)
 
-    state = hass.states.get(areas_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_AREAS))
     assert state is not None
     assert len(state.attributes["items"]["suggested"]) == 12
     assert state.state == str(MAX_NEW_AREA_CARDS_PER_RUN)
@@ -223,7 +223,7 @@ async def test_twelve_confident_devices_yield_ten_cards_most_confident_first_the
     }
     assert len(card_ids_after) == 12
 
-    state_after = hass.states.get(areas_sensor_entity_id(hass, mock_config_entry))
+    state_after = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_AREAS))
     assert state_after is not None
     assert state_after.state == "12"
 

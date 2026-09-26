@@ -15,6 +15,7 @@ from custom_components.gutcheck.const import (
     CONF_UPDATES_ENABLED,
     DEVICE_TEXT_MAX_CHARS,
     DOMAIN,
+    RECIPE_DEVICE_CLASS,
     REQUEST_TOKEN_LIMIT,
     STATE_TOKEN_LIMIT,
 )
@@ -22,8 +23,8 @@ from custom_components.gutcheck.const import (
 from .conftest import (
     api_response,
     area_answer,
-    device_class_sensor_entity_id,
     posted_bodies,
+    recipe_sensor_entity_id,
     register_jev_responses,
     register_unit_sensor,
 )
@@ -130,5 +131,5 @@ async def test_one_realistic_device_class_run_is_one_request_with_measured_headr
         f"reservation={_reservation(body)}"
     )
 
-    state = hass.states.get(device_class_sensor_entity_id(hass, entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, entry, RECIPE_DEVICE_CLASS))
     assert state is not None

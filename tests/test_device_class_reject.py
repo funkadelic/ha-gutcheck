@@ -16,8 +16,8 @@ from custom_components.gutcheck.const import DEVICE_CLASS_ISSUE_PREFIX, DOMAIN, 
 from .conftest import (
     api_response,
     area_answer,
-    device_class_sensor_entity_id,
     posted_bodies,
+    recipe_sensor_entity_id,
     register_jev_responses,
     register_unit_sensor,
 )
@@ -70,7 +70,7 @@ async def test_ignoring_a_card_through_the_flow_manager_survives_a_rerun(
     updated = er.async_get(hass).async_get(sensor.entity_id)
     assert updated is not None
     assert updated.device_class is None
-    state = hass.states.get(device_class_sensor_entity_id(hass, device_class_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, device_class_entry, RECIPE_DEVICE_CLASS))
     assert state is not None
     assert state.state == "0"
 
@@ -88,6 +88,6 @@ async def test_ignoring_a_card_through_the_flow_manager_survives_a_rerun(
     updated = er.async_get(hass).async_get(sensor.entity_id)
     assert updated is not None
     assert updated.device_class is None
-    state = hass.states.get(device_class_sensor_entity_id(hass, device_class_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, device_class_entry, RECIPE_DEVICE_CLASS))
     assert state is not None
     assert state.state == "0"

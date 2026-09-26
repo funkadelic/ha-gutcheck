@@ -14,6 +14,7 @@ from custom_components.gutcheck.const import (
     DOMAIN,
     OPTION_NONE,
     OPTION_SUGGESTED,
+    RECIPE_DEVICE_CLASS,
 )
 from custom_components.gutcheck.recipes.device_class import DeviceClassRecipe
 from custom_components.gutcheck.recipes.device_class_cards import sync_device_class_cards
@@ -27,8 +28,8 @@ from custom_components.gutcheck.split import split_batch
 from .conftest import (
     api_response,
     area_answer,
-    device_class_sensor_entity_id,
     posted_bodies,
+    recipe_sensor_entity_id,
     register_jev_responses,
     register_unit_sensor,
 )
@@ -169,7 +170,7 @@ async def test_a_one_class_sensor_is_asked_and_a_confident_none_of_these_raises_
     assert set(question["criteria"].keys()) == {"distance", OPTION_NONE}
     assert question["instructions"] == instructions_for("m", 0)
 
-    state = hass.states.get(device_class_sensor_entity_id(hass, device_class_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, device_class_entry, RECIPE_DEVICE_CLASS))
     assert state is not None
     assert state.state == "0"
     assert state.attributes["items"]["suggested"] == []
@@ -189,7 +190,7 @@ async def test_a_confident_answer_for_a_one_class_sensor_raises_a_card_with_the_
     assert await hass.config_entries.async_setup(device_class_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    state = hass.states.get(device_class_sensor_entity_id(hass, device_class_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, device_class_entry, RECIPE_DEVICE_CLASS))
     assert state is not None
     suggested = state.attributes["items"]["suggested"]
     assert len(suggested) == 1

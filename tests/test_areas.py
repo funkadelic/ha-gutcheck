@@ -22,6 +22,7 @@ from custom_components.gutcheck.const import (
     CONF_UPDATES_ENABLED,
     DOMAIN,
     OPTION_NONE,
+    RECIPE_AREAS,
 )
 from custom_components.gutcheck.recipes.area_cards import sync_area_cards
 from custom_components.gutcheck.recipes.safety import SafetyRules
@@ -29,9 +30,9 @@ from custom_components.gutcheck.recipes.safety import SafetyRules
 from .conftest import (
     api_response,
     area_answer,
-    areas_sensor_entity_id,
     create_areas,
     posted_bodies,
+    recipe_sensor_entity_id,
     register_area_device,
     register_jev_responses,
 )
@@ -60,7 +61,7 @@ async def test_confident_answer_raises_a_card_and_confirm_assigns_the_area(
     question = body["questions"]["d0"]
     assert set(question["criteria"].keys()) == {"Kitchen", "Garage", OPTION_NONE}
 
-    state = hass.states.get(areas_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_AREAS))
     assert state is not None
     assert state.state == "1"
     suggested = state.attributes["items"]["suggested"]
@@ -110,7 +111,7 @@ async def test_a_confident_none_of_these_leaves_the_device_unsure_with_no_card(
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    state = hass.states.get(areas_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_AREAS))
     assert state is not None
     assert state.attributes["items"]["suggested"] == []
     assert len(state.attributes["unsure"]) == 1
@@ -129,7 +130,7 @@ async def test_a_low_confidence_kitchen_answer_leaves_the_device_unsure_with_no_
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    state = hass.states.get(areas_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_AREAS))
     assert state is not None
     assert state.attributes["items"]["suggested"] == []
     assert len(state.attributes["unsure"]) == 1
@@ -166,7 +167,7 @@ async def test_with_no_areas_at_all_setup_sends_no_request(
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert posted_bodies(aioclient_mock) == []
-    state = hass.states.get(areas_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_AREAS))
     assert state is not None
     assert state.state == "0"
 

@@ -22,8 +22,8 @@ from custom_components.gutcheck.recipes.shapes import _parse_stored_result, reci
 from .conftest import (
     api_response,
     choice_answer,
-    health_sensor_entity_id,
     posted_bodies,
+    recipe_sensor_entity_id,
     register_jev_responses,
     register_unavailable_entity,
 )
@@ -105,7 +105,7 @@ async def test_restart_within_a_week_restores_without_posting(
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert len(posted_bodies(aioclient_mock)) == 1
-    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
     assert state.state == "1"
     assert state.attributes["counts"][OPTION_WORTH_FIXING] == 1
@@ -305,7 +305,7 @@ async def test_failed_scheduled_run_retries_after_an_hour(
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
     assert state.state == STATE_UNAVAILABLE
 
@@ -318,7 +318,7 @@ async def test_failed_scheduled_run_retries_after_an_hour(
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert len(posted_bodies(aioclient_mock)) == 1
-    state = hass.states.get(health_sensor_entity_id(hass, mock_config_entry))
+    state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
     assert state.state == "1"
 
