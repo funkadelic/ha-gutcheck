@@ -18,7 +18,7 @@ from ..const import (
     RECIPE_CONFIG_ENTRIES,
 )
 from ..models import Question
-from .config_entry_describe import describe, describe_subject, failing_for, first_seen, select
+from .config_entry_describe import describe, describe_subject, failing_for, first_seen, reauth_active, select
 from .config_entry_repairs import ConfigEntryIssueTracker
 from .gate import gate_choice
 from .shapes import Batch, Item, RecipeResult
@@ -53,10 +53,18 @@ class ConfigEntryRecipe:
         entries: list[Item] = []
         questions: dict[str, Question] = {}
         subjects: dict[str, Item] = {}
+        carried: dict[str, list[Item]] = {}
+        reauth_skipped = 0
         for entry in selected:
-            index = len(entries)
             seen = first_seen(previous, entry.entry_id, now)
             duration = failing_for(seen, now)
+            subject = describe_subject(entry, seen, duration)
+            if reauth_active(hass, entry):
+                reauth_skipped += 1
+                # Set here, not through classify: a carried item bypasses classify entirely.
+                carried.setdefault(OPTION_NEEDS_REAUTH, []).append({**subject, "reauth_in_progress": True, "confidence": 1.0})
+                continue
+            index = len(entries)
             entries.append(describe(entry, duration))
             question_id = f"c{index}"
             questions[question_id] = {
@@ -64,13 +72,14 @@ class ConfigEntryRecipe:
                 "instructions": CONFIG_ENTRY_INSTRUCTIONS.format(index=index),
                 "criteria": CONFIG_ENTRY_CRITERIA,
             }
-            subjects[question_id] = describe_subject(entry, seen, duration)
+            subjects[question_id] = subject
 
-        _LOGGER.debug("config entry triage selected=%s asked=%s", len(selected), len(entries))
+        _LOGGER.debug("config entry triage selected=%s asked=%s reauth_skipped=%s", len(selected), len(entries), reauth_skipped)
         return Batch(
             state={"entries": entries},
             questions=questions,
             subjects=subjects,
+            carried=carried,
             list_key="entries",
             template=CONFIG_ENTRY_INSTRUCTIONS,
         )

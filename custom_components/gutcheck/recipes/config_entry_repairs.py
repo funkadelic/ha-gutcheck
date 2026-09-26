@@ -23,10 +23,14 @@ def _wanted_issues(hass: HomeAssistant, items: list[Item]) -> dict[str, dict[str
     """The issue id and placeholders for each item whose entry still exists and has not recovered.
 
     Looks each entry up live by entry_id, so a title change since the run is
-    followed and a since-resolved entry never gets a stale card raised.
+    followed and a since-resolved entry never gets a stale card raised. An
+    entry Home Assistant is already reauthenticating is skipped: its own
+    reauth card stays the only one.
     """
     wanted: dict[str, dict[str, str]] = {}
     for item in items:
+        if item.get("reauth_in_progress"):
+            continue
         entry_id = str(item["entry_id"])
         if resolved(hass, entry_id):
             continue
