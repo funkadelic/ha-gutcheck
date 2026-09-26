@@ -18,6 +18,7 @@ from ..const import (
 from ..models import Question
 from .device_class_cards import sync_device_class_cards
 from .device_class_describe import KNOWN_CLASSES, candidate_classes, class_names, criteria, describe, qualifies, qualifying_entry
+from .device_class_wording import instructions_for, template_for
 from .gate import gate_choice
 from .safety import SafetyRules
 from .shapes import Batch, Item, RecipeResult
@@ -63,6 +64,7 @@ class DeviceClassRecipe:
         sensors: list[dict[str, Any]] = []
         questions: dict[str, Question] = {}
         subjects: dict[str, Item] = {}
+        templates: dict[str, str] = {}
         for entry in selected:
             candidates = candidate_classes(entry.unit_of_measurement)
             if not candidates:
@@ -73,11 +75,14 @@ class DeviceClassRecipe:
             state_item, subject = describe(hass, entry)
             sensors.append(state_item)
             question_id = f"s{index}"
-            # Asked even when one class fits, since integrations reuse unit
-            # symbols (months reported as m).
+            # Asked even when one class fits, and the instructions carry only
+            # the boundary case this sensor's own unit needs (never every
+            # question's), since a shared addition measurably lowers
+            # confidence on unrelated sensors in the same run.
+            templates[question_id] = template_for(entry.unit_of_measurement)
             questions[question_id] = {
                 "type": "choice",
-                "instructions": DEVICE_CLASS_INSTRUCTIONS.format(index=index),
+                "instructions": instructions_for(entry.unit_of_measurement, index),
                 "criteria": criteria(candidates, names),
             }
             subjects[question_id] = subject
@@ -89,6 +94,7 @@ class DeviceClassRecipe:
             subjects=subjects,
             list_key="sensors",
             template=DEVICE_CLASS_INSTRUCTIONS,
+            templates=templates,
         )
 
     async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:

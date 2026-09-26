@@ -24,8 +24,8 @@ CONF_UNDO_SENSORS: Final = "sensors"
 # health check and 38,000 for area suggestions on a 1,300-entity install.
 # A full 50-update review adds about 71,000, so a large update backlog can
 # push one first-day run to the next day. A device class run at the target
-# install's real counts (53 asked, 5 decided in code) reserves about 30,900,
-# and only runs once switched on.
+# install's real counts (58 asked, every one) reserves about 39,600, and
+# only runs once switched on.
 DEFAULT_DAILY_BUDGET: Final = 150_000
 CHARS_PER_TOKEN: Final = 4
 # Budget reservations only, held until the API reports real usage; captured
@@ -238,6 +238,11 @@ DEVICE_CLASS_INSTRUCTIONS: Final = (
 DEVICE_CLASS_NONE_DESCRIPTION: Final = (
     "None of the listed device classes names what this sensor measures, or its fields do not say."
 )
+
+# Unit symbols Home Assistant's own device class map also accepts, but which an
+# integration commonly reuses for something else. Their question gets the
+# reused-symbol boundary case appended, on top of every other sensor's own.
+DEVICE_CLASS_REUSED_UNIT_SYMBOLS: Final = frozenset({"m"})
 
 # Cards already open do not count against this cap.
 MAX_NEW_DEVICE_CLASS_CARDS_PER_RUN: Final = 10

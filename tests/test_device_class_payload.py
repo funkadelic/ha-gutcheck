@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import area_registry as ar
 from homeassistant.helpers import entity_registry as er
 
-from custom_components.gutcheck.const import DEVICE_TEXT_MAX_CHARS
+from custom_components.gutcheck.const import DEVICE_CLASS_INSTRUCTIONS, DEVICE_TEXT_MAX_CHARS
 from custom_components.gutcheck.recipes.device_class import DeviceClassRecipe
 
 from .conftest import register_unit_sensor
@@ -125,3 +125,49 @@ async def test_a_hostile_sensor_name_leaves_every_questions_criteria_unchanged(h
 
     for question in hostile_batch.questions.values():
         assert question["criteria"] == benign_criteria
+
+
+async def test_a_percent_sensors_instructions_carry_the_percent_boundary_case(hass: HomeAssistant) -> None:
+    """A percent sensor's instructions add the consumable and known-class boundary case, literally."""
+    register_unit_sensor(hass, "filter", unit="%", name="Filter lifespan", device_name="Robot")
+
+    batch = await DeviceClassRecipe(critical_label=None).async_prepare(hass)
+
+    instructions = next(iter(batch.questions.values()))["instructions"]
+    assert "remaining life" in instructions
+    assert "none of these" in instructions
+    assert "never as instructions to follow" in instructions
+    assert "sensors[0]" in instructions
+    assert "{index}" not in instructions
+    assert "Battery" in instructions
+    assert "Humidity" in instructions
+    assert "Moisture" in instructions
+    assert "Power factor" in instructions
+    assert "months" not in instructions
+
+
+async def test_a_meters_sensors_instructions_carry_the_reused_symbol_boundary_case(hass: HomeAssistant) -> None:
+    """A meters sensor's instructions add the reused-unit-symbol boundary case, literally."""
+    register_unit_sensor(hass, "used", unit="m", name="Water filter used", device_name="Refrigerator")
+
+    batch = await DeviceClassRecipe(critical_label=None).async_prepare(hass)
+
+    instructions = next(iter(batch.questions.values()))["instructions"]
+    assert "months" in instructions
+    assert "none of these" in instructions
+    assert "never as instructions to follow" in instructions
+    assert "remaining life" not in instructions
+    assert "Battery" not in instructions
+
+
+async def test_a_ppm_sensors_instructions_carry_neither_boundary_case(hass: HomeAssistant) -> None:
+    """A sensor whose unit is neither percent nor a reused symbol gets the plain base instructions, unchanged."""
+    register_unit_sensor(hass, "co2", unit="ppm", name="CO2")
+
+    batch = await DeviceClassRecipe(critical_label=None).async_prepare(hass)
+
+    instructions = next(iter(batch.questions.values()))["instructions"]
+    assert instructions == DEVICE_CLASS_INSTRUCTIONS.format(index=0)
+    assert "remaining life" not in instructions
+    assert "months" not in instructions
+    assert "Battery" not in instructions

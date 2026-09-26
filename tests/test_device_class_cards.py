@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
@@ -231,28 +230,6 @@ async def test_three_open_cards_plus_twenty_five_new_confident_suggestions_yield
         if domain == DOMAIN and issue_id.startswith(DEVICE_CLASS_ISSUE_PREFIX)
     }
     assert len(card_ids_after) == 13
-
-
-async def test_a_code_decided_suggestion_outranks_a_0_99_model_answer_when_the_cap_binds(
-    hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """Every code-decided suggestion (confidence 1.0) gets a card ahead of a 0.99 model answer when the cap binds."""
-    monkeypatch.setattr("custom_components.gutcheck.recipes.device_class_cards.MAX_NEW_DEVICE_CLASS_CARDS_PER_RUN", 1)
-    decided = register_unit_sensor(hass, "decided", unit="m")
-    asked = register_unit_sensor(hass, "asked", unit="%")
-    suggested = [
-        {"registry_id": asked.id, "choice": "battery", "confidence": 0.99},
-        {"registry_id": decided.id, "choice": "distance", "confidence": 1.0},
-    ]
-
-    sync_device_class_cards(hass, SafetyRules(None), suggested, {"battery": "Battery", "distance": "Distance"})
-
-    card_ids = {
-        issue_id
-        for domain, issue_id in ir.async_get(hass).issues
-        if domain == DOMAIN and issue_id.startswith(DEVICE_CLASS_ISSUE_PREFIX)
-    }
-    assert card_ids == {f"{DEVICE_CLASS_ISSUE_PREFIX}{decided.id}"}
 
 
 async def test_an_item_with_no_confidence_still_becomes_a_card_sorted_last(hass: HomeAssistant) -> None:

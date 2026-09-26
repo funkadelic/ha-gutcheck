@@ -34,6 +34,9 @@ class Batch:
     # template is the recipe's instructions with {index} still in place.
     list_key: str = ""
     template: str = ""
+    # Per-question override of template, for a recipe whose instructions vary
+    # by question. A question id missing here falls back to template.
+    templates: dict[str, str] = field(default_factory=dict)
 
 
 class RecipeResult(TypedDict):

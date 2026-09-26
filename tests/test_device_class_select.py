@@ -10,7 +10,6 @@ from homeassistant.helpers import issue_registry as ir
 from custom_components.gutcheck.budget import estimate_tokens
 from custom_components.gutcheck.const import (
     DEVICE_CLASS_CONFIDENCE_THRESHOLD,
-    DEVICE_CLASS_INSTRUCTIONS,
     DEVICE_CLASS_ISSUE_PREFIX,
     DOMAIN,
     OPTION_NONE,
@@ -20,6 +19,7 @@ from custom_components.gutcheck.recipes.device_class import DeviceClassRecipe
 from custom_components.gutcheck.recipes.device_class_cards import sync_device_class_cards
 from custom_components.gutcheck.recipes.device_class_describe import candidate_classes
 from custom_components.gutcheck.recipes.device_class_repairs import set_device_class
+from custom_components.gutcheck.recipes.device_class_wording import instructions_for
 from custom_components.gutcheck.recipes.gate import classify
 from custom_components.gutcheck.recipes.safety import SafetyRules
 from custom_components.gutcheck.split import split_batch
@@ -148,7 +148,7 @@ async def test_a_unit_one_class_accepts_is_asked_with_that_class_and_none_of_the
     assert list(batch.questions) == ["s0"]
     question = batch.questions["s0"]
     assert set(question["criteria"].keys()) == {"distance", OPTION_NONE}
-    assert question["instructions"] == DEVICE_CLASS_INSTRUCTIONS.format(index=0)
+    assert question["instructions"] == instructions_for("m", 0)
     assert batch.subjects["s0"]["registry_id"] == sensor.id
 
 
@@ -167,7 +167,7 @@ async def test_a_one_class_sensor_is_asked_and_a_confident_none_of_these_raises_
     assert len(bodies) == 1
     question = bodies[0]["questions"]["s0"]
     assert set(question["criteria"].keys()) == {"distance", OPTION_NONE}
-    assert question["instructions"] == DEVICE_CLASS_INSTRUCTIONS.format(index=0)
+    assert question["instructions"] == instructions_for("m", 0)
 
     state = hass.states.get(device_class_sensor_entity_id(hass, device_class_entry))
     assert state is not None
@@ -216,7 +216,7 @@ async def test_an_unmatched_sensor_between_two_asked_ones_does_not_desync_the_qu
     assert batch.subjects["s0"]["registry_id"] == percent.id
     assert batch.subjects["s1"]["registry_id"] == gallons.id
     assert batch.state["sensors"][1]["name"] == "C"
-    assert batch.questions["s1"]["instructions"] == DEVICE_CLASS_INSTRUCTIONS.format(index=1)
+    assert batch.questions["s1"]["instructions"] == instructions_for("gal", 1)
 
     response = {
         "model": "jev-latest",
@@ -234,8 +234,9 @@ async def test_an_unmatched_sensor_between_two_asked_ones_does_not_desync_the_qu
     assert len(payloads) >= 2
     for request in payloads:
         assert list(request["state"]) == ["sensors"]
-        instructions = [question["instructions"] for question in request["questions"].values()]
-        assert instructions == [DEVICE_CLASS_INSTRUCTIONS.format(index=local) for local in range(len(instructions))]
+        sensors_in_request = request["state"]["sensors"]
+        for local, question in enumerate(request["questions"].values()):
+            assert question["instructions"] == instructions_for(sensors_in_request[local]["unit"], local)
 
 
 async def test_each_questions_criteria_are_exactly_its_own_candidates_plus_none(hass: HomeAssistant) -> None:

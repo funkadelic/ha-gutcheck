@@ -46,7 +46,7 @@ Jev can't write a reply, make up a new option, or tell Home Assistant to do anyt
 
 **Area suggestions.** Gut Check suggests one of your existing areas for each device that has none, or suggests nothing when it isn't sure or nothing fits. Each suggestion is a Repairs card with two choices: assign the area, or tell Gut Check not to suggest one for that device. It never creates an area and never moves a device on its own.
 
-**Device class suggestions.** Gut Check suggests a device class for sensors that report a unit but have none. When only one device class fits a sensor's unit, Gut Check decides on its own; otherwise it asks. Each suggestion is a Repairs card with two choices: set the class, or tell Gut Check not to suggest one for that sensor. It never sets a class on its own, and it is off until you switch it on.
+**Device class suggestions.** Gut Check suggests a device class for sensors that report a unit but have none. It narrows the options to the device classes that accept the sensor's unit and asks the model even when only one fits, because some integrations reuse a unit symbol for something else (a water filter reporting months as "m", which Home Assistant reads as meters). Each suggestion is a Repairs card with two choices: set the class, or tell Gut Check not to suggest one for that sensor. It never sets a class on its own, and it is off until you switch it on.
 
 ## What Gut Check will never do
 
@@ -81,7 +81,7 @@ TypeSafe AI measures usage in tokens, about three characters of text each, and c
 | Home health check | 32,700 | about $0.0014 |
 | Area suggestions | 16,548 | under $0.001 |
 | Update review | 0 when nothing is pending or changed; about 41,000 estimated at the 50-update cap | under $0.002 |
-| Device class suggestions | 16,045 for 53 asked sensors on a real run; 0 when every qualifying sensor is decided from its unit alone | under $0.001 |
+| Device class suggestions | 16,045 for 53 asked sensors on a real run | under $0.001 |
 
 Gut Check enforces a daily token budget so cost stays predictable. `sensor.gut_check_tokens_used_today` and `sensor.gut_check_cost_today` show what has been spent and what it cost, both resetting at local midnight. The default of 150,000 tokens covers the weekly schedule with room to spare; running checks by hand several times in one day can reach it.
 
@@ -107,7 +107,7 @@ For each pending update, Gut Check sends the integration name, the installed and
 
 For each device with no area, Gut Check sends its name (as you or its maker named it, cleaned and shortened), manufacturer, model, integration, and the kinds and device classes of its entities, plus your existing area names as the options it can pick from. It never sends entity names or entity IDs, never another device's area, and never the area of a hub or account the device sits behind. The device's name is read only as a description, never as an instruction.
 
-For each sensor with a unit but no device class, when more than one device class accepts that unit, Gut Check sends the sensor's name, its device's name, manufacturer, model, integration, unit and entity category, plus the device classes that accept its unit as the options it can pick from. It never sends the sensor's reading, its entity ID, or its area, and it never sends any other entity. The name and device name are read only as a description, never as an instruction. When exactly one device class accepts a sensor's unit, Gut Check decides in code and sends nothing for that sensor.
+For each sensor with a unit but no device class, when at least one device class accepts that unit, Gut Check sends the sensor's name, its device's name, manufacturer, model, integration, unit and entity category, plus the device classes that accept its unit as the options it can pick from. It never sends the sensor's reading, its entity ID, or its area, and it never sends any other entity. The name and device name are read only as a description, never as an instruction.
 
 To see exactly what was sent on the last completed run, open **Developer tools > States**, find the check's sensor, and look at its `last_payload` attribute. A run that fails partway leaves the previous run's payload in place.
 
@@ -139,7 +139,7 @@ Each enabled check gets one sensor. Its state is how many of that check's Repair
 
 `sensor.gut_check_area_suggestions` counts the suggestion cards waiting in Repairs. Suggestions held back by the ten-new-cards-per-run cap, and ones you chose not to have, are not counted. Its attributes list each one with its suggested area and confidence, plus an `unsure` list for anything below the confidence threshold or where none of the listed areas clearly fit.
 
-`sensor.gut_check_device_class_suggestions` counts the device class cards waiting in Repairs, held back the same way. Its attributes list each suggested sensor with its class and confidence, where a confidence of 1.0 means Gut Check decided the class from the sensor's unit alone rather than asking, plus an `unsure` list for the rest.
+`sensor.gut_check_device_class_suggestions` counts the device class cards waiting in Repairs, held back the same way. Its attributes list each suggested sensor with its class and confidence, plus an `unsure` list for the rest.
 
 ### Repairs cards
 
@@ -149,7 +149,7 @@ A possibly-breaking update gets one card, linking to its release notes where the
 
 An area suggestion gets one card per device, up to ten new cards per run, most confident first; the rest wait for a later run or a button press. A card clears when you assign its area, or when the device gets an area another way or stops qualifying. Choosing not to have an area suggested moves the card to your ignored repairs, where it stays for as long as the device still qualifies, including across turning area suggestions off and back on. If the device or the suggested area changed by the time you open a card, assigning does nothing, tells you so, and removes the card.
 
-A device class suggestion gets one card per sensor, up to ten new cards per run: the sensors Gut Check decided from their unit alone come first, then the rest most confident first. A card clears when you set its class, or when the sensor gets a class another way or stops qualifying. Choosing not to have a class suggested moves the card to your ignored repairs, where it stays for as long as the sensor still qualifies, including across turning device class suggestions off and back on. If the sensor changed by the time you open a card, setting its class does nothing and tells you so.
+A device class suggestion gets one card per sensor, up to ten new cards per run, most confident first. A card clears when you set its class, or when the sensor gets a class another way or stops qualifying. Choosing not to have a class suggested moves the card to your ignored repairs, where it stays for as long as the sensor still qualifies, including across turning device class suggestions off and back on. If the sensor changed by the time you open a card, setting its class does nothing and tells you so.
 
 ### Changing a class back
 
