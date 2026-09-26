@@ -1,0 +1,22 @@
+custom_components/gutcheck/recipes/critical_label_cards.py
+  s_0ca126db176e56::t_de0dec1246598c 12,19-24,36
+custom_components/gutcheck/recipes/suggestion_cards.py
+  s_0ca126db176e56::t_639b0b97fdd3e4 41,43-47,51-54
+  s_0ca126db176e56::t_b7b61a91eb56ad 27-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "77a6e84dfdb016437d057e5614b8a884b68945d7",
+  "prompts": {},
+  "sessions": {
+    "s_0ca126db176e56": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "efd7e666-75f2-4b3e-b4f5-327f7c3687ab",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
