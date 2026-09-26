@@ -57,7 +57,7 @@ async def test_ignoring_a_card_through_the_flow_manager_survives_a_rerun(
     result = await manager.async_init(DOMAIN, data={"issue_id": issue_id})
     assert result["type"] is FlowResultType.MENU
     assert result["step_id"] == "init"
-    assert result["menu_options"] == ["confirm", "ignore"]
+    assert result["menu_options"] == ["confirm", "choose", "ignore"]
     assert result["description_placeholders"] == issue.translation_placeholders
 
     result = await manager.async_configure(result["flow_id"], {"next_step_id": "ignore"})

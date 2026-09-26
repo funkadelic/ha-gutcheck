@@ -127,10 +127,18 @@
         "step": {
           "init": {
             "title": "Suggested device class",
-            "description": "Gut Check suggests **{class_name}** for `{entity_id}`, which reports in {unit}, and nothing changes unless you set it. You can change it back later from Gut Check's Configure screen.",
+            "description": "Gut Check suggests **{class_name}** for `{entity_id}`, which reports in {unit}. Nothing changes until you choose. You can change it back later from Gut Check's Configure screen.",
             "menu_options": {
-              "confirm": "Set this device class",
+              "confirm": "Set device class to {class_name}",
+              "choose": "Choose a different device class",
               "ignore": "Don't suggest a device class for this sensor"
+            }
+          },
+          "choose": {
+            "title": "Choose a device class",
+            "description": "Pick the device class for `{entity_id}`. Only classes that accept {unit} are listed. You can change it back later from Gut Check's Configure screen.",
+            "data": {
+              "device_class": "Device class"
             }
           }
         },
