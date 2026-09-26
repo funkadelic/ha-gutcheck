@@ -1,0 +1,23 @@
+custom_components/gutcheck/__init__.py
+  s_777664af439b00::t_348e1ed4e5e5db 136
+  s_777664af439b00::t_9b0fbbb0058f48 70-81
+  s_777664af439b00::t_101096bc58cc2d 115
+  s_777664af439b00::t_3b013080d0801d 122
+  s_777664af439b00::t_c53de1c011d0dc 128
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "92f184c898dc93fd432f06b81c4ed9b7ec1f696e",
+  "prompts": {},
+  "sessions": {
+    "s_777664af439b00": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "612ed214-183d-48f8-b562-7f4385a55936",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
