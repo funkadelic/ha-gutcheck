@@ -1,0 +1,36 @@
+tests/test_health_rules.py
+  s_0ca126db176e56::t_5c6e8165ca2e60 231,234,247
+tests/test_health_select.py
+  s_0ca126db176e56::t_ed1e34240af265 114,118
+  s_0ca126db176e56::t_9cc75dfa1baead 67-68,76,79-80,93-104,108-113,115-117,119-139
+  s_0ca126db176e56::t_62ff57f8f1037c 15-16,18,20,25
+  s_0ca126db176e56::t_e434407b4ba6f6 26,140-141
+custom_components/gutcheck/recipes/safety.py
+  s_0ca126db176e56::t_dda0979e391dd6 37-45,47-53
+tests/test_safety_rules.py
+  s_0ca126db176e56::t_609c539e383aad 13,20-21,25
+  s_0ca126db176e56::t_ba9feb2f317b5a 148
+  s_0ca126db176e56::t_6bd3a967132b2c 24
+  s_0ca126db176e56::t_adf66eb1a2e3f8 54-55,57-60,69-74,78-79,86,90,95,101,103-122,129,131-133,135,137-147,149-151
+tests/test_options_flow.py
+  s_0ca126db176e56::t_6241d57e684197 253,256,258-259,270-271,284-285,289
+custom_components/gutcheck/recipes/health.py
+  s_0ca126db176e56::t_439ca792c7e558 94,104
+  s_0ca126db176e56::t_c6c3fae3deb957 96-98
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "51805ba98007b21cbe5582ac032e238381d2cf85",
+  "prompts": {},
+  "sessions": {
+    "s_0ca126db176e56": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "efd7e666-75f2-4b3e-b4f5-327f7c3687ab",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
