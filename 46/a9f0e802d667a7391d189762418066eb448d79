@@ -1,0 +1,31 @@
+tests/test_captured.py
+  s_2a43f9bb801558::t_cfea5b88349a50 140-141
+  s_2a43f9bb801558::t_3f193a35b818c5 156-176,178
+  s_2a43f9bb801558::t_08e9fc09a72638 36-37
+  s_2a43f9bb801558::t_56f852726effe8 9-10,24-26,33-35
+tests/fixtures/captured/update_payload.json
+  s_2a43f9bb801558::t_9f51b1d588e3e8 4-21,24-34,36,38-47,57-93,95
+README.md
+  s_2a43f9bb801558::t_0120eb5b02cd5e 89
+  s_2a43f9bb801558::t_337ab2fad02a90 45
+tests/fixtures/captured/update_response.json
+  s_2a43f9bb801558::t_9f51b1d588e3e8 6-7,9,11-56,60-75,81-82
+custom_components/gutcheck/recipes/update_const.py
+  s_2a43f9bb801558::t_29b9e55588d1aa 20,23-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "46a9f0e802d667a7391d189762418066eb448d79",
+  "prompts": {},
+  "sessions": {
+    "s_2a43f9bb801558": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "44da4522-68fe-44b9-a5c9-da3930e3affa",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": null
+    }
+  }
+}
