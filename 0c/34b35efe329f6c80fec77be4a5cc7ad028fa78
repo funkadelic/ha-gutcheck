@@ -1,0 +1,21 @@
+custom_components/gutcheck/recipes/update_const.py
+  s_99abd0a70e5c76::t_cf66bffd6958a5 36
+tests/test_release_notes_risk_first.py
+  s_99abd0a70e5c76::t_cf66bffd6958a5 23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0c34b35efe329f6c80fec77be4a5cc7ad028fa78",
+  "prompts": {},
+  "sessions": {
+    "s_99abd0a70e5c76": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b3723f74-8502-4035-a0ab-5ebbde73e513",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
