@@ -42,7 +42,7 @@ Jev can't write a reply, make up a new option, or tell Home Assistant to do anyt
 
 **Weekly home health check.** Gut Check sorts your unavailable entities into three groups: expected (normal, no action needed), worth fixing (should be working, look into it), and safe to remove (left over from something no longer installed). Each worth-fixing entity gets a card in Repairs.
 
-**Update review.** Gut Check reads the release notes on every pending update and scores each one routine (nothing to do beyond installing it), feature (adds something while every existing setup keeps working), or possibly breaking (removes or renames something, or needs a migration or a manual step). Each possibly-breaking update gets a card in Repairs. It never installs, skips, or changes an update.
+**Update review.** Gut Check reads the release notes on every pending update and scores each one routine (nothing to do beyond installing it), feature (adds something while every existing setup keeps working), or possibly breaking (removes or renames something, or needs a migration or a manual step). Needing a Home Assistant restart after installing does not count as a manual step. Each possibly-breaking update gets a card in Repairs. It never installs, skips, or changes an update.
 
 **Area suggestions.** Gut Check suggests one of your existing areas for each device that has none, or suggests nothing when it isn't sure or nothing fits. Each suggestion is a Repairs card with two choices: assign the area, or tell Gut Check not to suggest one for that device. It never creates an area and never moves a device on its own.
 
@@ -86,7 +86,7 @@ TypeSafe AI measures usage in tokens, about three characters of text each, and c
 | --- | --- | --- |
 | Home health check | 32,700 | about $0.0014 |
 | Area suggestions | 16,548 | under $0.001 |
-| Update review | 0 when nothing is pending or changed; about 41,000 estimated at the 50-update cap | under $0.002 |
+| Update review | 0 when nothing is pending or changed; 2,253 for 5 pending updates on a real run (about 450 each); about 41,000 estimated at the 50-update cap | under $0.002 |
 | Device class suggestions | 20,056 for 58 asked sensors on a real run | under $0.001 |
 | Stuck integration check | 0 when nothing is stuck; about 550 estimated per stuck integration | under $0.0001 per stuck integration (estimated) |
 | Critical label suggestions | 0 when only smoke, carbon monoxide or gas sensors qualify; 26,701 for 59 asked entities on a real run | about $0.0011 |

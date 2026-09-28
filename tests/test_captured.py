@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from custom_components.gutcheck.client import validate_response
 from custom_components.gutcheck.const import CHOICE_CONFIDENCE_THRESHOLD, HEALTH_OPTIONS, OPTION_EXPECTED, OPTION_ROUTINE
 from custom_components.gutcheck.recipes.gate import classify, gate_choice
@@ -19,10 +21,18 @@ from .conftest import choice_answer
 
 FIXTURES = Path(__file__).parent / "fixtures" / "captured"
 
+# The sentence HACS appends to every integration update's release notes.
+HACS_RESTART_FOOTER = "You need to restart Home Assistant manually after updating."
+
 
 def _load(name: str) -> dict[str, Any]:
     """The captured fixture JSON at `name`, parsed."""
     return json.loads((FIXTURES / name).read_text())
+
+
+def _update(payload: dict[str, Any], question_id: str) -> dict[str, Any]:
+    """The raw update state a captured question id was asked about."""
+    return payload["state"]["updates"][int(question_id.removeprefix("u"))]
 
 
 def test_health_response_passes_validate_response() -> None:
@@ -127,7 +137,8 @@ def test_the_captured_update_payload_and_response_come_from_the_same_run() -> No
 def test_the_captured_update_question_matches_the_current_wording() -> None:
     """A change to the update question's wording leaves the captured pair stale until it is recaptured."""
     payload = _load("update_payload.json")
-    for index, question in enumerate(payload["questions"].values()):
+    for question_id, question in payload["questions"].items():
+        index = int(question_id.removeprefix("u"))
         assert question["instructions"] == UPDATE_INSTRUCTIONS.format(index=index)
         assert question["criteria"] == UPDATE_CRITERIA
 
@@ -142,7 +153,26 @@ def test_every_captured_update_answer_is_a_score_over_its_criteria_levels() -> N
         assert set(answer["probabilities"]) == {str(level) for level in range(len(question["criteria"]))}
 
 
-def test_the_captured_patch_release_gates_to_routine() -> None:
-    """The real answer for a bug-fix-only patch release passes the update gate as routine."""
+@pytest.mark.parametrize("question_id", ["u0", "u3"])
+def test_a_restart_footer_in_the_release_notes_still_gates_to_routine(question_id: str) -> None:
+    """HACS release notes ending in the manual-restart line still gate to routine."""
+    payload = _load("update_payload.json")
     response = _load("update_response.json")
-    assert UpdateRecipe(None).gate(response["answers"]["u0"]) == OPTION_ROUTINE
+    assert HACS_RESTART_FOOTER in _update(payload, question_id)["release_notes"]
+    assert UpdateRecipe(None).gate(response["answers"][question_id]) == OPTION_ROUTINE
+
+
+def test_an_update_with_no_release_notes_gates_to_routine() -> None:
+    """A core update whose release notes and summary are both empty still gates to routine."""
+    payload = _load("update_payload.json")
+    response = _load("update_response.json")
+    update = _update(payload, "u4")
+    assert update["release_notes"] == ""
+    assert update["release_summary"] == ""
+    assert UpdateRecipe(None).gate(response["answers"]["u4"]) == OPTION_ROUTINE
+
+
+def test_low_confidence_long_release_notes_stay_unsure() -> None:
+    """Release notes cut off at the excerpt cap stay unsure."""
+    response = _load("update_response.json")
+    assert UpdateRecipe(None).gate(response["answers"]["u1"]) is None
