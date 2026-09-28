@@ -7,13 +7,12 @@ from typing import Any
 from homeassistant.components.sensor.const import DEVICE_CLASS_UNITS
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.translation import async_get_translations
 
-from ..const import DEVICE_TEXT_MAX_CHARS, OPTION_NONE
-from ..describe import clean_text
+from ..const import OPTION_NONE
 from .device_class_const import DEVICE_CLASS_NAME_KEY, DEVICE_CLASS_NAMES_LANGUAGE, DEVICE_CLASS_NONE_DESCRIPTION
+from .entity_text import entity_text
 from .safety import SafetyRules
 from .shapes import Item
 
@@ -77,17 +76,8 @@ def describe(hass: HomeAssistant, entry: er.RegistryEntry) -> tuple[dict[str, An
     Built from this entry and its device only: never the sensor's live
     state, its entity id, its area, or another entity.
     """
-    name = clean_text(entry.name or entry.original_name, DEVICE_TEXT_MAX_CHARS) or None
-    device = dr.async_get(hass).async_get(entry.device_id) if entry.device_id else None
-    device = device if isinstance(device, dr.DeviceEntry) else None
-    device_name = clean_text(device.name_by_user or device.name, DEVICE_TEXT_MAX_CHARS) or None if device else None
-    manufacturer = clean_text(device.manufacturer, DEVICE_TEXT_MAX_CHARS) or None if device else None
-    model = clean_text(device.model, DEVICE_TEXT_MAX_CHARS) or None if device else None
     state_item: dict[str, Any] = {
-        "name": name,
-        "device_name": device_name,
-        "manufacturer": manufacturer,
-        "model": model,
+        **entity_text(hass, entry),
         "integration": entry.platform,
         "unit": entry.unit_of_measurement,
         "entity_category": entry.entity_category.value if entry.entity_category else None,

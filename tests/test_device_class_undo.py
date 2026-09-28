@@ -33,7 +33,7 @@ from .conftest import (
     KEPT_DEVICE_CLASS_OPTIONS,
     api_response,
     area_answer,
-    confirm_device_class_card,
+    confirm_suggestion_card,
     posted_bodies,
     register_jev_responses,
     register_unit_sensor,
@@ -155,7 +155,7 @@ async def test_change_back_step_lists_recorded_sensors_sorted_by_label_with_no_r
     assert await hass.config_entries.async_setup(device_class_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
     for sensor in (zeta, alpha):
-        await confirm_device_class_card(hass, f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}")
+        await confirm_suggestion_card(hass, f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}")
 
     result = await _open_undo_step(hass, device_class_entry)
     selector = next(value for key, value in result["data_schema"].schema.items() if str(key) == CONF_UNDO_SENSORS)

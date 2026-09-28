@@ -23,7 +23,7 @@ from .conftest import (
     KEPT_DEVICE_CLASS_OPTIONS,
     api_response,
     area_answer,
-    confirm_device_class_card,
+    confirm_suggestion_card,
     posted_bodies,
     register_jev_responses,
     register_unit_sensor,
@@ -169,7 +169,7 @@ async def test_a_recorded_sensor_removed_from_the_registry_is_dropped_on_the_nex
     assert await hass.config_entries.async_setup(device_class_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
     for sensor in (kept, removed):
-        await confirm_device_class_card(hass, f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}")
+        await confirm_suggestion_card(hass, f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}")
     er.async_get(hass).async_remove(removed.entity_id)
 
     await _change_back(hass, device_class_entry, [])

@@ -1,0 +1,599 @@
+{
+  "model": "jev-1.13.0",
+  "answers": {
+    "k0": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.02,
+        "none_of_these": 0.0,
+        "not_critical": 0.98
+      },
+      "confidence": 0.96
+    },
+    "k1": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.03,
+        "none_of_these": 0.0,
+        "not_critical": 0.97
+      },
+      "confidence": 0.95
+    },
+    "k2": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.0,
+        "none_of_these": 0.03,
+        "not_critical": 0.97
+      },
+      "confidence": 0.95
+    },
+    "k3": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.0,
+        "none_of_these": 0.27,
+        "not_critical": 0.73
+      },
+      "confidence": 0.59
+    },
+    "k4": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.0,
+        "none_of_these": 0.02,
+        "not_critical": 0.98
+      },
+      "confidence": 0.96
+    },
+    "k5": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.0,
+        "none_of_these": 0.03,
+        "not_critical": 0.97
+      },
+      "confidence": 0.95
+    },
+    "k6": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.0,
+        "none_of_these": 0.04,
+        "not_critical": 0.96
+      },
+      "confidence": 0.94
+    },
+    "k7": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.0,
+        "none_of_these": 0.11,
+        "not_critical": 0.89
+      },
+      "confidence": 0.83
+    },
+    "k8": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.0,
+        "none_of_these": 0.05,
+        "not_critical": 0.95
+      },
+      "confidence": 0.93
+    },
+    "k9": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.0,
+        "none_of_these": 0.04,
+        "not_critical": 0.96
+      },
+      "confidence": 0.94
+    },
+    "k10": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.0,
+        "none_of_these": 0.05,
+        "not_critical": 0.95
+      },
+      "confidence": 0.93
+    },
+    "k11": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.0,
+        "none_of_these": 0.06,
+        "not_critical": 0.9400000000000001
+      },
+      "confidence": 0.9
+    },
+    "k12": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.0,
+        "none_of_these": 0.09,
+        "not_critical": 0.91
+      },
+      "confidence": 0.86
+    },
+    "k13": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.0,
+        "none_of_these": 0.05,
+        "not_critical": 0.95
+      },
+      "confidence": 0.92
+    },
+    "k14": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.0,
+        "none_of_these": 0.05,
+        "not_critical": 0.95
+      },
+      "confidence": 0.92
+    },
+    "k15": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.0,
+        "none_of_these": 0.05,
+        "not_critical": 0.95
+      },
+      "confidence": 0.92
+    },
+    "k16": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.0,
+        "none_of_these": 0.04,
+        "not_critical": 0.96
+      },
+      "confidence": 0.93
+    },
+    "k17": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.0,
+        "none_of_these": 0.06,
+        "not_critical": 0.94
+      },
+      "confidence": 0.9
+    },
+    "k18": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.0,
+        "none_of_these": 0.04,
+        "not_critical": 0.96
+      },
+      "confidence": 0.93
+    },
+    "k19": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.0,
+        "none_of_these": 0.04,
+        "not_critical": 0.96
+      },
+      "confidence": 0.93
+    },
+    "k20": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.0,
+        "none_of_these": 0.03,
+        "not_critical": 0.97
+      },
+      "confidence": 0.96
+    },
+    "k21": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.01,
+        "none_of_these": 0.07,
+        "not_critical": 0.92
+      },
+      "confidence": 0.89
+    },
+    "k22": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.01,
+        "none_of_these": 0.08,
+        "not_critical": 0.91
+      },
+      "confidence": 0.88
+    },
+    "k23": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.01,
+        "none_of_these": 0.07,
+        "not_critical": 0.92
+      },
+      "confidence": 0.88
+    },
+    "k24": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.01,
+        "none_of_these": 0.07,
+        "not_critical": 0.92
+      },
+      "confidence": 0.88
+    },
+    "k25": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.02,
+        "none_of_these": 0.08,
+        "not_critical": 0.9
+      },
+      "confidence": 0.85
+    },
+    "k26": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.03,
+        "none_of_these": 0.06,
+        "not_critical": 0.91
+      },
+      "confidence": 0.87
+    },
+    "k27": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.01,
+        "none_of_these": 0.09,
+        "not_critical": 0.9
+      },
+      "confidence": 0.84
+    },
+    "k28": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.01,
+        "none_of_these": 0.09,
+        "not_critical": 0.9
+      },
+      "confidence": 0.85
+    },
+    "k29": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.02,
+        "none_of_these": 0.08,
+        "not_critical": 0.9
+      },
+      "confidence": 0.86
+    },
+    "k30": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.02,
+        "none_of_these": 0.07,
+        "not_critical": 0.91
+      },
+      "confidence": 0.86
+    },
+    "k31": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.02,
+        "none_of_these": 0.09,
+        "not_critical": 0.89
+      },
+      "confidence": 0.82
+    },
+    "k32": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.03,
+        "none_of_these": 0.09,
+        "not_critical": 0.88
+      },
+      "confidence": 0.83
+    },
+    "k33": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.02,
+        "none_of_these": 0.08,
+        "not_critical": 0.9
+      },
+      "confidence": 0.86
+    },
+    "k34": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.01,
+        "none_of_these": 0.08,
+        "not_critical": 0.91
+      },
+      "confidence": 0.85
+    },
+    "k35": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.01,
+        "none_of_these": 0.08,
+        "not_critical": 0.91
+      },
+      "confidence": 0.86
+    },
+    "k36": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.02,
+        "none_of_these": 0.07,
+        "not_critical": 0.91
+      },
+      "confidence": 0.86
+    },
+    "k37": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.02,
+        "none_of_these": 0.04,
+        "not_critical": 0.94
+      },
+      "confidence": 0.91
+    },
+    "k38": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.02,
+        "none_of_these": 0.04,
+        "not_critical": 0.94
+      },
+      "confidence": 0.91
+    },
+    "k39": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.02,
+        "none_of_these": 0.04,
+        "not_critical": 0.94
+      },
+      "confidence": 0.92
+    },
+    "k40": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.02,
+        "none_of_these": 0.05,
+        "not_critical": 0.93
+      },
+      "confidence": 0.9
+    },
+    "k41": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.02,
+        "none_of_these": 0.04,
+        "not_critical": 0.94
+      },
+      "confidence": 0.92
+    },
+    "k42": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.03,
+        "none_of_these": 0.07,
+        "not_critical": 0.9
+      },
+      "confidence": 0.86
+    },
+    "k43": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.02,
+        "none_of_these": 0.06,
+        "not_critical": 0.92
+      },
+      "confidence": 0.88
+    },
+    "k44": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.03,
+        "none_of_these": 0.05,
+        "not_critical": 0.92
+      },
+      "confidence": 0.88
+    },
+    "k45": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.03,
+        "none_of_these": 0.04,
+        "not_critical": 0.93
+      },
+      "confidence": 0.9
+    },
+    "k46": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.03,
+        "none_of_these": 0.06,
+        "not_critical": 0.91
+      },
+      "confidence": 0.87
+    },
+    "k47": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.03,
+        "none_of_these": 0.05,
+        "not_critical": 0.92
+      },
+      "confidence": 0.87
+    },
+    "k48": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.04,
+        "none_of_these": 0.05,
+        "not_critical": 0.91
+      },
+      "confidence": 0.87
+    },
+    "k49": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.03,
+        "none_of_these": 0.02,
+        "not_critical": 0.95
+      },
+      "confidence": 0.93
+    },
+    "k50": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.03,
+        "none_of_these": 0.03,
+        "not_critical": 0.94
+      },
+      "confidence": 0.91
+    },
+    "k51": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.03,
+        "none_of_these": 0.02,
+        "not_critical": 0.95
+      },
+      "confidence": 0.93
+    },
+    "k52": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.04,
+        "none_of_these": 0.04,
+        "not_critical": 0.92
+      },
+      "confidence": 0.89
+    },
+    "k53": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.02,
+        "none_of_these": 0.01,
+        "not_critical": 0.97
+      },
+      "confidence": 0.96
+    },
+    "k54": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.03,
+        "none_of_these": 0.02,
+        "not_critical": 0.95
+      },
+      "confidence": 0.93
+    },
+    "k55": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.02,
+        "none_of_these": 0.02,
+        "not_critical": 0.96
+      },
+      "confidence": 0.94
+    },
+    "k56": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.03,
+        "none_of_these": 0.03,
+        "not_critical": 0.94
+      },
+      "confidence": 0.91
+    },
+    "k57": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.02,
+        "none_of_these": 0.02,
+        "not_critical": 0.96
+      },
+      "confidence": 0.94
+    },
+    "k58": {
+      "type": "choice",
+      "choice": "not_critical",
+      "probabilities": {
+        "critical": 0.03,
+        "none_of_these": 0.03,
+        "not_critical": 0.94
+      },
+      "confidence": 0.91
+    }
+  },
+  "usage": {
+    "input_tokens": 26701,
+    "output_tokens": 2707
+  }
+}

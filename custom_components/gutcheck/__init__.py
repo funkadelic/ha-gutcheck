@@ -22,11 +22,13 @@ from .const import (
     CONF_AREAS_ENABLED,
     CONF_CONFIG_ENTRIES_ENABLED,
     CONF_CRITICAL_LABEL,
+    CONF_CRITICAL_LABEL_ENABLED,
     CONF_DAILY_BUDGET,
     CONF_DEVICE_CLASS_ENABLED,
     CONF_HEALTH_ENABLED,
     CONF_UPDATES_ENABLED,
     CONFIG_ENTRY_ISSUE_PREFIX,
+    CRITICAL_LABEL_ISSUE_PREFIX,
     DEFAULT_DAILY_BUDGET,
     DEVICE_CLASS_APPLIED_STORE_KEY,
     DEVICE_CLASS_ISSUE_PREFIX,
@@ -34,6 +36,7 @@ from .const import (
     HEALTH_ISSUE_PREFIX,
     RECIPE_AREAS,
     RECIPE_CONFIG_ENTRIES,
+    RECIPE_CRITICAL_LABEL,
     RECIPE_DEVICE_CLASS,
     RECIPE_HEALTH,
     RECIPE_UPDATES,
@@ -43,6 +46,7 @@ from .const import (
 from .coordinator import RecipeCoordinator
 from .recipes.areas import AreaRecipe
 from .recipes.config_entries import ConfigEntryRecipe
+from .recipes.critical_label import CriticalLabelRecipe
 from .recipes.device_class import DeviceClassRecipe
 from .recipes.device_class_undo import AppliedClasses
 from .recipes.health import HealthRecipe
@@ -149,6 +153,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
         # Advisory-only cards, like the update review: no keep_ignored, since
         # only the two suggestion recipes keep an ignore as rejection memory.
         _async_disable_recipe(hass, entry, CONFIG_ENTRY_ISSUE_PREFIX, RECIPE_CONFIG_ENTRIES)
+
+    # Off by default, like the other later recipes: an upgraded install must
+    # not start raising critical label cards unasked.
+    if entry.options.get(CONF_CRITICAL_LABEL_ENABLED, False):
+        critical_label_recipe = CriticalLabelRecipe(entry.options.get(CONF_CRITICAL_LABEL))
+        coordinators[critical_label_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, critical_label_recipe)
+    else:
+        _async_disable_recipe(hass, entry, CRITICAL_LABEL_ISSUE_PREFIX, RECIPE_CRITICAL_LABEL, keep_ignored=True)
 
     entry.runtime_data = GutCheckData(client=client, budget=budget, coordinators=coordinators, applied=applied)
     entry.async_on_unload(budget.async_start())

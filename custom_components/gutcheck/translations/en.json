@@ -36,6 +36,7 @@
           "areas_enabled": "Run the weekly area suggestions",
           "device_class_enabled": "Run the weekly device class suggestions",
           "config_entries_enabled": "Run the weekly stuck integration check",
+          "critical_label_enabled": "Run the weekly critical label suggestions",
           "daily_budget": "Daily token budget (input tokens)",
           "critical_label": "Critical label",
           "undo_device_class": "Change back a device class Gut Check set"
@@ -45,8 +46,9 @@
           "areas_enabled": "Suggests an existing area for each device that has none. Nothing is assigned until you confirm a suggestion in Repairs.",
           "device_class_enabled": "Suggests a device class for sensors that report a unit but have none. Nothing is set until you confirm or pick a class in Repairs.",
           "config_entries_enabled": "Sorts integrations that failed to set up into a passing glitch, a sign-in problem, or broken for good. Advisory only: it never reloads, reconfigures or removes an integration. Its counts include integrations Home Assistant already asks you to sign in to again; Gut Check leaves those to Home Assistant's own card.",
+          "critical_label_enabled": "Suggests your critical label for smoke, carbon monoxide and gas sensors, and asks about every valve, switch, siren and moisture sensor to find water shutoffs, leak sensors and sirens. Nothing is labelled until you confirm a suggestion in Repairs, and it does nothing until you pick a critical label.",
           "daily_budget": "A hard stop for the day. It resets at local midnight.",
-          "critical_label": "Entities or devices with this label are never sent or checked. Locks, alarms and covers are never checked either, label or not.",
+          "critical_label": "Gut Check never acts on or changes an entity or device with this label. The home health check still watches it and tells you if it goes offline, but every other check leaves it out. Locks, alarms and covers are never checked, label or not.",
           "undo_device_class": "Opens a list of the sensors whose device class you set from a Gut Check suggestion, so you can change any of them back."
         }
       },
@@ -76,6 +78,9 @@
       "config_entries": {
         "name": "Stuck integration check"
       },
+      "critical_label": {
+        "name": "Critical label suggestions"
+      },
       "tokens_today": {
         "name": "Tokens used today"
       },
@@ -98,6 +103,9 @@
       },
       "config_entries_run": {
         "name": "Run stuck integration check"
+      },
+      "critical_label_run": {
+        "name": "Run critical label suggestions"
       }
     }
   },
@@ -161,6 +169,25 @@
         "abort": {
           "suggestion_outdated": "The sensor changed since this suggestion was made, so nothing was changed and the card was removed.",
           "suggestion_ignored": "Gut Check will stop suggesting a device class for this sensor. The card is now in your ignored repairs."
+        }
+      }
+    },
+    "critical_label_suggestion": {
+      "title": "{entity_id} may need your {label_name} label",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Suggested label",
+            "description": "Gut Check thinks `{entity_id}` guards against fire, gas or water damage, and suggests adding your **{label_name}** label to it. Gut Check never acts on or changes anything with this label, and the home health check still tells you when it goes offline. Nothing changes until you choose.",
+            "menu_options": {
+              "confirm": "Add the {label_name} label",
+              "ignore": "Don't suggest the label for this entity"
+            }
+          }
+        },
+        "abort": {
+          "suggestion_outdated": "The entity or the label changed since this suggestion was made, so nothing was changed and the card was removed.",
+          "suggestion_ignored": "Gut Check will stop suggesting the label for this entity. The card is now in your ignored repairs."
         }
       }
     }

@@ -17,6 +17,11 @@ class SafetyRules:
         """Store the label that marks an entity or device as critical."""
         self._critical_label = critical_label
 
+    @property
+    def critical_label(self) -> str | None:
+        """The configured critical label, or None when unset."""
+        return self._critical_label
+
     def is_critical(self, hass: HomeAssistant, entry: er.RegistryEntry) -> bool:
         """Whether the configured label sits on the entity or on the device behind it."""
         if not self._critical_label:
@@ -29,11 +34,23 @@ class SafetyRules:
                 return True
         return False
 
+    def always_excludes(self, entry: er.RegistryEntry) -> bool:
+        """Whether no recipe, including the home health check, may ever select this entry.
+
+        Disabled, Gut Check's own platform, and BLOCKED_DOMAINS (locks, alarm
+        panels, covers) are excluded whether or not the entry carries the
+        critical label.
+        """
+        return bool(entry.disabled or entry.platform == DOMAIN or entry.domain in BLOCKED_DOMAINS)
+
     def excludes(self, hass: HomeAssistant, entry: er.RegistryEntry) -> bool:
-        """Whether this registry entry is out of every recipe's reach."""
-        if entry.disabled or entry.platform == DOMAIN or entry.domain in BLOCKED_DOMAINS:
-            return True
-        return self.is_critical(hass, entry)
+        """Whether this registry entry is out of reach for every recipe but the home health check.
+
+        Adds the critical label on top of always_excludes: the label means
+        never acted on or changed, not never sent, so only the home health
+        check (which only reads availability) selects a labelled entry.
+        """
+        return self.always_excludes(entry) or self.is_critical(hass, entry)
 
     def excludes_device(self, hass: HomeAssistant, device: dr.DeviceEntry) -> bool:
         """Whether this device is out of the area recipe's reach.
@@ -65,7 +82,7 @@ class SafetyRules:
         )
 
     def excludes_entity_id(self, hass: HomeAssistant, entity_id_or_uuid: str) -> bool:
-        """The same rules for a stored finding, which may no longer be registered.
+        """The same rules as excludes(), for a stored finding which may no longer be registered.
 
         Takes either form the registry accepts. Prefer the registry id, which
         outlives a rename.
@@ -75,3 +92,15 @@ class SafetyRules:
             # Unknown now (removed). Left alone, so an ignore survives it.
             return False
         return self.excludes(hass, entry)
+
+    def always_excludes_entity_id(self, hass: HomeAssistant, entity_id_or_uuid: str) -> bool:
+        """The same rules as always_excludes(), for a stored finding which may no longer be registered.
+
+        Takes either form the registry accepts. Prefer the registry id, which
+        outlives a rename. Used only by the home health check's restore path.
+        """
+        entry = er.async_get(hass).async_get(entity_id_or_uuid)
+        if entry is None:
+            # Unknown now (removed). Left alone, so an ignore survives it.
+            return False
+        return self.always_excludes(entry)

@@ -18,6 +18,7 @@ from custom_components.gutcheck.const import (
     CONF_AREAS_ENABLED,
     CONF_CONFIG_ENTRIES_ENABLED,
     CONF_CRITICAL_LABEL,
+    CONF_CRITICAL_LABEL_ENABLED,
     CONF_DAILY_BUDGET,
     CONF_DEVICE_CLASS_ENABLED,
     CONF_HEALTH_ENABLED,
@@ -88,6 +89,7 @@ async def test_defaults_apply_when_options_never_saved(
     assert defaults[CONF_AREAS_ENABLED] is True
     assert defaults[CONF_DEVICE_CLASS_ENABLED] is False
     assert defaults[CONF_CONFIG_ENTRIES_ENABLED] is False
+    assert defaults[CONF_CRITICAL_LABEL_ENABLED] is False
     assert defaults[CONF_DAILY_BUDGET] == DEFAULT_DAILY_BUDGET
     assert CONF_CRITICAL_LABEL not in defaults
 
@@ -250,14 +252,13 @@ async def test_reenabling_within_the_week_restores_the_worth_fixing_issue(
     assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
 
 
-async def test_critical_label_excludes_and_clearing_restores(
+async def test_critical_label_no_longer_excludes_from_the_health_check(
     hass: HomeAssistant, freezer: Any, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
 ) -> None:
-    """Picking a critical label excludes the labelled entity; clearing it brings it back.
+    """Picking a critical label leaves a labelled entity selected: the label means never acted on, not never sent.
 
-    Each reload jumps the clock past the weekly cadence window first, so the
-    restore-for-free path doesn't hide the label's effect behind a
-    restored, pre-label result.
+    Each reload jumps the clock past the weekly cadence window first, so
+    every options save reaches the API instead of restoring for free.
     """
     freezer.move_to("2026-01-01T00:00:00-08:00")
     label_registry = lr.async_get(hass)
@@ -268,16 +269,8 @@ async def test_critical_label_excludes_and_clearing_restores(
     registry.async_update_entity(labelled_entity_id, labels={label.label_id})
     register_unavailable_entity(hass, "unique_other")
 
-    register_jev_responses(
-        aioclient_mock,
-        [
-            api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}),  # first run: no label yet, both selected
-            api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)}),  # after picking the label: only "other"
-            api_response(
-                {"e0": choice_answer(OPTION_EXPECTED, 0.9), "e1": choice_answer(OPTION_EXPECTED, 0.9)}
-            ),  # after clearing it: both again
-        ],
-    )
+    both = api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9), "e1": choice_answer(OPTION_EXPECTED, 0.9)})
+    register_jev_responses(aioclient_mock, [both, both, both])
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
@@ -290,14 +283,12 @@ async def test_critical_label_excludes_and_clearing_restores(
     )
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    # State never carries entity_id (SAFE-05), so the label's effect on
-    # selection shows up as the count of entities in the payload: with the
-    # label picked, only the unlabelled entity is sent.
+    # Picking the label changes nothing about selection: both entities are
+    # still sent, the labelled one included.
     bodies = posted_bodies(aioclient_mock)
     assert len(bodies) == 2
     assert len(bodies[0]["state"]["entities"]) == 2
-    assert len(bodies[1]["state"]["entities"]) == 1
-    assert "entity_id" not in bodies[1]["state"]["entities"][0]
+    assert len(bodies[1]["state"]["entities"]) == 2
 
     freezer.move_to("2026-01-17T00:00:00-08:00")
     result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)

@@ -1,4 +1,4 @@
-"""Options flow: toggle the five recipes, set the daily budget and critical label, and change a device class back."""
+"""Options flow: toggle the six recipes, set the daily budget and critical label, and change a device class back."""
 
 from __future__ import annotations
 
@@ -18,6 +18,7 @@ from .const import (
     CONF_AREAS_ENABLED,
     CONF_CONFIG_ENTRIES_ENABLED,
     CONF_CRITICAL_LABEL,
+    CONF_CRITICAL_LABEL_ENABLED,
     CONF_DAILY_BUDGET,
     CONF_DEVICE_CLASS_ENABLED,
     CONF_HEALTH_ENABLED,
@@ -39,6 +40,9 @@ OPTIONS_SCHEMA = vol.Schema(
         # Off by default too: an upgraded install must not start raising
         # stuck-integration cards unasked.
         vol.Required(CONF_CONFIG_ENTRIES_ENABLED, default=False): BooleanSelector(),
+        # Off by default too: an upgraded install must not start raising
+        # critical label cards unasked.
+        vol.Required(CONF_CRITICAL_LABEL_ENABLED, default=False): BooleanSelector(),
         vol.Required(CONF_DAILY_BUDGET, default=DEFAULT_DAILY_BUDGET): vol.All(vol.Coerce(int), vol.Range(min=1)),
         vol.Optional(CONF_CRITICAL_LABEL): LabelSelector(),
     }
@@ -46,7 +50,7 @@ OPTIONS_SCHEMA = vol.Schema(
 
 
 class GutCheckOptionsFlow(OptionsFlowWithReload):
-    """The five recipe toggles, the daily token budget, the critical label, and the device class change-back."""
+    """The six recipe toggles, the daily token budget, the critical label, and the device class change-back."""
 
     _held_options: dict[str, Any]
 
