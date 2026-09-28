@@ -1,0 +1,21 @@
+README.md
+  s_f81032a3f2b328::t_6c4497624f4d80 134,178
+custom_components/gutcheck/translations/en.json
+  s_f81032a3f2b328::t_8da35002c26c85 49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f3d3d4766c40b2135b3a1099ef251ebbdb496cab",
+  "prompts": {},
+  "sessions": {
+    "s_f81032a3f2b328": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c67780c0-c46d-447a-948d-9be78a1de59b",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
