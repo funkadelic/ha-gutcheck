@@ -1,5 +1,6 @@
 """Recipe-local constants for the update review: threshold, caps and the model question."""
 
+import re
 from typing import Final
 
 # Score answers only, and deliberately its own constant rather than
@@ -30,3 +31,6 @@ UPDATE_TITLE_MAX_CHARS: Final = 200
 # token cost, then rounded down for the estimator's own known undercount.
 # tests/test_update_size.py derives and checks this ceiling.
 MAX_UPDATES_PER_RUN: Final = 50
+
+# A release-note heading matching this moves ahead of the rest before the length cap.
+RELEASE_NOTES_RISK_HEADING_RE: Final = re.compile(r"\b(?:break|remov|deprecat|migrat)", re.IGNORECASE)
