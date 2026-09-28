@@ -33,4 +33,4 @@ UPDATE_TITLE_MAX_CHARS: Final = 200
 MAX_UPDATES_PER_RUN: Final = 50
 
 # A release-note heading matching this moves ahead of the rest before the length cap.
-RELEASE_NOTES_RISK_HEADING_RE: Final = re.compile(r"\b(?:breaking|remov|deprecat|migrat)", re.IGNORECASE)
+RELEASE_NOTES_RISK_HEADING_RE: Final = re.compile(r"\b(?:break|remov|deprecat|migrat)", re.IGNORECASE)

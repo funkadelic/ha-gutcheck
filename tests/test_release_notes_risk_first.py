@@ -20,7 +20,7 @@ def test_spook_change_list_survives_the_cap() -> None:
 
 @pytest.mark.parametrize(
     "heading",
-    ["Breaking changes", "⚠️ BREAKING", "Deprecations", "Removed", "Migration guide"],
+    ["Breaking changes", "⚠️ BREAKING", "Breaks older configs", "Deprecations", "Removed", "Migration guide"],
 )
 def test_late_risk_heading_comes_first(heading: str) -> None:
     """A risk heading late in the notes leads, then other sections, then the intro."""
