@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.9.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.8.0...v0.9.0) (2026-09-28)
+
+
+### Added
+
+* keep breaking changes and change lists when release notes are trimmed ([#51](https://github.com/funkadelic/ha-gutcheck/issues/51)) ([5edc5fe](https://github.com/funkadelic/ha-gutcheck/commit/5edc5fe779b665e3a5dfecdda7bb000fd5a941af))
+
+
+### Fixed
+
+* stop counting a home assistant restart as a breaking step ([#48](https://github.com/funkadelic/ha-gutcheck/issues/48)) ([690164e](https://github.com/funkadelic/ha-gutcheck/commit/690164e45e46bfafbe1d76ec19b27a7e5c5c778c))
+
 ## [0.8.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.7.0...v0.8.0) (2026-09-28)
 
 
