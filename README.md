@@ -131,7 +131,7 @@ The integration's three-dot menu also offers a diagnostics download. It replaces
 
 ### What each check leaves out
 
-The home health check skips disabled entities, locks, alarm panels, garage doors and covers, but checks entities carrying your critical label: it only reads whether they are available and never acts, so a dead smoke or leak sensor still gets a worth-fixing card.
+The home health check skips disabled entities, locks, alarm panels, garage doors and covers, but checks entities carrying your critical label: it only reads whether they are available and never acts, so a dead smoke or leak sensor can still get a worth-fixing card.
 
 The update review reads every pending update except disabled ones, including firmware for locks, alarm panels, garage doors and covers, since each is an ordinary update entity; it only scores them. To keep a device's updates out of the review, put your critical label on the device.
 
@@ -175,7 +175,7 @@ A device class suggestion gets one card per sensor, up to ten new cards per run,
 
 The stuck integration check raises one card per sign-in problem or broken-for-good integration, linking to that integration's page. A card clears as soon as the integration loads again, is disabled, or is removed, but stays through a retry that fails again. Ignoring a card hides it while Gut Check keeps sorting the integration the same way, even if it moves between sign-in problem and broken for good; turning the check off clears its cards, ignored ones included.
 
-A critical label suggestion gets one card per entity, up to ten new cards per run: entities decided by device class come first, then the rest by confidence. A card clears when you confirm it, when the entity gets the label another way or stops qualifying, or when a later run no longer suggests it. Choosing not to have the label suggested moves the card to your ignored repairs, where it stays for as long as the entity still qualifies, including across turning critical label suggestions off and back on and clearing the label. If the entity, its device or the label changed by the time you open a card, confirming does nothing, tells you so, and removes the card.
+A critical label suggestion gets one card per entity, up to ten new cards per run: entities decided by device class come first, then the rest by confidence. A card clears when you confirm it, when the entity gets the label another way or stops qualifying, or when a later run no longer suggests it. Choosing not to have the label suggested moves the card to your ignored repairs, where it stays for as long as the entity still qualifies, including across turning critical label suggestions off and back on and clearing the label. If the entity stops qualifying or your critical label changed by the time you open a card, confirming does nothing, tells you so, and removes the card.
 
 ### Changing a class back
 
