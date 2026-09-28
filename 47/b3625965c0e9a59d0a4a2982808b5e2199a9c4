@@ -1,0 +1,26 @@
+tests/test_release_notes_risk_first.py
+  s_99abd0a70e5c76::t_555434ded5994d 1-25,27-31,33-34
+  s_99abd0a70e5c76::t_3291ffade12d51 26,32
+custom_components/gutcheck/recipes/update_const.py
+  s_99abd0a70e5c76::t_8c6acd5b87837e 3,34-36
+tests/fixtures/captured/spook_release_notes.json
+  s_99abd0a70e5c76::t_09d244cbfb7070 1
+custom_components/gutcheck/describe.py
+  s_99abd0a70e5c76::t_8c6acd5b87837e 15,77,106-112,114-115
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "47b3625965c0e9a59d0a4a2982808b5e2199a9c4",
+  "prompts": {},
+  "sessions": {
+    "s_99abd0a70e5c76": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b3723f74-8502-4035-a0ab-5ebbde73e513",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": null
+    }
+  }
+}
