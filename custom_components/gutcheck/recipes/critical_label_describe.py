@@ -46,22 +46,17 @@ def qualifies(hass: HomeAssistant, safety: SafetyRules, entry: er.RegistryEntry)
     """Whether this registry entry is a candidate this recipe may consider or re-check.
 
     Selection reads only domain, effective device class and registry
-    entity_category, never name or brand. A binary sensor decided in code
-    skips the entity_category check, since it is never sent to the model in
-    the first place. A config or diagnostic entity is a settings toggle or
-    a diagnostic reading, never a shutoff or a siren, so it is never asked.
-    The cheap domain test runs before the shared exclusions, which already
-    drop disabled entities, Gut Check's own, locks, alarm panels, covers,
-    and anything carrying the critical label on the entity or its device.
+    entity_category, never name or brand. A config or diagnostic entity is
+    never a candidate, code-decided or asked. The cheap tests run before the
+    shared exclusions, which drop disabled entities, Gut Check's own, locks,
+    alarm panels, covers, and anything carrying the critical label.
     """
+    if entry.entity_category in EXCLUDED_ASK_ENTITY_CATEGORIES:
+        return False
     if entry.domain == Platform.BINARY_SENSOR:
-        if decided_in_code(entry):
-            return not safety.excludes(hass, entry)
-        if not _asked_binary_sensor(entry):
+        if not (decided_in_code(entry) or _asked_binary_sensor(entry)):
             return False
     elif entry.domain not in ASKED_DOMAINS:
-        return False
-    if entry.entity_category in EXCLUDED_ASK_ENTITY_CATEGORIES:
         return False
     return not safety.excludes(hass, entry)
 

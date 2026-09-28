@@ -56,6 +56,37 @@ async def test_code_decided_binary_sensors_carry_with_no_request_and_still_raise
         assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
 
 
+async def test_config_or_diagnostic_smoke_sensor_gets_no_card(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, critical_label_entry: MockConfigEntry
+) -> None:
+    """A config or diagnostic smoke sensor is not a candidate, even though smoke is decided in code."""
+    lr.async_get(hass).async_create("Critical")
+    diagnostic = register_unit_sensor(
+        hass,
+        "smoke_diag",
+        domain="binary_sensor",
+        unit=None,
+        original_device_class="smoke",
+        entity_category=er.EntityCategory.DIAGNOSTIC,
+    )
+    config = register_unit_sensor(
+        hass,
+        "smoke_config",
+        domain="binary_sensor",
+        unit=None,
+        original_device_class="smoke",
+        entity_category=er.EntityCategory.CONFIG,
+    )
+    critical_label_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(critical_label_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    assert posted_bodies(aioclient_mock) == []
+    for entry in (diagnostic, config):
+        assert ir.async_get(hass).async_get_issue(DOMAIN, f"{CRITICAL_LABEL_ISSUE_PREFIX}{entry.id}") is None
+
+
 async def test_moisture_binary_sensor_is_asked_not_code_decided(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, critical_label_entry: MockConfigEntry
 ) -> None:
