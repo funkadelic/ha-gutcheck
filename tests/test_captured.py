@@ -9,7 +9,13 @@ from typing import Any
 import pytest
 
 from custom_components.gutcheck.client import validate_response
-from custom_components.gutcheck.const import CHOICE_CONFIDENCE_THRESHOLD, HEALTH_OPTIONS, OPTION_EXPECTED, OPTION_ROUTINE
+from custom_components.gutcheck.const import (
+    CHOICE_CONFIDENCE_THRESHOLD,
+    HEALTH_OPTIONS,
+    OPTION_EXPECTED,
+    OPTION_ROUTINE,
+    RELEASE_NOTES_MAX_CHARS,
+)
 from custom_components.gutcheck.recipes.gate import classify, gate_choice
 from custom_components.gutcheck.recipes.health import HealthRecipe
 from custom_components.gutcheck.recipes.health_const import LEAN_NEEDS_ATTENTION
@@ -174,5 +180,7 @@ def test_an_update_with_no_release_notes_gates_to_routine() -> None:
 
 def test_low_confidence_long_release_notes_stay_unsure() -> None:
     """Release notes cut off at the excerpt cap stay unsure."""
+    payload = _load("update_payload.json")
     response = _load("update_response.json")
+    assert len(_update(payload, "u1")["release_notes"]) == RELEASE_NOTES_MAX_CHARS
     assert UpdateRecipe(None).gate(response["answers"]["u1"]) is None
