@@ -1,0 +1,27 @@
+tests/test_device_class_undo.py
+  s_f81032a3f2b328::t_d6b362c622c73c 36,158
+tests/conftest.py
+  s_f81032a3f2b328::t_d6b362c622c73c 389
+tests/test_device_class_undo_rules.py
+  s_f81032a3f2b328::t_d6b362c622c73c 26,172
+tests/test_critical_label_fix_flow.py
+  s_f81032a3f2b328::t_d6b362c622c73c 207
+tests/test_safety_rules.py
+  s_f81032a3f2b328::t_6e83b44f7fade1 135-144,161-162
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "13f8994aeb19737a5982f93e405a945824b6614e",
+  "prompts": {},
+  "sessions": {
+    "s_f81032a3f2b328": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c67780c0-c46d-447a-948d-9be78a1de59b",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
