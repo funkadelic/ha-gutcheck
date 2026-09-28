@@ -17,10 +17,11 @@ UPDATE_INSTRUCTIONS: Final = (
 
 UPDATE_CRITERIA: Final[list[str]] = [
     "Routine: a maintenance release, bug fix, translation update, dependency bump or security patch. "
-    "Nothing for the user to do beyond installing it.",
+    "Nothing for the user to do beyond installing it and restarting Home Assistant.",
     "Feature: adds something user-visible, or changes a default, while every existing setup keeps working unchanged.",
     "Possibly breaking: removes or renames something, requires a migration, raises a minimum version, or "
-    "needs a manual step after installing.",
+    "needs a manual step after installing. Restarting Home Assistant after installing is not a manual step: "
+    "it is normal for every update.",
 ]
 
 UPDATE_TITLE_MAX_CHARS: Final = 200

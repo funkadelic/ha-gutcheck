@@ -3,22 +3,82 @@
   "answers": {
     "u0": {
       "type": "score",
-      "score": 0.02,
-      "confidence": 0.97,
+      "score": 0.27,
+      "confidence": 0.59,
       "legend": {
-        "0": "Routine: a maintenance release, bug fix, translation update, dependency bump or security patch. Nothing for the user to do beyond installing it.",
+        "0": "Routine: a maintenance release, bug fix, translation update, dependency bump or security patch. Nothing for the user to do beyond installing it and restarting Home Assistant.",
         "1": "Feature: adds something user-visible, or changes a default, while every existing setup keeps working unchanged.",
-        "2": "Possibly breaking: removes or renames something, requires a migration, raises a minimum version, or needs a manual step after installing."
+        "2": "Possibly breaking: removes or renames something, requires a migration, raises a minimum version, or needs a manual step after installing. Restarting Home Assistant after installing is not a manual step: it is normal for every update."
+      },
+      "probabilities": {
+        "0": 0.86,
+        "1": 0.0,
+        "2": 0.14
+      }
+    },
+    "u1": {
+      "type": "score",
+      "score": 0.46,
+      "confidence": 0.31,
+      "legend": {
+        "0": "Routine: a maintenance release, bug fix, translation update, dependency bump or security patch. Nothing for the user to do beyond installing it and restarting Home Assistant.",
+        "1": "Feature: adds something user-visible, or changes a default, while every existing setup keeps working unchanged.",
+        "2": "Possibly breaking: removes or renames something, requires a migration, raises a minimum version, or needs a manual step after installing. Restarting Home Assistant after installing is not a manual step: it is normal for every update."
+      },
+      "probabilities": {
+        "0": 0.65,
+        "1": 0.25,
+        "2": 0.1
+      }
+    },
+    "u2": {
+      "type": "score",
+      "score": 0.0,
+      "confidence": 1.0,
+      "legend": {
+        "0": "Routine: a maintenance release, bug fix, translation update, dependency bump or security patch. Nothing for the user to do beyond installing it and restarting Home Assistant.",
+        "1": "Feature: adds something user-visible, or changes a default, while every existing setup keeps working unchanged.",
+        "2": "Possibly breaking: removes or renames something, requires a migration, raises a minimum version, or needs a manual step after installing. Restarting Home Assistant after installing is not a manual step: it is normal for every update."
+      },
+      "probabilities": {
+        "0": 1.0,
+        "1": 0.0,
+        "2": 0.0
+      }
+    },
+    "u3": {
+      "type": "score",
+      "score": 0.04,
+      "confidence": 0.94,
+      "legend": {
+        "0": "Routine: a maintenance release, bug fix, translation update, dependency bump or security patch. Nothing for the user to do beyond installing it and restarting Home Assistant.",
+        "1": "Feature: adds something user-visible, or changes a default, while every existing setup keeps working unchanged.",
+        "2": "Possibly breaking: removes or renames something, requires a migration, raises a minimum version, or needs a manual step after installing. Restarting Home Assistant after installing is not a manual step: it is normal for every update."
       },
       "probabilities": {
         "0": 0.98,
-        "1": 0.02,
+        "1": 0.0,
+        "2": 0.02
+      }
+    },
+    "u4": {
+      "type": "score",
+      "score": 0.0,
+      "confidence": 1.0,
+      "legend": {
+        "0": "Routine: a maintenance release, bug fix, translation update, dependency bump or security patch. Nothing for the user to do beyond installing it and restarting Home Assistant.",
+        "1": "Feature: adds something user-visible, or changes a default, while every existing setup keeps working unchanged.",
+        "2": "Possibly breaking: removes or renames something, requires a migration, raises a minimum version, or needs a manual step after installing. Restarting Home Assistant after installing is not a manual step: it is normal for every update."
+      },
+      "probabilities": {
+        "0": 1.0,
+        "1": 0.0,
         "2": 0.0
       }
     }
   },
   "usage": {
-    "input_tokens": 593,
-    "output_tokens": 18
+    "input_tokens": 2253,
+    "output_tokens": 74
   }
 }
