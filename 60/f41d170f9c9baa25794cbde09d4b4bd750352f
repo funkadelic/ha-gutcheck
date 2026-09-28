@@ -1,0 +1,26 @@
+custom_components/gutcheck/describe.py
+  s_99abd0a70e5c76::t_8c6acd5b87837e 15,77,106-112,114-115
+tests/test_release_notes_risk_first.py
+  s_99abd0a70e5c76::t_3291ffade12d51 26,32
+  s_99abd0a70e5c76::t_555434ded5994d 1-25,27-31,33-34
+custom_components/gutcheck/recipes/update_const.py
+  s_99abd0a70e5c76::t_8c6acd5b87837e 3,34-36
+tests/fixtures/captured/spook_release_notes.json
+  s_99abd0a70e5c76::t_09d244cbfb7070 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "60f41d170f9c9baa25794cbde09d4b4bd750352f",
+  "prompts": {},
+  "sessions": {
+    "s_99abd0a70e5c76": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b3723f74-8502-4035-a0ab-5ebbde73e513",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
