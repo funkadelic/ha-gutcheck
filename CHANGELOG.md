@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.7.0...v0.8.0) (2026-09-28)
+
+
+### Added
+
+* suggest the critical label for smoke, gas and leak devices ([#46](https://github.com/funkadelic/ha-gutcheck/issues/46)) ([3d43a03](https://github.com/funkadelic/ha-gutcheck/commit/3d43a0360d4eda3a6888b0c8061b0c8874acfb92))
+
 ## [0.7.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.6.0...v0.7.0) (2026-09-26)
 
 
