@@ -18,7 +18,7 @@ from .suggestion_cards import Resolved, confidence_of, sync_suggestion_cards
 def _resolve(hass: HomeAssistant, safety: SafetyRules, label: lr.LabelEntry, suggested: list[Item]) -> dict[str, Resolved]:
     """Every suggestion whose entity still resolves, keyed by its card's issue id.
 
-    Ranks a code-decided entity (a smoke, carbon monoxide, gas or moisture
+    Ranks a code-decided entity (a smoke, carbon monoxide or gas
     sensor) ahead of every model-decided one, following the live entry's own
     predicate rather than a stored marker on the item.
     """
