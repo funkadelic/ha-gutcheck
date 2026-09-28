@@ -12,6 +12,7 @@ from .const import (
     VERSION_JUMP_PATCH,
     VERSION_JUMP_UNKNOWN,
 )
+from .recipes.update_const import RELEASE_NOTES_RISK_HEADING_RE
 
 _DAY = 86400
 _WEEK = 7 * _DAY
@@ -73,6 +74,7 @@ _EMPHASIS_RE = re.compile(r"(?<!\w)[*_]{1,3}(?=\S)|(?<=\S)[*_]{1,3}(?!\w)")
 _CODE_FENCE_RE = re.compile(r"```[a-zA-Z0-9]*\n?")
 _INLINE_CODE_RE = re.compile(r"`([^`]*)`")
 _WHITESPACE_RE = re.compile(r"\s+")
+_SECTION_START_RE = re.compile(r"(?m)^(?=#{1,6}\s)")
 
 
 def clean_text(text: str | None, max_chars: int) -> str:
@@ -101,6 +103,13 @@ def clean_text(text: str | None, max_chars: int) -> str:
     return cleaned[:max_chars]
 
 
+def _risk_first(text: str) -> str:
+    """Order sections: risk-headed, other headed, then the prose before the first heading."""
+    preamble, *sections = _SECTION_START_RE.split(text)
+    sections.sort(key=lambda s: not RELEASE_NOTES_RISK_HEADING_RE.search(s.partition("\n")[0]))
+    return "\n".join([*sections, preamble])
+
+
 def clean_release_notes(text: str | None) -> str:
-    """Clean a release note excerpt to plain text, capped at RELEASE_NOTES_MAX_CHARS."""
-    return clean_text(text, RELEASE_NOTES_MAX_CHARS)
+    """Clean a release note excerpt to plain text, risk sections first, capped at RELEASE_NOTES_MAX_CHARS."""
+    return clean_text(_risk_first(text or ""), RELEASE_NOTES_MAX_CHARS)
