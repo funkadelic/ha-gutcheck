@@ -86,7 +86,7 @@ TypeSafe AI measures usage in tokens, about three characters of text each, and c
 | --- | --- | --- |
 | Home health check | 32,700 | about $0.0014 |
 | Area suggestions | 16,548 | under $0.001 |
-| Update review | 0 when nothing is pending or changed; 2,253 for 5 pending updates on a real run (about 450 each); about 41,000 estimated at the 50-update cap | under $0.002 |
+| Update review | 0 when nothing is pending or changed; 2,253 for 5 pending updates on a real run (about 450 each); up to about 41,000 estimated when 50 updates all carry full-length release notes | under $0.002 |
 | Device class suggestions | 20,056 for 58 asked sensors on a real run | under $0.001 |
 | Stuck integration check | 0 when nothing is stuck; about 550 estimated per stuck integration | under $0.0001 per stuck integration (estimated) |
 | Critical label suggestions | 0 when only smoke, carbon monoxide or gas sensors qualify; 26,701 for 59 asked entities on a real run | about $0.0011 |
