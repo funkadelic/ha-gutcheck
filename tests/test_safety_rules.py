@@ -132,7 +132,16 @@ async def test_only_the_health_check_selects_a_labelled_entity_device_or_valve(
     er.async_get(hass).async_update_entity(labelled_valve, labels={CRITICAL})
     unlabelled_valve = _unavailable(hass, "valve", "unlabelled_shutoff").entity_id
 
-    labelled = {"labelled entity": labelled_entity, "labelled device": labelled_device, "labelled valve": labelled_valve}
+    labelled_smoke = _unavailable(hass, "binary_sensor", "smoke", original_device_class="smoke").entity_id
+    er.async_get(hass).async_update_entity(labelled_smoke, labels={CRITICAL})
+    unlabelled_smoke = _unavailable(hass, "binary_sensor", "unlabelled_smoke", original_device_class="smoke").entity_id
+
+    labelled = {
+        "labelled entity": labelled_entity,
+        "labelled device": labelled_device,
+        "labelled valve": labelled_valve,
+        "labelled smoke sensor": labelled_smoke,
+    }
 
     health_recipe = next(recipe for recipe in recipes if recipe.recipe_id == RECIPE_HEALTH)
     other_recipes = [recipe for recipe in recipes if recipe.recipe_id != RECIPE_HEALTH]
@@ -149,6 +158,8 @@ async def test_only_the_health_check_selects_a_labelled_entity_device_or_valve(
     critical_label_batch = await critical_label_recipe.async_prepare(hass)
     asked_by_critical_label = {str(subject["entity_id"]) for subject in critical_label_batch.subjects.values()}
     assert unlabelled_valve in asked_by_critical_label
+    carried_by_critical_label = {str(item["entity_id"]) for items in critical_label_batch.carried.values() for item in items}
+    assert unlabelled_smoke in carried_by_critical_label
 
 
 async def test_clearing_the_critical_label_leaves_every_blocked_domain_excluded(

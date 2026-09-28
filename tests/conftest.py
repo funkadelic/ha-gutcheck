@@ -361,10 +361,6 @@ async def confirm_suggestion_card(hass: HomeAssistant, issue_id: str) -> None:
     assert result["type"] is FlowResultType.CREATE_ENTRY
 
 
-# Kept as an alias: every existing caller of the old, device-class-specific name stays unchanged.
-confirm_device_class_card = confirm_suggestion_card
-
-
 async def seed_device_class_card(
     hass: HomeAssistant, entry: MockConfigEntry, *, unit: str = "%", choice: str = "battery"
 ) -> tuple[er.RegistryEntry, str]:
@@ -390,7 +386,7 @@ async def setup_and_confirm_device_class(
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
     issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
-    await confirm_device_class_card(hass, issue_id)
+    await confirm_suggestion_card(hass, issue_id)
     return issue_id
 
 

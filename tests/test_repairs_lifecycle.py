@@ -75,7 +75,6 @@ async def test_restore_keeps_a_newly_critical_entity_in_every_bucket(hass: HomeA
     entry = registry.async_get_or_create("sensor", "test", "critical_safe")
     recipe = HealthRecipe(critical_label="critical")
     result = health_result({OPTION_SAFE_TO_REMOVE: [health_item(entry.entity_id, entry.id)]})
-    result["counts"] = {OPTION_SAFE_TO_REMOVE: 1}
 
     registry.async_update_entity(entry.entity_id, labels={"critical"})
     await recipe.restore(hass, result)

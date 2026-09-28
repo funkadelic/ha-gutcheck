@@ -204,6 +204,7 @@ async def test_confirm_aborts_when_card_data_lacks_label_id(
     """A card whose data holds only the registry id aborts rather than raising, since there is no label id to re-check."""
     lr.async_get(hass).async_create("Critical")
     valve = register_unit_sensor(hass, "water_valve", domain="valve", unit=None)
+    register_jev_responses(aioclient_mock, [api_response({})])
     critical_label_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(critical_label_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
