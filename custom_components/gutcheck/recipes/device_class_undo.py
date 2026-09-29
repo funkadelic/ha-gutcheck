@@ -23,11 +23,11 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class AppliedClasses:
-    """The registry id to device class map Gut Check itself set, persisted across restarts."""
+    """The registry id to recorded value map for one kind of registry write Gut Check made, persisted under its own Store key."""
 
-    def __init__(self, hass: HomeAssistant) -> None:
+    def __init__(self, hass: HomeAssistant, key: str = DEVICE_CLASS_APPLIED_STORE_KEY) -> None:
         """Hold the Store; async_load populates the in-memory map."""
-        self._store: Store[dict[str, str]] = Store(hass, STORE_VERSION, DEVICE_CLASS_APPLIED_STORE_KEY)
+        self._store: Store[dict[str, str]] = Store(hass, STORE_VERSION, key)
         self._data: dict[str, str] = {}
 
     async def async_load(self) -> None:
@@ -49,9 +49,9 @@ class AppliedClasses:
         return tuple(self._data)
 
     @callback
-    def record(self, registry_id: str, device_class: str) -> None:
+    def record(self, registry_id: str, value: str) -> None:
         """Record a write and schedule the save; the fix flow's apply step is synchronous."""
-        self._data[registry_id] = device_class
+        self._data[registry_id] = value
         self._store.async_delay_save(lambda: dict(self._data), 0)
 
     async def async_flush(self) -> None:

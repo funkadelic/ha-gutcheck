@@ -8,7 +8,6 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_API_KEY, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
-from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.storage import Store
@@ -53,6 +52,7 @@ from .recipes.health import HealthRecipe
 from .recipes.shapes import recipe_store_key
 from .recipes.updates import UpdateRecipe
 from .repairs import async_delete_issues
+from .teardown import async_disable_recipe
 
 PLATFORMS = [Platform.SENSOR, Platform.BUTTON]
 
@@ -64,27 +64,6 @@ def device_info(entry: ConfigEntry) -> DeviceInfo:
         name="Gut Check",
         entry_type=DeviceEntryType.SERVICE,
     )
-
-
-def _async_remove_recipe_entities(hass: HomeAssistant, entry: ConfigEntry, recipe_id: str) -> None:
-    """Remove every entity this entry registered for a now-disabled recipe."""
-    registry = er.async_get(hass)
-    prefix = f"{entry.entry_id}_{recipe_id}"
-    for entity_entry in er.async_entries_for_config_entry(registry, entry.entry_id):
-        if entity_entry.unique_id == prefix or entity_entry.unique_id.startswith(f"{prefix}_"):
-            registry.async_remove(entity_entry.entity_id)
-
-
-def _async_disable_recipe(
-    hass: HomeAssistant, entry: ConfigEntry, issue_prefix: str, recipe_id: str, *, keep_ignored: bool = False
-) -> None:
-    """Sweep a disabled recipe's issues and entities.
-
-    keep_ignored leaves an ignored card in place: it is the user's rejection
-    record, and a recipe off/on toggle must not bring the suggestion back.
-    """
-    async_delete_issues(hass, issue_prefix, keep_ignored=keep_ignored)
-    _async_remove_recipe_entities(hass, entry, recipe_id)
 
 
 @dataclass
@@ -120,20 +99,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
         coordinators[health_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, health_recipe)
         entry.async_on_unload(health_recipe.shutdown)
     else:
-        _async_disable_recipe(hass, entry, HEALTH_ISSUE_PREFIX, RECIPE_HEALTH)
+        async_disable_recipe(hass, entry, HEALTH_ISSUE_PREFIX, RECIPE_HEALTH)
 
     if entry.options.get(CONF_UPDATES_ENABLED, True):
         updates_recipe = UpdateRecipe(entry.options.get(CONF_CRITICAL_LABEL))
         coordinators[updates_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, updates_recipe)
         entry.async_on_unload(updates_recipe.shutdown)
     else:
-        _async_disable_recipe(hass, entry, UPDATES_ISSUE_PREFIX, RECIPE_UPDATES)
+        async_disable_recipe(hass, entry, UPDATES_ISSUE_PREFIX, RECIPE_UPDATES)
 
     if entry.options.get(CONF_AREAS_ENABLED, True):
         area_recipe = AreaRecipe(entry.options.get(CONF_CRITICAL_LABEL))
         coordinators[area_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, area_recipe)
     else:
-        _async_disable_recipe(hass, entry, AREA_ISSUE_PREFIX, RECIPE_AREAS, keep_ignored=True)
+        async_disable_recipe(hass, entry, AREA_ISSUE_PREFIX, RECIPE_AREAS, keep_ignored=True)
 
     # Off by default, unlike the other three: an upgraded install must not
     # start raising device class cards unasked.
@@ -141,7 +120,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
         device_class_recipe = DeviceClassRecipe(entry.options.get(CONF_CRITICAL_LABEL))
         coordinators[device_class_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, device_class_recipe)
     else:
-        _async_disable_recipe(hass, entry, DEVICE_CLASS_ISSUE_PREFIX, RECIPE_DEVICE_CLASS, keep_ignored=True)
+        async_disable_recipe(hass, entry, DEVICE_CLASS_ISSUE_PREFIX, RECIPE_DEVICE_CLASS, keep_ignored=True)
 
     # Off by default, like device class suggestions: an upgraded install must
     # not start raising stuck-integration cards unasked.
@@ -152,7 +131,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
     else:
         # Advisory-only cards, like the update review: no keep_ignored, since
         # only the two suggestion recipes keep an ignore as rejection memory.
-        _async_disable_recipe(hass, entry, CONFIG_ENTRY_ISSUE_PREFIX, RECIPE_CONFIG_ENTRIES)
+        async_disable_recipe(hass, entry, CONFIG_ENTRY_ISSUE_PREFIX, RECIPE_CONFIG_ENTRIES)
 
     # Off by default, like the other later recipes: an upgraded install must
     # not start raising critical label cards unasked.
@@ -160,7 +139,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
         critical_label_recipe = CriticalLabelRecipe(entry.options.get(CONF_CRITICAL_LABEL))
         coordinators[critical_label_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, critical_label_recipe)
     else:
-        _async_disable_recipe(hass, entry, CRITICAL_LABEL_ISSUE_PREFIX, RECIPE_CRITICAL_LABEL, keep_ignored=True)
+        async_disable_recipe(hass, entry, CRITICAL_LABEL_ISSUE_PREFIX, RECIPE_CRITICAL_LABEL, keep_ignored=True)
 
     entry.runtime_data = GutCheckData(client=client, budget=budget, coordinators=coordinators, applied=applied)
     entry.async_on_unload(budget.async_start())
