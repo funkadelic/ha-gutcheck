@@ -1,0 +1,52 @@
+custom_components/gutcheck/recipes/hide_diagnostic_describe.py
+  s_16c70a9fb1ed26::t_cbbb1561f29a36 1-63
+custom_components/gutcheck/recipes/hide_diagnostic.py
+  s_16c70a9fb1ed26::t_cbbb1561f29a36 1-112
+custom_components/gutcheck/recipes/hide_diagnostic_cards.py
+  s_16c70a9fb1ed26::t_cbbb1561f29a36 1-51
+tests/test_diagnostics.py
+  s_16c70a9fb1ed26::t_cc42c2c9275eea 28
+  s_16c70a9fb1ed26::t_3e2930c466ae99 129-130,134-138
+custom_components/gutcheck/__init__.py
+  s_16c70a9fb1ed26::t_40935b231afb5f 28,37-38,44,56,82,97-98,101-102,152-162,180-181,184,189,191-192
+custom_components/gutcheck/recipes/hide_diagnostic_const.py
+  s_16c70a9fb1ed26::t_cbbb1561f29a36 1-50
+tests/conftest.py
+  s_16c70a9fb1ed26::t_ae20eab6d55e69 48,60,77,140-144,501-502,544-546,711-732
+tests/test_hide_diagnostic.py
+  s_16c70a9fb1ed26::t_cc42c2c9275eea 1-155
+custom_components/gutcheck/const.py
+  s_16c70a9fb1ed26::t_40935b231afb5f 21,61,71,86,92,165-167,169
+custom_components/gutcheck/recipes/hide_diagnostic_repairs.py
+  s_16c70a9fb1ed26::t_cbbb1561f29a36 1-32
+custom_components/gutcheck/translations/en.json
+  s_16c70a9fb1ed26::t_cbbb1561f29a36 42-43,53-54,91-93,114-116,201-217
+  s_16c70a9fb1ed26::t_1556d276be074d 218-219
+custom_components/gutcheck/options_flow.py
+  s_16c70a9fb1ed26::t_40935b231afb5f 1,25,47-49,57
+tests/test_options_flow.py
+  s_16c70a9fb1ed26::t_3e2930c466ae99 25,94
+custom_components/gutcheck/recipes/suggestion_flow.py
+  s_16c70a9fb1ed26::t_40935b231afb5f 4,21-27,31,128-129
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "480b36b3c753b4acd9d9a5579d3c4ab766db54a4",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_16c70a9fb1ed26": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d036a682-291c-4164-a3fb-8737cd9a481b",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
