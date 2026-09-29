@@ -20,7 +20,7 @@ from .hide_diagnostic_const import (
     OPTION_DIAGNOSTIC,
     OPTION_PRIMARY,
 )
-from .hide_diagnostic_describe import describe, qualifies, qualifying_entry
+from .hide_diagnostic_describe import decided_in_code, describe, qualifies, qualifying_entry
 from .safety import SafetyRules
 from .shapes import Batch, Item, RecipeResult
 
@@ -54,9 +54,12 @@ class HideDiagnosticRecipe:
         return OPTION_SUGGESTED if choice == OPTION_DIAGNOSTIC else choice
 
     async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None, *, force: bool = False) -> Batch:
-        """Select every qualifying sensor and ask one choice question per sensor.
+        """Select every qualifying sensor and ask one choice question per asked sensor.
 
-        previous and force are unused, since nothing carries forward between runs.
+        previous and force are unused, since nothing carries forward between
+        runs. A signal-strength sensor goes straight into suggested with no
+        question; the index of every other one counts only asked sensors, so a
+        code-decided one never shifts it.
         """
         registry = er.async_get(hass)
         selected = sorted(
@@ -67,8 +70,12 @@ class HideDiagnosticRecipe:
         sensors: list[dict[str, Any]] = []
         questions: dict[str, Question] = {}
         subjects: dict[str, Item] = {}
+        carried: dict[str, list[Item]] = {OPTION_SUGGESTED: []}
         for entry in selected:
             state_item, subject = describe(hass, entry)
+            if decided_in_code(entry):
+                carried[OPTION_SUGGESTED].append(subject)
+                continue
             index = len(sensors)
             sensors.append(state_item)
             question_id = f"h{index}"
@@ -79,11 +86,17 @@ class HideDiagnosticRecipe:
             }
             subjects[question_id] = subject
 
-        _LOGGER.debug("diagnostic sensor suggestions selected=%s asked=%s", len(selected), len(sensors))
+        _LOGGER.debug(
+            "diagnostic sensor suggestions selected=%s asked=%s decided_in_code=%s",
+            len(selected),
+            len(sensors),
+            len(carried[OPTION_SUGGESTED]),
+        )
         return Batch(
             state={"sensors": sensors},
             questions=questions,
             subjects=subjects,
+            carried=carried,
             list_key="sensors",
             template=HIDE_DIAGNOSTIC_INSTRUCTIONS,
         )

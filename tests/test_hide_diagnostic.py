@@ -3,14 +3,19 @@
 from __future__ import annotations
 
 import json
+from typing import Any
 
+from homeassistant.components.repairs import repairs_flow_manager
 from homeassistant.core import HomeAssistant
+from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
+from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import MockConfigEntry
-from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
+from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker, AiohttpClientMockResponse
 
 from custom_components.gutcheck.const import (
+    API_URL,
     ATTR_COUNTS,
     CONF_AREAS_ENABLED,
     CONF_CONFIG_ENTRIES_ENABLED,
@@ -30,6 +35,8 @@ from custom_components.gutcheck.const import (
     RECIPE_HIDE_DIAGNOSTIC,
 )
 from custom_components.gutcheck.recipes.hide_diagnostic_const import HIDE_DIAGNOSTIC_INSTRUCTIONS
+from custom_components.gutcheck.recipes.hide_diagnostic_repairs import hide_entity
+from custom_components.gutcheck.recipes.safety import SafetyRules
 
 from .conftest import (
     api_response,
@@ -153,3 +160,62 @@ async def test_asked_sensor_gets_a_card_that_hides_it_for_good(
     await press_recipe_run(hass, entry, RECIPE_HIDE_DIAGNOSTIC)
     assert len(posted_bodies(aioclient_mock)) == 1
     assert _card_count(hass, issue_id) == 0
+
+
+async def test_confirming_after_the_sensor_was_hidden_by_hand_changes_nothing(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, hide_diagnostic_entry: MockConfigEntry
+) -> None:
+    """The confirm re-checks the sensor: one already hidden aborts as outdated, drops the card and records nothing."""
+    sensor = register_unit_sensor(hass, "phone_wifi", unit=None, name="Wi-Fi connection")
+    register_jev_responses_by_question(aioclient_mock, {"h0": api_response({"h0": hide_diagnostic_answer("diagnostic", 0.9)})})
+    hide_diagnostic_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(hide_diagnostic_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+    issue_id = f"{HIDE_DIAGNOSTIC_ISSUE_PREFIX}{sensor.id}"
+    assert _card_count(hass, issue_id) == 1
+    er.async_get(hass).async_update_entity(sensor.entity_id, hidden_by=er.RegistryEntryHider.USER)
+
+    assert await async_setup_component(hass, "repairs", {})
+    manager = repairs_flow_manager(hass)
+    assert manager is not None
+    result = await manager.async_init(DOMAIN, data={"issue_id": issue_id})
+    result = await manager.async_configure(result["flow_id"], {"next_step_id": "confirm"})
+
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "suggestion_outdated"
+    assert _card_count(hass, issue_id) == 0
+    assert hide_diagnostic_entry.runtime_data.applied_hidden.get(sensor.id) is None
+
+
+async def test_hide_entity_writes_nothing_without_a_valid_qualifying_sensor_and_a_loaded_entry(hass: HomeAssistant) -> None:
+    """A missing, malformed or unknown registry id, or no loaded Gut Check entry, leaves the sensor visible."""
+    sensor = register_unit_sensor(hass, "phone_wifi", unit=None, name="Wi-Fi connection")
+    safety = SafetyRules(None)
+    bad_data: list[dict[str, Any]] = [{}, {"registry_id": 5}, {"registry_id": "no-such-id"}, {"registry_id": sensor.id}]
+
+    assert [hide_entity(hass, safety, data) for data in bad_data] == [False] * 4
+
+    unchanged = er.async_get(hass).async_get(sensor.entity_id)
+    assert unchanged is not None
+    assert unchanged.hidden_by is None
+
+
+async def test_a_sensor_removed_while_the_request_is_in_flight_gets_no_card(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, hide_diagnostic_entry: MockConfigEntry
+) -> None:
+    """A suggestion whose sensor left the registry before the answer arrived raises nothing."""
+    sensor = register_unit_sensor(hass, "phone_wifi", unit=None, name="Wi-Fi connection")
+    answer = api_response({"h0": hide_diagnostic_answer("diagnostic", 0.9)})
+
+    async def _remove_then_answer(method: str, url: Any, data: Any) -> AiohttpClientMockResponse:
+        """Answer the request after the user removed the sensor."""
+        er.async_get(hass).async_remove(sensor.entity_id)
+        return AiohttpClientMockResponse(method=method, url=url, status=200, json=answer)
+
+    aioclient_mock.post(API_URL, side_effect=_remove_then_answer)
+    hide_diagnostic_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(hide_diagnostic_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    assert _card_count(hass, f"{HIDE_DIAGNOSTIC_ISSUE_PREFIX}{sensor.id}") == 0

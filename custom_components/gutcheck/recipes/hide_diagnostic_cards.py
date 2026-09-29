@@ -8,14 +8,14 @@ from homeassistant.core import HomeAssistant
 
 from ..const import HIDE_DIAGNOSTIC_ISSUE_PREFIX, ISSUE_HIDE_DIAGNOSTIC_SUGGESTION
 from .hide_diagnostic_const import MAX_NEW_HIDE_DIAGNOSTIC_CARDS_PER_RUN
-from .hide_diagnostic_describe import qualifying_entry
+from .hide_diagnostic_describe import decided_in_code, qualifying_entry
 from .safety import SafetyRules
 from .shapes import Item
 from .suggestion_cards import Resolved, confidence_of, sync_suggestion_cards
 
 
 def _resolve(hass: HomeAssistant, safety: SafetyRules, suggested: list[Item]) -> dict[str, Resolved]:
-    """Every suggestion whose sensor still resolves, keyed by its card's issue id."""
+    """Every suggestion whose sensor still resolves, keyed by its card's issue id, code-decided ones ranked first."""
     resolved: dict[str, Resolved] = {}
     for item in suggested:
         entry = qualifying_entry(hass, safety, str(item["registry_id"]))
@@ -26,13 +26,19 @@ def _resolve(hass: HomeAssistant, safety: SafetyRules, suggested: list[Item]) ->
             confidence=confidence_of(item),
             placeholders={"entity_id": entry.entity_id},
             data={"registry_id": entry.id},
+            tier=1 if decided_in_code(entry) else 0,
         )
     return resolved
 
 
 def _still_qualifies(hass: HomeAssistant, safety: SafetyRules, issue_id: str) -> bool:
-    """Whether the sensor behind an existing card (the issue id, prefix stripped) still qualifies."""
-    return qualifying_entry(hass, safety, issue_id.removeprefix(HIDE_DIAGNOSTIC_ISSUE_PREFIX)) is not None
+    """Whether the sensor behind an existing card (the issue id, prefix stripped) still qualifies.
+
+    Only decides whether an ignored card with no suggestion this run is kept,
+    so an open device class card must not cost the user's rejection.
+    """
+    registry_id = issue_id.removeprefix(HIDE_DIAGNOSTIC_ISSUE_PREFIX)
+    return qualifying_entry(hass, safety, registry_id, ignore_overlap=True) is not None
 
 
 def sync_hide_diagnostic_cards(
