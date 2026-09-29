@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Collection
+from collections.abc import Callable, Collection
 from typing import TYPE_CHECKING
 
 from homeassistant.core import HomeAssistant, callback
@@ -85,33 +85,52 @@ def undo_choices(hass: HomeAssistant, applied: AppliedClasses) -> list[SelectOpt
     return sorted(choices, key=lambda choice: choice["label"])
 
 
-async def async_change_back(
-    hass: HomeAssistant, entry: GutCheckConfigEntry, registry_ids: Collection[str], critical_label: str | None
-) -> None:
-    """Clear a class Gut Check set for each picked sensor still holding it, record it as a rejection, then forget it.
+async def async_undo_records(
+    applied: AppliedClasses,
+    registry: er.EntityRegistry,
+    registry_ids: Collection[str],
+    *,
+    still_ours: Callable[[er.RegistryEntry, str], bool],
+    clear: Callable[[er.RegistryEntry], object],
+    reject: Callable[[str, str], None],
+) -> tuple[int, int]:
+    """Clear each picked, recorded sensor still ours, reject it either way, then forget it; returns (cleared, left).
 
     Also drops every recorded id no longer registered, in the same save.
     """
-    applied = entry.runtime_data.applied
-    registry = er.async_get(hass)
-    safety = SafetyRules(critical_label)
-    names = await class_names(hass)
-
     to_forget = {registry_id for registry_id in applied.ids() if registry.async_get(registry_id) is None}
     to_forget.update(registry_ids)
     cleared = 0
     left = 0
     for registry_id in registry_ids:
-        recorded_class = applied.get(registry_id)
+        recorded = applied.get(registry_id)
         registry_entry = registry.async_get(registry_id)
-        if recorded_class is None or registry_entry is None or registry_entry.device_class != recorded_class:
+        if recorded is None or registry_entry is None or not still_ours(registry_entry, recorded):
             left += 1
         else:
-            registry.async_update_entity(registry_entry.entity_id, device_class=None)
+            clear(registry_entry)
             cleared += 1
         # Reject any picked, recorded sensor whether or not this call is what
-        # cleared it, so a hand-cleared or hand-changed one is not re-suggested.
-        if recorded_class is not None:
-            reject_suggestion(hass, safety, names, registry_id, recorded_class)
+        # cleared it, so a hand-changed one is not re-suggested.
+        if recorded is not None:
+            reject(registry_id, recorded)
     await applied.async_forget(to_forget)
+    return cleared, left
+
+
+async def async_change_back(
+    hass: HomeAssistant, entry: GutCheckConfigEntry, registry_ids: Collection[str], critical_label: str | None
+) -> None:
+    """Clear a class Gut Check set for each picked sensor still holding it, record it as a rejection, then forget it."""
+    registry = er.async_get(hass)
+    safety = SafetyRules(critical_label)
+    names = await class_names(hass)
+    cleared, left = await async_undo_records(
+        entry.runtime_data.applied,
+        registry,
+        registry_ids,
+        still_ours=lambda registry_entry, recorded: registry_entry.device_class == recorded,
+        clear=lambda registry_entry: registry.async_update_entity(registry_entry.entity_id, device_class=None),
+        reject=lambda registry_id, recorded: reject_suggestion(hass, safety, names, registry_id, recorded),
+    )
     _LOGGER.debug("device class change-back cleared=%s left=%s", cleared, left)

@@ -1,4 +1,4 @@
-"""Options flow: toggle the seven recipes, set the daily budget and critical label, and change a device class back."""
+"""Options flow: toggle the seven recipes, set the daily budget and critical label, and change back what Gut Check set."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from homeassistant.config_entries import ConfigEntryState, ConfigFlowResult, Opt
 from homeassistant.helpers.selector import (
     BooleanSelector,
     LabelSelector,
+    SelectOptionDict,
     SelectSelector,
     SelectSelectorConfig,
     SelectSelectorMode,
@@ -24,11 +25,13 @@ from .const import (
     CONF_HEALTH_ENABLED,
     CONF_HIDE_DIAGNOSTIC_ENABLED,
     CONF_UNDO_DEVICE_CLASS,
+    CONF_UNDO_HIDDEN_SENSORS,
     CONF_UNDO_SENSORS,
     CONF_UPDATES_ENABLED,
     DEFAULT_DAILY_BUDGET,
 )
 from .recipes.device_class_undo import async_change_back, undo_choices
+from .recipes.hide_diagnostic_undo import async_change_back_hidden
 
 OPTIONS_SCHEMA = vol.Schema(
     {
@@ -54,7 +57,7 @@ OPTIONS_SCHEMA = vol.Schema(
 
 
 class GutCheckOptionsFlow(OptionsFlowWithReload):
-    """The seven recipe toggles, the daily token budget, the critical label, and the device class change-back."""
+    """The seven recipe toggles, the daily token budget, the critical label, and the change-back of what Gut Check set."""
 
     _held_options: dict[str, Any]
 
@@ -67,24 +70,39 @@ class GutCheckOptionsFlow(OptionsFlowWithReload):
             return self.async_create_entry(data=user_input)
 
         schema = OPTIONS_SCHEMA
-        if self.config_entry.state is ConfigEntryState.LOADED and undo_choices(self.hass, self.config_entry.runtime_data.applied):
+        if self.config_entry.state is ConfigEntryState.LOADED and self._undo_fields():
             schema = schema.extend({vol.Optional(CONF_UNDO_DEVICE_CLASS, default=False): BooleanSelector()})
         schema = self.add_suggested_values_to_schema(schema, self.config_entry.options)
         return self.async_show_form(step_id="init", data_schema=schema)
 
+    def _undo_fields(self) -> dict[str, list[SelectOptionDict]]:
+        """The change-back choices per form field, only for a kind that has recorded, still-registered sensors."""
+        data = self.config_entry.runtime_data
+        fields = {
+            CONF_UNDO_SENSORS: undo_choices(self.hass, data.applied),
+            CONF_UNDO_HIDDEN_SENSORS: undo_choices(self.hass, data.applied_hidden),
+        }
+        return {field: choices for field, choices in fields.items() if choices}
+
     async def async_step_undo_device_class(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        """List the recorded, still-registered sensors, then clear the picked ones back."""
+        """List the recorded, still-registered sensors of each kind, then change the picked ones back."""
         if user_input is not None:
             critical_label = self._held_options.get(CONF_CRITICAL_LABEL)
             await async_change_back(self.hass, self.config_entry, user_input.get(CONF_UNDO_SENSORS, []), critical_label)
+            await async_change_back_hidden(
+                self.hass, self.config_entry, user_input.get(CONF_UNDO_HIDDEN_SENSORS, []), critical_label
+            )
             return self.async_create_entry(data=self._held_options)
 
-        choices = undo_choices(self.hass, self.config_entry.runtime_data.applied)
+        fields = self._undo_fields()
+        if not fields:
+            return self.async_create_entry(data=self._held_options)
         schema = vol.Schema(
             {
-                vol.Optional(CONF_UNDO_SENSORS, default=[]): SelectSelector(
+                vol.Optional(field, default=[]): SelectSelector(
                     SelectSelectorConfig(options=choices, multiple=True, mode=SelectSelectorMode.LIST)
                 )
+                for field, choices in fields.items()
             }
         )
         return self.async_show_form(step_id="undo_device_class", data_schema=schema)

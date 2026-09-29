@@ -51,6 +51,7 @@ from custom_components.gutcheck.const import (
     DEVICE_CLASS_ISSUE_PREFIX,
     DOMAIN,
     HEALTH_OPTIONS,
+    HIDE_DIAGNOSTIC_ISSUE_PREFIX,
     OPTION_NONE,
     RECIPE_CONFIG_ENTRIES,
     UPDATE_OPTIONS,
@@ -396,6 +397,21 @@ async def setup_and_confirm_device_class(
     issue_id = f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}"
     await confirm_suggestion_card(hass, issue_id)
     return issue_id
+
+
+async def setup_and_confirm_hide(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, entry: MockConfigEntry, *sensors: er.RegistryEntry
+) -> list[str]:
+    """Set up entry with a confident diagnostic answer for every sensor, confirm each card, and return the issue ids."""
+    answers = {f"h{index}": hide_diagnostic_answer("diagnostic", 0.9) for index in range(len(sensors))}
+    register_jev_responses_by_question(aioclient_mock, {"h0": api_response(answers)})
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+    issue_ids = [f"{HIDE_DIAGNOSTIC_ISSUE_PREFIX}{sensor.id}" for sensor in sensors]
+    for issue_id in issue_ids:
+        await confirm_suggestion_card(hass, issue_id)
+    return issue_ids
 
 
 def create_areas(hass: HomeAssistant, *names: str) -> dict[str, str]:

@@ -19,9 +19,12 @@ CONF_DEVICE_CLASS_ENABLED: Final = "device_class_enabled"
 CONF_CONFIG_ENTRIES_ENABLED: Final = "config_entries_enabled"
 CONF_CRITICAL_LABEL_ENABLED: Final = "critical_label_enabled"
 CONF_HIDE_DIAGNOSTIC_ENABLED: Final = "hide_diagnostic_enabled"
-# The Configure checkbox and step id for changing a device class back; never saved as an option.
+# The Configure checkbox and step id for changing back anything Gut Check set (a
+# device class or a hidden sensor); never saved as an option. The name predates
+# the second kind.
 CONF_UNDO_DEVICE_CLASS: Final = "undo_device_class"
 CONF_UNDO_SENSORS: Final = "sensors"
+CONF_UNDO_HIDDEN_SENSORS: Final = "hidden_sensors"
 
 # A fresh install's first-day runs reserve at once: about 80,000 for the
 # health check and 38,000 for area suggestions on a 1,300-entity install.
