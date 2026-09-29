@@ -1,0 +1,31 @@
+tests/test_init.py
+  s_16c70a9fb1ed26::t_f5004199cd81fb 13
+  s_16c70a9fb1ed26::t_5020bb6fd4ff3c 25
+custom_components/gutcheck/recipes/device_class_undo.py
+  s_16c70a9fb1ed26::t_5020bb6fd4ff3c 26,28,30,52,54
+custom_components/gutcheck/__init__.py
+  s_16c70a9fb1ed26::t_5020bb6fd4ff3c 55,102,109,115,123,134,142
+custom_components/gutcheck/teardown.py
+  s_16c70a9fb1ed26::t_5020bb6fd4ff3c 1-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e7cbac86857c127fac9a4d18fd4576aea770a489",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_16c70a9fb1ed26": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d036a682-291c-4164-a3fb-8737cd9a481b",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
