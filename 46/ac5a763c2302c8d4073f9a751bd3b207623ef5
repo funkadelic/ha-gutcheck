@@ -1,0 +1,29 @@
+tests/test_hide_diagnostic_payload.py
+  s_16c70a9fb1ed26::t_6e6ef147033981 88
+  s_16c70a9fb1ed26::t_fff41c91b4dec2 1-87,89-116
+tests/test_safety_rules.py
+  s_16c70a9fb1ed26::t_fff41c91b4dec2 22,55-57,59-63
+tests/test_hide_diagnostic_select.py
+  s_16c70a9fb1ed26::t_fff41c91b4dec2 1-300
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "46ac5a763c2302c8d4073f9a751bd3b207623ef5",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_16c70a9fb1ed26": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d036a682-291c-4164-a3fb-8737cd9a481b",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
