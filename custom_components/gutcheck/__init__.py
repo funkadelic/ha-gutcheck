@@ -25,6 +25,7 @@ from .const import (
     CONF_DAILY_BUDGET,
     CONF_DEVICE_CLASS_ENABLED,
     CONF_HEALTH_ENABLED,
+    CONF_HIDE_DIAGNOSTIC_ENABLED,
     CONF_UPDATES_ENABLED,
     CONFIG_ENTRY_ISSUE_PREFIX,
     CRITICAL_LABEL_ISSUE_PREFIX,
@@ -33,11 +34,14 @@ from .const import (
     DEVICE_CLASS_ISSUE_PREFIX,
     DOMAIN,
     HEALTH_ISSUE_PREFIX,
+    HIDE_DIAGNOSTIC_APPLIED_STORE_KEY,
+    HIDE_DIAGNOSTIC_ISSUE_PREFIX,
     RECIPE_AREAS,
     RECIPE_CONFIG_ENTRIES,
     RECIPE_CRITICAL_LABEL,
     RECIPE_DEVICE_CLASS,
     RECIPE_HEALTH,
+    RECIPE_HIDE_DIAGNOSTIC,
     RECIPE_UPDATES,
     STORE_VERSION,
     UPDATES_ISSUE_PREFIX,
@@ -49,6 +53,7 @@ from .recipes.critical_label import CriticalLabelRecipe
 from .recipes.device_class import DeviceClassRecipe
 from .recipes.device_class_undo import AppliedClasses
 from .recipes.health import HealthRecipe
+from .recipes.hide_diagnostic import HideDiagnosticRecipe
 from .recipes.shapes import recipe_store_key
 from .recipes.updates import UpdateRecipe
 from .repairs import async_delete_issues
@@ -74,6 +79,7 @@ class GutCheckData:
     budget: BudgetGate
     coordinators: dict[str, RecipeCoordinator]
     applied: AppliedClasses
+    applied_hidden: AppliedClasses
 
 
 type GutCheckConfigEntry = ConfigEntry[GutCheckData]
@@ -88,10 +94,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
     client = GutCheckClient(async_get_clientsession(hass), api_key)
     budget = BudgetGate(hass, client, entry.options.get(CONF_DAILY_BUDGET, DEFAULT_DAILY_BUDGET))
     await budget.async_load()
-    # Loaded whether or not device class suggestions are on: a class set
-    # before the recipe was switched off must still be changeable back.
+    # Loaded whether or not the matching recipe is on: a class set or a sensor
+    # hidden before the recipe was switched off must still be changeable back.
     applied = AppliedClasses(hass)
     await applied.async_load()
+    applied_hidden = AppliedClasses(hass, HIDE_DIAGNOSTIC_APPLIED_STORE_KEY)
+    await applied_hidden.async_load()
 
     coordinators: dict[str, RecipeCoordinator] = {}
     if entry.options.get(CONF_HEALTH_ENABLED, True):
@@ -141,7 +149,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
     else:
         async_disable_recipe(hass, entry, CRITICAL_LABEL_ISSUE_PREFIX, RECIPE_CRITICAL_LABEL, keep_ignored=True)
 
-    entry.runtime_data = GutCheckData(client=client, budget=budget, coordinators=coordinators, applied=applied)
+    # Off by default, like the other later recipes. Registered last so its
+    # restore reads device class cards the device class restore already re-synced.
+    if entry.options.get(CONF_HIDE_DIAGNOSTIC_ENABLED, False):
+        hide_diagnostic_recipe = HideDiagnosticRecipe(entry.options.get(CONF_CRITICAL_LABEL))
+        coordinators[hide_diagnostic_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, hide_diagnostic_recipe)
+    else:
+        async_disable_recipe(hass, entry, HIDE_DIAGNOSTIC_ISSUE_PREFIX, RECIPE_HIDE_DIAGNOSTIC, keep_ignored=True)
+
+    entry.runtime_data = GutCheckData(
+        client=client, budget=budget, coordinators=coordinators, applied=applied, applied_hidden=applied_hidden
+    )
     entry.async_on_unload(budget.async_start())
 
     for coordinator in coordinators.values():
@@ -159,17 +177,18 @@ async def async_unload_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) ->
     reload (an options save, a reauth), and deleting there would discard the
     user's ignores. Issues are only swept on removal, in async_remove_entry.
 
-    Flushes the applied-classes record before unloading, so a reload right
-    after a confirm never loads an older record.
+    Flushes both applied records before unloading, so a reload right after a
+    confirm never loads an older record.
     """
     await entry.runtime_data.applied.async_flush()
+    await entry.runtime_data.applied_hidden.async_flush()
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
 
 async def async_remove_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> None:
-    """Delete every Gut Check Repairs issue and the persisted budget, applied-classes and recipe Stores."""
+    """Delete every Gut Check Repairs issue and the persisted budget, applied-record and recipe Stores."""
     async_delete_issues(hass)
-    await Store(hass, STORE_VERSION, BUDGET_STORE_KEY).async_remove()
-    await Store(hass, STORE_VERSION, DEVICE_CLASS_APPLIED_STORE_KEY).async_remove()
+    for key in (BUDGET_STORE_KEY, DEVICE_CLASS_APPLIED_STORE_KEY, HIDE_DIAGNOSTIC_APPLIED_STORE_KEY):
+        await Store(hass, STORE_VERSION, key).async_remove()
     for recipe_id in ALL_RECIPE_IDS:
         await Store(hass, STORE_VERSION, recipe_store_key(recipe_id)).async_remove()

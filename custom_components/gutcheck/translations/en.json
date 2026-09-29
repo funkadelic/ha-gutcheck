@@ -39,7 +39,8 @@
           "critical_label_enabled": "Run the weekly critical label suggestions",
           "daily_budget": "Daily token budget (input tokens)",
           "critical_label": "Critical label",
-          "undo_device_class": "Change back a device class Gut Check set"
+          "undo_device_class": "Change back a device class Gut Check set",
+          "hide_diagnostic_enabled": "Run the weekly diagnostic sensor suggestions"
         },
         "data_description": {
           "updates_enabled": "Scores pending updates as routine, feature, or possibly breaking. Advisory only, never installs anything.",
@@ -49,7 +50,8 @@
           "critical_label_enabled": "Suggests your critical label for smoke, carbon monoxide and gas sensors, and asks about every valve, switch, siren and moisture sensor to find water shutoffs, leak sensors and sirens. Nothing is labelled until you confirm a suggestion in Repairs, and it does nothing until you pick a critical label.",
           "daily_budget": "A hard stop for the day. It resets at local midnight.",
           "critical_label": "Gut Check never acts on or changes an entity or device with this label. The home health check still watches it and tells you if it goes offline, but every other check leaves it out. Locks, alarms and covers are never checked, label or not.",
-          "undo_device_class": "Opens a list of the sensors whose device class you set from a Gut Check suggestion, so you can change any of them back."
+          "undo_device_class": "Opens a list of the sensors whose device class you set from a Gut Check suggestion, so you can change any of them back.",
+          "hide_diagnostic_enabled": "Suggests hiding sensors that report on a device or its connection, such as signal strength, network name or storage used, rather than on your home. Nothing is hidden until you confirm a suggestion in Repairs."
         }
       },
       "undo_device_class": {
@@ -86,6 +88,9 @@
       },
       "cost_today": {
         "name": "Token cost today"
+      },
+      "hide_diagnostic": {
+        "name": "Diagnostic sensor suggestions"
       }
     },
     "button": {
@@ -106,6 +111,9 @@
       },
       "critical_label_run": {
         "name": "Run critical label suggestions"
+      },
+      "hide_diagnostic_run": {
+        "name": "Run diagnostic sensor suggestions"
       }
     }
   },
@@ -188,6 +196,25 @@
         "abort": {
           "suggestion_outdated": "The entity or the label changed since this suggestion was made, so nothing was changed and the card was removed.",
           "suggestion_ignored": "Gut Check will stop suggesting the label for this entity. The card is now in your ignored repairs."
+        }
+      }
+    },
+    "hide_diagnostic_suggestion": {
+      "title": "{entity_id} looks like a diagnostic sensor",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Suggested: hide this sensor",
+            "description": "Gut Check thinks `{entity_id}` reports on its device or its connection rather than on your home, and suggests hiding it. A hidden sensor stays off auto-generated dashboards but keeps working and recording history. You can unhide it in its entity settings, or change it back from Gut Check's Configure screen. Nothing changes until you choose.",
+            "menu_options": {
+              "confirm": "Hide this sensor",
+              "ignore": "Don't suggest hiding this sensor"
+            }
+          }
+        },
+        "abort": {
+          "suggestion_outdated": "The sensor changed since this suggestion was made, so nothing was changed and the card was removed.",
+          "suggestion_ignored": "Gut Check will stop suggesting hiding this sensor. The card is now in your ignored repairs."
         }
       }
     }
