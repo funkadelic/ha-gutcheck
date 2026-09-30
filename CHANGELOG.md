@@ -3,6 +3,13 @@
 ## [0.10.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.9.0...v0.10.0) (2026-09-30)
 
 
+### What's new
+
+* Gut Check can suggest hiding sensors that describe a device rather than your home, like a phone's Wi-Fi name, SIM or signal strength, so they stop crowding your dashboards. It is off by default: go to Settings > Devices & services > Gut Check > Configure and tick "Run the weekly diagnostic sensor suggestions". Each suggestion is a Repairs card, and you can change a hidden sensor back from Configure.
+* Every check now asks about at most ten items at a time, and its answers got more accurate. Replaying data captured from a real install, the home health check went from unsure about 131 of 145 unavailable entities to 40.
+* Repairs cards now start with their category, like "Unavailable:" or "Diagnostic sensor:", so you can tell them apart at a glance.
+
+
 ### Added
 
 * lead each repairs card title with its category ([#55](https://github.com/funkadelic/ha-gutcheck/issues/55)) ([0c12ba1](https://github.com/funkadelic/ha-gutcheck/commit/0c12ba1c676dc8c35d88a6081afc8f38fbab1877))
