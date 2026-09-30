@@ -97,7 +97,7 @@ TypeSafe AI measures usage in tokens, about three characters of text each, and c
 
 The other checks were measured when a run went out as one request. Sending ten items per request, as Gut Check does now, adds about 4 to 8 percent to those figures.
 
-Gut Check enforces a daily token budget so cost stays predictable. `sensor.gut_check_tokens_used_today` and `sensor.gut_check_cost_today` show what has been spent and what it cost, both resetting at local midnight. The default of 150,000 tokens covers the weekly schedule with room to spare; running checks by hand several times in one day can reach it.
+Gut Check enforces a daily token budget so cost stays predictable. `sensor.gut_check_tokens_used_today` and `sensor.gut_check_cost_today` show what has been spent and what it cost, both resetting at local midnight. The default of 500,000 tokens leaves room for a first run on a large install; running checks by hand several times in one day can reach it.
 
 Gut Check sizes up every run before sending it and refuses one that would go over what is left, so a refused run spends nothing. A run goes out as one or more requests, at most ten items each and fewer when ten would be too large, and Gut Check weighs the whole run against what is left, so it never stops halfway because the budget ran out. The affected sensor goes unavailable until the budget resets or you raise it. A run that needs more than the whole daily budget is refused every day until you raise it. Gut Check sets aside more than any run has been billed so far, then corrects the counter to what the API reports, so a run that goes through should stay under the cap, and once the counter is over, every later run that day is refused.
 
@@ -112,7 +112,7 @@ Open the integration's **Configure** screen to:
 - Turn the stuck integration check on or off (off by default)
 - Turn critical label suggestions on or off (off by default)
 - Turn diagnostic sensor suggestions on or off (off by default)
-- Set the daily token budget (default 150,000 tokens)
+- Set the daily token budget (default 500,000 tokens)
 - Pick your critical label; Gut Check never acts on or changes anything carrying it, on the entity or its device. The home health check still tells you when a labelled entity goes offline; every other check leaves it out entirely.
 - Change back a device class Gut Check set or a sensor it hid, once anything is recorded
 

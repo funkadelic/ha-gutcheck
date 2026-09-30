@@ -31,7 +31,7 @@ CONF_UNDO_HIDDEN_SENSORS: Final = "hidden_sensors"
 # push one first-day run to the next day. A device class run at the target
 # install's real counts (58 asked, every one) reserves about 39,600, and
 # only runs once switched on.
-DEFAULT_DAILY_BUDGET: Final = 150_000
+DEFAULT_DAILY_BUDGET: Final = 500_000
 CHARS_PER_TOKEN: Final = 4
 # Budget reservations only, held until the API reports real usage; captured
 # runs have billed as few as 2.3 characters per token, so 2 stays under the
