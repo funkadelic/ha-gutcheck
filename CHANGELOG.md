@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.10.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.9.0...v0.10.0) (2026-09-30)
+
+
+### Added
+
+* lead each repairs card title with its category ([#55](https://github.com/funkadelic/ha-gutcheck/issues/55)) ([0c12ba1](https://github.com/funkadelic/ha-gutcheck/commit/0c12ba1c676dc8c35d88a6081afc8f38fbab1877))
+* suggest hiding sensors that only report on a device or its connection ([#52](https://github.com/funkadelic/ha-gutcheck/issues/52)) ([e470c58](https://github.com/funkadelic/ha-gutcheck/commit/e470c5888e7fd47323e8b22cc58a470ca8f6ad19))
+
+
+### Other Changes
+
+* say why each check is worth running ([#53](https://github.com/funkadelic/ha-gutcheck/issues/53)) ([1616236](https://github.com/funkadelic/ha-gutcheck/commit/161623640db0f16a73cb3fd3454e63120261ff8b))
+
 ## [0.9.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.8.0...v0.9.0) (2026-09-28)
 
 
