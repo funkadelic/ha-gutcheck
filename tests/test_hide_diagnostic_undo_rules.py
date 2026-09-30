@@ -131,53 +131,6 @@ async def test_the_step_has_no_hidden_field_when_only_device_classes_are_recorde
     assert _fields(result) == {CONF_UNDO_SENSORS}
 
 
-async def test_a_sensor_unhidden_by_hand_is_left_rejected_and_forgotten(
-    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, hide_diagnostic_entry: MockConfigEntry
-) -> None:
-    """Nothing to clear, yet the card is re-created ignored and the record drops the sensor."""
-    sensor = register_unit_sensor(hass, "phone_wifi", unit=None, name="Wi-Fi connection")
-    await setup_and_confirm_hide(hass, aioclient_mock, hide_diagnostic_entry, sensor)
-    er.async_get(hass).async_update_entity(sensor.entity_id, hidden_by=None)
-
-    await _change_back(hass, hide_diagnostic_entry, dict(hide_diagnostic_entry.options), {CONF_UNDO_HIDDEN_SENSORS: [sensor.id]})
-
-    assert _hidden_by(hass, sensor) is None
-    card = _issue(hass, HIDE_DIAGNOSTIC_ISSUE_PREFIX, sensor)
-    assert card is not None
-    assert card.dismissed_version is not None
-    assert hide_diagnostic_entry.runtime_data.applied_hidden.get(sensor.id) is None
-
-
-async def test_a_sensor_since_hidden_by_its_integration_is_never_touched(
-    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, hide_diagnostic_entry: MockConfigEntry
-) -> None:
-    """An integration hide stays, no card is made, the record forgets the sensor."""
-    sensor = register_unit_sensor(hass, "phone_wifi", unit=None, name="Wi-Fi connection")
-    await setup_and_confirm_hide(hass, aioclient_mock, hide_diagnostic_entry, sensor)
-    er.async_get(hass).async_update_entity(sensor.entity_id, hidden_by=er.RegistryEntryHider.INTEGRATION)
-
-    await _change_back(hass, hide_diagnostic_entry, dict(hide_diagnostic_entry.options), {CONF_UNDO_HIDDEN_SENSORS: [sensor.id]})
-
-    assert _hidden_by(hass, sensor) is er.RegistryEntryHider.INTEGRATION
-    assert _issue(hass, HIDE_DIAGNOSTIC_ISSUE_PREFIX, sensor) is None
-    assert hide_diagnostic_entry.runtime_data.applied_hidden.get(sensor.id) is None
-
-
-async def test_a_sensor_the_user_re_hid_by_hand_is_cleared(
-    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, hide_diagnostic_entry: MockConfigEntry
-) -> None:
-    """A user hide is a user hide, so a hand re-hide is cleared when picked."""
-    sensor = register_unit_sensor(hass, "phone_wifi", unit=None, name="Wi-Fi connection")
-    await setup_and_confirm_hide(hass, aioclient_mock, hide_diagnostic_entry, sensor)
-    registry = er.async_get(hass)
-    registry.async_update_entity(sensor.entity_id, hidden_by=None)
-    registry.async_update_entity(sensor.entity_id, hidden_by=er.RegistryEntryHider.USER)
-
-    await _change_back(hass, hide_diagnostic_entry, dict(hide_diagnostic_entry.options), {CONF_UNDO_HIDDEN_SENSORS: [sensor.id]})
-
-    assert _hidden_by(hass, sensor) is None
-
-
 async def test_the_only_recorded_sensor_removed_after_the_form_saves_without_a_step(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, hide_diagnostic_entry: MockConfigEntry
 ) -> None:

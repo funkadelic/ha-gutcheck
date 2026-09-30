@@ -54,6 +54,12 @@ class AppliedClasses:
         self._data[registry_id] = value
         self._store.async_delay_save(lambda: dict(self._data), 0)
 
+    @callback
+    def discard(self, registry_id: str) -> None:
+        """Drop one id and schedule the save, from a synchronous listener."""
+        self._data.pop(registry_id, None)
+        self._store.async_delay_save(lambda: dict(self._data), 0)
+
     async def async_flush(self) -> None:
         """Await the current map's save, so a reload right after a confirm never loads an older record."""
         await self._store.async_save(dict(self._data))

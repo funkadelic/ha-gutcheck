@@ -54,6 +54,7 @@ from .recipes.device_class import DeviceClassRecipe
 from .recipes.device_class_undo import AppliedClasses
 from .recipes.health import HealthRecipe
 from .recipes.hide_diagnostic import HideDiagnosticRecipe
+from .recipes.hide_diagnostic_undo import async_track_hidden
 from .recipes.shapes import recipe_store_key
 from .recipes.updates import UpdateRecipe
 from .repairs import async_delete_issues
@@ -100,6 +101,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
     await applied.async_load()
     applied_hidden = AppliedClasses(hass, HIDE_DIAGNOSTIC_APPLIED_STORE_KEY)
     await applied_hidden.async_load()
+    entry.async_on_unload(async_track_hidden(hass, applied_hidden))
 
     coordinators: dict[str, RecipeCoordinator] = {}
     if entry.options.get(CONF_HEALTH_ENABLED, True):
