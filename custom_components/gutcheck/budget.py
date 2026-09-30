@@ -6,6 +6,7 @@ import asyncio
 import json
 import logging
 import math
+from collections.abc import Callable
 from datetime import datetime
 from typing import Any, TypedDict
 
@@ -163,8 +164,18 @@ class BudgetGate:
         """Reserve an estimate, call the client, then reconcile to actual usage."""
         return (await self.async_ask_all([payload]))[0]
 
-    async def async_ask_all(self, payloads: list[SystemOneRequest]) -> list[SystemOneResponse]:
-        """Reserve a run's requests as a whole, send them in order, and reconcile each to actual usage."""
+    async def async_ask_all(
+        self,
+        payloads: list[SystemOneRequest],
+        on_response: Callable[[SystemOneRequest, SystemOneResponse], None] | None = None,
+    ) -> list[SystemOneResponse]:
+        """Reserve a run's requests as a whole, send them in order, and reconcile each to actual usage.
+
+        on_response gets each request and its response as soon as it is billed,
+        so a caller can keep answers a later failure in the same run would lose.
+        """
+        if not payloads:
+            return []
         for payload in payloads:
             if not request_fits(payload):
                 estimate, state_plus_longest = _sizes(payload)
@@ -196,6 +207,8 @@ class BudgetGate:
                 response = await self._client.async_ask(payload)
                 # Billed now, so a failure from here on must not release this estimate.
                 unsent -= estimate
+                if on_response is not None:
+                    on_response(payload, response)
                 async with self._lock:
                     self._reconcile(reservation_date, estimate, response["usage"]["input_tokens"])
                     await self._save_and_notify()
