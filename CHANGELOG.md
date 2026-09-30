@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.1](https://github.com/funkadelic/ha-gutcheck/compare/v0.12.0...v0.12.1) (2026-09-30)
+
+
+### Fixed
+
+* explain what hiding a diagnostic sensor does and rework the readme intro ([#63](https://github.com/funkadelic/ha-gutcheck/issues/63)) ([4fd9dc5](https://github.com/funkadelic/ha-gutcheck/commit/4fd9dc52f4c6a14df60678efcd8b5e419d567cc9))
+
 ## [0.12.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.11.0...v0.12.0) (2026-09-30)
 
 
