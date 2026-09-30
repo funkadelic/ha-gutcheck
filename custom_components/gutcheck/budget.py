@@ -139,7 +139,7 @@ class BudgetGate:
     ) -> list[SystemOneResponse]:
         """Reserve a run's requests as a whole, send them in order, and reconcile each to actual usage.
 
-        on_response gets each request and its response as soon as it is billed,
+        on_response gets each request and its response once it is billed and reconciled,
         so a caller can keep answers a later failure in the same run would lose.
         """
         if not payloads:
@@ -175,11 +175,12 @@ class BudgetGate:
                 response = await self._client.async_ask(payload)
                 # Billed now, so a failure from here on must not release this estimate.
                 unsent -= estimate
-                if on_response is not None:
-                    on_response(payload, response)
                 async with self._lock:
                     self._reconcile(reservation_date, estimate, response["usage"]["input_tokens"])
                     await self._save_and_notify()
+                # After the reconcile, so a callback that raises leaves the actual usage charged.
+                if on_response is not None:
+                    on_response(payload, response)
                 responses.append(response)
         except BaseException:
             if reservation_date:
