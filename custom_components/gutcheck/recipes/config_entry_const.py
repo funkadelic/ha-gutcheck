@@ -1,5 +1,6 @@
 """Recipe-local constants for stuck config entry triage: options, threshold, and the model question."""
 
+from datetime import timedelta
 from typing import Final
 
 from ..const import OPTION_NONE
@@ -17,6 +18,11 @@ CONFIG_ENTRY_REASON_MAX_CHARS: Final = 300
 # Stand-ins for what redaction removes from a reason; brackets survive clean_text.
 REDACTED_EMAIL: Final = "[email]"
 REDACTED: Final = "[redacted]"
+
+# An entry the check stays unsure about this long gets a card with no verdict.
+CONFIG_ENTRY_UNSURE_CARD_AFTER: Final = timedelta(days=7)
+# Shown after "Error reported:" when the entry reported no error.
+CONFIG_ENTRY_NO_REASON: Final = "none"
 
 # Home Assistant's own route to an integration's entries page, passed as a relative link.
 CONFIG_ENTRY_PAGE_URL: Final = "/config/integrations/integration/{domain}"

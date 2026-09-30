@@ -154,6 +154,10 @@
       "title": "Integration: {title} may not work again",
       "description": "Home Assistant could not set up **{title}** ({integration}). Gut Check read the error it reported and thinks it will not work again as set up, for example because the device or account is gone. The link below opens the integration's page, where you can fix or remove it. Gut Check never changes an integration itself, and ignoring this card keeps it hidden on later checks."
     },
+    "config_entry_still_failing": {
+      "title": "Integration: {title} has failed to set up for over a week",
+      "description": "Home Assistant could not set up **{title}** ({integration}) and has kept failing for over a week.\n\nError reported: {reason}\n\nGut Check could not tell from this error what is wrong. The link below opens the integration's page, where you can check it, reconfigure it or remove it. Gut Check never changes an integration itself, and ignoring this card keeps it hidden on later checks."
+    },
     "device_class_suggestion": {
       "title": "Device class: {entity_id}",
       "fix_flow": {

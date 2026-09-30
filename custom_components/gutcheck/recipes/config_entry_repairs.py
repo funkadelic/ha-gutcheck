@@ -1,4 +1,4 @@
-"""Two-kind advisory card sync for stuck config entries, and the live recovery listener."""
+"""Three-kind advisory card sync for stuck config entries, and the live recovery listener."""
 
 from __future__ import annotations
 
@@ -7,20 +7,27 @@ from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 
-from ..const import CONFIG_ENTRY_ISSUE_PREFIX, DOMAIN, ISSUE_CONFIG_ENTRY_DEAD, ISSUE_CONFIG_ENTRY_NEEDS_REAUTH
+from ..const import (
+    CONFIG_ENTRY_ISSUE_PREFIX,
+    DOMAIN,
+    ISSUE_CONFIG_ENTRY_DEAD,
+    ISSUE_CONFIG_ENTRY_NEEDS_REAUTH,
+    ISSUE_CONFIG_ENTRY_STILL_FAILING,
+)
 from ..repairs import async_sync_issues
-from .config_entry_const import CONFIG_ENTRY_PAGE_URL
+from .config_entry_const import CONFIG_ENTRY_NO_REASON, CONFIG_ENTRY_PAGE_URL
 from .config_entry_describe import resolved
 from .shapes import Item
 
 
-def _wanted_issues(hass: HomeAssistant, items: list[Item]) -> dict[str, dict[str, str]]:
+def _wanted_issues(hass: HomeAssistant, items: list[Item], *, with_reason: bool = False) -> dict[str, dict[str, str]]:
     """The issue id and placeholders for each item whose entry still exists and has not recovered.
 
     Looks each entry up live by entry_id, so a title change since the run is
     followed and a since-resolved entry never gets a stale card raised. An
     entry Home Assistant is already reauthenticating is skipped: its own
-    reauth card stays the only one.
+    reauth card stays the only one. with_reason adds the stored reason, or
+    the fixed no-reason word, for the card that shows it.
     """
     wanted: dict[str, dict[str, str]] = {}
     for item in items:
@@ -31,7 +38,10 @@ def _wanted_issues(hass: HomeAssistant, items: list[Item]) -> dict[str, dict[str
             continue
         entry = hass.config_entries.async_get_entry(entry_id)
         assert entry is not None  # resolved() already confirmed the entry exists
-        wanted[f"{CONFIG_ENTRY_ISSUE_PREFIX}{entry_id}"] = {"title": entry.title or entry.domain, "integration": entry.domain}
+        placeholders = {"title": entry.title or entry.domain, "integration": entry.domain}
+        if with_reason:
+            placeholders["reason"] = str(item["reason"]) if item.get("reason") else CONFIG_ENTRY_NO_REASON
+        wanted[f"{CONFIG_ENTRY_ISSUE_PREFIX}{entry_id}"] = placeholders
     return wanted
 
 
@@ -48,45 +58,42 @@ def _learn_more_urls(wanted: dict[str, dict[str, str]]) -> dict[str, str]:
 
 
 def _watched_entry_ids(*wanted_maps: dict[str, dict[str, str]]) -> dict[str, str]:
-    """Every wanted issue's entry_id mapped to its issue id, across both kinds."""
+    """Every wanted issue's entry_id mapped to its issue id, across all kinds."""
     return {issue_id[len(CONFIG_ENTRY_ISSUE_PREFIX) :]: issue_id for wanted in wanted_maps for issue_id in wanted}
 
 
 class ConfigEntryIssueTracker:
-    """Owns the recovery-tracking subscription for both advisory card kinds."""
+    """Owns the recovery-tracking subscription for all three advisory card kinds."""
 
     def __init__(self) -> None:
         """Start with no active subscription."""
         self._unsub_recovery: CALLBACK_TYPE | None = None
 
-    def sync(self, hass: HomeAssistant, needs_reauth: list[Item], dead: list[Item]) -> None:
-        """Sync both card kinds under one prefix, each call keeping the other's ids, then re-arm recovery.
+    def sync(self, hass: HomeAssistant, needs_reauth: list[Item], dead: list[Item], still_failing: list[Item]) -> None:
+        """Sync the three card kinds under one prefix, each call keeping the others' ids, then re-arm recovery.
 
-        Two async_sync_issues calls under one shared prefix, each passing the
-        other's wanted ids as keep, so neither call's stale sweep deletes the
-        other's cards and an entry moving between kinds keeps its id and its
-        dismissal.
+        One async_sync_issues call per kind under a shared prefix, each
+        passing the other kinds' wanted ids as keep, so no call's stale sweep
+        deletes another's cards and an entry moving between kinds keeps its
+        id and its dismissal.
         """
-        reauth_wanted = _wanted_issues(hass, needs_reauth)
-        dead_wanted = _wanted_issues(hass, dead)
-        async_sync_issues(
-            hass,
-            CONFIG_ENTRY_ISSUE_PREFIX,
-            ISSUE_CONFIG_ENTRY_NEEDS_REAUTH,
-            reauth_wanted,
-            _learn_more_urls(reauth_wanted),
-            keep=dead_wanted.keys(),
+        kinds = (
+            (ISSUE_CONFIG_ENTRY_NEEDS_REAUTH, _wanted_issues(hass, needs_reauth)),
+            (ISSUE_CONFIG_ENTRY_DEAD, _wanted_issues(hass, dead)),
+            (ISSUE_CONFIG_ENTRY_STILL_FAILING, _wanted_issues(hass, still_failing, with_reason=True)),
         )
-        async_sync_issues(
-            hass,
-            CONFIG_ENTRY_ISSUE_PREFIX,
-            ISSUE_CONFIG_ENTRY_DEAD,
-            dead_wanted,
-            _learn_more_urls(dead_wanted),
-            keep=reauth_wanted.keys(),
-        )
+        for translation_key, wanted in kinds:
+            others = {issue_id for _, other in kinds if other is not wanted for issue_id in other}
+            async_sync_issues(
+                hass,
+                CONFIG_ENTRY_ISSUE_PREFIX,
+                translation_key,
+                wanted,
+                _learn_more_urls(wanted),
+                keep=others - wanted.keys(),
+            )
         self.shutdown()
-        watched = _watched_entry_ids(reauth_wanted, dead_wanted)
+        watched = _watched_entry_ids(*(wanted for _, wanted in kinds))
         if watched:
             self._unsub_recovery = async_track_entry_recovery(hass, watched)
 
