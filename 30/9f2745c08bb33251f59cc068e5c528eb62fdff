@@ -1,0 +1,30 @@
+tests/test_hide_diagnostic_select.py
+  s_16c70a9fb1ed26::t_6b3426c1c61f2d 5,37,211-221
+  s_16c70a9fb1ed26::t_c1640532155602 222-223
+custom_components/gutcheck/recipes/hide_diagnostic_describe.py
+  s_16c70a9fb1ed26::t_6b3426c1c61f2d 32,38,98
+tests/test_hide_diagnostic_payload.py
+  s_16c70a9fb1ed26::t_6b3426c1c61f2d 10,76-86
+  s_16c70a9fb1ed26::t_888d18f39d85a7 87-88
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "309f2745c08bb33251f59cc068e5c528eb62fdff",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_16c70a9fb1ed26": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d036a682-291c-4164-a3fb-8737cd9a481b",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
