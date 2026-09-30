@@ -1,0 +1,35 @@
+tests/test_budget.py
+  s_16c70a9fb1ed26::t_527a7661ed10ed 78,84,115
+tests/conftest.py
+  s_16c70a9fb1ed26::t_2bdd7ccf80a0bf 454
+tests/test_hide_diagnostic_undo_rules.py
+  s_16c70a9fb1ed26::t_bf5cbee94ad602 180-181
+tests/test_hide_diagnostic_payload.py
+  s_16c70a9fb1ed26::t_7dc6a6c84cbd88 138
+tests/test_hide_diagnostic_restore.py
+  s_16c70a9fb1ed26::t_342fc66e07843d 173-174
+tests/test_hide_diagnostic_undo.py
+  s_16c70a9fb1ed26::t_342fc66e07843d 47
+  s_16c70a9fb1ed26::t_2bdd7ccf80a0bf 48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "30db742947c3167cf30eeab27a8dee3efcabc00b",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_16c70a9fb1ed26": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d036a682-291c-4164-a3fb-8737cd9a481b",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
