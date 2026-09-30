@@ -25,6 +25,7 @@ from custom_components.gutcheck.recipes.config_entry_const import (
     CONFIG_ENTRY_UNSURE_CARD_AFTER,
     OPTION_DEAD,
 )
+from custom_components.gutcheck.repairs import sanitize_placeholder
 
 from .conftest import (
     api_response,
@@ -92,7 +93,9 @@ async def test_a_week_unsure_entry_raises_its_card_and_it_survives_a_restart_and
     assert not issue.is_fixable
     assert issue.translation_key == ISSUE_CONFIG_ENTRY_STILL_FAILING
     assert issue.learn_more_url == f"/config/integrations/integration/{item['integration']}"
-    assert issue.translation_placeholders == {"title": "Coway", "integration": item["integration"], "reason": item["reason"]}
+    # The stored reason is the payload's by construction; the card adds only the placeholder sanitizer.
+    reason = sanitize_placeholder(item["reason"])
+    assert issue.translation_placeholders == {"title": "Coway", "integration": item["integration"], "reason": reason}
     assert _sensor_state(hass, triage_entry) == "1"
 
     await restart_config_entry(hass, triage_entry)
