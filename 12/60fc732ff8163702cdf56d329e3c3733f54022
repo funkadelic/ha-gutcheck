@@ -1,0 +1,26 @@
+README.md
+  s_fdc7d3e286719d::t_34cc8f92e516ca 189
+tests/test_config_entry_still_failing.py
+  s_fdc7d3e286719d::t_34cc8f92e516ca 28,96-98
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1260fc732ff8163702cdf56d329e3c3733f54022",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_fdc7d3e286719d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "20f14a30-bd72-4116-ae1f-0d201866fa84",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
