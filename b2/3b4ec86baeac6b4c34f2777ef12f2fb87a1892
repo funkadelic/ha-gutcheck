@@ -1,0 +1,26 @@
+tests/test_area_size.py
+  s_8ee7aa912ade2f::t_e03f34f8411eb4 19-20,29,130-131,134-141
+tests/test_update_size.py
+  s_8ee7aa912ade2f::t_e03f34f8411eb4 29,31-32,121-124,128-131,133-134
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b23b4ec86baeac6b4c34f2777ef12f2fb87a1892",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_8ee7aa912ade2f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7e159446-be0f-4528-9272-814c39897d5f",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
