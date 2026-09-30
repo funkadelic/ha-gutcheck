@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.12.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.11.0...v0.12.0) (2026-09-30)
+
+
+### Added
+
+* raise a card for an integration that stays unsure for a week ([#62](https://github.com/funkadelic/ha-gutcheck/issues/62)) ([0d3c02b](https://github.com/funkadelic/ha-gutcheck/commit/0d3c02b10c89c8d43676b1af376014ad2a945f02))
+
+
+### Fixed
+
+* keep a check's last result when a run is refused or fails ([#60](https://github.com/funkadelic/ha-gutcheck/issues/60)) ([6fdbe4a](https://github.com/funkadelic/ha-gutcheck/commit/6fdbe4a9136fdfc150fb97dee531dcae43497389))
+
+
+### Other Changes
+
+* replay a captured stuck integration check run ([#59](https://github.com/funkadelic/ha-gutcheck/issues/59)) ([3e5af9c](https://github.com/funkadelic/ha-gutcheck/commit/3e5af9c8902f7878406fb9a9936fa84450e1bf44))
+
 ## [0.11.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.10.0...v0.11.0) (2026-09-30)
 
 
