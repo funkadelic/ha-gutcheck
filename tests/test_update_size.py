@@ -101,7 +101,9 @@ async def test_one_realistic_run_goes_out_as_capped_requests_with_measured_headr
 
     await _setup(hass)
 
-    total = assert_capped_run_fits(posted_bodies(aioclient_mock), "updates", REALISTIC_UPDATE_COUNT)
+    bodies = posted_bodies(aioclient_mock)
+    assert len(bodies) == math.ceil(REALISTIC_UPDATE_COUNT / SUBJECTS_PER_REQUEST) == 5
+    total = assert_capped_run_fits(bodies, "updates", REALISTIC_UPDATE_COUNT)
     print(f"realistic update estimate, factored: {total / REALISTIC_UPDATE_COUNT:.0f} tokens per update")
 
 

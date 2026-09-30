@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from collections.abc import Awaitable, Callable
 from typing import Any
 
@@ -9,7 +10,7 @@ import pytest
 from homeassistant.core import HomeAssistant
 
 from custom_components.gutcheck.budget import estimate_tokens, request_fits
-from custom_components.gutcheck.const import MODEL
+from custom_components.gutcheck.const import MODEL, SUBJECTS_PER_REQUEST
 from custom_components.gutcheck.models import SystemOneRequest, SystemOneResponse
 from custom_components.gutcheck.recipes.area_const import AREA_INSTRUCTIONS
 from custom_components.gutcheck.recipes.areas import AreaRecipe
@@ -189,3 +190,11 @@ def test_a_run_within_its_cap_goes_out_untouched() -> None:
 
     assert len(payloads) == 1
     assert payloads[0]["questions"] is batch.questions
+
+
+def test_a_batch_that_sets_no_cap_inherits_the_shared_one() -> None:
+    """A recipe that never sets max_per_request is capped at SUBJECTS_PER_REQUEST, ten subjects to a request."""
+    batch, payload, _response = _captured_batch()
+
+    assert batch.max_per_request == SUBJECTS_PER_REQUEST == 10
+    assert len(split_batch(batch)) == math.ceil(len(payload["questions"]) / SUBJECTS_PER_REQUEST)
