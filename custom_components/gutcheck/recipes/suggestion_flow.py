@@ -1,7 +1,7 @@
 """The confirm/ignore fix flow shared by every suggestion recipe, and the platform hook Home Assistant loads.
 
 This module, and every apply module it wires together (area_repairs,
-device_class_repairs and critical_label_repairs), must not import the
+device_class_repairs, critical_label_repairs and hide_diagnostic_repairs), must not import the
 integration's own repairs module or any card-sync module: repairs.py
 re-exports async_create_fix_flow from here, and an import back the other
 way would be a cycle.
@@ -18,10 +18,17 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.selector import SelectSelector, SelectSelectorConfig
 
-from ..const import CONF_CRITICAL_LABEL, CRITICAL_LABEL_ISSUE_PREFIX, DEVICE_CLASS_ISSUE_PREFIX, DOMAIN
+from ..const import (
+    CONF_CRITICAL_LABEL,
+    CRITICAL_LABEL_ISSUE_PREFIX,
+    DEVICE_CLASS_ISSUE_PREFIX,
+    DOMAIN,
+    HIDE_DIAGNOSTIC_ISSUE_PREFIX,
+)
 from .area_repairs import assign_area
 from .critical_label_repairs import add_critical_label
 from .device_class_repairs import other_class_choices, set_device_class
+from .hide_diagnostic_repairs import hide_entity
 from .safety import SafetyRules
 from .shapes import IssueData
 
@@ -118,4 +125,6 @@ async def async_create_fix_flow(hass: HomeAssistant, issue_id: str, data: IssueD
         return DeviceClassRepairFlow(data)
     if issue_id.startswith(CRITICAL_LABEL_ISSUE_PREFIX):
         return SuggestionRepairFlow(data, add_critical_label)
+    if issue_id.startswith(HIDE_DIAGNOSTIC_ISSUE_PREFIX):
+        return SuggestionRepairFlow(data, hide_entity)
     return SuggestionRepairFlow(data, assign_area)

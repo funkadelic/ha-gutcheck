@@ -6,6 +6,7 @@ from typing import Any
 from unittest.mock import patch
 
 import pytest
+from homeassistant.const import CONF_API_KEY
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType, InvalidData
 from homeassistant.helpers import entity_registry as er
@@ -16,12 +17,14 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 
 from custom_components.gutcheck.const import (
     CONF_AREAS_ENABLED,
+    CONF_CHANGE_BACK,
     CONF_CONFIG_ENTRIES_ENABLED,
     CONF_CRITICAL_LABEL,
     CONF_CRITICAL_LABEL_ENABLED,
     CONF_DAILY_BUDGET,
     CONF_DEVICE_CLASS_ENABLED,
     CONF_HEALTH_ENABLED,
+    CONF_HIDE_DIAGNOSTIC_ENABLED,
     CONF_UPDATES_ENABLED,
     DEFAULT_DAILY_BUDGET,
     DOMAIN,
@@ -90,6 +93,7 @@ async def test_defaults_apply_when_options_never_saved(
     assert defaults[CONF_DEVICE_CLASS_ENABLED] is False
     assert defaults[CONF_CONFIG_ENTRIES_ENABLED] is False
     assert defaults[CONF_CRITICAL_LABEL_ENABLED] is False
+    assert defaults[CONF_HIDE_DIAGNOSTIC_ENABLED] is False
     assert defaults[CONF_DAILY_BUDGET] == DEFAULT_DAILY_BUDGET
     assert CONF_CRITICAL_LABEL not in defaults
 
@@ -398,3 +402,29 @@ async def test_saving_identical_updates_value_does_not_reload(hass: HomeAssistan
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
     reload_spy.assert_not_called()
+
+
+async def test_a_save_drops_the_change_back_key_an_earlier_release_left_in_the_options(hass: HomeAssistant) -> None:
+    """An entry whose options still hold the old checkbox key loses it on the next save; every other option is kept."""
+    options = {
+        CONF_HEALTH_ENABLED: False,
+        CONF_UPDATES_ENABLED: False,
+        CONF_AREAS_ENABLED: False,
+        CONF_DEVICE_CLASS_ENABLED: True,
+        CONF_CONFIG_ENTRIES_ENABLED: False,
+        CONF_CRITICAL_LABEL_ENABLED: False,
+        CONF_HIDE_DIAGNOSTIC_ENABLED: False,
+        CONF_DAILY_BUDGET: 12345,
+    }
+    entry = MockConfigEntry(domain=DOMAIN, data={CONF_API_KEY: "test-key"}, options={**options, "undo_device_class": False})
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(result["flow_id"], options)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert dict(entry.options) == options
+    assert CONF_CHANGE_BACK not in entry.options

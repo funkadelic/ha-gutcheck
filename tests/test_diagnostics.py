@@ -24,11 +24,13 @@ from custom_components.gutcheck.const import (
     CONF_AREAS_ENABLED,
     CONF_HEALTH_ENABLED,
     CONF_UPDATES_ENABLED,
+    DEVICE_CLASS_APPLIED_STORE_KEY,
     DOMAIN,
+    HIDE_DIAGNOSTIC_APPLIED_STORE_KEY,
     RECIPE_HEALTH,
 )
 from custom_components.gutcheck.diagnostics import async_get_config_entry_diagnostics
-from custom_components.gutcheck.recipes.device_class_undo import AppliedClasses
+from custom_components.gutcheck.recipes.applied_records import AppliedRecords
 
 from .conftest import health_item, health_result
 
@@ -123,12 +125,18 @@ async def test_a_never_run_recipe_dumps_as_null(hass: HomeAssistant, mock_config
     client = GutCheckClient(async_get_clientsession(hass), "test-key")
     budget = BudgetGate(hass, client, 150_000)
     await budget.async_load()
-    applied = AppliedClasses(hass)
+    applied = AppliedRecords(hass, DEVICE_CLASS_APPLIED_STORE_KEY)
     await applied.async_load()
+    applied_hidden = AppliedRecords(hass, HIDE_DIAGNOSTIC_APPLIED_STORE_KEY)
+    await applied_hidden.async_load()
     mock_config_entry.add_to_hass(hass)
     mock_config_entry.mock_state(hass, config_entries.ConfigEntryState.LOADED)
     mock_config_entry.runtime_data = GutCheckData(
-        client=client, budget=budget, coordinators={RECIPE_HEALTH: SimpleNamespace(data=None)}, applied=applied
+        client=client,
+        budget=budget,
+        coordinators={RECIPE_HEALTH: SimpleNamespace(data=None)},
+        applied=applied,
+        applied_hidden=applied_hidden,
     )
 
     result = await async_get_config_entry_diagnostics(hass, mock_config_entry)

@@ -29,7 +29,7 @@ Home Assistant is good at following rules you write. It isn't good at judgment c
   - [Restored entities](#restored-entities)
   - [Sensors](#sensors)
   - [Repairs cards](#repairs-cards)
-  - [Changing a class back](#changing-a-class-back)
+  - [Changing something back](#changing-something-back)
 - [Remove](#remove)
 
 ## How Gut Check decides
@@ -52,6 +52,8 @@ Jev can't write a reply, make up a new option, or tell Home Assistant to do anyt
 
 **Critical label suggestions.** Gut Check suggests your critical label (life safety and water damage devices) for entities that might need it. Smoke, carbon monoxide and gas sensors are decided from their device class alone, with nothing sent. Valves, switches, sirens and moisture sensors are each asked one question; moisture is asked because Home Assistant gives the same device class to a water leak sensor and to a rain or soil moisture sensor. Each suggestion is a Repairs card; confirming adds your critical label to that entity only, never its device, and leaves every other label untouched. Ignoring stops Gut Check suggesting it for that entity. It never removes the label, and it is off until you switch it on and pick a critical label in Configure.
 
+**Diagnostic sensor suggestions.** Integrations add sensors that describe the device rather than your home, such as signal strength, the Wi-Fi network a phone is on, its SIM carrier or its storage, and they crowd your temperatures and power readings on the auto-generated dashboards and area pages. Gut Check suggests hiding them. Signal-strength sensors are decided from their device class alone, with nothing sent. Sensors with no device class are each asked one question: does this describe the device or its connection, or something in your home you would watch or automate on? Each suggestion is a Repairs card. Confirming hides that sensor, which keeps it off auto-generated dashboards while it keeps working and recording history. Ignoring the card stops Gut Check suggesting it. A hidden sensor can be changed back from Configure. It never hides anything on its own, and it is off until you switch it on.
+
 ## What Gut Check will never do
 
 - Control a lock, alarm panel, garage door or cover. The health check leaves them out entirely.
@@ -59,6 +61,7 @@ Jev can't write a reply, make up a new option, or tell Home Assistant to do anyt
 - Reload, reconfigure, sign in to, disable or delete an integration.
 - Act on its own. Every actionable finding waits for you in Repairs.
 - Remove your critical label from anything, or change any other label it carries.
+- Hide a sensor you haven't confirmed, or unhide one on its own.
 - Guess. When it isn't confident in an answer, it does nothing.
 
 ## Install and set up
@@ -74,7 +77,7 @@ If the key is ever rejected later, Home Assistant opens a repair asking for a ne
 
 ## Running the checks
 
-You don't need to set up a schedule. Once you add the integration, each check that is switched on runs by itself when Home Assistant finishes starting, then once a week after that. Restarting Home Assistant doesn't start an extra run: Gut Check keeps the last result and runs again when the week is up. If a run fails, it tries again an hour later.
+You don't need to set up a schedule. Once you add the integration, each check that is switched on runs by itself when Home Assistant finishes starting, then once a week after that. Restarting Home Assistant doesn't start an extra run: Gut Check keeps the last result and runs again when the week is up. If a run fails, it tries again an hour later, reusing the answers it already paid for and sending only the requests that went unanswered.
 
 To run a check now, go to **Settings > Devices & services > Gut Check**, open the Gut Check service, and press that check's Run button. Pressing a check's button while that check is already running shows an error and starts nothing. The other checks' buttons still work.
 
@@ -90,10 +93,13 @@ TypeSafe AI measures usage in tokens, about three characters of text each, and c
 | Device class suggestions | 20,056 for 58 asked sensors on a real run | under $0.001 |
 | Stuck integration check | 0 when nothing is stuck; about 550 estimated per stuck integration | under $0.0001 per stuck integration (estimated) |
 | Critical label suggestions | 0 when only smoke, carbon monoxide or gas sensors qualify; 26,701 for 59 asked entities on a real run | about $0.0011 |
+| Diagnostic sensor suggestions | 0 when only signal-strength sensors qualify; 58,661 for 122 asked sensors on a real run (13 requests) | about $0.0025 |
+
+The other checks were measured when a run went out as one request. Sending ten items per request, as Gut Check does now, adds about 4 to 8 percent to those figures.
 
 Gut Check enforces a daily token budget so cost stays predictable. `sensor.gut_check_tokens_used_today` and `sensor.gut_check_cost_today` show what has been spent and what it cost, both resetting at local midnight. The default of 150,000 tokens covers the weekly schedule with room to spare; running checks by hand several times in one day can reach it.
 
-Gut Check sizes up every run before sending it and refuses one that would go over what is left, so a refused run spends nothing. A run on a large install can go out as several requests, and Gut Check weighs the whole run against what is left, so it never stops halfway because the budget ran out. The affected sensor goes unavailable until the budget resets or you raise it. A run that needs more than the whole daily budget is refused every day until you raise it. Gut Check sets aside more than any run has been billed so far, then corrects the counter to what the API reports, so a run that goes through should stay under the cap, and once the counter is over, every later run that day is refused.
+Gut Check sizes up every run before sending it and refuses one that would go over what is left, so a refused run spends nothing. A run goes out as one or more requests, at most ten items each and fewer when ten would be too large, and Gut Check weighs the whole run against what is left, so it never stops halfway because the budget ran out. The affected sensor goes unavailable until the budget resets or you raise it. A run that needs more than the whole daily budget is refused every day until you raise it. Gut Check sets aside more than any run has been billed so far, then corrects the counter to what the API reports, so a run that goes through should stay under the cap, and once the counter is over, every later run that day is refused.
 
 ## Options
 
@@ -105,9 +111,10 @@ Open the integration's **Configure** screen to:
 - Turn device class suggestions on or off (off by default)
 - Turn the stuck integration check on or off (off by default)
 - Turn critical label suggestions on or off (off by default)
+- Turn diagnostic sensor suggestions on or off (off by default)
 - Set the daily token budget (default 150,000 tokens)
 - Pick your critical label; Gut Check never acts on or changes anything carrying it, on the entity or its device. The home health check still tells you when a labelled entity goes offline; every other check leaves it out entirely.
-- Change back a device class Gut Check set, once anything is recorded
+- Change back a device class Gut Check set or a sensor it hid, once anything is recorded
 
 ## What gets sent, and what does not
 
@@ -123,7 +130,9 @@ For each integration the stuck integration check looks at, Gut Check sends its i
 
 For each asked valve, switch, siren or moisture sensor, Gut Check sends its domain, device class, name, device name, manufacturer, model, integration and entity category. It never sends an entity id, area, state or any label; names are read only as a description, never as an instruction. A settings or diagnostic entity is never asked, whatever its domain. A smoke, carbon monoxide or gas sensor is decided by its device class alone and sends nothing.
 
-To see exactly what was sent on the last completed run, open **Developer tools > States**, find the check's sensor, and look at its `last_payload` attribute. A run that fails partway leaves the previous run's payload in place.
+For each asked sensor with no device class, Gut Check sends its name, its device's name, manufacturer and model, integration, unit and state class. It never sends a reading or any other state, an entity id, an area or a label. Names are read only as a description, never as an instruction. A signal-strength sensor is decided by its device class alone and sends nothing.
+
+To see exactly what was sent on the last completed run, open **Developer tools > States**, find the check's sensor, and look at its `last_payload` attribute. A run that went out as several requests shows one entry per request. A run that fails partway leaves the previous run's payload in place.
 
 The integration's three-dot menu also offers a diagnostics download. It replaces the API key with a redacted marker; everything else, your device and area names and the last payload among them, comes through as it is, so read the file before attaching it to an issue.
 
@@ -143,6 +152,8 @@ The stuck integration check only looks at integrations stuck retrying or stopped
 
 Critical label suggestions only consider valves, switches, sirens and binary sensors whose device class is smoke, carbon monoxide, gas or moisture. They never consider a disabled entity, Gut Check's own, a lock, an alarm panel, a cover, a settings or diagnostic entity, or anything already carrying the label on itself or its device.
 
+Diagnostic sensor suggestions only consider sensors with no device class or a signal-strength one. They never consider another device class (battery, timestamp and data size included), a binary sensor or any other kind of entity, a sensor that is already hidden or already a settings or diagnostic entity, a disabled sensor, Gut Check's own sensors, or anything carrying your critical label on itself or its device. A sensor with an open device class card waits: it is considered again once you set or refuse its class.
+
 ### Restored entities
 
 A restored entity is one its integration no longer provides. The health check sorts it as safe to remove without asking the model once it has been gone for 31 days, as long as its integration is still loaded or it has none. If the recorder keeps less history than that (`purge_keep_days`, 10 days by default) and has recorded the outage, being gone for that whole history is enough. With the recorder off this rarely applies, because a restart resets the entity's last-changed time, the only other date Gut Check has. These entities carry no confidence value in the sensor's attributes.
@@ -161,6 +172,8 @@ Each enabled check gets one sensor. Its state is how many of that check's Repair
 
 The stuck integration check's sensor, `sensor.gut_check_stuck_integration_check`, counts the open sign-in-problem and broken-for-good cards. Its attributes list every stuck integration by group with its integration name, title, when Gut Check first saw it failing, how long, and confidence. `reauth_in_progress` true means Home Assistant's own sign-in card already covers it, so there is no Gut Check card for it. Passing glitches are listed too but never get a card, and an `unsure` list holds the rest.
 
+`sensor.gut_check_diagnostic_sensor_suggestions` counts the open hide cards. Its attributes list suggested sensors (a signal-strength one carries no confidence), a `primary` list for sensors Gut Check judged to be about your home, and an `unsure` list.
+
 `sensor.gut_check_critical_label_suggestions` counts the open critical label cards. Its attributes list suggested entities (a smoke, carbon monoxide or gas sensor decided by device class alone carries no confidence), a `not_critical` list, and an `unsure` list.
 
 ### Repairs cards
@@ -177,12 +190,14 @@ The stuck integration check raises one card per sign-in problem or broken-for-go
 
 A critical label suggestion gets one card per entity, up to ten new cards per run: entities decided by device class come first, then the rest by confidence. A card clears when you confirm it, when the entity gets the label another way or stops qualifying, or when a later run no longer suggests it. Choosing not to have the label suggested moves the card to your ignored repairs, where it stays for as long as the entity still qualifies, including across turning critical label suggestions off and back on and clearing the label. If the entity stops qualifying or your critical label changed by the time you open a card, confirming does nothing, tells you so, and removes the card.
 
-### Changing a class back
+A diagnostic sensor suggestion gets one card per sensor, up to ten new cards per run: signal-strength sensors come first, then the rest by confidence. A card clears when you confirm it, when the sensor is hidden, given a device class or made a settings or diagnostic entity another way or stops qualifying, or when a later run no longer suggests it. Ignoring a card moves it to your ignored repairs, where it stays for as long as the sensor still qualifies or you have hidden it yourself, including across turning diagnostic sensor suggestions off and back on. If the sensor changed by the time you open a card, confirming does nothing, tells you so, and removes the card.
 
-Home Assistant's own entity settings have no device class control for a sensor, so Gut Check gives you one. Open the integration's Configure screen, tick **Change back a device class Gut Check set**, and pick the sensors. Gut Check clears the device class it set, leaves any that were changed since, and stops suggesting a device class for them. Removing Gut Check keeps the classes it set, so change them back first if you want those gone too.
+### Changing something back
+
+Home Assistant's own entity settings have no device class control for a sensor, so Gut Check gives you one. Open the integration's Configure screen, tick **Change back something Gut Check set**, and pick sensors in either list: the sensors whose device class Gut Check set, and the sensors it hid. Gut Check clears a class it set or unhides a sensor it hid, leaves any that were changed since, and stops making that suggestion for them. Unhiding a sensor from its own entity settings instead lets Gut Check suggest hiding it again later; changing it back from Configure is what stops that. Removing Gut Check keeps the classes it set and the sensors it hid, so change them back first if you want those gone too.
 
 ## Remove
 
 Delete the integration from **Settings > Devices & services**. That removes its entities, clears every Repairs card it created (ignored ones included), and deletes its stored budget and check results. Then remove the download from HACS.
 
-Nothing Gut Check suggested and you accepted is undone: a device you moved to an area, for example, stays where you put it. A label added from a card stays too, like an area or a device class Gut Check set.
+Nothing Gut Check suggested and you accepted is undone: a device you moved to an area, for example, stays where you put it. A label added from a card stays too, like an area or a device class Gut Check set, and so does a sensor hidden from a card.

@@ -15,7 +15,7 @@ from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.budget import BudgetGate, estimate_tokens
+from custom_components.gutcheck.budget import BudgetGate
 from custom_components.gutcheck.client import GutCheckClient
 from custom_components.gutcheck.const import FAILED_RUN_RETRY, MODEL, OPTION_EXPECTED, RECIPE_HEALTH, STORE_VERSION
 from custom_components.gutcheck.coordinator import RecipeCoordinator
@@ -23,6 +23,7 @@ from custom_components.gutcheck.diagnostics import async_get_config_entry_diagno
 from custom_components.gutcheck.recipes.health import HealthRecipe
 from custom_components.gutcheck.recipes.health_const import HEALTH_CRITERIA, HEALTH_INSTRUCTIONS
 from custom_components.gutcheck.recipes.shapes import Batch, recipe_store_key
+from custom_components.gutcheck.sizing import estimate_tokens
 
 from .conftest import (
     api_response,
@@ -52,7 +53,7 @@ async def _two_per_request(hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch,
     for index in range(count):
         register_unavailable_entity(hass, f"split_{index}")
     batch = await HealthRecipe(None).async_prepare(hass)
-    monkeypatch.setattr("custom_components.gutcheck.budget.REQUEST_TOKEN_LIMIT", estimate_tokens(_slice_body(batch, 0, 2)))
+    monkeypatch.setattr("custom_components.gutcheck.sizing.REQUEST_TOKEN_LIMIT", estimate_tokens(_slice_body(batch, 0, 2)))
     return batch
 
 
@@ -142,7 +143,7 @@ async def test_lone_subject_too_large_for_any_request_still_fails(
     """With no subject fitting on its own, the run fails as too large, sending and spending nothing."""
     for index in range(3):
         register_unavailable_entity(hass, f"split_{index}")
-    monkeypatch.setattr("custom_components.gutcheck.budget.REQUEST_TOKEN_LIMIT", 1)
+    monkeypatch.setattr("custom_components.gutcheck.sizing.REQUEST_TOKEN_LIMIT", 1)
     register_jev_responses(aioclient_mock, [])
     coordinator = await _coordinator(hass, mock_config_entry)
 

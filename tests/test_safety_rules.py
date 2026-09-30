@@ -19,6 +19,7 @@ from custom_components.gutcheck.const import (
     CONF_CRITICAL_LABEL,
     CONF_CRITICAL_LABEL_ENABLED,
     CONF_DEVICE_CLASS_ENABLED,
+    CONF_HIDE_DIAGNOSTIC_ENABLED,
     DOMAIN,
     OPTION_WORTH_FIXING,
     RECIPE_CRITICAL_LABEL,
@@ -51,10 +52,15 @@ async def _registered_recipes(hass: HomeAssistant, critical_label: str | None = 
     Set up before any unavailable entity exists, so the first run sends nothing
     and the test never reaches the API. Clearing the label in the options flow
     leaves the key absent, so that is what a cleared label looks like here.
-    Device class and critical label suggestions are switched on too, so all
-    five entity-reading recipes are checked, not just the three on by default.
+    Device class, critical label and diagnostic sensor suggestions are
+    switched on too, so all six entity-reading recipes are checked, not just
+    the three on by default.
     """
-    options: dict[str, object] = {CONF_DEVICE_CLASS_ENABLED: True, CONF_CRITICAL_LABEL_ENABLED: True}
+    options: dict[str, object] = {
+        CONF_DEVICE_CLASS_ENABLED: True,
+        CONF_CRITICAL_LABEL_ENABLED: True,
+        CONF_HIDE_DIAGNOSTIC_ENABLED: True,
+    }
     if critical_label:
         lr.async_get(hass).async_create("Critical")
         options[CONF_CRITICAL_LABEL] = critical_label

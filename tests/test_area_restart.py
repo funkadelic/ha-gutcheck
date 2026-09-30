@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from typing import Any
 
 from homeassistant.core import HomeAssistant
@@ -16,6 +17,7 @@ from custom_components.gutcheck.const import (
     DEFAULT_DAILY_BUDGET,
     DOMAIN,
     RECIPE_AREAS,
+    SUBJECTS_PER_REQUEST,
 )
 from custom_components.gutcheck.recipes.area_const import MAX_NEW_AREA_CARDS_PER_RUN
 
@@ -26,6 +28,7 @@ from .conftest import (
     posted_bodies,
     recipe_sensor_entity_id,
     register_area_device,
+    register_jev_answers,
     register_jev_responses,
     restart_config_entry,
 )
@@ -112,8 +115,7 @@ async def test_a_restore_raises_no_card_the_run_held_back_and_every_card_the_run
     create_areas(hass, "Kitchen")
     for index in range(12):
         register_area_device(hass, f"d{index}", name=f"Device {index}", entities=["sensor"])
-    answers = api_response({f"d{index}": area_answer("Kitchen", 0.9, ["Kitchen"]) for index in range(12)})
-    register_jev_responses(aioclient_mock, [answers, answers])
+    register_jev_answers(aioclient_mock, {f"d{index}": area_answer("Kitchen", 0.9, ["Kitchen"]) for index in range(12)})
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
@@ -132,4 +134,5 @@ async def test_a_restore_raises_no_card_the_run_held_back_and_every_card_the_run
     assert _area_card_ids(hass) == set()
     await _switch_areas(hass, mock_config_entry, True)
     assert len(_area_card_ids(hass)) == 12
-    assert len(posted_bodies(aioclient_mock)) == 2
+    # Two runs, each of 12 devices sent as ceil(12 / cap) requests; the restart and the switch back on send none.
+    assert len(posted_bodies(aioclient_mock)) == 2 * math.ceil(12 / SUBJECTS_PER_REQUEST)

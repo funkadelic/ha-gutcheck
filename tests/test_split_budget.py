@@ -13,10 +13,11 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMockResponse,
 )
 
-from custom_components.gutcheck.budget import BudgetExceededError, BudgetGate, RunOverDailyBudgetError, _reservation
+from custom_components.gutcheck.budget import BudgetExceededError, BudgetGate, RunOverDailyBudgetError
 from custom_components.gutcheck.client import GutCheckApiError, GutCheckClient
 from custom_components.gutcheck.const import API_URL
 from custom_components.gutcheck.models import SystemOneRequest
+from custom_components.gutcheck.sizing import reservation
 
 from .conftest import api_response, posted_bodies
 
@@ -24,7 +25,7 @@ PAYLOADS: list[SystemOneRequest] = [
     {"state": {"slice": index}, "model": "jev-latest", "questions": {f"q{index}": {"type": "noul", "instructions": "?"}}}
     for index in range(3)
 ]
-E1, E2, E3 = (_reservation(payload) for payload in PAYLOADS)
+E1, E2, E3 = (reservation(payload) for payload in PAYLOADS)
 FAILED = (500, {"error": "boom"})
 
 
@@ -194,3 +195,21 @@ async def test_one_payload_run_matches_a_single_ask(hass: HomeAssistant, aioclie
 
     assert responses == [response]
     assert gate.spent_today == 20
+
+
+async def test_a_raising_on_response_leaves_the_actual_usage_charged_and_releases_the_rest(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
+) -> None:
+    """A callback that raises after request 1 leaves its actual usage spent, not its estimate, and releases the rest."""
+    _serve(aioclient_mock, [10, 20, 30])
+    gate = await _gate(hass)
+
+    def _boom(_payload: SystemOneRequest, _response: Any) -> None:
+        """Fail on the first answer."""
+        raise ValueError("boom")
+
+    with pytest.raises(ValueError, match="boom"):
+        await gate.async_ask_all(PAYLOADS, on_response=_boom)
+
+    assert len(posted_bodies(aioclient_mock)) == 1
+    assert gate.spent_today == 10

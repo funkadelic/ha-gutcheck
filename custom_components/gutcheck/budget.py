@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
-import math
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, TypedDict
+from typing import TypedDict
 
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_send
@@ -17,15 +16,12 @@ from homeassistant.util import dt as dt_util
 
 from .client import GutCheckClient
 from .const import (
-    BUDGET_CHARS_PER_TOKEN,
     BUDGET_STORE_KEY,
-    CHARS_PER_TOKEN,
-    REQUEST_TOKEN_LIMIT,
     SIGNAL_BUDGET_UPDATED,
-    STATE_TOKEN_LIMIT,
     STORE_VERSION,
 )
 from .models import SystemOneRequest, SystemOneResponse
+from .sizing import request_fits, reservation, sizes
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -47,33 +43,6 @@ class _BudgetData(TypedDict):
 
     date: str
     spent: int
-
-
-def _estimate(value: Any) -> int:
-    """Estimate a JSON-serializable value's token cost from its character count."""
-    return math.ceil(len(json.dumps(value)) / CHARS_PER_TOKEN)
-
-
-def estimate_tokens(payload: SystemOneRequest) -> int:
-    """Estimate a whole request's token cost from its serialized character count."""
-    return _estimate(payload)
-
-
-def _reservation(payload: SystemOneRequest) -> int:
-    """What a request holds against the daily budget until the API reports its real usage."""
-    return math.ceil(len(json.dumps(payload)) / BUDGET_CHARS_PER_TOKEN)
-
-
-def _sizes(payload: SystemOneRequest) -> tuple[int, int]:
-    """The whole request's estimate, and its state's estimate plus its longest question's."""
-    longest_question = max((_estimate(question) for question in payload["questions"].values()), default=0)
-    return estimate_tokens(payload), _estimate(payload["state"]) + longest_question
-
-
-def request_fits(payload: SystemOneRequest) -> bool:
-    """Whether one request is within both the per-request and the per-state token cap."""
-    estimate, state_plus_longest = _sizes(payload)
-    return estimate <= REQUEST_TOKEN_LIMIT and state_plus_longest <= STATE_TOKEN_LIMIT
 
 
 def _today() -> str:
@@ -163,11 +132,21 @@ class BudgetGate:
         """Reserve an estimate, call the client, then reconcile to actual usage."""
         return (await self.async_ask_all([payload]))[0]
 
-    async def async_ask_all(self, payloads: list[SystemOneRequest]) -> list[SystemOneResponse]:
-        """Reserve a run's requests as a whole, send them in order, and reconcile each to actual usage."""
+    async def async_ask_all(
+        self,
+        payloads: list[SystemOneRequest],
+        on_response: Callable[[SystemOneRequest, SystemOneResponse], None] | None = None,
+    ) -> list[SystemOneResponse]:
+        """Reserve a run's requests as a whole, send them in order, and reconcile each to actual usage.
+
+        on_response gets each request and its response once it is billed and reconciled,
+        so a caller can keep answers a later failure in the same run would lose.
+        """
+        if not payloads:
+            return []
         for payload in payloads:
             if not request_fits(payload):
-                estimate, state_plus_longest = _sizes(payload)
+                estimate, state_plus_longest = sizes(payload)
                 _LOGGER.debug(
                     "request too large estimate=%s state_plus_longest_question=%s questions=%s",
                     estimate,
@@ -176,7 +155,7 @@ class BudgetGate:
                 )
                 raise RequestTooLargeError("request exceeds the per-request token cap")
 
-        estimates = [_reservation(payload) for payload in payloads]
+        estimates = [reservation(payload) for payload in payloads]
         unsent = sum(estimates)
         if unsent > self._daily_budget:
             raise RunOverDailyBudgetError("run needs more than the whole daily budget")
@@ -199,6 +178,9 @@ class BudgetGate:
                 async with self._lock:
                     self._reconcile(reservation_date, estimate, response["usage"]["input_tokens"])
                     await self._save_and_notify()
+                # After the reconcile, so a callback that raises leaves the actual usage charged.
+                if on_response is not None:
+                    on_response(payload, response)
                 responses.append(response)
         except BaseException:
             if reservation_date:

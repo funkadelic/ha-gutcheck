@@ -21,6 +21,7 @@ from .conftest import (
     posted_bodies,
     recipe_sensor_entity_id,
     register_area_device,
+    register_jev_answers,
     register_jev_responses,
 )
 
@@ -34,8 +35,8 @@ async def _run_again(hass: HomeAssistant, entry: MockConfigEntry) -> None:
 async def _setup(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, entry: MockConfigEntry, response: dict[str, object]
 ) -> None:
-    """Register the API response, add and set up the entry."""
-    register_jev_responses(aioclient_mock, [api_response(response)])
+    """Register the answers, add and set up the entry."""
+    register_jev_answers(aioclient_mock, response)
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
@@ -216,7 +217,7 @@ async def test_twelve_confident_devices_yield_ten_cards_most_confident_first_the
     assert f"{AREA_ISSUE_PREFIX}{below_cut.id}" not in card_ids
 
     aioclient_mock.clear_requests()
-    register_jev_responses(aioclient_mock, [api_response(answers)])
+    register_jev_answers(aioclient_mock, answers)
     await _run_again(hass, mock_config_entry)
 
     card_ids_after = {
@@ -251,7 +252,7 @@ async def test_three_open_cards_plus_twenty_five_new_confident_suggestions_yield
     answers = {f"d{index}": area_answer("Kitchen", 0.9, ["Kitchen"]) for index in range(len(all_devices))}
 
     aioclient_mock.clear_requests()
-    register_jev_responses(aioclient_mock, [api_response(answers)])
+    register_jev_answers(aioclient_mock, answers)
     await _run_again(hass, mock_config_entry)
 
     card_ids_after = {

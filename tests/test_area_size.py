@@ -1,4 +1,4 @@
-"""One area run fits one request with measured headroom, and all three recipes fit the daily budget."""
+"""One area run goes out as capped requests with measured headroom, and all three recipes fit the daily budget."""
 
 from __future__ import annotations
 
@@ -9,32 +9,26 @@ from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.budget import _estimate, _reservation, estimate_tokens
 from custom_components.gutcheck.const import (
     DEFAULT_DAILY_BUDGET,
     DEVICE_TEXT_MAX_CHARS,
     DOMAIN,
-    MODEL,
     RECIPE_AREAS,
-    REQUEST_TOKEN_LIMIT,
-    STATE_TOKEN_LIMIT,
 )
 from custom_components.gutcheck.recipes.areas import AreaRecipe
+from custom_components.gutcheck.sizing import reservation
+from custom_components.gutcheck.split import split_batch
 
 from .conftest import (
     AreaEntitySpec,
-    api_response,
     area_answer,
+    assert_capped_run_fits,
     create_areas,
     load_fixture,
     posted_bodies,
     register_area_device,
-    register_jev_responses,
+    register_jev_answers,
 )
-
-# The budget gate's own estimator undercounts a real payload by about 12%,
-# so every comparison here applies this factor before checking a limit.
-SAFETY_FACTOR = 1.15
 
 # The target install's own counts as of 2026-09-23 (see the phase context):
 # 18 areas, about 60 real candidate devices.
@@ -84,46 +78,28 @@ def _build_realistic_devices(hass: HomeAssistant) -> dict[str, str]:
     return areas
 
 
-async def test_one_realistic_area_run_is_one_request_with_measured_headroom(
+async def test_one_realistic_area_run_goes_out_as_capped_requests_with_measured_headroom(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
 ) -> None:
-    """18 areas and 60 full-size devices send one request, comfortably inside both token limits."""
+    """18 areas and 60 full-size devices go out ten to a request, each request comfortably inside both token limits."""
     areas = _build_realistic_devices(hass)
     answers = {f"d{index}": area_answer(_AREA_NAMES[0], 0.9, list(areas)) for index in range(REALISTIC_AREA_COUNT)}
-    register_jev_responses(aioclient_mock, [api_response(answers)])
+    register_jev_answers(aioclient_mock, answers)
 
     entry = MockConfigEntry(domain=DOMAIN, data={CONF_API_KEY: "test-key"})
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
-    bodies = posted_bodies(aioclient_mock)
-    assert len(bodies) == 1
-    body = bodies[0]
-    assert len(body["questions"]) == REALISTIC_AREA_COUNT
-    assert len(body["state"]["devices"]) == REALISTIC_AREA_COUNT
-
-    factored_request = estimate_tokens(body) * SAFETY_FACTOR
-    assert factored_request < REQUEST_TOKEN_LIMIT
-
-    state_estimate = _estimate(body["state"])
-    longest_question = max(_estimate(question) for question in body["questions"].values())
-    factored_state = (state_estimate + longest_question) * SAFETY_FACTOR
-    assert factored_state < STATE_TOKEN_LIMIT
-
-    per_device_factored = factored_request / REALISTIC_AREA_COUNT
-    ceiling = int(REQUEST_TOKEN_LIMIT // per_device_factored)
-    print(
-        f"realistic area device estimate, factored: {per_device_factored:.0f} tokens per device; "
-        f"REQUEST_TOKEN_LIMIT trips past {ceiling} devices"
-    )
+    total = assert_capped_run_fits(posted_bodies(aioclient_mock), "devices", REALISTIC_AREA_COUNT)
+    print(f"realistic area device estimate, factored: {total / REALISTIC_AREA_COUNT:.0f} tokens per device")
 
 
 async def test_an_oversized_area_request_is_refused_with_no_partial_result(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """A run too large to send is refused loudly rather than posting anything."""
-    monkeypatch.setattr("custom_components.gutcheck.budget.REQUEST_TOKEN_LIMIT", 100)
+    monkeypatch.setattr("custom_components.gutcheck.sizing.REQUEST_TOKEN_LIMIT", 100)
     create_areas(hass, "Kitchen")
     register_area_device(hass, "a", name="Device A", entities=["sensor"])
 
@@ -150,16 +126,15 @@ async def test_the_captured_installs_first_day_runs_reserved_at_once_fit_the_def
 ) -> None:
     """The captured install's health, update and area runs, admitted concurrently, still fit day one."""
     health_payload = load_fixture("captured", "health_payload.json")
-    health_reserved = _reservation(health_payload)
+    health_reserved = reservation(health_payload)
 
     update_payload = load_fixture("captured", "update_payload.json")
-    update_reserved = _reservation(update_payload)
+    update_reserved = reservation(update_payload)
 
     _build_realistic_devices(hass)
     recipe = AreaRecipe(critical_label=None)
     batch = await recipe.async_prepare(hass)
-    area_body = {"state": batch.state, "model": MODEL, "questions": batch.questions}
-    area_reserved = _reservation(area_body)
+    area_reserved = sum(reservation(request) for request in split_batch(batch))
 
     total = health_reserved + update_reserved + area_reserved
     print(f"first-day total, reserved: health={health_reserved} update={update_reserved} area={area_reserved} total={total}")

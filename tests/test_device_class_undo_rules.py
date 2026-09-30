@@ -10,8 +10,8 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.gutcheck.const import (
+    CONF_CHANGE_BACK,
     CONF_DEVICE_CLASS_ENABLED,
-    CONF_UNDO_DEVICE_CLASS,
     CONF_UNDO_SENSORS,
     DEVICE_CLASS_ISSUE_PREFIX,
     DOMAIN,
@@ -38,9 +38,9 @@ async def _change_back(hass: HomeAssistant, entry: MockConfigEntry, registry_ids
     """Tick the change-back checkbox, pick the given sensors, and save."""
     result = await hass.config_entries.options.async_init(entry.entry_id)
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], {**KEPT_DEVICE_CLASS_OPTIONS, CONF_UNDO_DEVICE_CLASS: True}
+        result["flow_id"], {**KEPT_DEVICE_CLASS_OPTIONS, CONF_CHANGE_BACK: True}
     )
-    assert result["step_id"] == "undo_device_class"
+    assert result["step_id"] == "change_back"
     result = await hass.config_entries.options.async_configure(result["flow_id"], {CONF_UNDO_SENSORS: registry_ids})
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done(wait_background_tasks=True)

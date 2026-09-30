@@ -1,7 +1,8 @@
-"""One request per run, measured headroom, a per-run cap that degrades, and a loud refusal past it."""
+"""Capped requests per run, measured headroom, a per-run cap that degrades, and a loud refusal past it."""
 
 from __future__ import annotations
 
+import math
 from typing import Any
 
 import pytest
@@ -12,7 +13,6 @@ from homeassistant.helpers import issue_registry as ir
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.budget import _estimate, _reservation, estimate_tokens
 from custom_components.gutcheck.const import (
     DEFAULT_DAILY_BUDGET,
     DOMAIN,
@@ -22,27 +22,27 @@ from custom_components.gutcheck.const import (
     RECIPE_HEALTH,
     RECIPE_UPDATES,
     RELEASE_NOTES_MAX_CHARS,
-    REQUEST_TOKEN_LIMIT,
     STATE_TOKEN_LIMIT,
+    SUBJECTS_PER_REQUEST,
     UPDATES_ISSUE_PREFIX,
     VERSION_JUMP_MAJOR,
 )
 from custom_components.gutcheck.recipes.update_const import MAX_UPDATES_PER_RUN, UPDATE_CRITERIA, UPDATE_INSTRUCTIONS
+from custom_components.gutcheck.sizing import estimate, reservation
 
 from .conftest import (
+    SAFETY_FACTOR,
     api_response,
+    assert_capped_run_fits,
     choice_answer,
     posted_bodies,
+    register_jev_answers,
     register_jev_responses,
-    register_jev_responses_by_question,
     register_pending_update,
     register_unavailable_entity,
     score_answer,
 )
 
-# The budget gate's own estimator undercounts a real payload by about 12%,
-# so every comparison here applies this factor before checking a limit.
-SAFETY_FACTOR = 1.15
 # In the neighborhood of the target install's real pending-update count
 # (56 as of 2026-09-18), and safely under MAX_UPDATES_PER_RUN so this run
 # is provably uncapped.
@@ -90,33 +90,26 @@ def _full_size_state_item() -> dict[str, Any]:
     }
 
 
-async def test_one_run_is_one_request_with_measured_headroom(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
-    """A realistic pending-update count sends one request, comfortably inside both token limits."""
+async def test_one_realistic_run_goes_out_as_capped_requests_with_measured_headroom(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
+) -> None:
+    """A realistic pending-update count goes out ten to a request, each request comfortably inside both token limits."""
     for index in range(REALISTIC_UPDATE_COUNT):
         register_pending_update(hass, f"upd_{index:04d}", title=f"Update {index}")
     answers = {f"u{i}": score_answer(i % 3, 0.9) for i in range(REALISTIC_UPDATE_COUNT)}
-    register_jev_responses(aioclient_mock, [api_response(answers)])
+    register_jev_answers(aioclient_mock, answers)
 
     await _setup(hass)
 
     bodies = posted_bodies(aioclient_mock)
-    assert len(bodies) == 1
-    body = bodies[0]
-    assert len(body["questions"]) == REALISTIC_UPDATE_COUNT
-    assert len(body["state"]["updates"]) == REALISTIC_UPDATE_COUNT
-
-    factored_request = estimate_tokens(body) * SAFETY_FACTOR
-    assert factored_request < REQUEST_TOKEN_LIMIT
-
-    state_estimate = _estimate(body["state"])
-    longest_question = max(_estimate(question) for question in body["questions"].values())
-    factored_state = (state_estimate + longest_question) * SAFETY_FACTOR
-    assert factored_state < STATE_TOKEN_LIMIT
+    assert len(bodies) == math.ceil(REALISTIC_UPDATE_COUNT / SUBJECTS_PER_REQUEST) == 5
+    total = assert_capped_run_fits(bodies, "updates", REALISTIC_UPDATE_COUNT)
+    print(f"realistic update estimate, factored: {total / REALISTIC_UPDATE_COUNT:.0f} tokens per update")
 
 
 def test_max_updates_per_run_is_set_from_the_measured_ceiling_with_the_safety_factor() -> None:
     """MAX_UPDATES_PER_RUN sits at or below the state-limit ceiling for one full-size update, factored."""
-    per_item = _estimate(_full_size_state_item()) * SAFETY_FACTOR
+    per_item = estimate(_full_size_state_item()) * SAFETY_FACTOR
     ceiling = int(STATE_TOKEN_LIMIT // per_item)
     print(f"full-size update estimate, factored: {per_item:.0f} tokens; STATE_TOKEN_LIMIT trips past {ceiling} updates")
 
@@ -134,13 +127,13 @@ def test_a_full_size_update_run_reserves_within_the_default_budget() -> None:
         },
     }
 
-    assert _reservation(body) <= DEFAULT_DAILY_BUDGET
+    assert reservation(body) <= DEFAULT_DAILY_BUDGET
 
 
 async def test_more_pending_than_the_cap_asks_about_the_highest_jump_ones_first(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
 ) -> None:
-    """More pending updates than the cap still sends one request, capped, highest jump first."""
+    """More pending updates than the cap still ask only the cap, ten to a request, highest jump first."""
     jumps = [("1.0.0", "1.0.1"), ("1.0.0", "1.5.0"), ("1.0.0", "2.0.0")]  # patch, minor, major
     total = MAX_UPDATES_PER_RUN * 3
     for index in range(total):
@@ -149,16 +142,13 @@ async def test_more_pending_than_the_cap_asks_about_the_highest_jump_ones_first(
             hass, f"upd_{index:04d}", installed_version=installed, latest_version=latest, title=f"Update {index}"
         )
     answers = {f"u{i}": score_answer(0, 0.9) for i in range(MAX_UPDATES_PER_RUN)}
-    register_jev_responses(aioclient_mock, [api_response(answers)])
+    register_jev_answers(aioclient_mock, answers)
 
     entry = await _setup(hass)
 
     bodies = posted_bodies(aioclient_mock)
-    assert len(bodies) == 1
-    body = bodies[0]
-    assert len(body["questions"]) == MAX_UPDATES_PER_RUN
-    assert len(body["state"]["updates"]) == MAX_UPDATES_PER_RUN
-    assert {item["version_jump"] for item in body["state"]["updates"]} == {VERSION_JUMP_MAJOR}
+    assert_capped_run_fits(bodies, "updates", MAX_UPDATES_PER_RUN)
+    assert {item["version_jump"] for body in bodies for item in body["state"]["updates"]} == {VERSION_JUMP_MAJOR}
 
     state = _sensor_state(hass, entry, RECIPE_UPDATES)
     assert state.state != "unavailable"
@@ -183,12 +173,10 @@ async def test_an_update_cut_by_the_cap_keeps_its_prior_classification_and_its_c
             hass, f"upd_{index:04d}", installed_version="1.0.0", latest_version="2.0.0", title=f"Update {index}"
         )
     aioclient_mock.clear_requests()
-    register_jev_responses(aioclient_mock, [api_response({f"u{i}": score_answer(0, 0.9) for i in range(MAX_UPDATES_PER_RUN)})])
+    register_jev_answers(aioclient_mock, {f"u{i}": score_answer(0, 0.9) for i in range(MAX_UPDATES_PER_RUN)})
     await _run_again(hass, entry)
 
-    bodies = posted_bodies(aioclient_mock)
-    assert len(bodies) == 1
-    assert len(bodies[0]["questions"]) == MAX_UPDATES_PER_RUN
+    assert_capped_run_fits(posted_bodies(aioclient_mock), "updates", MAX_UPDATES_PER_RUN)
 
     assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
     state = _sensor_state(hass, entry, RECIPE_UPDATES)
@@ -209,7 +197,7 @@ async def test_an_oversized_request_is_refused_with_no_partial_result(
     duration instead, per the plan's documented fallback, to prove the
     existing budget backstop still triggers on this code path.
     """
-    monkeypatch.setattr("custom_components.gutcheck.budget.REQUEST_TOKEN_LIMIT", 100)
+    monkeypatch.setattr("custom_components.gutcheck.sizing.REQUEST_TOKEN_LIMIT", 100)
     for index in range(3):
         register_pending_update(hass, f"upd_{index:04d}", title=f"Update {index}")
 
@@ -232,17 +220,16 @@ async def test_a_health_run_and_a_full_update_run_the_same_day_both_fit_the_defa
     register_unavailable_entity(hass)
     for index in range(REALISTIC_UPDATE_COUNT):
         register_pending_update(hass, f"upd_{index:04d}", title=f"Update {index}")
-    register_jev_responses_by_question(
+    register_jev_answers(
         aioclient_mock,
-        {
-            "e0": api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)}),
-            "u0": api_response({f"u{i}": score_answer(i % 3, 0.9) for i in range(REALISTIC_UPDATE_COUNT)}),
-        },
+        {"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)}
+        | {f"u{i}": score_answer(i % 3, 0.9) for i in range(REALISTIC_UPDATE_COUNT)},
     )
 
     entry = await _setup(hass)
 
-    assert len(posted_bodies(aioclient_mock)) == 2
+    # One health request, then the updates ten to a request.
+    assert len(posted_bodies(aioclient_mock)) == 1 + math.ceil(REALISTIC_UPDATE_COUNT / SUBJECTS_PER_REQUEST)
     budget = entry.runtime_data.budget
     assert budget.spent_today <= DEFAULT_DAILY_BUDGET
     assert budget.remaining >= 0

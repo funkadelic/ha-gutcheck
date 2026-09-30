@@ -14,9 +14,9 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.gutcheck.const import (
+    CONF_CHANGE_BACK,
     CONF_CRITICAL_LABEL,
     CONF_DEVICE_CLASS_ENABLED,
-    CONF_UNDO_DEVICE_CLASS,
     CONF_UNDO_SENSORS,
     DEVICE_CLASS_APPLIED_STORE_KEY,
     DEVICE_CLASS_ISSUE_PREFIX,
@@ -24,8 +24,8 @@ from custom_components.gutcheck.const import (
     RECIPE_DEVICE_CLASS,
     STORE_VERSION,
 )
+from custom_components.gutcheck.recipes.applied_records import AppliedRecords, undo_choices
 from custom_components.gutcheck.recipes.device_class_cards import sync_device_class_cards
-from custom_components.gutcheck.recipes.device_class_undo import AppliedClasses, undo_choices
 from custom_components.gutcheck.recipes.safety import SafetyRules
 
 from .conftest import (
@@ -45,9 +45,9 @@ async def _open_undo_step(hass: HomeAssistant, entry: MockConfigEntry) -> dict:
     """Tick the change-back checkbox on the init form and return the change-back step's result."""
     result = await hass.config_entries.options.async_init(entry.entry_id)
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], {**KEPT_DEVICE_CLASS_OPTIONS, CONF_UNDO_DEVICE_CLASS: True}
+        result["flow_id"], {**KEPT_DEVICE_CLASS_OPTIONS, CONF_CHANGE_BACK: True}
     )
-    assert result["step_id"] == "undo_device_class"
+    assert result["step_id"] == "change_back"
     return result
 
 
@@ -88,7 +88,7 @@ async def test_record_still_loads_and_offers_change_back_with_the_recipe_switche
     assert device_class_entry.runtime_data.applied.get(sensor.id) == "battery"
 
     result = await hass.config_entries.options.async_init(device_class_entry.entry_id)
-    assert CONF_UNDO_DEVICE_CLASS in {str(key) for key in result["data_schema"].schema}
+    assert CONF_CHANGE_BACK in {str(key) for key in result["data_schema"].schema}
 
 
 async def test_init_form_has_no_change_back_option_when_nothing_is_recorded(
@@ -100,7 +100,7 @@ async def test_init_form_has_no_change_back_option_when_nothing_is_recorded(
     await hass.async_block_till_done(wait_background_tasks=True)
 
     result = await hass.config_entries.options.async_init(device_class_entry.entry_id)
-    assert CONF_UNDO_DEVICE_CLASS not in {str(key) for key in result["data_schema"].schema}
+    assert CONF_CHANGE_BACK not in {str(key) for key in result["data_schema"].schema}
 
 
 async def test_init_form_has_no_change_back_option_when_the_entry_is_not_loaded(
@@ -113,7 +113,7 @@ async def test_init_form_has_no_change_back_option_when_the_entry_is_not_loaded(
     await hass.async_block_till_done(wait_background_tasks=True)
 
     result = await hass.config_entries.options.async_init(device_class_entry.entry_id)
-    assert CONF_UNDO_DEVICE_CLASS not in {str(key) for key in result["data_schema"].schema}
+    assert CONF_CHANGE_BACK not in {str(key) for key in result["data_schema"].schema}
 
 
 async def test_init_form_has_no_change_back_option_when_every_recorded_sensor_was_deregistered(
@@ -125,7 +125,7 @@ async def test_init_form_has_no_change_back_option_when_every_recorded_sensor_wa
     er.async_get(hass).async_remove(sensor.entity_id)
 
     result = await hass.config_entries.options.async_init(device_class_entry.entry_id)
-    assert CONF_UNDO_DEVICE_CLASS not in {str(key) for key in result["data_schema"].schema}
+    assert CONF_CHANGE_BACK not in {str(key) for key in result["data_schema"].schema}
 
 
 async def test_ticking_change_back_opens_the_step_and_saves_the_rest_unchanged(
@@ -140,7 +140,7 @@ async def test_ticking_change_back_opens_the_step_and_saves_the_rest_unchanged(
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["data"] == KEPT_DEVICE_CLASS_OPTIONS
     await hass.async_block_till_done(wait_background_tasks=True)
-    assert CONF_UNDO_DEVICE_CLASS not in device_class_entry.options
+    assert CONF_CHANGE_BACK not in device_class_entry.options
 
 
 async def test_change_back_step_lists_recorded_sensors_sorted_by_label_with_no_registry_id(
@@ -170,7 +170,7 @@ async def test_undo_choices_prefers_the_live_friendly_name_over_the_registered_n
     """A sensor with a live state is labelled with its friendly name, not its registered name."""
     sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
     hass.states.async_set(sensor.entity_id, "50", {"friendly_name": "Kitchen Battery"})
-    applied = AppliedClasses(hass)
+    applied = AppliedRecords(hass, DEVICE_CLASS_APPLIED_STORE_KEY)
     applied.record(sensor.id, "battery")
 
     choices = undo_choices(hass, applied)
@@ -180,7 +180,7 @@ async def test_undo_choices_prefers_the_live_friendly_name_over_the_registered_n
 
 async def test_undo_choices_omits_a_recorded_sensor_removed_from_the_registry(hass: HomeAssistant) -> None:
     """A registry id recorded but no longer registered is left out of the change-back list."""
-    applied = AppliedClasses(hass)
+    applied = AppliedRecords(hass, DEVICE_CLASS_APPLIED_STORE_KEY)
     applied.record("gone", "battery")
 
     assert undo_choices(hass, applied) == []
@@ -242,9 +242,9 @@ async def test_change_back_submitted_with_a_new_critical_label_uses_the_new_labe
     result = await hass.config_entries.options.async_init(device_class_entry.entry_id)
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
-        {**KEPT_DEVICE_CLASS_OPTIONS, CONF_CRITICAL_LABEL: new_label.label_id, CONF_UNDO_DEVICE_CLASS: True},
+        {**KEPT_DEVICE_CLASS_OPTIONS, CONF_CRITICAL_LABEL: new_label.label_id, CONF_CHANGE_BACK: True},
     )
-    assert result["step_id"] == "undo_device_class"
+    assert result["step_id"] == "change_back"
     result = await hass.config_entries.options.async_configure(result["flow_id"], {CONF_UNDO_SENSORS: [sensor.id]})
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done(wait_background_tasks=True)

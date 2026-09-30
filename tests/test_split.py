@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
+import math
 from collections.abc import Awaitable, Callable
 from typing import Any
 
 import pytest
 from homeassistant.core import HomeAssistant
 
-from custom_components.gutcheck.budget import estimate_tokens, request_fits
-from custom_components.gutcheck.const import MODEL
+from custom_components.gutcheck.const import MODEL, SUBJECTS_PER_REQUEST
 from custom_components.gutcheck.models import SystemOneRequest, SystemOneResponse
 from custom_components.gutcheck.recipes.area_const import AREA_INSTRUCTIONS
 from custom_components.gutcheck.recipes.areas import AreaRecipe
@@ -19,11 +19,12 @@ from custom_components.gutcheck.recipes.health_const import HEALTH_INSTRUCTIONS
 from custom_components.gutcheck.recipes.shapes import Batch
 from custom_components.gutcheck.recipes.update_const import UPDATE_INSTRUCTIONS
 from custom_components.gutcheck.recipes.updates import UpdateRecipe
+from custom_components.gutcheck.sizing import estimate_tokens, request_fits
 from custom_components.gutcheck.split import merge, split_batch
 
 from .conftest import create_areas, load_fixture, register_area_device, register_pending_update
 
-LIMIT = "custom_components.gutcheck.budget.REQUEST_TOKEN_LIMIT"
+LIMIT = "custom_components.gutcheck.sizing.REQUEST_TOKEN_LIMIT"
 
 
 def _captured_batch() -> tuple[Batch, SystemOneRequest, SystemOneResponse]:
@@ -53,9 +54,10 @@ def _outcome(batch: Batch, response: SystemOneResponse) -> tuple[Any, Any, Any]:
     return result["counts"], result["items"], result["unsure"]
 
 
-def test_a_run_that_fits_goes_out_untouched() -> None:
-    """A batch that fits one request is sent as its own state and questions, not a re-rendered copy."""
+def test_an_uncapped_run_that_fits_goes_out_untouched() -> None:
+    """With no cap, a batch that fits one request is sent as its own state and questions, not a re-rendered copy."""
     batch, _payload, _response = _captured_batch()
+    batch.max_per_request = 0
 
     payloads = split_batch(batch)
 
@@ -160,3 +162,39 @@ async def test_areas_and_updates_reindex_through_the_same_split(
         assert list(request["state"]) == [list_key]
         instructions = [question["instructions"] for question in request["questions"].values()]
         assert instructions == [template.format(index=local) for local in range(len(instructions))]
+
+
+def test_a_capped_run_that_fits_is_still_sliced_at_the_cap() -> None:
+    """A cap below the subject count slices a run that fits one request into re-indexed requests of at most the cap."""
+    batch, payload, _response = _captured_batch()
+    assert request_fits(payload)
+    batch.max_per_request = 10
+
+    payloads = split_batch(batch)
+
+    assert [len(request["questions"]) for request in payloads] == [10] * (len(payload["questions"]) // 10) + (
+        [len(payload["questions"]) % 10] if len(payload["questions"]) % 10 else []
+    )
+    assert [entity for request in payloads for entity in request["state"]["entities"]] == payload["state"]["entities"]
+    for request in payloads:
+        for local, question in enumerate(request["questions"].values()):
+            assert question["instructions"] == HEALTH_INSTRUCTIONS.format(index=local)
+
+
+def test_a_run_within_its_cap_goes_out_untouched() -> None:
+    """A cap at or above the subject count changes nothing: the run still goes out as one request."""
+    batch, _payload, _response = _captured_batch()
+    batch.max_per_request = len(batch.questions)
+
+    payloads = split_batch(batch)
+
+    assert len(payloads) == 1
+    assert payloads[0]["questions"] is batch.questions
+
+
+def test_a_batch_that_sets_no_cap_inherits_the_shared_one() -> None:
+    """A recipe that never sets max_per_request is capped at SUBJECTS_PER_REQUEST, ten subjects to a request."""
+    batch, payload, _response = _captured_batch()
+
+    assert batch.max_per_request == SUBJECTS_PER_REQUEST == 10
+    assert len(split_batch(batch)) == math.ceil(len(payload["questions"]) / SUBJECTS_PER_REQUEST)

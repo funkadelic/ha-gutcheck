@@ -5,10 +5,10 @@ from __future__ import annotations
 import logging
 from bisect import bisect_left
 
-from .budget import request_fits
 from .const import MODEL
 from .models import Question, SystemOneRequest, SystemOneResponse
 from .recipes.shapes import Batch
+from .sizing import request_fits
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -25,21 +25,23 @@ def _request(batch: Batch, ids: list[str], start: int, end: int) -> SystemOneReq
 
 
 def _end(batch: Batch, ids: list[str], start: int) -> int:
-    """Where the request starting at start ends: as many subjects as fit, never fewer than one."""
-    ends = range(start + 1, len(ids) + 1)
+    """Where the request starting at start ends: as many subjects as fit and the cap allows, never fewer than one."""
+    stop = min(len(ids), start + batch.max_per_request) if batch.max_per_request else len(ids)
+    ends = range(start + 1, stop + 1)
     fitting = bisect_left(ends, True, key=lambda end: not request_fits(_request(batch, ids, start, end)))
     return start + max(1, fitting)
 
 
 def split_batch(batch: Batch) -> list[SystemOneRequest]:
-    """The run as one request when it fits, else as consecutive slices that each fit.
+    """The run as one request when it fits and is within its cap, else as consecutive slices that each do.
 
     A lone subject too large for any request still goes out alone, so the
     budget gate's own size check refuses it. So does a batch that never said
     how to split, rather than failing on a missing state key.
     """
     whole: SystemOneRequest = {"state": batch.state, "model": MODEL, "questions": batch.questions}
-    if len(batch.questions) < 2 or not (batch.list_key and batch.template) or request_fits(whole):
+    over_cap = 0 < batch.max_per_request < len(batch.questions)
+    if len(batch.questions) < 2 or not (batch.list_key and batch.template) or (request_fits(whole) and not over_cap):
         return [whole]
     ids = list(batch.questions)
     payloads: list[SystemOneRequest] = []

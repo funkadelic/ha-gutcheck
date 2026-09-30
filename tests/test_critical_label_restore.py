@@ -28,6 +28,7 @@ from .conftest import (
     posted_bodies,
     press_recipe_run,
     recipe_sensor_entity_id,
+    register_jev_answers,
     register_jev_responses,
     register_unit_sensor,
     restart_config_entry,
@@ -47,7 +48,7 @@ async def test_restart_within_the_week_keeps_open_ignored_and_held_back_cards_wi
         f"k{index}": critical_label_answer("critical", 0.6 if entry.id == held_back.id else 0.9)
         for index, entry in enumerate(ordered)
     }
-    register_jev_responses(aioclient_mock, [api_response(answers)])
+    register_jev_answers(aioclient_mock, answers)
     critical_label_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(critical_label_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)

@@ -1,0 +1,1339 @@
+[
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "h0": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 1.0,
+        "probabilities": {
+          "primary": 1.0,
+          "diagnostic": 0.0,
+          "none_of_these": 0.0
+        }
+      },
+      "h1": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 1.0,
+        "probabilities": {
+          "primary": 1.0,
+          "none_of_these": 0.0,
+          "diagnostic": 0.0
+        }
+      },
+      "h2": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 1.0,
+        "probabilities": {
+          "primary": 1.0,
+          "none_of_these": 0.0,
+          "diagnostic": 0.0
+        }
+      },
+      "h3": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 1.0,
+        "probabilities": {
+          "primary": 1.0,
+          "none_of_these": 0.0,
+          "diagnostic": 0.0
+        }
+      },
+      "h4": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.93,
+        "probabilities": {
+          "primary": 0.96,
+          "none_of_these": 0.0,
+          "diagnostic": 0.04
+        }
+      },
+      "h5": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.92,
+        "probabilities": {
+          "primary": 0.95,
+          "none_of_these": 0.0,
+          "diagnostic": 0.05
+        }
+      },
+      "h6": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.28,
+        "probabilities": {
+          "primary": 0.52,
+          "none_of_these": 0.08,
+          "diagnostic": 0.4
+        }
+      },
+      "h7": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.65,
+        "probabilities": {
+          "primary": 0.77,
+          "none_of_these": 0.02,
+          "diagnostic": 0.21
+        }
+      },
+      "h8": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.57,
+        "probabilities": {
+          "primary": 0.71,
+          "none_of_these": 0.01,
+          "diagnostic": 0.28
+        }
+      },
+      "h9": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.64,
+        "probabilities": {
+          "primary": 0.76,
+          "none_of_these": 0.01,
+          "diagnostic": 0.23
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 4803,
+      "output_tokens": 413
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "h10": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.66,
+        "probabilities": {
+          "diagnostic": 0.21,
+          "primary": 0.77,
+          "none_of_these": 0.02
+        }
+      },
+      "h11": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.79,
+        "probabilities": {
+          "diagnostic": 0.14,
+          "primary": 0.86,
+          "none_of_these": 0.0
+        }
+      },
+      "h12": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.93,
+        "probabilities": {
+          "diagnostic": 0.0,
+          "primary": 0.95,
+          "none_of_these": 0.05
+        }
+      },
+      "h13": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.94,
+        "probabilities": {
+          "diagnostic": 0.0,
+          "primary": 0.96,
+          "none_of_these": 0.04
+        }
+      },
+      "h14": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.84,
+        "probabilities": {
+          "diagnostic": 0.09,
+          "primary": 0.89,
+          "none_of_these": 0.02
+        }
+      },
+      "h15": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.2,
+        "probabilities": {
+          "diagnostic": 0.45999999999999996,
+          "primary": 0.29,
+          "none_of_these": 0.25
+        }
+      },
+      "h16": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.15,
+        "probabilities": {
+          "diagnostic": 0.43,
+          "primary": 0.2,
+          "none_of_these": 0.37
+        }
+      },
+      "h17": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.99,
+        "probabilities": {
+          "diagnostic": 0.0,
+          "primary": 1.0,
+          "none_of_these": 0.0
+        }
+      },
+      "h18": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.98,
+        "probabilities": {
+          "diagnostic": 0.01,
+          "primary": 0.98,
+          "none_of_these": 0.01
+        }
+      },
+      "h19": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 1.0,
+        "probabilities": {
+          "diagnostic": 0.0,
+          "primary": 1.0,
+          "none_of_these": 0.0
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 4774,
+      "output_tokens": 427
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "h20": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 1.0,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 1.0,
+          "diagnostic": 0.0
+        }
+      },
+      "h21": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.99,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 1.0,
+          "diagnostic": 0.0
+        }
+      },
+      "h22": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 1.0,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 1.0,
+          "diagnostic": 0.0
+        }
+      },
+      "h23": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.52,
+        "probabilities": {
+          "none_of_these": 0.01,
+          "primary": 0.6900000000000001,
+          "diagnostic": 0.3
+        }
+      },
+      "h24": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.71,
+        "probabilities": {
+          "none_of_these": 0.01,
+          "primary": 0.81,
+          "diagnostic": 0.18
+        }
+      },
+      "h25": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 1.0,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 0.0,
+          "diagnostic": 1.0
+        }
+      },
+      "h26": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 1.0,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 1.0,
+          "diagnostic": 0.0
+        }
+      },
+      "h27": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 1.0,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 1.0,
+          "diagnostic": 0.0
+        }
+      },
+      "h28": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 1.0,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 1.0,
+          "diagnostic": 0.0
+        }
+      },
+      "h29": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 1.0,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 1.0,
+          "diagnostic": 0.0
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 4851,
+      "output_tokens": 425
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "h30": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 1.0,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 1.0,
+          "diagnostic": 0.0
+        }
+      },
+      "h31": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 1.0,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 1.0,
+          "diagnostic": 0.0
+        }
+      },
+      "h32": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 1.0,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 1.0,
+          "diagnostic": 0.0
+        }
+      },
+      "h33": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.99,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 1.0,
+          "diagnostic": 0.0
+        }
+      },
+      "h34": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.99,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 0.99,
+          "diagnostic": 0.01
+        }
+      },
+      "h35": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.6,
+        "probabilities": {
+          "none_of_these": 0.03,
+          "primary": 0.23,
+          "diagnostic": 0.74
+        }
+      },
+      "h36": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.98,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 0.99,
+          "diagnostic": 0.01
+        }
+      },
+      "h37": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 1.0,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 1.0,
+          "diagnostic": 0.0
+        }
+      },
+      "h38": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.99,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 0.99,
+          "diagnostic": 0.01
+        }
+      },
+      "h39": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.92,
+        "probabilities": {
+          "none_of_these": 0.05,
+          "primary": 0.95,
+          "diagnostic": 0.0
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 4906,
+      "output_tokens": 425
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "h40": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.96,
+        "probabilities": {
+          "primary": 0.98,
+          "diagnostic": 0.0,
+          "none_of_these": 0.02
+        }
+      },
+      "h41": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.66,
+        "probabilities": {
+          "primary": 0.77,
+          "diagnostic": 0.01,
+          "none_of_these": 0.22
+        }
+      },
+      "h42": {
+        "type": "choice",
+        "choice": "none_of_these",
+        "confidence": 0.47,
+        "probabilities": {
+          "primary": 0.28,
+          "diagnostic": 0.08,
+          "none_of_these": 0.64
+        }
+      },
+      "h43": {
+        "type": "choice",
+        "choice": "none_of_these",
+        "confidence": 0.47,
+        "probabilities": {
+          "primary": 0.33,
+          "diagnostic": 0.02,
+          "none_of_these": 0.65
+        }
+      },
+      "h44": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.99,
+        "probabilities": {
+          "primary": 0.99,
+          "diagnostic": 0.0,
+          "none_of_these": 0.01
+        }
+      },
+      "h45": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.43,
+        "probabilities": {
+          "primary": 0.62,
+          "diagnostic": 0.37,
+          "none_of_these": 0.01
+        }
+      },
+      "h46": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.99,
+        "probabilities": {
+          "primary": 0.99,
+          "diagnostic": 0.01,
+          "none_of_these": 0.0
+        }
+      },
+      "h47": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.89,
+        "probabilities": {
+          "primary": 0.93,
+          "diagnostic": 0.02,
+          "none_of_these": 0.05
+        }
+      },
+      "h48": {
+        "type": "choice",
+        "choice": "none_of_these",
+        "confidence": 0.37,
+        "probabilities": {
+          "primary": 0.31,
+          "diagnostic": 0.11,
+          "none_of_these": 0.58
+        }
+      },
+      "h49": {
+        "type": "choice",
+        "choice": "none_of_these",
+        "confidence": 0.89,
+        "probabilities": {
+          "primary": 0.06,
+          "diagnostic": 0.02,
+          "none_of_these": 0.92
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 4749,
+      "output_tokens": 435
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "h50": {
+        "type": "choice",
+        "choice": "none_of_these",
+        "confidence": 0.76,
+        "probabilities": {
+          "diagnostic": 0.12,
+          "none_of_these": 0.84,
+          "primary": 0.04
+        }
+      },
+      "h51": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 1.0,
+        "probabilities": {
+          "diagnostic": 1.0,
+          "primary": 0.0,
+          "none_of_these": 0.0
+        }
+      },
+      "h52": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.15,
+        "probabilities": {
+          "diagnostic": 0.32,
+          "primary": 0.44,
+          "none_of_these": 0.24
+        }
+      },
+      "h53": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 1.0,
+        "probabilities": {
+          "diagnostic": 1.0,
+          "none_of_these": 0.0,
+          "primary": 0.0
+        }
+      },
+      "h54": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.85,
+        "probabilities": {
+          "diagnostic": 0.09,
+          "primary": 0.9,
+          "none_of_these": 0.01
+        }
+      },
+      "h55": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.81,
+        "probabilities": {
+          "diagnostic": 0.11,
+          "primary": 0.87,
+          "none_of_these": 0.02
+        }
+      },
+      "h56": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.76,
+        "probabilities": {
+          "diagnostic": 0.14,
+          "none_of_these": 0.02,
+          "primary": 0.84
+        }
+      },
+      "h57": {
+        "type": "choice",
+        "choice": "none_of_these",
+        "confidence": 0.41,
+        "probabilities": {
+          "diagnostic": 0.18,
+          "primary": 0.21,
+          "none_of_these": 0.61
+        }
+      },
+      "h58": {
+        "type": "choice",
+        "choice": "none_of_these",
+        "confidence": 0.39,
+        "probabilities": {
+          "diagnostic": 0.19,
+          "primary": 0.22,
+          "none_of_these": 0.59
+        }
+      },
+      "h59": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.95,
+        "probabilities": {
+          "diagnostic": 0.97,
+          "primary": 0.01,
+          "none_of_these": 0.02
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 4760,
+      "output_tokens": 438
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "h60": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.6,
+        "probabilities": {
+          "primary": 0.1,
+          "none_of_these": 0.17,
+          "diagnostic": 0.73
+        }
+      },
+      "h61": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 1.0,
+        "probabilities": {
+          "primary": 0.0,
+          "none_of_these": 0.0,
+          "diagnostic": 1.0
+        }
+      },
+      "h62": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 1.0,
+        "probabilities": {
+          "primary": 0.0,
+          "none_of_these": 0.0,
+          "diagnostic": 1.0
+        }
+      },
+      "h63": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 1.0,
+        "probabilities": {
+          "primary": 0.0,
+          "none_of_these": 0.0,
+          "diagnostic": 1.0
+        }
+      },
+      "h64": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.99,
+        "probabilities": {
+          "primary": 0.99,
+          "none_of_these": 0.0,
+          "diagnostic": 0.01
+        }
+      },
+      "h65": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 1.0,
+        "probabilities": {
+          "primary": 0.0,
+          "none_of_these": 0.0,
+          "diagnostic": 1.0
+        }
+      },
+      "h66": {
+        "type": "choice",
+        "choice": "none_of_these",
+        "confidence": 0.2,
+        "probabilities": {
+          "primary": 0.33,
+          "none_of_these": 0.47,
+          "diagnostic": 0.2
+        }
+      },
+      "h67": {
+        "type": "choice",
+        "choice": "none_of_these",
+        "confidence": 0.88,
+        "probabilities": {
+          "primary": 0.01,
+          "none_of_these": 0.92,
+          "diagnostic": 0.07
+        }
+      },
+      "h68": {
+        "type": "choice",
+        "choice": "none_of_these",
+        "confidence": 0.62,
+        "probabilities": {
+          "primary": 0.04,
+          "none_of_these": 0.74,
+          "diagnostic": 0.22
+        }
+      },
+      "h69": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 1.0,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 0.0,
+          "diagnostic": 1.0
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 4765,
+      "output_tokens": 444
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "h70": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 1.0,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 0.0,
+          "diagnostic": 1.0
+        }
+      },
+      "h71": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.86,
+        "probabilities": {
+          "none_of_these": 0.02,
+          "primary": 0.91,
+          "diagnostic": 0.07
+        }
+      },
+      "h72": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.83,
+        "probabilities": {
+          "none_of_these": 0.01,
+          "primary": 0.89,
+          "diagnostic": 0.1
+        }
+      },
+      "h73": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.77,
+        "probabilities": {
+          "none_of_these": 0.04,
+          "primary": 0.84,
+          "diagnostic": 0.12
+        }
+      },
+      "h74": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.98,
+        "probabilities": {
+          "none_of_these": 0.01,
+          "primary": 0.01,
+          "diagnostic": 0.98
+        }
+      },
+      "h75": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.89,
+        "probabilities": {
+          "none_of_these": 0.03,
+          "primary": 0.04,
+          "diagnostic": 0.93
+        }
+      },
+      "h76": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 1.0,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 0.0,
+          "diagnostic": 1.0
+        }
+      },
+      "h77": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 1.0,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 0.0,
+          "diagnostic": 1.0
+        }
+      },
+      "h78": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 1.0,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 0.0,
+          "diagnostic": 1.0
+        }
+      },
+      "h79": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.99,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "primary": 0.99,
+          "diagnostic": 0.01
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 4799,
+      "output_tokens": 435
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "h80": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 1.0,
+        "probabilities": {
+          "primary": 0.0,
+          "diagnostic": 1.0,
+          "none_of_these": 0.0
+        }
+      },
+      "h81": {
+        "type": "choice",
+        "choice": "none_of_these",
+        "confidence": 0.8,
+        "probabilities": {
+          "primary": 0.05,
+          "diagnostic": 0.08,
+          "none_of_these": 0.87
+        }
+      },
+      "h82": {
+        "type": "choice",
+        "choice": "none_of_these",
+        "confidence": 0.73,
+        "probabilities": {
+          "primary": 0.06,
+          "diagnostic": 0.12,
+          "none_of_these": 0.82
+        }
+      },
+      "h83": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.21,
+        "probabilities": {
+          "primary": 0.48,
+          "diagnostic": 0.22,
+          "none_of_these": 0.3
+        }
+      },
+      "h84": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.98,
+        "probabilities": {
+          "primary": 0.01,
+          "diagnostic": 0.99,
+          "none_of_these": 0.0
+        }
+      },
+      "h85": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.23,
+        "probabilities": {
+          "primary": 0.24,
+          "diagnostic": 0.49,
+          "none_of_these": 0.27
+        }
+      },
+      "h86": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.11,
+        "probabilities": {
+          "primary": 0.4,
+          "diagnostic": 0.41,
+          "none_of_these": 0.19
+        }
+      },
+      "h87": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.98,
+        "probabilities": {
+          "primary": 0.01,
+          "diagnostic": 0.98,
+          "none_of_these": 0.01
+        }
+      },
+      "h88": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.59,
+        "probabilities": {
+          "primary": 0.14,
+          "diagnostic": 0.73,
+          "none_of_these": 0.13
+        }
+      },
+      "h89": {
+        "type": "choice",
+        "choice": "none_of_these",
+        "confidence": 0.08,
+        "probabilities": {
+          "primary": 0.37,
+          "diagnostic": 0.24,
+          "none_of_these": 0.39
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 4707,
+      "output_tokens": 444
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "h90": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.94,
+        "probabilities": {
+          "diagnostic": 0.02,
+          "primary": 0.96,
+          "none_of_these": 0.02
+        }
+      },
+      "h91": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.97,
+        "probabilities": {
+          "diagnostic": 0.02,
+          "primary": 0.98,
+          "none_of_these": 0.0
+        }
+      },
+      "h92": {
+        "type": "choice",
+        "choice": "none_of_these",
+        "confidence": 0.46,
+        "probabilities": {
+          "diagnostic": 0.18,
+          "primary": 0.18,
+          "none_of_these": 0.64
+        }
+      },
+      "h93": {
+        "type": "choice",
+        "choice": "none_of_these",
+        "confidence": 0.77,
+        "probabilities": {
+          "diagnostic": 0.08,
+          "none_of_these": 0.85,
+          "primary": 0.07
+        }
+      },
+      "h94": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.15,
+        "probabilities": {
+          "diagnostic": 0.44,
+          "primary": 0.23,
+          "none_of_these": 0.33
+        }
+      },
+      "h95": {
+        "type": "choice",
+        "choice": "none_of_these",
+        "confidence": 0.66,
+        "probabilities": {
+          "diagnostic": 0.18,
+          "primary": 0.05,
+          "none_of_these": 0.77
+        }
+      },
+      "h96": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 1.0,
+        "probabilities": {
+          "diagnostic": 1.0,
+          "primary": 0.0,
+          "none_of_these": 0.0
+        }
+      },
+      "h97": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.98,
+        "probabilities": {
+          "diagnostic": 0.99,
+          "primary": 0.0,
+          "none_of_these": 0.01
+        }
+      },
+      "h98": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.49,
+        "probabilities": {
+          "diagnostic": 0.67,
+          "primary": 0.09,
+          "none_of_these": 0.24
+        }
+      },
+      "h99": {
+        "type": "choice",
+        "choice": "none_of_these",
+        "confidence": 0.32,
+        "probabilities": {
+          "diagnostic": 0.22,
+          "primary": 0.23,
+          "none_of_these": 0.55
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 4819,
+      "output_tokens": 443
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "h100": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.42,
+        "probabilities": {
+          "none_of_these": 0.05,
+          "diagnostic": 0.34,
+          "primary": 0.61
+        }
+      },
+      "h101": {
+        "type": "choice",
+        "choice": "none_of_these",
+        "confidence": 0.23,
+        "probabilities": {
+          "none_of_these": 0.48,
+          "diagnostic": 0.31,
+          "primary": 0.21
+        }
+      },
+      "h102": {
+        "type": "choice",
+        "choice": "none_of_these",
+        "confidence": 0.4,
+        "probabilities": {
+          "none_of_these": 0.6,
+          "diagnostic": 0.32,
+          "primary": 0.08
+        }
+      },
+      "h103": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.99,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "diagnostic": 1.0,
+          "primary": 0.0
+        }
+      },
+      "h104": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.82,
+        "probabilities": {
+          "none_of_these": 0.08,
+          "diagnostic": 0.88,
+          "primary": 0.04
+        }
+      },
+      "h105": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.9,
+        "probabilities": {
+          "none_of_these": 0.04,
+          "diagnostic": 0.94,
+          "primary": 0.02
+        }
+      },
+      "h106": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.9,
+        "probabilities": {
+          "none_of_these": 0.03,
+          "diagnostic": 0.93,
+          "primary": 0.04
+        }
+      },
+      "h107": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 1.0,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "diagnostic": 1.0,
+          "primary": 0.0
+        }
+      },
+      "h108": {
+        "type": "choice",
+        "choice": "diagnostic",
+        "confidence": 0.97,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "diagnostic": 0.98,
+          "primary": 0.02
+        }
+      },
+      "h109": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.93,
+        "probabilities": {
+          "none_of_these": 0.02,
+          "diagnostic": 0.03,
+          "primary": 0.95
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 4803,
+      "output_tokens": 451
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "h110": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 1.0,
+        "probabilities": {
+          "primary": 1.0,
+          "diagnostic": 0.0,
+          "none_of_these": 0.0
+        }
+      },
+      "h111": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.99,
+        "probabilities": {
+          "primary": 1.0,
+          "diagnostic": 0.0,
+          "none_of_these": 0.0
+        }
+      },
+      "h112": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.99,
+        "probabilities": {
+          "primary": 1.0,
+          "diagnostic": 0.0,
+          "none_of_these": 0.0
+        }
+      },
+      "h113": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 1.0,
+        "probabilities": {
+          "primary": 1.0,
+          "diagnostic": 0.0,
+          "none_of_these": 0.0
+        }
+      },
+      "h114": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.99,
+        "probabilities": {
+          "primary": 0.99,
+          "diagnostic": 0.0,
+          "none_of_these": 0.01
+        }
+      },
+      "h115": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.99,
+        "probabilities": {
+          "primary": 1.0,
+          "diagnostic": 0.0,
+          "none_of_these": 0.0
+        }
+      },
+      "h116": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.97,
+        "probabilities": {
+          "primary": 0.98,
+          "diagnostic": 0.0,
+          "none_of_these": 0.02
+        }
+      },
+      "h117": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.74,
+        "probabilities": {
+          "primary": 0.83,
+          "diagnostic": 0.14,
+          "none_of_these": 0.03
+        }
+      },
+      "h118": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.99,
+        "probabilities": {
+          "primary": 0.99,
+          "diagnostic": 0.0,
+          "none_of_these": 0.01
+        }
+      },
+      "h119": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.99,
+        "probabilities": {
+          "primary": 0.99,
+          "diagnostic": 0.0,
+          "none_of_these": 0.01
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 4785,
+      "output_tokens": 433
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "h120": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.96,
+        "probabilities": {
+          "primary": 0.97,
+          "none_of_these": 0.03,
+          "diagnostic": 0.0
+        }
+      },
+      "h121": {
+        "type": "choice",
+        "choice": "primary",
+        "confidence": 0.98,
+        "probabilities": {
+          "primary": 0.99,
+          "none_of_these": 0.01,
+          "diagnostic": 0.0
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 1140,
+      "output_tokens": 89
+    }
+  }
+]

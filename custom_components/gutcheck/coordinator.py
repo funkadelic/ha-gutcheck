@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
@@ -35,6 +36,11 @@ def _seconds_until_budget_retry() -> float:
     return (next_midnight - dt_util.now()).total_seconds() + 60
 
 
+def _request_key(payload: SystemOneRequest) -> str:
+    """A stable key for a request's exact state and questions."""
+    return json.dumps(payload, sort_keys=True)
+
+
 class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
     """Runs one recipe's select/describe/ask/act cycle on a fixed interval."""
 
@@ -60,6 +66,9 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
         self._force_requested = 0
         self._force_done = 0
         self.running = False
+        # Responses already billed in a failed run, keyed by their exact request; memory only.
+        self._answered: dict[str, SystemOneResponse] = {}
+        entry.async_on_unload(self._answered.clear)
 
     @callback
     def force_full_rescore(self) -> None:
@@ -100,10 +109,22 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
             f"{self.config_entry.entry_id}_{self.recipe.recipe_id}_first_refresh",
         )
 
+    def _keep_answer(self, payload: SystemOneRequest, response: SystemOneResponse) -> None:
+        """Keep a billed response until the run succeeds, so a retry of the same request is free."""
+        self._answered[_request_key(payload)] = response
+
     async def _async_send(self, payloads: list[SystemOneRequest]) -> list[SystemOneResponse]:
-        """Send a run's requests through the budget gate, mapping each failure to the coordinator's own."""
+        """Send the run's requests not already answered, mapping each failure to the coordinator's own.
+
+        A request identical to one already billed in a failed run reuses that
+        response; answers kept for any other request are dropped.
+        """
+        keys = [_request_key(payload) for payload in payloads]
+        for stale in self._answered.keys() - set(keys):
+            del self._answered[stale]
+        to_send = [payload for payload, key in zip(payloads, keys, strict=True) if key not in self._answered]
         try:
-            return await self.budget.async_ask_all(payloads)
+            await self.budget.async_ask_all(to_send, self._keep_answer)
         except GutCheckAuthError as err:
             raise ConfigEntryAuthFailed("api key rejected") from err
         except BudgetExceededError as err:
@@ -118,6 +139,7 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
             raise UpdateFailed("run needs more than the whole daily budget; raise the budget to let it run") from err
         except GutCheckApiError as err:
             raise UpdateFailed("recipe run failed", retry_after=FAILED_RUN_RETRY.total_seconds()) from err
+        return [self._answered[key] for key in keys]
 
     async def _async_update_data(self) -> RecipeResult:
         """Run the recipe with running set for its whole length, whoever started it."""
@@ -154,4 +176,5 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
         await self.recipe.async_act(self.hass, result)
         await self._store.async_save(result)
         self._force_done = generation
+        self._answered.clear()
         return result

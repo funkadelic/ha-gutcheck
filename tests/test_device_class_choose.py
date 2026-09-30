@@ -19,10 +19,10 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 
 from custom_components.gutcheck.const import (
     CONF_AREAS_ENABLED,
+    CONF_CHANGE_BACK,
     CONF_DAILY_BUDGET,
     CONF_DEVICE_CLASS_ENABLED,
     CONF_HEALTH_ENABLED,
-    CONF_UNDO_DEVICE_CLASS,
     CONF_UNDO_SENSORS,
     CONF_UPDATES_ENABLED,
     DEFAULT_DAILY_BUDGET,
@@ -157,7 +157,7 @@ async def test_submitting_a_fitting_pick_sets_it_records_it_and_the_change_back_
 
     options_result = await hass.config_entries.options.async_init(device_class_entry.entry_id)
     options_result = await hass.config_entries.options.async_configure(
-        options_result["flow_id"], {**_KEPT_OPTIONS, CONF_UNDO_DEVICE_CLASS: True}
+        options_result["flow_id"], {**_KEPT_OPTIONS, CONF_CHANGE_BACK: True}
     )
     options_result = await hass.config_entries.options.async_configure(
         options_result["flow_id"], {CONF_UNDO_SENSORS: [sensor.id]}

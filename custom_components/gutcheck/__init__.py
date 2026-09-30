@@ -8,7 +8,6 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_API_KEY, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
-from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.storage import Store
@@ -17,42 +16,22 @@ from .budget import BudgetGate
 from .client import GutCheckClient
 from .const import (
     ALL_RECIPE_IDS,
-    AREA_ISSUE_PREFIX,
     BUDGET_STORE_KEY,
-    CONF_AREAS_ENABLED,
-    CONF_CONFIG_ENTRIES_ENABLED,
     CONF_CRITICAL_LABEL,
-    CONF_CRITICAL_LABEL_ENABLED,
     CONF_DAILY_BUDGET,
-    CONF_DEVICE_CLASS_ENABLED,
-    CONF_HEALTH_ENABLED,
-    CONF_UPDATES_ENABLED,
-    CONFIG_ENTRY_ISSUE_PREFIX,
-    CRITICAL_LABEL_ISSUE_PREFIX,
     DEFAULT_DAILY_BUDGET,
     DEVICE_CLASS_APPLIED_STORE_KEY,
-    DEVICE_CLASS_ISSUE_PREFIX,
     DOMAIN,
-    HEALTH_ISSUE_PREFIX,
-    RECIPE_AREAS,
-    RECIPE_CONFIG_ENTRIES,
-    RECIPE_CRITICAL_LABEL,
-    RECIPE_DEVICE_CLASS,
-    RECIPE_HEALTH,
-    RECIPE_UPDATES,
+    HIDE_DIAGNOSTIC_APPLIED_STORE_KEY,
     STORE_VERSION,
-    UPDATES_ISSUE_PREFIX,
 )
 from .coordinator import RecipeCoordinator
-from .recipes.areas import AreaRecipe
-from .recipes.config_entries import ConfigEntryRecipe
-from .recipes.critical_label import CriticalLabelRecipe
-from .recipes.device_class import DeviceClassRecipe
-from .recipes.device_class_undo import AppliedClasses
-from .recipes.health import HealthRecipe
+from .recipes.applied_records import AppliedRecords
+from .recipes.hide_diagnostic_undo import async_track_hidden
+from .recipes.registry import RECIPE_SPECS
 from .recipes.shapes import recipe_store_key
-from .recipes.updates import UpdateRecipe
 from .repairs import async_delete_issues
+from .teardown import async_disable_recipe
 
 PLATFORMS = [Platform.SENSOR, Platform.BUTTON]
 
@@ -66,27 +45,6 @@ def device_info(entry: ConfigEntry) -> DeviceInfo:
     )
 
 
-def _async_remove_recipe_entities(hass: HomeAssistant, entry: ConfigEntry, recipe_id: str) -> None:
-    """Remove every entity this entry registered for a now-disabled recipe."""
-    registry = er.async_get(hass)
-    prefix = f"{entry.entry_id}_{recipe_id}"
-    for entity_entry in er.async_entries_for_config_entry(registry, entry.entry_id):
-        if entity_entry.unique_id == prefix or entity_entry.unique_id.startswith(f"{prefix}_"):
-            registry.async_remove(entity_entry.entity_id)
-
-
-def _async_disable_recipe(
-    hass: HomeAssistant, entry: ConfigEntry, issue_prefix: str, recipe_id: str, *, keep_ignored: bool = False
-) -> None:
-    """Sweep a disabled recipe's issues and entities.
-
-    keep_ignored leaves an ignored card in place: it is the user's rejection
-    record, and a recipe off/on toggle must not bring the suggestion back.
-    """
-    async_delete_issues(hass, issue_prefix, keep_ignored=keep_ignored)
-    _async_remove_recipe_entities(hass, entry, recipe_id)
-
-
 @dataclass
 class GutCheckData:
     """Runtime data for one Gut Check config entry."""
@@ -94,7 +52,8 @@ class GutCheckData:
     client: GutCheckClient
     budget: BudgetGate
     coordinators: dict[str, RecipeCoordinator]
-    applied: AppliedClasses
+    applied: AppliedRecords
+    applied_hidden: AppliedRecords
 
 
 type GutCheckConfigEntry = ConfigEntry[GutCheckData]
@@ -109,60 +68,28 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
     client = GutCheckClient(async_get_clientsession(hass), api_key)
     budget = BudgetGate(hass, client, entry.options.get(CONF_DAILY_BUDGET, DEFAULT_DAILY_BUDGET))
     await budget.async_load()
-    # Loaded whether or not device class suggestions are on: a class set
-    # before the recipe was switched off must still be changeable back.
-    applied = AppliedClasses(hass)
+    # Loaded whether or not the matching recipe is on: a class set or a sensor
+    # hidden before the recipe was switched off must still be changeable back.
+    applied = AppliedRecords(hass, DEVICE_CLASS_APPLIED_STORE_KEY)
     await applied.async_load()
+    applied_hidden = AppliedRecords(hass, HIDE_DIAGNOSTIC_APPLIED_STORE_KEY)
+    await applied_hidden.async_load()
+    entry.async_on_unload(async_track_hidden(hass, applied_hidden))
 
+    critical_label = entry.options.get(CONF_CRITICAL_LABEL)
     coordinators: dict[str, RecipeCoordinator] = {}
-    if entry.options.get(CONF_HEALTH_ENABLED, True):
-        health_recipe = HealthRecipe(entry.options.get(CONF_CRITICAL_LABEL))
-        coordinators[health_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, health_recipe)
-        entry.async_on_unload(health_recipe.shutdown)
-    else:
-        _async_disable_recipe(hass, entry, HEALTH_ISSUE_PREFIX, RECIPE_HEALTH)
+    for spec in RECIPE_SPECS:
+        if not entry.options.get(spec.option_key, spec.default):
+            async_disable_recipe(hass, entry, spec.issue_prefix, spec.recipe_id, keep_ignored=spec.keep_ignored)
+            continue
+        recipe = spec.factory(critical_label)
+        coordinators[recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, recipe)
+        if (shutdown := getattr(recipe, "shutdown", None)) is not None:
+            entry.async_on_unload(shutdown)
 
-    if entry.options.get(CONF_UPDATES_ENABLED, True):
-        updates_recipe = UpdateRecipe(entry.options.get(CONF_CRITICAL_LABEL))
-        coordinators[updates_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, updates_recipe)
-        entry.async_on_unload(updates_recipe.shutdown)
-    else:
-        _async_disable_recipe(hass, entry, UPDATES_ISSUE_PREFIX, RECIPE_UPDATES)
-
-    if entry.options.get(CONF_AREAS_ENABLED, True):
-        area_recipe = AreaRecipe(entry.options.get(CONF_CRITICAL_LABEL))
-        coordinators[area_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, area_recipe)
-    else:
-        _async_disable_recipe(hass, entry, AREA_ISSUE_PREFIX, RECIPE_AREAS, keep_ignored=True)
-
-    # Off by default, unlike the other three: an upgraded install must not
-    # start raising device class cards unasked.
-    if entry.options.get(CONF_DEVICE_CLASS_ENABLED, False):
-        device_class_recipe = DeviceClassRecipe(entry.options.get(CONF_CRITICAL_LABEL))
-        coordinators[device_class_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, device_class_recipe)
-    else:
-        _async_disable_recipe(hass, entry, DEVICE_CLASS_ISSUE_PREFIX, RECIPE_DEVICE_CLASS, keep_ignored=True)
-
-    # Off by default, like device class suggestions: an upgraded install must
-    # not start raising stuck-integration cards unasked.
-    if entry.options.get(CONF_CONFIG_ENTRIES_ENABLED, False):
-        config_entry_recipe = ConfigEntryRecipe()
-        coordinators[config_entry_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, config_entry_recipe)
-        entry.async_on_unload(config_entry_recipe.shutdown)
-    else:
-        # Advisory-only cards, like the update review: no keep_ignored, since
-        # only the two suggestion recipes keep an ignore as rejection memory.
-        _async_disable_recipe(hass, entry, CONFIG_ENTRY_ISSUE_PREFIX, RECIPE_CONFIG_ENTRIES)
-
-    # Off by default, like the other later recipes: an upgraded install must
-    # not start raising critical label cards unasked.
-    if entry.options.get(CONF_CRITICAL_LABEL_ENABLED, False):
-        critical_label_recipe = CriticalLabelRecipe(entry.options.get(CONF_CRITICAL_LABEL))
-        coordinators[critical_label_recipe.recipe_id] = RecipeCoordinator(hass, entry, budget, critical_label_recipe)
-    else:
-        _async_disable_recipe(hass, entry, CRITICAL_LABEL_ISSUE_PREFIX, RECIPE_CRITICAL_LABEL, keep_ignored=True)
-
-    entry.runtime_data = GutCheckData(client=client, budget=budget, coordinators=coordinators, applied=applied)
+    entry.runtime_data = GutCheckData(
+        client=client, budget=budget, coordinators=coordinators, applied=applied, applied_hidden=applied_hidden
+    )
     entry.async_on_unload(budget.async_start())
 
     for coordinator in coordinators.values():
@@ -180,17 +107,18 @@ async def async_unload_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) ->
     reload (an options save, a reauth), and deleting there would discard the
     user's ignores. Issues are only swept on removal, in async_remove_entry.
 
-    Flushes the applied-classes record before unloading, so a reload right
-    after a confirm never loads an older record.
+    Flushes both applied records before unloading, so a reload right after a
+    confirm never loads an older record.
     """
     await entry.runtime_data.applied.async_flush()
+    await entry.runtime_data.applied_hidden.async_flush()
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
 
 async def async_remove_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> None:
-    """Delete every Gut Check Repairs issue and the persisted budget, applied-classes and recipe Stores."""
+    """Delete every Gut Check Repairs issue and the persisted budget, applied-record and recipe Stores."""
     async_delete_issues(hass)
-    await Store(hass, STORE_VERSION, BUDGET_STORE_KEY).async_remove()
-    await Store(hass, STORE_VERSION, DEVICE_CLASS_APPLIED_STORE_KEY).async_remove()
+    for key in (BUDGET_STORE_KEY, DEVICE_CLASS_APPLIED_STORE_KEY, HIDE_DIAGNOSTIC_APPLIED_STORE_KEY):
+        await Store(hass, STORE_VERSION, key).async_remove()
     for recipe_id in ALL_RECIPE_IDS:
         await Store(hass, STORE_VERSION, recipe_store_key(recipe_id)).async_remove()

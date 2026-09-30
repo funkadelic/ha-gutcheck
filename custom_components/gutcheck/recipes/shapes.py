@@ -10,7 +10,7 @@ from typing import Any, Protocol, TypedDict
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
-from ..const import DOMAIN
+from ..const import DOMAIN, SUBJECTS_PER_REQUEST
 from ..models import Question, SystemOneRequest
 
 Item = dict[str, str | float | bool | None]
@@ -37,6 +37,8 @@ class Batch:
     # Per-question override of template, for a recipe whose instructions vary
     # by question. A question id missing here falls back to template.
     templates: dict[str, str] = field(default_factory=dict)
+    # Most subjects one request may carry, 0 for no cap.
+    max_per_request: int = SUBJECTS_PER_REQUEST
 
 
 class RecipeResult(TypedDict):

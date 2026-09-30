@@ -18,9 +18,12 @@ CONF_AREAS_ENABLED: Final = "areas_enabled"
 CONF_DEVICE_CLASS_ENABLED: Final = "device_class_enabled"
 CONF_CONFIG_ENTRIES_ENABLED: Final = "config_entries_enabled"
 CONF_CRITICAL_LABEL_ENABLED: Final = "critical_label_enabled"
-# The Configure checkbox and step id for changing a device class back; never saved as an option.
-CONF_UNDO_DEVICE_CLASS: Final = "undo_device_class"
+CONF_HIDE_DIAGNOSTIC_ENABLED: Final = "hide_diagnostic_enabled"
+# The Configure checkbox and step id for changing back anything Gut Check set (a
+# device class or a hidden sensor); never saved as an option.
+CONF_CHANGE_BACK: Final = "change_back"
 CONF_UNDO_SENSORS: Final = "sensors"
+CONF_UNDO_HIDDEN_SENSORS: Final = "hidden_sensors"
 
 # A fresh install's first-day runs reserve at once: about 80,000 for the
 # health check and 38,000 for area suggestions on a 1,300-entity install.
@@ -57,6 +60,7 @@ RECIPE_AREAS: Final = "areas"
 RECIPE_DEVICE_CLASS: Final = "device_class"
 RECIPE_CONFIG_ENTRIES: Final = "config_entries"
 RECIPE_CRITICAL_LABEL: Final = "critical_label"
+RECIPE_HIDE_DIAGNOSTIC: Final = "hide_diagnostic"
 # Every recipe id this integration ships, so async_remove_entry can clean up
 # each one's Store without needing a line added by hand for each new recipe.
 ALL_RECIPE_IDS: Final = (
@@ -66,6 +70,7 @@ ALL_RECIPE_IDS: Final = (
     RECIPE_DEVICE_CLASS,
     RECIPE_CONFIG_ENTRIES,
     RECIPE_CRITICAL_LABEL,
+    RECIPE_HIDE_DIAGNOSTIC,
 )
 RECIPE_INTERVAL: Final = timedelta(days=7)
 FAILED_RUN_RETRY: Final = timedelta(hours=1)
@@ -80,11 +85,13 @@ AREA_ISSUE_PREFIX: Final = "area_"
 DEVICE_CLASS_ISSUE_PREFIX: Final = "device_class_"
 CONFIG_ENTRY_ISSUE_PREFIX: Final = "config_entry_"
 CRITICAL_LABEL_ISSUE_PREFIX: Final = "critical_label_"
+HIDE_DIAGNOSTIC_ISSUE_PREFIX: Final = "hide_diagnostic_"
 ISSUE_AREA_SUGGESTION: Final = "area_suggestion"
 ISSUE_DEVICE_CLASS_SUGGESTION: Final = "device_class_suggestion"
 ISSUE_CONFIG_ENTRY_NEEDS_REAUTH: Final = "config_entry_needs_reauth"
 ISSUE_CONFIG_ENTRY_DEAD: Final = "config_entry_dead"
 ISSUE_CRITICAL_LABEL_SUGGESTION: Final = "critical_label_suggestion"
+ISSUE_HIDE_DIAGNOSTIC_SUGGESTION: Final = "hide_diagnostic_suggestion"
 
 BLOCKED_DOMAINS: Final = frozenset(
     {
@@ -98,6 +105,11 @@ BLOCKED_DOMAINS: Final = frozenset(
 # network, or a source going quiet. Each says an answer is missing, never
 # what the answer is, so neither ends a finding nor clears its card.
 NO_VERDICT_STATES: Final = frozenset({STATE_UNAVAILABLE, STATE_UNKNOWN})
+
+# Most subjects one request carries. Answers drift when many subjects share
+# one request's state; ten per request measured accurate on the target
+# install at about the same token cost.
+SUBJECTS_PER_REQUEST: Final = 10
 
 # Choice answers only. Noul thresholds are a probability band modeled
 # separately per question and never share this constant.
@@ -157,6 +169,8 @@ AREA_OPTIONS: Final = (OPTION_SUGGESTED,)
 # 60 fits real device names. Shared by area and device class suggestions.
 DEVICE_TEXT_MAX_CHARS: Final = 60
 
-# Which device classes Gut Check set, kept out of the recipe's own Store
-# because every run rewrites that one while confirms land between runs.
+# Which device classes Gut Check set and which sensors it hid, each kept out
+# of the recipe's own Store because every run rewrites that one while
+# confirms land between runs.
 DEVICE_CLASS_APPLIED_STORE_KEY: Final = f"{DOMAIN}.recipe_device_class_applied"
+HIDE_DIAGNOSTIC_APPLIED_STORE_KEY: Final = f"{DOMAIN}.recipe_hide_diagnostic_applied"
