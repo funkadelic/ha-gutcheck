@@ -107,6 +107,11 @@ BLOCKED_DOMAINS: Final = frozenset(
 # what the answer is, so neither ends a finding nor clears its card.
 NO_VERDICT_STATES: Final = frozenset({STATE_UNAVAILABLE, STATE_UNKNOWN})
 
+# Most subjects one request carries. Answers drift when many subjects share
+# one request's state; ten per request measured accurate on the target
+# install at about the same token cost.
+SUBJECTS_PER_REQUEST: Final = 10
+
 # Choice answers only. Noul thresholds are a probability band modeled
 # separately per question and never share this constant.
 CHOICE_CONFIDENCE_THRESHOLD: Final = 0.5

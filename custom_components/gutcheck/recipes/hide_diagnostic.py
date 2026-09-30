@@ -17,7 +17,6 @@ from .hide_diagnostic_const import (
     HIDE_DIAGNOSTIC_CONFIDENCE_THRESHOLD,
     HIDE_DIAGNOSTIC_CRITERIA,
     HIDE_DIAGNOSTIC_INSTRUCTIONS,
-    HIDE_DIAGNOSTIC_SENSORS_PER_REQUEST,
     OPTION_DIAGNOSTIC,
     OPTION_PRIMARY,
 )
@@ -100,7 +99,6 @@ class HideDiagnosticRecipe:
             carried=carried,
             list_key="sensors",
             template=HIDE_DIAGNOSTIC_INSTRUCTIONS,
-            max_per_request=HIDE_DIAGNOSTIC_SENSORS_PER_REQUEST,
         )
 
     async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:

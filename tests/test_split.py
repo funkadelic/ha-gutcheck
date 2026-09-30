@@ -53,9 +53,10 @@ def _outcome(batch: Batch, response: SystemOneResponse) -> tuple[Any, Any, Any]:
     return result["counts"], result["items"], result["unsure"]
 
 
-def test_a_run_that_fits_goes_out_untouched() -> None:
-    """A batch that fits one request is sent as its own state and questions, not a re-rendered copy."""
+def test_an_uncapped_run_that_fits_goes_out_untouched() -> None:
+    """With no cap, a batch that fits one request is sent as its own state and questions, not a re-rendered copy."""
     batch, _payload, _response = _captured_batch()
+    batch.max_per_request = 0
 
     payloads = split_batch(batch)
 

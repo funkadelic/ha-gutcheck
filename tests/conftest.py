@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import math
 from collections.abc import Sequence
 from contextlib import ExitStack
 from dataclasses import dataclass, field
@@ -36,6 +37,7 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMockResponse,
 )
 
+from custom_components.gutcheck.budget import _estimate, _reservation, estimate_tokens
 from custom_components.gutcheck.const import (
     API_URL,
     CONF_AREAS_ENABLED,
@@ -54,6 +56,9 @@ from custom_components.gutcheck.const import (
     HIDE_DIAGNOSTIC_ISSUE_PREFIX,
     OPTION_NONE,
     RECIPE_CONFIG_ENTRIES,
+    REQUEST_TOKEN_LIMIT,
+    STATE_TOKEN_LIMIT,
+    SUBJECTS_PER_REQUEST,
     UPDATE_OPTIONS,
 )
 from custom_components.gutcheck.recipes.critical_label_const import CRITICAL_LABEL_CHOICES
@@ -62,6 +67,10 @@ from custom_components.gutcheck.recipes.hide_diagnostic_const import HIDE_DIAGNO
 from custom_components.gutcheck.recipes.safety import SafetyRules
 from custom_components.gutcheck.recipes.shapes import Item, RecipeResult
 from custom_components.gutcheck.recipes.update_const import UPDATE_CRITERIA
+
+# The budget gate's own estimator undercounts a real payload by about 12%,
+# so size tests apply this factor before checking a limit.
+SAFETY_FACTOR = 1.15
 
 ALL_HEALTH_OPTIONS = (*HEALTH_OPTIONS, OPTION_NONE)
 
@@ -183,6 +192,44 @@ def register_jev_responses_by_question(aioclient_mock: AiohttpClientMocker, resp
         return AiohttpClientMockResponse(method=method, url=url, status=status, json=body)
 
     aioclient_mock.post(API_URL, side_effect=_side_effect)
+
+
+def register_jev_answers(aioclient_mock: AiohttpClientMocker, answers: dict[str, Any], input_tokens: int = 10) -> None:
+    """Answer every POST with the entries of answers for its own questions, so a capped run's slices each get theirs.
+
+    A question id missing from answers fails loudly.
+    """
+
+    async def _side_effect(method: str, url: Any, data: Any) -> AiohttpClientMockResponse:
+        """Build this request's response from its own question ids."""
+        unknown = [question_id for question_id in data["questions"] if question_id not in answers]
+        if unknown:
+            raise AssertionError(f"no answer registered for questions {unknown!r}")
+        own = {question_id: answers[question_id] for question_id in data["questions"]}
+        return AiohttpClientMockResponse(method=method, url=url, status=200, json=api_response(own, input_tokens))
+
+    aioclient_mock.post(API_URL, side_effect=_side_effect)
+
+
+def assert_capped_run_fits(bodies: list[dict[str, Any]], list_key: str, subjects: int) -> float:
+    """Assert subjects went out as ceil(subjects / cap) requests that each fit both token limits with headroom.
+
+    Also asserts the requests' summed budget reservation fits the default daily
+    budget, and returns the summed factored request estimate.
+    """
+    assert len(bodies) == math.ceil(subjects / SUBJECTS_PER_REQUEST)
+    assert sum(len(body["questions"]) for body in bodies) == subjects
+    assert sum(len(body["state"][list_key]) for body in bodies) == subjects
+    total = 0.0
+    for body in bodies:
+        assert len(body["questions"]) <= SUBJECTS_PER_REQUEST
+        factored_request = estimate_tokens(body) * SAFETY_FACTOR
+        assert factored_request < REQUEST_TOKEN_LIMIT
+        longest_question = max(_estimate(question) for question in body["questions"].values())
+        assert (_estimate(body["state"]) + longest_question) * SAFETY_FACTOR < STATE_TOKEN_LIMIT
+        total += factored_request
+    assert sum(_reservation(body) for body in bodies) < DEFAULT_DAILY_BUDGET
+    return total
 
 
 def posted_bodies(aioclient_mock: AiohttpClientMocker) -> list[dict[str, Any]]:

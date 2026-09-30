@@ -21,10 +21,9 @@ from custom_components.gutcheck.const import (
 from custom_components.gutcheck.recipes.device_class import DeviceClassRecipe
 
 from .conftest import (
-    api_response,
     posted_bodies,
     recipe_sensor_entity_id,
-    register_jev_responses,
+    register_jev_answers,
     register_unit_sensor,
     restart_config_entry,
 )
@@ -88,7 +87,7 @@ async def test_a_restart_raises_no_card_the_run_held_back_over_the_cap(
     """The captured run suggests more sensors than the cap; a restart restores the run's cards and adds none."""
     monkeypatch.setattr("custom_components.gutcheck.recipes.device_class_cards.MAX_NEW_DEVICE_CLASS_CARDS_PER_RUN", CAP)
     freezer.move_to("2026-01-01T00:00:00-08:00")
-    register_jev_responses(aioclient_mock, [api_response(await _register_captured_sensors(hass))])
+    register_jev_answers(aioclient_mock, await _register_captured_sensors(hass))
     device_class_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(device_class_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)

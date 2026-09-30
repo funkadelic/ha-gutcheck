@@ -14,7 +14,14 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 from custom_components.gutcheck.const import DOMAIN, OPTION_POSSIBLY_BREAKING, RECIPE_UPDATES, UPDATES_ISSUE_PREFIX
 from custom_components.gutcheck.recipes.update_const import MAX_UPDATES_PER_RUN
 
-from .conftest import api_response, posted_bodies, register_jev_responses, register_pending_update, score_answer
+from .conftest import (
+    api_response,
+    posted_bodies,
+    register_jev_answers,
+    register_jev_responses,
+    register_pending_update,
+    score_answer,
+)
 
 
 async def _setup(hass: HomeAssistant) -> MockConfigEntry:
@@ -80,10 +87,10 @@ async def test_a_press_keeps_a_cap_deferred_updates_classification_and_card(
     for index in range(1, MAX_UPDATES_PER_RUN + 1):
         register_pending_update(hass, f"upd_{index:04d}", installed_version="1.0.0", latest_version="2.0.0")
     aioclient_mock.clear_requests()
-    register_jev_responses(aioclient_mock, [api_response({f"u{i}": score_answer(0, 0.9) for i in range(MAX_UPDATES_PER_RUN)})])
+    register_jev_answers(aioclient_mock, {f"u{i}": score_answer(0, 0.9) for i in range(MAX_UPDATES_PER_RUN)})
     await _press(hass, entry)
 
-    assert len(posted_bodies(aioclient_mock)[0]["questions"]) == MAX_UPDATES_PER_RUN
+    assert sum(len(body["questions"]) for body in posted_bodies(aioclient_mock)) == MAX_UPDATES_PER_RUN
     assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
     assert _sensor_state(hass, entry).attributes["items"][OPTION_POSSIBLY_BREAKING] == [classified_before]
 

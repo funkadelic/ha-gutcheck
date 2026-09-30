@@ -14,10 +14,6 @@ HIDE_DIAGNOSTIC_CHOICES: Final = (OPTION_DIAGNOSTIC, OPTION_PRIMARY)
 # apart from every other recipe's threshold even while it starts equal.
 HIDE_DIAGNOSTIC_CONFIDENCE_THRESHOLD: Final = 0.5
 
-# Answers drift with many sensors in one request's state; ten per request
-# measured accurate on the target install at about the same token cost.
-HIDE_DIAGNOSTIC_SENSORS_PER_REQUEST: Final = 10
-
 # Cards already open do not count against this cap.
 MAX_NEW_HIDE_DIAGNOSTIC_CARDS_PER_RUN: Final = 10
 
