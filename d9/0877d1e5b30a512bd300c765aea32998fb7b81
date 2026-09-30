@@ -1,0 +1,33 @@
+tests/fixtures/captured/device_class_response.json
+  s_8ee7aa912ade2f::t_0c2c74bfe790a5 1-248,251-725,727
+tests/test_device_class_cap_restart.py
+  s_8ee7aa912ade2f::t_ae6386b8e33d16 23,43-44
+tests/test_device_class_captured.py
+  s_8ee7aa912ade2f::t_7b830454bbcaa2 109
+  s_8ee7aa912ade2f::t_09229cb1493b7f 1-5,18-19,22,24,26-27,30-35,38,40-45,50-62,66-75,80,88-91,94-95,100-103,105,110,112,114-116,119-135,138-139,142-144,146-147,165-173,175,178-182
+tests/fixtures/captured/device_class_payload.json
+  s_8ee7aa912ade2f::t_0c2c74bfe790a5 1-107,109-117,119-127,129-137,139-147,149-157,159-167,169-177,179-188,190-308,310-318,320-329,331-340,342-351,353-362,364-373,375-384,386-396,398-517,519-535,537-548,550-556,558-565,567-574,576-582,584-591,593-602,604-723,725-734,736-745,747-756,758-767,769-778,780-789,791-800,802-811,813-932,934-943,945-954,956-965,967-976,978-987,989-998,1000-1009,1011-1020,1022-1121,1123-1129,1131-1138,1140-1146,1148-1154,1156-1165,1167-1176,1178-1187,1191
+tests/test_device_class_restart.py
+  s_8ee7aa912ade2f::t_ae6386b8e33d16 22,60
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d90877d1e5b30a512bd300c765aea32998fb7b81",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_8ee7aa912ade2f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7e159446-be0f-4528-9272-814c39897d5f",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
