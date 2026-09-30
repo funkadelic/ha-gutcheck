@@ -120,20 +120,20 @@
   },
   "issues": {
     "unavailable_entity": {
-      "title": "{entity_id} needs attention",
+      "title": "Unavailable: {entity_id} needs attention",
       "description": "`{entity_id}` has been unavailable for {unavailable_for}. Gut Check thinks it is worth fixing. Nothing will be changed automatically, and ignoring this card keeps it hidden on later checks."
     },
     "possibly_breaking_update": {
-      "title": "{entity_id} update may need attention",
+      "title": "Update: {entity_id} update may need attention",
       "description": "`{entity_id}` is offering version {latest_version}. Gut Check read the release notes and thinks this update could change or break something. Nothing is installed automatically, and ignoring this card keeps it hidden on later checks."
     },
     "area_suggestion": {
-      "title": "{device_name} has no area",
+      "title": "Area: {device_name}",
       "fix_flow": {
         "step": {
           "init": {
             "title": "Suggested area",
-            "description": "Gut Check suggests **{area_name}** for {device_name}. Nothing changes until you choose.",
+            "description": "Gut Check suggests **{area_name}** for {device_name}, which has no area. Nothing changes until you choose.",
             "menu_options": {
               "confirm": "Assign to {area_name}",
               "ignore": "Don't suggest an area for this device"
@@ -147,20 +147,20 @@
       }
     },
     "config_entry_needs_reauth": {
-      "title": "{title} may need you to sign in again",
+      "title": "Integration: {title} may need you to sign in again",
       "description": "Home Assistant could not set up **{title}** ({integration}). Gut Check read the error it reported and thinks the saved sign-in stopped working. The link below opens the integration's page, where you can sign in again, reconfigure it or remove it. Gut Check never changes an integration itself, and ignoring this card keeps it hidden on later checks."
     },
     "config_entry_dead": {
-      "title": "{title} may not work again",
+      "title": "Integration: {title} may not work again",
       "description": "Home Assistant could not set up **{title}** ({integration}). Gut Check read the error it reported and thinks it will not work again as set up, for example because the device or account is gone. The link below opens the integration's page, where you can fix or remove it. Gut Check never changes an integration itself, and ignoring this card keeps it hidden on later checks."
     },
     "device_class_suggestion": {
-      "title": "{entity_id} has no device class",
+      "title": "Device class: {entity_id}",
       "fix_flow": {
         "step": {
           "init": {
             "title": "Suggested device class",
-            "description": "Gut Check suggests **{class_name}** for `{entity_id}`, which reports in {unit}. Nothing changes until you choose. You can change it back later from Gut Check's Configure screen.",
+            "description": "Gut Check suggests **{class_name}** for `{entity_id}`, which reports in {unit} but has no device class. Nothing changes until you choose. You can change it back later from Gut Check's Configure screen.",
             "menu_options": {
               "confirm": "Set device class to {class_name}",
               "choose": "Choose a different device class",
@@ -182,7 +182,7 @@
       }
     },
     "critical_label_suggestion": {
-      "title": "{entity_id} may need your {label_name} label",
+      "title": "Critical label: {entity_id} may need your {label_name} label",
       "fix_flow": {
         "step": {
           "init": {
@@ -201,12 +201,12 @@
       }
     },
     "hide_diagnostic_suggestion": {
-      "title": "{entity_id} looks like a diagnostic sensor",
+      "title": "Diagnostic sensor: {entity_id}",
       "fix_flow": {
         "step": {
           "init": {
             "title": "Suggested: hide this sensor",
-            "description": "Gut Check thinks `{entity_id}` reports on its device or its connection rather than on your home, and suggests hiding it. A hidden sensor stays off auto-generated dashboards but keeps working and recording history. You can unhide it in its entity settings, or change it back from Gut Check's Configure screen. Nothing changes until you choose.",
+            "description": "Gut Check thinks `{entity_id}` is a diagnostic sensor, one that reports on its device or its connection rather than on your home, and suggests hiding it. A hidden sensor stays off auto-generated dashboards but keeps working and recording history. You can unhide it in its entity settings, or change it back from Gut Check's Configure screen. Nothing changes until you choose.",
             "menu_options": {
               "confirm": "Hide this sensor",
               "ignore": "Don't suggest hiding this sensor"
