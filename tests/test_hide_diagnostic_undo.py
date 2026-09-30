@@ -44,6 +44,8 @@ async def test_a_hidden_sensor_is_unhidden_from_configure_and_not_suggested_agai
     [issue_id] = await setup_and_confirm_hide(hass, aioclient_mock, hide_diagnostic_entry, sensor)
     registry = er.async_get(hass)
     assert registry.async_get(sensor.entity_id).hidden_by is er.RegistryEntryHider.USER  # type: ignore[union-attr]
+    await hide_diagnostic_entry.runtime_data.applied_hidden.async_flush()
+    assert sensor.id in hass_storage[HIDE_DIAGNOSTIC_APPLIED_STORE_KEY]["data"]
     options = {**hide_diagnostic_entry.options, CONF_DAILY_BUDGET: DEFAULT_DAILY_BUDGET}
 
     result = await hass.config_entries.options.async_init(hide_diagnostic_entry.entry_id)

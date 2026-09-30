@@ -135,7 +135,7 @@ async def test_no_log_record_carries_a_name_unit_or_state_value(
 async def test_a_run_sends_at_most_the_capped_sensors_per_request(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, hide_diagnostic_entry: MockConfigEntry
 ) -> None:
-    """Two more sensors than the cap go out as two requests, each asking only about its own sensors, and all get cards."""
+    """Two more sensors than the cap go out as two requests, each asking only about its own; cards stop at the per-run cap."""
     count = SUBJECTS_PER_REQUEST + 2
     for index in range(count):
         register_unit_sensor(hass, f"s{index}", unit=None, name=f"Sensor {index}", device_name=f"Device {index}")

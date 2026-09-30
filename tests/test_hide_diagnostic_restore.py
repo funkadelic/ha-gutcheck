@@ -23,7 +23,6 @@ from custom_components.gutcheck.const import (
     DEVICE_CLASS_ISSUE_PREFIX,
     DOMAIN,
     HIDE_DIAGNOSTIC_ISSUE_PREFIX,
-    OPTION_SUGGESTED,
     RECIPE_HIDE_DIAGNOSTIC,
 )
 from custom_components.gutcheck.recipes.hide_diagnostic_const import OPTION_DIAGNOSTIC, OPTION_PRIMARY
@@ -171,6 +170,7 @@ async def test_restore_drops_a_sensor_that_gained_an_open_device_class_card(
     assert len(posted_bodies(aioclient_mock)) == 1
     state, attributes = _attributes(hass, hide_diagnostic_entry)
     assert state == "0"
-    assert attributes[ATTR_COUNTS][OPTION_SUGGESTED] == 0
+    assert all(count == 0 for count in attributes[ATTR_COUNTS].values())
+    assert all(items == [] for items in attributes[ATTR_ITEMS].values())
     assert attributes[ATTR_UNSURE] == []
     assert _hide_card_count(hass) == 0

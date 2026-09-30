@@ -75,13 +75,13 @@ def _padded_payload(state_chars: int, question_chars: int = 10) -> dict[str, Any
 
 
 async def test_overlapping_calls_that_exactly_fit_both_succeed(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
-    """Two reserveds summing exactly to the budget both reserve and both POST."""
+    """Two reservations summing exactly to the budget both reserve and both POST."""
     call_count = 0
     hold_first = asyncio.Event()
     first_started = asyncio.Event()
 
     async def _side_effect(method: str, url: Any, data: Any) -> AiohttpClientMockResponse:
-        """Hold the first call open so the second reserved lands while it is still outstanding."""
+        """Hold the first call open so the second reservation lands while it is still outstanding."""
         nonlocal call_count
         call_count += 1
         if call_count == 1:
@@ -112,7 +112,7 @@ async def test_overlapping_calls_that_exactly_fit_both_succeed(hass: HomeAssista
 async def test_overlapping_calls_one_token_short_refuses_the_second(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
 ) -> None:
-    """One token under what two reserveds need: the second is refused, only one POST fires."""
+    """One token under what two reservations need: the second is refused, only one POST fires."""
     call_count = 0
     hold_first = asyncio.Event()
     first_started = asyncio.Event()

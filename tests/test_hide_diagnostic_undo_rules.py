@@ -177,7 +177,8 @@ async def test_a_sensor_with_an_open_device_class_card_is_cleared_and_still_reje
     assert device_class_card is not None
     assert device_class_card.dismissed_version is None
 
-    # Saving unchanged options: a reload would sweep the open device class card, since that recipe is off.
+    # Pre-set the options to the values the flow saves, so the save changes nothing and reloads nothing;
+    # a reload would sweep the open device class card while that recipe is off.
     options = {**hide_diagnostic_entry.options, CONF_DAILY_BUDGET: DEFAULT_DAILY_BUDGET}
     hass.config_entries.async_update_entry(hide_diagnostic_entry, options=options)
     await _change_back(hass, hide_diagnostic_entry, options, {CONF_UNDO_HIDDEN_SENSORS: [sensor.id]})

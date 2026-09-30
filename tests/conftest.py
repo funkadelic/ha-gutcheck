@@ -451,7 +451,7 @@ async def setup_and_confirm_hide(
 ) -> list[str]:
     """Set up entry with a confident diagnostic answer for every sensor, confirm each card, and return the issue ids."""
     answers = {f"h{index}": hide_diagnostic_answer("diagnostic", 0.9) for index in range(len(sensors))}
-    register_jev_responses_by_question(aioclient_mock, {"h0": api_response(answers)})
+    register_jev_answers(aioclient_mock, answers)
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
