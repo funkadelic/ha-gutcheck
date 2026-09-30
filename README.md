@@ -73,7 +73,7 @@ Jev can't write a reply, make up a new option, or tell Home Assistant to do anyt
 2. Create a TypeSafe AI account and an API key at [console.typesafe.ai/keys](https://console.typesafe.ai/keys). The key is the only setup. There is no add-on or local model to run.
 3. Add the integration from **Settings > Devices & services** and paste the key. Gut Check tries it with one cheap question before creating the entry, so a wrong key is caught right away rather than at the first run.
 
-If the key is ever rejected later, Home Assistant opens a repair asking for a new one, and each check goes unavailable the next time it runs, until you supply it.
+If the key is ever rejected later, Home Assistant opens a repair asking for a new one, and until you supply it each check keeps its last result. A check whose run hits the rejected key shows `api key rejected` in its sensor's `last_error` attribute. A check that has never finished a run shows unavailable instead.
 
 ## Running the checks
 
@@ -99,7 +99,7 @@ The critical label figure was measured when the run went out as one request. Sen
 
 Gut Check enforces a daily token budget so cost stays predictable. `sensor.gut_check_tokens_used_today` and `sensor.gut_check_cost_today` show what has been spent and what it cost, both resetting at local midnight. The default of 500,000 tokens leaves room for a first run on a large install; running checks by hand several times in one day can reach it.
 
-Gut Check sizes up every run before sending it and refuses one that would go over what is left, so a refused run spends nothing. A run goes out as one or more requests, at most ten items each and fewer when ten would be too large, and Gut Check weighs the whole run against what is left, so it never stops halfway because the budget ran out. The affected sensor goes unavailable until the budget resets or you raise it. A run that needs more than the whole daily budget is refused every day until you raise it. Gut Check sets aside more than any run has been billed so far, then corrects the counter to what the API reports, so a run that goes through should stay under the cap, and once the counter is over, every later run that day is refused.
+Gut Check sizes up every run before sending it and refuses one that would go over what is left, so a refused run spends nothing. A run goes out as one or more requests, at most ten items each and fewer when ten would be too large, and Gut Check weighs the whole run against what is left, so it never stops halfway because the budget ran out. The affected sensor keeps its last result, and its `last_error` attribute says why the run did not go through, until a run succeeds. A run that needs more than the whole daily budget is refused every day until you raise it. Gut Check sets aside more than any run has been billed so far, then corrects the counter to what the API reports, so a run that goes through should stay under the cap, and once the counter is over, every later run that day is refused.
 
 ## Options
 
@@ -160,7 +160,7 @@ A restored entity is one its integration no longer provides. The health check so
 
 ### Sensors
 
-Each enabled check gets one sensor. Its state is how many of that check's Repairs cards are open, not counting cards you ignored, and it changes as soon as a card is ignored, fixed or cleared. The size of every group is in its `counts` attribute.
+Each enabled check gets one sensor. Its state is how many of that check's Repairs cards are open, not counting cards you ignored, and it changes as soon as a card is ignored, fixed or cleared. The size of every group is in its `counts` attribute. When a run is refused or fails, the sensor keeps its last result and `last_error` says why; it clears once a run goes through. A check that has never finished a run shows unavailable.
 
 `sensor.gut_check_home_health_check` counts the open worth-fixing cards. Its attributes carry the full list for each group, plus an `unsure` list for anything below the confidence threshold or that did not clearly fit any group. Unsure entities are never turned into a Repairs card, and never treated as worth fixing. An unsure entity can also carry a `lean`: `needs_attention` when worth fixing and safe to remove together reach 70 percent probability, or `expected` when expected alone does. A lean never raises a Repairs card.
 

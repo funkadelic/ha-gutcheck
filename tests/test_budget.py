@@ -24,6 +24,7 @@ from custom_components.gutcheck.budget import BudgetExceededError, BudgetGate, R
 from custom_components.gutcheck.client import GutCheckApiError, GutCheckClient
 from custom_components.gutcheck.const import (
     API_URL,
+    ATTR_LAST_ERROR,
     BUDGET_STORE_KEY,
     DOMAIN,
     OPTION_EXPECTED,
@@ -300,10 +301,10 @@ async def test_lowering_budget_below_spent_gives_remaining_zero(hass: HomeAssist
     assert reloaded.remaining == 0
 
 
-async def test_budget_refused_run_makes_health_unavailable_and_retries_after_midnight(
+async def test_budget_refused_run_keeps_the_health_result_and_retries_after_midnight(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry, freezer: Any, caplog: Any
 ) -> None:
-    """A refused run keeps the last payload, sends nothing, leaves Repairs alone, and retries by itself after midnight."""
+    """A refused run keeps the last result and says why, sends nothing, leaves Repairs alone, and retries after midnight."""
     freezer.move_to("2026-01-01T12:00:00-08:00")
     registry = er.async_get(hass)
     entry = registry.async_get_or_create("sensor", "test", "unique_selectable")
@@ -322,7 +323,9 @@ async def test_budget_refused_run_makes_health_unavailable_and_retries_after_mid
     assert len(raised) == 1
     state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
-    assert state.state != STATE_UNAVAILABLE
+    assert state.state == "1"
+    assert state.attributes[ATTR_LAST_ERROR] is None
+    before = state
 
     coordinator = mock_config_entry.runtime_data.coordinators[RECIPE_HEALTH]
     first_payload = coordinator.data["last_payload"]
@@ -347,7 +350,8 @@ async def test_budget_refused_run_makes_health_unavailable_and_retries_after_mid
     assert len(posted_bodies(aioclient_mock)) == 1
     state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
-    assert state.state == STATE_UNAVAILABLE
+    assert state.state == before.state
+    assert dict(state.attributes) == {**before.attributes, ATTR_LAST_ERROR: "daily budget reached"}
     assert coordinator.data["last_payload"] == first_payload
 
     # A refused run never reaches async_act, so the existing card must be
@@ -370,6 +374,7 @@ async def test_budget_refused_run_makes_health_unavailable_and_retries_after_mid
     state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
     assert state.state != STATE_UNAVAILABLE
+    assert state.attributes[ATTR_LAST_ERROR] is None
 
 
 def _first_run_response() -> dict[str, Any]:

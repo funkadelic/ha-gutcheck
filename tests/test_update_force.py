@@ -11,7 +11,13 @@ from homeassistant.helpers import issue_registry as ir
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import DOMAIN, OPTION_POSSIBLY_BREAKING, RECIPE_UPDATES, UPDATES_ISSUE_PREFIX
+from custom_components.gutcheck.const import (
+    ATTR_LAST_ERROR,
+    DOMAIN,
+    OPTION_POSSIBLY_BREAKING,
+    RECIPE_UPDATES,
+    UPDATES_ISSUE_PREFIX,
+)
 from custom_components.gutcheck.recipes.update_const import MAX_UPDATES_PER_RUN
 
 from .conftest import (
@@ -100,11 +106,14 @@ async def test_a_failed_forced_run_leaves_the_next_run_forced(hass: HomeAssistan
     register_pending_update(hass, "update_a")
     register_jev_responses(aioclient_mock, [api_response({"u0": score_answer(0, 0.9)})])
     entry = await _setup(hass)
+    before = _sensor_state(hass, entry)
 
     aioclient_mock.clear_requests()
     register_jev_responses(aioclient_mock, [(500, {"error": "boom"})])
     await _press(hass, entry)
-    assert _sensor_state(hass, entry).state == STATE_UNAVAILABLE
+    failed = _sensor_state(hass, entry)
+    assert failed.state == before.state
+    assert dict(failed.attributes) == {**before.attributes, ATTR_LAST_ERROR: "recipe run failed"}
 
     aioclient_mock.clear_requests()
     register_jev_responses(aioclient_mock, [api_response({"u0": score_answer(0, 0.9)})])

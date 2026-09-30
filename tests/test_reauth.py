@@ -14,6 +14,7 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 
 from custom_components.gutcheck.const import (
     API_URL,
+    ATTR_LAST_ERROR,
     DOMAIN,
     OPTION_WORTH_FIXING,
     RECIPE_HEALTH,
@@ -94,3 +95,34 @@ async def test_rejected_key_starts_reauth_and_a_valid_key_recovers(
 
     assert OLD_KEY not in caplog.text
     assert NEW_KEY not in caplog.text
+
+
+async def test_a_rejected_key_after_a_good_run_keeps_the_last_result(
+    hass: HomeAssistant,
+    aioclient_mock: AiohttpClientMocker,
+    mock_config_entry: MockConfigEntry,
+) -> None:
+    """A 401 after a good run keeps the sensor's result and reports the rejected key."""
+    register_jev_responses(
+        aioclient_mock,
+        [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)}), (401, {"error": "unauthorized"})],
+    )
+    register_unavailable_entity(hass)
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    sensor_id = recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH)
+    state = hass.states.get(sensor_id)
+    assert state is not None
+    assert state.state == "1"
+    assert state.attributes[ATTR_LAST_ERROR] is None
+
+    await mock_config_entry.runtime_data.coordinators[RECIPE_HEALTH].async_refresh()
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    state = hass.states.get(sensor_id)
+    assert state is not None
+    assert state.state == "1"
+    assert state.attributes[ATTR_LAST_ERROR] == "api key rejected"
+    _reauth_flow_id(hass)

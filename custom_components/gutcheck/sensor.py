@@ -18,6 +18,7 @@ from .const import (
     ATTR_COUNTS,
     ATTR_DAILY_BUDGET,
     ATTR_ITEMS,
+    ATTR_LAST_ERROR,
     ATTR_LAST_PAYLOAD,
     ATTR_LAST_RUN,
     ATTR_REMAINING,
@@ -156,11 +157,13 @@ class RecipeSummarySensor(CoordinatorEntity[RecipeCoordinator], SensorEntity):
         return self._recipe_coordinator.data
 
     @property
-    def native_value(self) -> int | None:
-        """Open, unignored Repairs cards this recipe raised, or None before the first run completes."""
-        data = self._data
-        if data is None:
-            return None
+    def available(self) -> bool:
+        """Unavailable until a first result exists; a refused or failed run keeps the last one."""
+        return self._data is not None
+
+    @property
+    def native_value(self) -> int:
+        """Open, unignored Repairs cards this recipe raised."""
         prefix = self._recipe_coordinator.recipe.issue_prefix
         # Only active issues show in Repairs; a non-persistent one stays inactive
         # after a restart until this recipe's next run or restore recreates it.
@@ -171,15 +174,16 @@ class RecipeSummarySensor(CoordinatorEntity[RecipeCoordinator], SensorEntity):
         )
 
     @property
-    def extra_state_attributes(self) -> dict[str, Any] | None:
-        """Counts, items, unsure entries, the last payload and the last run time."""
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Counts, items, unsure entries, the last payload, the last run time and why the last run failed."""
         data = self._data
-        if data is None:
-            return None
+        assert data is not None  # Home Assistant reads attributes only while available
+        coordinator = self._recipe_coordinator
         return {
             ATTR_COUNTS: data["counts"],
             ATTR_ITEMS: data["items"],
             ATTR_UNSURE: data["unsure"],
             ATTR_LAST_PAYLOAD: data["last_payload"],
             ATTR_LAST_RUN: data["last_run"],
+            ATTR_LAST_ERROR: None if coordinator.last_update_success else str(coordinator.last_exception),
         }

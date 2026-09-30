@@ -15,7 +15,14 @@ from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import DOMAIN, HEALTH_ISSUE_PREFIX, OPTION_WORTH_FIXING, RECIPE_HEALTH, STORE_VERSION
+from custom_components.gutcheck.const import (
+    ATTR_LAST_ERROR,
+    DOMAIN,
+    HEALTH_ISSUE_PREFIX,
+    OPTION_WORTH_FIXING,
+    RECIPE_HEALTH,
+    STORE_VERSION,
+)
 from custom_components.gutcheck.recipes.health import HealthRecipe
 from custom_components.gutcheck.recipes.shapes import _parse_stored_result, recipe_store_key
 
@@ -297,7 +304,7 @@ async def test_failed_scheduled_run_retries_after_an_hour(
     aioclient_mock: AiohttpClientMocker,
     mock_config_entry: MockConfigEntry,
 ) -> None:
-    """A 500 on a scheduled run leaves the sensor unavailable, then retries by itself an hour later."""
+    """A 500 on a first run leaves the sensor unavailable, then retries by itself an hour later."""
     freezer.move_to("2026-01-01T00:00:00-08:00")
     register_unavailable_entity(hass)
     register_jev_responses(aioclient_mock, [(500, {"error": "boom"})])
@@ -321,6 +328,53 @@ async def test_failed_scheduled_run_retries_after_an_hour(
     state = hass.states.get(recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH))
     assert state is not None
     assert state.state == "1"
+
+
+async def test_a_failed_run_after_a_good_one_keeps_the_last_result_until_the_retry(
+    hass: HomeAssistant,
+    freezer: Any,
+    aioclient_mock: AiohttpClientMocker,
+    mock_config_entry: MockConfigEntry,
+) -> None:
+    """A 500 on the weekly run keeps the last result and says why; the hourly retry clears it."""
+    freezer.move_to("2026-01-01T00:00:00-08:00")
+    register_unavailable_entity(hass)
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    sensor_id = recipe_sensor_entity_id(hass, mock_config_entry, RECIPE_HEALTH)
+    before = hass.states.get(sensor_id)
+    assert before is not None
+    assert before.state == "1"
+    assert before.attributes[ATTR_LAST_ERROR] is None
+
+    aioclient_mock.clear_requests()
+    register_jev_responses(aioclient_mock, [(500, {"error": "boom"})])
+    freezer.move_to("2026-01-08T00:00:05-08:00")
+    for _ in range(5):
+        await asyncio.sleep(0)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    assert len(posted_bodies(aioclient_mock)) == 1
+    state = hass.states.get(sensor_id)
+    assert state is not None
+    assert state.state == before.state
+    assert dict(state.attributes) == {**before.attributes, ATTR_LAST_ERROR: "recipe run failed"}
+
+    aioclient_mock.clear_requests()
+    register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_WORTH_FIXING, 0.9)})])
+    freezer.tick(3600 + 5)
+    for _ in range(5):
+        await asyncio.sleep(0)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    assert len(posted_bodies(aioclient_mock)) == 1
+    state = hass.states.get(sensor_id)
+    assert state is not None
+    assert state.state == "1"
+    assert state.attributes[ATTR_LAST_ERROR] is None
 
 
 async def test_removing_the_entry_deletes_the_recipe_store(

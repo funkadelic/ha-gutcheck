@@ -153,6 +153,7 @@ ATTR_ITEMS: Final = "items"
 ATTR_UNSURE: Final = "unsure"
 ATTR_LAST_PAYLOAD: Final = "last_payload"
 ATTR_LAST_RUN: Final = "last_run"
+ATTR_LAST_ERROR: Final = "last_error"
 
 OPTION_SUGGESTED: Final = "suggested"
 # Set on a suggestion the per-run card cap held back, so a restore never raises its card.
