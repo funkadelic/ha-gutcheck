@@ -77,7 +77,7 @@ If the key is ever rejected later, Home Assistant opens a repair asking for a ne
 
 ## Running the checks
 
-You don't need to set up a schedule. Once you add the integration, each check that is switched on runs by itself when Home Assistant finishes starting, then once a week after that. Restarting Home Assistant doesn't start an extra run: Gut Check keeps the last result and runs again when the week is up. If a run fails, it tries again an hour later.
+You don't need to set up a schedule. Once you add the integration, each check that is switched on runs by itself when Home Assistant finishes starting, then once a week after that. Restarting Home Assistant doesn't start an extra run: Gut Check keeps the last result and runs again when the week is up. If a run fails, it tries again an hour later, reusing the answers it already paid for and sending only the requests that went unanswered.
 
 To run a check now, go to **Settings > Devices & services > Gut Check**, open the Gut Check service, and press that check's Run button. Pressing a check's button while that check is already running shows an error and starts nothing. The other checks' buttons still work.
 
@@ -94,6 +94,8 @@ TypeSafe AI measures usage in tokens, about three characters of text each, and c
 | Stuck integration check | 0 when nothing is stuck; about 550 estimated per stuck integration | under $0.0001 per stuck integration (estimated) |
 | Critical label suggestions | 0 when only smoke, carbon monoxide or gas sensors qualify; 26,701 for 59 asked entities on a real run | about $0.0011 |
 | Diagnostic sensor suggestions | 0 when only signal-strength sensors qualify; 58,661 for 122 asked sensors on a real run (13 requests) | about $0.0025 |
+
+The other checks were measured when a run went out as one request. Sending ten items per request, as Gut Check does now, adds about 4 to 8 percent to those figures.
 
 Gut Check enforces a daily token budget so cost stays predictable. `sensor.gut_check_tokens_used_today` and `sensor.gut_check_cost_today` show what has been spent and what it cost, both resetting at local midnight. The default of 150,000 tokens covers the weekly schedule with room to spare; running checks by hand several times in one day can reach it.
 
@@ -130,7 +132,7 @@ For each asked valve, switch, siren or moisture sensor, Gut Check sends its doma
 
 For each asked sensor with no device class, Gut Check sends its name, its device's name, manufacturer and model, integration, unit and state class. It never sends a reading or any other state, an entity id, an area or a label. Names are read only as a description, never as an instruction. A signal-strength sensor is decided by its device class alone and sends nothing.
 
-To see exactly what was sent on the last completed run, open **Developer tools > States**, find the check's sensor, and look at its `last_payload` attribute. A run that fails partway leaves the previous run's payload in place.
+To see exactly what was sent on the last completed run, open **Developer tools > States**, find the check's sensor, and look at its `last_payload` attribute. A run that went out as several requests shows one entry per request. A run that fails partway leaves the previous run's payload in place.
 
 The integration's three-dot menu also offers a diagnostics download. It replaces the API key with a redacted marker; everything else, your device and area names and the last payload among them, comes through as it is, so read the file before attaching it to an issue.
 
@@ -188,7 +190,7 @@ The stuck integration check raises one card per sign-in problem or broken-for-go
 
 A critical label suggestion gets one card per entity, up to ten new cards per run: entities decided by device class come first, then the rest by confidence. A card clears when you confirm it, when the entity gets the label another way or stops qualifying, or when a later run no longer suggests it. Choosing not to have the label suggested moves the card to your ignored repairs, where it stays for as long as the entity still qualifies, including across turning critical label suggestions off and back on and clearing the label. If the entity stops qualifying or your critical label changed by the time you open a card, confirming does nothing, tells you so, and removes the card.
 
-A diagnostic sensor suggestion gets one card per sensor, up to ten new cards per run: signal-strength sensors come first, then the rest by confidence. A card clears when you confirm it, when the sensor is hidden, given a device class or made a settings or diagnostic entity another way or stops qualifying, or when a later run no longer suggests it. Ignoring a card moves it to your ignored repairs, where it stays for as long as the sensor still qualifies, including across turning diagnostic sensor suggestions off and back on. If the sensor changed by the time you open a card, confirming does nothing, tells you so, and removes the card.
+A diagnostic sensor suggestion gets one card per sensor, up to ten new cards per run: signal-strength sensors come first, then the rest by confidence. A card clears when you confirm it, when the sensor is hidden, given a device class or made a settings or diagnostic entity another way or stops qualifying, or when a later run no longer suggests it. Ignoring a card moves it to your ignored repairs, where it stays for as long as the sensor still qualifies or you have hidden it yourself, including across turning diagnostic sensor suggestions off and back on. If the sensor changed by the time you open a card, confirming does nothing, tells you so, and removes the card.
 
 ### Changing something back
 
