@@ -158,15 +158,12 @@ class RecipeSummarySensor(CoordinatorEntity[RecipeCoordinator], SensorEntity):
 
     @property
     def available(self) -> bool:
-        """Unavailable only until a first result exists; a refused or failed run keeps the last one."""
-        return super().available or self._data is not None
+        """Unavailable until a first result exists; a refused or failed run keeps the last one."""
+        return self._data is not None
 
     @property
-    def native_value(self) -> int | None:
-        """Open, unignored Repairs cards this recipe raised, or None before the first run completes."""
-        data = self._data
-        if data is None:
-            return None
+    def native_value(self) -> int:
+        """Open, unignored Repairs cards this recipe raised."""
         prefix = self._recipe_coordinator.recipe.issue_prefix
         # Only active issues show in Repairs; a non-persistent one stays inactive
         # after a restart until this recipe's next run or restore recreates it.
@@ -177,11 +174,10 @@ class RecipeSummarySensor(CoordinatorEntity[RecipeCoordinator], SensorEntity):
         )
 
     @property
-    def extra_state_attributes(self) -> dict[str, Any] | None:
+    def extra_state_attributes(self) -> dict[str, Any]:
         """Counts, items, unsure entries, the last payload, the last run time and why the last run failed."""
         data = self._data
-        if data is None:
-            return None
+        assert data is not None  # Home Assistant reads attributes only while available
         coordinator = self._recipe_coordinator
         return {
             ATTR_COUNTS: data["counts"],

@@ -73,7 +73,7 @@ Jev can't write a reply, make up a new option, or tell Home Assistant to do anyt
 2. Create a TypeSafe AI account and an API key at [console.typesafe.ai/keys](https://console.typesafe.ai/keys). The key is the only setup. There is no add-on or local model to run.
 3. Add the integration from **Settings > Devices & services** and paste the key. Gut Check tries it with one cheap question before creating the entry, so a wrong key is caught right away rather than at the first run.
 
-If the key is ever rejected later, Home Assistant opens a repair asking for a new one, and until you supply it each check keeps its last result and its sensor's `last_error` attribute reads `api key rejected`. A check that has never finished a run shows unavailable instead.
+If the key is ever rejected later, Home Assistant opens a repair asking for a new one, and until you supply it each check keeps its last result. A check whose run hits the rejected key shows `api key rejected` in its sensor's `last_error` attribute. A check that has never finished a run shows unavailable instead.
 
 ## Running the checks
 

@@ -66,6 +66,7 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
         self._force_requested = 0
         self._force_done = 0
         self.running = False
+        self._previous_success = True
         # Responses already billed in a failed run, keyed by their exact request; memory only.
         self._answered: dict[str, SystemOneResponse] = {}
         entry.async_on_unload(self._answered.clear)
@@ -111,9 +112,9 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
 
     @callback
     def _async_refresh_finished(self) -> None:
-        """Redraw after every failed run: the base class skips one that follows another, leaving last_error stale."""
+        """Redraw a failure that follows another, which the base class skips, leaving last_error stale."""
         super()._async_refresh_finished()
-        if not self.last_update_success:
+        if not self.last_update_success and not self._previous_success:
             self.async_update_listeners()
 
     def _keep_answer(self, payload: SystemOneRequest, response: SystemOneResponse) -> None:
@@ -151,6 +152,8 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
     async def _async_update_data(self) -> RecipeResult:
         """Run the recipe with running set for its whole length, whoever started it."""
         self.running = True
+        # Read before the run: a budget refusal flips last_update_success mid-run.
+        self._previous_success = self.last_update_success
         try:
             return await self._async_run()
         finally:

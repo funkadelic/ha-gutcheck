@@ -106,13 +106,14 @@ async def test_a_failed_forced_run_leaves_the_next_run_forced(hass: HomeAssistan
     register_pending_update(hass, "update_a")
     register_jev_responses(aioclient_mock, [api_response({"u0": score_answer(0, 0.9)})])
     entry = await _setup(hass)
+    before = _sensor_state(hass, entry)
 
     aioclient_mock.clear_requests()
     register_jev_responses(aioclient_mock, [(500, {"error": "boom"})])
     await _press(hass, entry)
     failed = _sensor_state(hass, entry)
-    assert failed.state != STATE_UNAVAILABLE
-    assert failed.attributes[ATTR_LAST_ERROR] == "recipe run failed"
+    assert failed.state == before.state
+    assert dict(failed.attributes) == {**before.attributes, ATTR_LAST_ERROR: "recipe run failed"}
 
     aioclient_mock.clear_requests()
     register_jev_responses(aioclient_mock, [api_response({"u0": score_answer(0, 0.9)})])
