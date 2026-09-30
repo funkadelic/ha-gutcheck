@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
 from typing import Any
 
 from homeassistant.components.repairs import repairs_flow_manager
@@ -21,19 +19,13 @@ from custom_components.gutcheck.recipes.device_class_describe import candidate_c
 from .conftest import (
     api_response,
     area_answer,
+    captured_whole,
     posted_bodies,
     recipe_sensor_entity_id,
     register_jev_responses,
     register_unit_sensor,
     restart_config_entry,
 )
-
-FIXTURES = Path(__file__).parent / "fixtures" / "captured"
-
-
-def _load(name: str) -> dict[str, Any]:
-    """The captured fixture JSON at `name`, parsed."""
-    return json.loads((FIXTURES / name).read_text())
 
 
 def _captured(payload: dict[str, Any], response: dict[str, Any], sensor_name: str) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -65,8 +57,7 @@ async def test_a_run_that_stops_suggesting_clears_the_open_card_keeps_the_ignore
 ) -> None:
     """Real captured answers clear the water filter card, keep the ignored filter lifespan card, both surviving a restart."""
     freezer.move_to("2026-01-01T00:00:00-08:00")
-    payload = _load("device_class_payload.json")
-    response = _load("device_class_response.json")
+    payload, response = captured_whole("device_class", "sensors")
     water_fields, water_answer = _captured(payload, response, "Water filter used")
     lifespan_fields, lifespan_answer = _captured(payload, response, "Filter lifespan")
     co2_fields, co2_answer = _captured(payload, response, "Foobot HappyBot CO2")
