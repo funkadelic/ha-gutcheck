@@ -13,10 +13,11 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMockResponse,
 )
 
-from custom_components.gutcheck.budget import BudgetExceededError, BudgetGate, RunOverDailyBudgetError, _reservation
+from custom_components.gutcheck.budget import BudgetExceededError, BudgetGate, RunOverDailyBudgetError
 from custom_components.gutcheck.client import GutCheckApiError, GutCheckClient
 from custom_components.gutcheck.const import API_URL
 from custom_components.gutcheck.models import SystemOneRequest
+from custom_components.gutcheck.sizing import reservation
 
 from .conftest import api_response, posted_bodies
 
@@ -24,7 +25,7 @@ PAYLOADS: list[SystemOneRequest] = [
     {"state": {"slice": index}, "model": "jev-latest", "questions": {f"q{index}": {"type": "noul", "instructions": "?"}}}
     for index in range(3)
 ]
-E1, E2, E3 = (_reservation(payload) for payload in PAYLOADS)
+E1, E2, E3 = (reservation(payload) for payload in PAYLOADS)
 FAILED = (500, {"error": "boom"})
 
 

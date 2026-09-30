@@ -5,10 +5,10 @@ from __future__ import annotations
 import logging
 from bisect import bisect_left
 
-from .budget import request_fits
 from .const import MODEL
 from .models import Question, SystemOneRequest, SystemOneResponse
 from .recipes.shapes import Batch
+from .sizing import request_fits
 
 _LOGGER = logging.getLogger(__name__)
 

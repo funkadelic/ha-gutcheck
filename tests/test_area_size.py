@@ -9,7 +9,6 @@ from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.budget import _reservation
 from custom_components.gutcheck.const import (
     DEFAULT_DAILY_BUDGET,
     DEVICE_TEXT_MAX_CHARS,
@@ -17,6 +16,7 @@ from custom_components.gutcheck.const import (
     RECIPE_AREAS,
 )
 from custom_components.gutcheck.recipes.areas import AreaRecipe
+from custom_components.gutcheck.sizing import reservation
 from custom_components.gutcheck.split import split_batch
 
 from .conftest import (
@@ -99,7 +99,7 @@ async def test_an_oversized_area_request_is_refused_with_no_partial_result(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """A run too large to send is refused loudly rather than posting anything."""
-    monkeypatch.setattr("custom_components.gutcheck.budget.REQUEST_TOKEN_LIMIT", 100)
+    monkeypatch.setattr("custom_components.gutcheck.sizing.REQUEST_TOKEN_LIMIT", 100)
     create_areas(hass, "Kitchen")
     register_area_device(hass, "a", name="Device A", entities=["sensor"])
 
@@ -126,15 +126,15 @@ async def test_the_captured_installs_first_day_runs_reserved_at_once_fit_the_def
 ) -> None:
     """The captured install's health, update and area runs, admitted concurrently, still fit day one."""
     health_payload = load_fixture("captured", "health_payload.json")
-    health_reserved = _reservation(health_payload)
+    health_reserved = reservation(health_payload)
 
     update_payload = load_fixture("captured", "update_payload.json")
-    update_reserved = _reservation(update_payload)
+    update_reserved = reservation(update_payload)
 
     _build_realistic_devices(hass)
     recipe = AreaRecipe(critical_label=None)
     batch = await recipe.async_prepare(hass)
-    area_reserved = sum(_reservation(request) for request in split_batch(batch))
+    area_reserved = sum(reservation(request) for request in split_batch(batch))
 
     total = health_reserved + update_reserved + area_reserved
     print(f"first-day total, reserved: health={health_reserved} update={update_reserved} area={area_reserved} total={total}")

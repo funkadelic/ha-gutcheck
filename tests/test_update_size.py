@@ -13,7 +13,6 @@ from homeassistant.helpers import issue_registry as ir
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.budget import _estimate, _reservation
 from custom_components.gutcheck.const import (
     DEFAULT_DAILY_BUDGET,
     DOMAIN,
@@ -29,6 +28,7 @@ from custom_components.gutcheck.const import (
     VERSION_JUMP_MAJOR,
 )
 from custom_components.gutcheck.recipes.update_const import MAX_UPDATES_PER_RUN, UPDATE_CRITERIA, UPDATE_INSTRUCTIONS
+from custom_components.gutcheck.sizing import estimate, reservation
 
 from .conftest import (
     SAFETY_FACTOR,
@@ -109,7 +109,7 @@ async def test_one_realistic_run_goes_out_as_capped_requests_with_measured_headr
 
 def test_max_updates_per_run_is_set_from_the_measured_ceiling_with_the_safety_factor() -> None:
     """MAX_UPDATES_PER_RUN sits at or below the state-limit ceiling for one full-size update, factored."""
-    per_item = _estimate(_full_size_state_item()) * SAFETY_FACTOR
+    per_item = estimate(_full_size_state_item()) * SAFETY_FACTOR
     ceiling = int(STATE_TOKEN_LIMIT // per_item)
     print(f"full-size update estimate, factored: {per_item:.0f} tokens; STATE_TOKEN_LIMIT trips past {ceiling} updates")
 
@@ -127,7 +127,7 @@ def test_a_full_size_update_run_reserves_within_the_default_budget() -> None:
         },
     }
 
-    assert _reservation(body) <= DEFAULT_DAILY_BUDGET
+    assert reservation(body) <= DEFAULT_DAILY_BUDGET
 
 
 async def test_more_pending_than_the_cap_asks_about_the_highest_jump_ones_first(
@@ -197,7 +197,7 @@ async def test_an_oversized_request_is_refused_with_no_partial_result(
     duration instead, per the plan's documented fallback, to prove the
     existing budget backstop still triggers on this code path.
     """
-    monkeypatch.setattr("custom_components.gutcheck.budget.REQUEST_TOKEN_LIMIT", 100)
+    monkeypatch.setattr("custom_components.gutcheck.sizing.REQUEST_TOKEN_LIMIT", 100)
     for index in range(3):
         register_pending_update(hass, f"upd_{index:04d}", title=f"Update {index}")
 

@@ -9,7 +9,6 @@ from typing import Any
 import pytest
 from homeassistant.core import HomeAssistant
 
-from custom_components.gutcheck.budget import estimate_tokens, request_fits
 from custom_components.gutcheck.const import MODEL, SUBJECTS_PER_REQUEST
 from custom_components.gutcheck.models import SystemOneRequest, SystemOneResponse
 from custom_components.gutcheck.recipes.area_const import AREA_INSTRUCTIONS
@@ -20,11 +19,12 @@ from custom_components.gutcheck.recipes.health_const import HEALTH_INSTRUCTIONS
 from custom_components.gutcheck.recipes.shapes import Batch
 from custom_components.gutcheck.recipes.update_const import UPDATE_INSTRUCTIONS
 from custom_components.gutcheck.recipes.updates import UpdateRecipe
+from custom_components.gutcheck.sizing import estimate_tokens, request_fits
 from custom_components.gutcheck.split import merge, split_batch
 
 from .conftest import create_areas, load_fixture, register_area_device, register_pending_update
 
-LIMIT = "custom_components.gutcheck.budget.REQUEST_TOKEN_LIMIT"
+LIMIT = "custom_components.gutcheck.sizing.REQUEST_TOKEN_LIMIT"
 
 
 def _captured_batch() -> tuple[Batch, SystemOneRequest, SystemOneResponse]:

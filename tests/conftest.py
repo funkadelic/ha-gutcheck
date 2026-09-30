@@ -37,7 +37,6 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMockResponse,
 )
 
-from custom_components.gutcheck.budget import _estimate, _reservation, estimate_tokens
 from custom_components.gutcheck.const import (
     API_URL,
     CONF_AREAS_ENABLED,
@@ -67,6 +66,7 @@ from custom_components.gutcheck.recipes.hide_diagnostic_const import HIDE_DIAGNO
 from custom_components.gutcheck.recipes.safety import SafetyRules
 from custom_components.gutcheck.recipes.shapes import Item, RecipeResult
 from custom_components.gutcheck.recipes.update_const import UPDATE_CRITERIA
+from custom_components.gutcheck.sizing import estimate, estimate_tokens, reservation
 
 # The budget gate's own estimator undercounts a real payload by about 12%,
 # so size tests apply this factor before checking a limit.
@@ -225,10 +225,10 @@ def assert_capped_run_fits(bodies: list[dict[str, Any]], list_key: str, subjects
         assert len(body["questions"]) <= SUBJECTS_PER_REQUEST
         factored_request = estimate_tokens(body) * SAFETY_FACTOR
         assert factored_request < REQUEST_TOKEN_LIMIT
-        longest_question = max(_estimate(question) for question in body["questions"].values())
-        assert (_estimate(body["state"]) + longest_question) * SAFETY_FACTOR < STATE_TOKEN_LIMIT
+        longest_question = max(estimate(question) for question in body["questions"].values())
+        assert (estimate(body["state"]) + longest_question) * SAFETY_FACTOR < STATE_TOKEN_LIMIT
         total += factored_request
-    assert sum(_reservation(body) for body in bodies) < DEFAULT_DAILY_BUDGET
+    assert sum(reservation(body) for body in bodies) < DEFAULT_DAILY_BUDGET
     return total
 
 
