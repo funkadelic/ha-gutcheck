@@ -1,0 +1,47 @@
+tests/test_hide_diagnostic_undo_forget.py
+  s_16c70a9fb1ed26::t_562f70526cf014 13,30
+tests/test_hide_diagnostic_undo_rules.py
+  s_16c70a9fb1ed26::t_8daade26d90374 14
+  s_16c70a9fb1ed26::t_562f70526cf014 66,72,142,145,158,223
+tests/test_options_flow.py
+  s_16c70a9fb1ed26::t_8bc0da5568f800 9,20,405-430
+tests/test_device_class_choose.py
+  s_16c70a9fb1ed26::t_8daade26d90374 22
+  s_16c70a9fb1ed26::t_562f70526cf014 160
+custom_components/gutcheck/const.py
+  s_16c70a9fb1ed26::t_562f70526cf014 24
+  s_16c70a9fb1ed26::t_8e0ddd766eb6f3 23
+custom_components/gutcheck/options_flow.py
+  s_16c70a9fb1ed26::t_562f70526cf014 67,69,74,87,108
+  s_16c70a9fb1ed26::t_8daade26d90374 20
+custom_components/gutcheck/translations/en.json
+  s_16c70a9fb1ed26::t_562f70526cf014 42,53,57
+tests/test_hide_diagnostic_undo.py
+  s_16c70a9fb1ed26::t_562f70526cf014 13,50-52,70
+tests/test_device_class_undo.py
+  s_16c70a9fb1ed26::t_562f70526cf014 48,50,91,103,116,128,143,245,247
+  s_16c70a9fb1ed26::t_8daade26d90374 17
+tests/test_device_class_undo_rules.py
+  s_16c70a9fb1ed26::t_562f70526cf014 13,41,43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "be671283de5500eeeb47daa099d0a30255902607",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_16c70a9fb1ed26": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d036a682-291c-4164-a3fb-8737cd9a481b",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
