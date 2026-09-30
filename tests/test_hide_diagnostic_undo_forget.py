@@ -10,7 +10,7 @@ from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import CONF_UNDO_DEVICE_CLASS, HIDE_DIAGNOSTIC_APPLIED_STORE_KEY
+from custom_components.gutcheck.const import CONF_CHANGE_BACK, HIDE_DIAGNOSTIC_APPLIED_STORE_KEY
 from custom_components.gutcheck.recipes.hide_diagnostic_undo import async_change_back_hidden
 
 from .conftest import register_unit_sensor, setup_and_confirm_hide
@@ -27,7 +27,7 @@ async def _offers_change_back(hass: HomeAssistant, entry: MockConfigEntry) -> bo
     """Whether Configure's first form shows the change-back checkbox."""
     result = await hass.config_entries.options.async_init(entry.entry_id)
     hass.config_entries.options.async_abort(result["flow_id"])
-    return CONF_UNDO_DEVICE_CLASS in {str(key) for key in result["data_schema"].schema}
+    return CONF_CHANGE_BACK in {str(key) for key in result["data_schema"].schema}
 
 
 async def test_a_sensor_unhidden_then_hidden_again_by_hand_is_never_changed_back(

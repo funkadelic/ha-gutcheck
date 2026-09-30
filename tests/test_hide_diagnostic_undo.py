@@ -10,8 +10,8 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.gutcheck.const import (
+    CONF_CHANGE_BACK,
     CONF_DAILY_BUDGET,
-    CONF_UNDO_DEVICE_CLASS,
     CONF_UNDO_HIDDEN_SENSORS,
     CONF_UNDO_SENSORS,
     DEFAULT_DAILY_BUDGET,
@@ -47,9 +47,9 @@ async def test_a_hidden_sensor_is_unhidden_from_configure_and_not_suggested_agai
     options = {**hide_diagnostic_entry.options, CONF_DAILY_BUDGET: DEFAULT_DAILY_BUDGET}
 
     result = await hass.config_entries.options.async_init(hide_diagnostic_entry.entry_id)
-    assert CONF_UNDO_DEVICE_CLASS in _fields(result)
-    result = await hass.config_entries.options.async_configure(result["flow_id"], {**options, CONF_UNDO_DEVICE_CLASS: True})
-    assert result["step_id"] == "undo_device_class"
+    assert CONF_CHANGE_BACK in _fields(result)
+    result = await hass.config_entries.options.async_configure(result["flow_id"], {**options, CONF_CHANGE_BACK: True})
+    assert result["step_id"] == "change_back"
     assert _fields(result) == {CONF_UNDO_HIDDEN_SENSORS}
     selector = next(iter(result["data_schema"].schema.values()))
     assert selector.config["options"] == [{"value": sensor.id, "label": "Wi-Fi connection"}]
@@ -67,7 +67,7 @@ async def test_a_hidden_sensor_is_unhidden_from_configure_and_not_suggested_agai
     assert hide_diagnostic_entry.runtime_data.applied_hidden.get(sensor.id) is None
     assert sensor.id not in hass_storage[HIDE_DIAGNOSTIC_APPLIED_STORE_KEY]["data"]
     result = await hass.config_entries.options.async_init(hide_diagnostic_entry.entry_id)
-    assert CONF_UNDO_DEVICE_CLASS not in _fields(result)
+    assert CONF_CHANGE_BACK not in _fields(result)
 
     aioclient_mock.clear_requests()
     register_jev_responses_by_question(aioclient_mock, {"h0": api_response({"h0": hide_diagnostic_answer("diagnostic", 0.9)})})

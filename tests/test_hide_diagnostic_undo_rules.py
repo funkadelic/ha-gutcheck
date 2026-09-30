@@ -11,10 +11,10 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.gutcheck.const import (
+    CONF_CHANGE_BACK,
     CONF_CRITICAL_LABEL,
     CONF_DAILY_BUDGET,
     CONF_HIDE_DIAGNOSTIC_ENABLED,
-    CONF_UNDO_DEVICE_CLASS,
     CONF_UNDO_HIDDEN_SENSORS,
     CONF_UNDO_SENSORS,
     DEFAULT_DAILY_BUDGET,
@@ -63,13 +63,13 @@ def _issue(hass: HomeAssistant, prefix: str, sensor: er.RegistryEntry) -> ir.Iss
 async def _open_step(hass: HomeAssistant, entry: MockConfigEntry, options: dict) -> dict:
     """Tick the change-back checkbox on the init form and return the step's result."""
     result = await hass.config_entries.options.async_init(entry.entry_id)
-    return await hass.config_entries.options.async_configure(result["flow_id"], {**options, CONF_UNDO_DEVICE_CLASS: True})
+    return await hass.config_entries.options.async_configure(result["flow_id"], {**options, CONF_CHANGE_BACK: True})
 
 
 async def _change_back(hass: HomeAssistant, entry: MockConfigEntry, options: dict, picks: dict[str, list[str]]) -> None:
     """Open the change-back step, submit the given picks per field, and let the reload settle."""
     result = await _open_step(hass, entry, options)
-    assert result["step_id"] == "undo_device_class"
+    assert result["step_id"] == "change_back"
     result = await hass.config_entries.options.async_configure(result["flow_id"], picks)
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done(wait_background_tasks=True)
@@ -139,10 +139,10 @@ async def test_the_only_recorded_sensor_removed_after_the_form_saves_without_a_s
     await setup_and_confirm_hide(hass, aioclient_mock, hide_diagnostic_entry, sensor)
     options = {**hide_diagnostic_entry.options, CONF_DAILY_BUDGET: DEFAULT_DAILY_BUDGET}
     result = await hass.config_entries.options.async_init(hide_diagnostic_entry.entry_id)
-    assert CONF_UNDO_DEVICE_CLASS in _fields(result)
+    assert CONF_CHANGE_BACK in _fields(result)
     er.async_get(hass).async_remove(sensor.entity_id)
 
-    result = await hass.config_entries.options.async_configure(result["flow_id"], {**options, CONF_UNDO_DEVICE_CLASS: True})
+    result = await hass.config_entries.options.async_configure(result["flow_id"], {**options, CONF_CHANGE_BACK: True})
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["data"] == options
@@ -155,7 +155,7 @@ async def test_a_removed_recorded_sensor_is_dropped_on_the_next_save_picked_or_n
     classed, hidden = await _both_kinds(hass, aioclient_mock, device_class_entry)
     result = await hass.config_entries.options.async_init(device_class_entry.entry_id)
     er.async_get(hass).async_remove(hidden.entity_id)
-    result = await hass.config_entries.options.async_configure(result["flow_id"], {**BOTH_ON, CONF_UNDO_DEVICE_CLASS: True})
+    result = await hass.config_entries.options.async_configure(result["flow_id"], {**BOTH_ON, CONF_CHANGE_BACK: True})
     assert _fields(result) == {CONF_UNDO_SENSORS}
 
     result = await hass.config_entries.options.async_configure(result["flow_id"], {CONF_UNDO_SENSORS: [classed.id]})
@@ -220,7 +220,7 @@ async def test_the_hide_recorded_still_changes_back_with_the_recipe_switched_off
     await hass.async_block_till_done(wait_background_tasks=True)
     assert hide_diagnostic_entry.runtime_data.applied_hidden.get(sensor.id) == "user"
     result = await hass.config_entries.options.async_init(hide_diagnostic_entry.entry_id)
-    assert CONF_UNDO_DEVICE_CLASS in _fields(result)
+    assert CONF_CHANGE_BACK in _fields(result)
 
     await _change_back(hass, hide_diagnostic_entry, off, {CONF_UNDO_HIDDEN_SENSORS: [sensor.id]})
 

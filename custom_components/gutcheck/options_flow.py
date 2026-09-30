@@ -17,6 +17,7 @@ from homeassistant.helpers.selector import (
 
 from .const import (
     CONF_AREAS_ENABLED,
+    CONF_CHANGE_BACK,
     CONF_CONFIG_ENTRIES_ENABLED,
     CONF_CRITICAL_LABEL,
     CONF_CRITICAL_LABEL_ENABLED,
@@ -24,7 +25,6 @@ from .const import (
     CONF_DEVICE_CLASS_ENABLED,
     CONF_HEALTH_ENABLED,
     CONF_HIDE_DIAGNOSTIC_ENABLED,
-    CONF_UNDO_DEVICE_CLASS,
     CONF_UNDO_HIDDEN_SENSORS,
     CONF_UNDO_SENSORS,
     CONF_UPDATES_ENABLED,
@@ -64,14 +64,14 @@ class GutCheckOptionsFlow(OptionsFlowWithReload):
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Show the options form, plus the change-back checkbox when something is recorded and the entry is loaded."""
         if user_input is not None:
-            if user_input.pop(CONF_UNDO_DEVICE_CLASS, False):
+            if user_input.pop(CONF_CHANGE_BACK, False):
                 self._held_options = user_input
-                return await self.async_step_undo_device_class()
+                return await self.async_step_change_back()
             return self.async_create_entry(data=user_input)
 
         schema = OPTIONS_SCHEMA
         if self.config_entry.state is ConfigEntryState.LOADED and self._undo_fields():
-            schema = schema.extend({vol.Optional(CONF_UNDO_DEVICE_CLASS, default=False): BooleanSelector()})
+            schema = schema.extend({vol.Optional(CONF_CHANGE_BACK, default=False): BooleanSelector()})
         schema = self.add_suggested_values_to_schema(schema, self.config_entry.options)
         return self.async_show_form(step_id="init", data_schema=schema)
 
@@ -84,7 +84,7 @@ class GutCheckOptionsFlow(OptionsFlowWithReload):
         }
         return {field: choices for field, choices in fields.items() if choices}
 
-    async def async_step_undo_device_class(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+    async def async_step_change_back(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """List the recorded, still-registered sensors of each kind, then change the picked ones back."""
         if user_input is not None:
             critical_label = self._held_options.get(CONF_CRITICAL_LABEL)
@@ -105,4 +105,4 @@ class GutCheckOptionsFlow(OptionsFlowWithReload):
                 for field, choices in fields.items()
             }
         )
-        return self.async_show_form(step_id="undo_device_class", data_schema=schema)
+        return self.async_show_form(step_id="change_back", data_schema=schema)

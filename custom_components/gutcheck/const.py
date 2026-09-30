@@ -20,9 +20,8 @@ CONF_CONFIG_ENTRIES_ENABLED: Final = "config_entries_enabled"
 CONF_CRITICAL_LABEL_ENABLED: Final = "critical_label_enabled"
 CONF_HIDE_DIAGNOSTIC_ENABLED: Final = "hide_diagnostic_enabled"
 # The Configure checkbox and step id for changing back anything Gut Check set (a
-# device class or a hidden sensor); never saved as an option. The name predates
-# the second kind.
-CONF_UNDO_DEVICE_CLASS: Final = "undo_device_class"
+# device class or a hidden sensor); never saved as an option.
+CONF_CHANGE_BACK: Final = "change_back"
 CONF_UNDO_SENSORS: Final = "sensors"
 CONF_UNDO_HIDDEN_SENSORS: Final = "hidden_sensors"
 
