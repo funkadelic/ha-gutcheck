@@ -30,7 +30,8 @@ from .const import (
     CONF_UPDATES_ENABLED,
     DEFAULT_DAILY_BUDGET,
 )
-from .recipes.device_class_undo import async_change_back, undo_choices
+from .recipes.applied_records import undo_choices
+from .recipes.device_class_undo import async_change_back
 from .recipes.hide_diagnostic_undo import async_change_back_hidden
 
 OPTIONS_SCHEMA = vol.Schema(

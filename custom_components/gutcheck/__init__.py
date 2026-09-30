@@ -26,7 +26,7 @@ from .const import (
     STORE_VERSION,
 )
 from .coordinator import RecipeCoordinator
-from .recipes.device_class_undo import AppliedClasses
+from .recipes.applied_records import AppliedRecords
 from .recipes.hide_diagnostic_undo import async_track_hidden
 from .recipes.registry import RECIPE_SPECS
 from .recipes.shapes import recipe_store_key
@@ -52,8 +52,8 @@ class GutCheckData:
     client: GutCheckClient
     budget: BudgetGate
     coordinators: dict[str, RecipeCoordinator]
-    applied: AppliedClasses
-    applied_hidden: AppliedClasses
+    applied: AppliedRecords
+    applied_hidden: AppliedRecords
 
 
 type GutCheckConfigEntry = ConfigEntry[GutCheckData]
@@ -70,9 +70,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: GutCheckConfigEntry) -> 
     await budget.async_load()
     # Loaded whether or not the matching recipe is on: a class set or a sensor
     # hidden before the recipe was switched off must still be changeable back.
-    applied = AppliedClasses(hass)
+    applied = AppliedRecords(hass, DEVICE_CLASS_APPLIED_STORE_KEY)
     await applied.async_load()
-    applied_hidden = AppliedClasses(hass, HIDE_DIAGNOSTIC_APPLIED_STORE_KEY)
+    applied_hidden = AppliedRecords(hass, HIDE_DIAGNOSTIC_APPLIED_STORE_KEY)
     await applied_hidden.async_load()
     entry.async_on_unload(async_track_hidden(hass, applied_hidden))
 

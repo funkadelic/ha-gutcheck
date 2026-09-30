@@ -24,8 +24,8 @@ from custom_components.gutcheck.const import (
     RECIPE_DEVICE_CLASS,
     STORE_VERSION,
 )
+from custom_components.gutcheck.recipes.applied_records import AppliedRecords, undo_choices
 from custom_components.gutcheck.recipes.device_class_cards import sync_device_class_cards
-from custom_components.gutcheck.recipes.device_class_undo import AppliedClasses, undo_choices
 from custom_components.gutcheck.recipes.safety import SafetyRules
 
 from .conftest import (
@@ -170,7 +170,7 @@ async def test_undo_choices_prefers_the_live_friendly_name_over_the_registered_n
     """A sensor with a live state is labelled with its friendly name, not its registered name."""
     sensor = register_unit_sensor(hass, "battery_pct", unit="%", name="Battery")
     hass.states.async_set(sensor.entity_id, "50", {"friendly_name": "Kitchen Battery"})
-    applied = AppliedClasses(hass)
+    applied = AppliedRecords(hass, DEVICE_CLASS_APPLIED_STORE_KEY)
     applied.record(sensor.id, "battery")
 
     choices = undo_choices(hass, applied)
@@ -180,7 +180,7 @@ async def test_undo_choices_prefers_the_live_friendly_name_over_the_registered_n
 
 async def test_undo_choices_omits_a_recorded_sensor_removed_from_the_registry(hass: HomeAssistant) -> None:
     """A registry id recorded but no longer registered is left out of the change-back list."""
-    applied = AppliedClasses(hass)
+    applied = AppliedRecords(hass, DEVICE_CLASS_APPLIED_STORE_KEY)
     applied.record("gone", "battery")
 
     assert undo_choices(hass, applied) == []

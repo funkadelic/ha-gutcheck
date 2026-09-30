@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
 
-from .device_class_undo import AppliedClasses, async_undo_records
+from .applied_records import AppliedRecords, async_undo_records
 from .hide_diagnostic_cards import reject_suggestion
 from .safety import SafetyRules
 
@@ -20,7 +20,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 @callback
-def async_track_hidden(hass: HomeAssistant, applied: AppliedClasses) -> CALLBACK_TYPE:
+def async_track_hidden(hass: HomeAssistant, applied: AppliedRecords) -> CALLBACK_TYPE:
     """Forget each recorded sensor that is gone or no longer hidden by the user, now and on every later change.
 
     A sensor the user unhides and later hides again by hand is then never
