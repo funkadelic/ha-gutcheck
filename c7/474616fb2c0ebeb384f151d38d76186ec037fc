@@ -1,0 +1,35 @@
+tests/fixtures/captured/health_payload.json
+  s_8ee7aa912ade2f::t_f0000eb505d0f3 1-199,201,203-408,410-617,619-826,828-1033,1035-1242,1244-1451,1453-1652,1654-1853,1855-2060,2062-2269,2271-2478,2480-2687,2689-2891,2893-3078,3082
+tests/test_health_captured.py
+  s_8ee7aa912ade2f::t_b2cda89304c6c0 1-40,50-161,169-225
+  s_8ee7aa912ade2f::t_e3fae9a32505be 41-49,162-168
+tests/test_split.py
+  s_8ee7aa912ade2f::t_2da73a0b9e19bc 32
+  s_8ee7aa912ade2f::t_3fffe136283a31 25
+tests/fixtures/captured/health_response.json
+  s_8ee7aa912ade2f::t_f0000eb505d0f3 1-594,597-1774,1776
+tests/test_budget.py
+  s_8ee7aa912ade2f::t_2da73a0b9e19bc 152-153
+  s_8ee7aa912ade2f::t_fddd6ad1c860f8 41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c7474616fb2c0ebeb384f151d38d76186ec037fc",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_8ee7aa912ade2f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7e159446-be0f-4528-9272-814c39897d5f",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
