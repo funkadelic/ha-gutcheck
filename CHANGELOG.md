@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.11.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.10.0...v0.11.0) (2026-09-30)
+
+
+### Added
+
+* raise the default daily token budget to 500,000 ([#56](https://github.com/funkadelic/ha-gutcheck/issues/56)) ([5bcab8d](https://github.com/funkadelic/ha-gutcheck/commit/5bcab8d67bfa14a2081317fffe333a14dbf8bb51))
+
+
+### Other Changes
+
+* recapture health, area and device class answers ten items per request ([#57](https://github.com/funkadelic/ha-gutcheck/issues/57)) ([16139d2](https://github.com/funkadelic/ha-gutcheck/commit/16139d2f30ed6a750a2571148741fa8303b7ab34))
+
 ## [0.10.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.9.0...v0.10.0) (2026-09-30)
 
 
