@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import Any
 
 import pytest
@@ -21,6 +20,7 @@ from custom_components.gutcheck.const import (
 from custom_components.gutcheck.recipes.device_class import DeviceClassRecipe
 
 from .conftest import (
+    captured_whole,
     posted_bodies,
     recipe_sensor_entity_id,
     register_jev_answers,
@@ -28,17 +28,10 @@ from .conftest import (
     restart_config_entry,
 )
 
-FIXTURES = Path(__file__).parent / "fixtures" / "captured"
-
 # The captured run may suggest ten or fewer sensors, so the cap is patched
 # down to force the held-back path this test proves, rather than relying on
 # the capture's own suggested count exceeding the real cap.
 CAP = 1
-
-
-def _load(name: str) -> dict[str, Any]:
-    """The captured fixture JSON at `name`, parsed."""
-    return json.loads((FIXTURES / name).read_text())
 
 
 async def _register_captured_sensors(hass: HomeAssistant) -> dict[str, Any]:
@@ -47,8 +40,8 @@ async def _register_captured_sensors(hass: HomeAssistant) -> dict[str, Any]:
     The recipe asks in entity id order, not the capture's, so each captured
     answer follows its own sensor item to wherever this run asks about it.
     """
-    payload = _load("device_class_payload.json")
-    captured = _load("device_class_response.json")["answers"]
+    payload, merged = captured_whole("device_class", "sensors")
+    captured = merged["answers"]
     for index, item in enumerate(payload["state"]["sensors"]):
         register_unit_sensor(
             hass,

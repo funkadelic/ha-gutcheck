@@ -53,6 +53,7 @@ from custom_components.gutcheck.const import (
     DOMAIN,
     HEALTH_OPTIONS,
     HIDE_DIAGNOSTIC_ISSUE_PREFIX,
+    MODEL,
     OPTION_NONE,
     RECIPE_CONFIG_ENTRIES,
     REQUEST_TOKEN_LIMIT,
@@ -67,6 +68,7 @@ from custom_components.gutcheck.recipes.safety import SafetyRules
 from custom_components.gutcheck.recipes.shapes import Item, RecipeResult
 from custom_components.gutcheck.recipes.update_const import UPDATE_CRITERIA
 from custom_components.gutcheck.sizing import estimate, estimate_tokens, reservation
+from custom_components.gutcheck.split import merge
 
 # The budget gate's own estimator undercounts a real payload by about 12%,
 # so size tests apply this factor before checking a limit.
@@ -94,6 +96,23 @@ FIXTURES = Path(__file__).parent / "fixtures"
 def load_fixture(subdirectory: str, name: str) -> Any:
     """The parsed JSON fixture at fixtures/<subdirectory>/<name>."""
     return json.loads((FIXTURES / subdirectory / name).read_text(encoding="utf-8"))
+
+
+def load_captured(name: str) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """The captured requests and their real answers for `name`, in the order they were sent."""
+    return load_fixture("captured", f"{name}_payload.json"), load_fixture("captured", f"{name}_response.json")
+
+
+def captured_whole(name: str, list_key: str) -> tuple[dict[str, Any], dict[str, Any]]:
+    """One unsplit payload and one merged response over every captured request of `name`."""
+    payloads, responses = load_captured(name)
+    # The merged questions keep their per-request instructions, which split_batch re-renders.
+    whole = {
+        "state": {list_key: [item for payload in payloads for item in payload["state"][list_key]]},
+        "model": MODEL,
+        "questions": {qid: q for payload in payloads for qid, q in payload["questions"].items()},
+    }
+    return whole, merge(payloads, responses)  # type: ignore[arg-type]
 
 
 @pytest.fixture(autouse=True)

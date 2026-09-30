@@ -38,7 +38,7 @@ from custom_components.gutcheck.sizing import estimate_tokens, reservation
 from .conftest import (
     api_response,
     choice_answer,
-    load_fixture,
+    load_captured,
     posted_bodies,
     recipe_sensor_entity_id,
     register_jev_responses,
@@ -149,8 +149,8 @@ async def test_a_run_whose_real_bill_would_break_the_cap_is_refused(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
 ) -> None:
     """A payload whose real bill runs well over the 4-char estimate is refused rather than posted."""
-    payload = load_fixture("captured", "health_payload.json")
-    response = load_fixture("captured", "health_response.json")
+    payloads, responses = load_captured("health")
+    payload, response = payloads[0], responses[0]
     aioclient_mock.post(API_URL, status=200, json=response)
 
     gate = BudgetGate(hass, _client(hass), daily_budget=reservation(payload))
