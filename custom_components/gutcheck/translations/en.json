@@ -210,7 +210,7 @@
         "step": {
           "init": {
             "title": "Suggested: hide this sensor",
-            "description": "Gut Check thinks `{entity_id}` is a diagnostic sensor, one that reports on its device or its connection rather than on your home, and suggests hiding it. A hidden sensor stays off auto-generated dashboards but keeps working and recording history. You can unhide it in its entity settings, or change it back from Gut Check's Configure screen. Nothing changes until you choose.",
+            "description": "Gut Check thinks `{entity_id}` is a diagnostic sensor, one that reports on its device or its connection rather than on your home, and suggests hiding it. A hidden sensor stays off auto-generated dashboards and area pages, so it no longer crowds your temperatures and power readings. It keeps working and recording history. You can unhide it in its entity settings, or change it back from Gut Check's Configure screen. Nothing changes until you choose.",
             "menu_options": {
               "confirm": "Hide this sensor",
               "ignore": "Don't suggest hiding this sensor"
