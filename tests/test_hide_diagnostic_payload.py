@@ -7,6 +7,7 @@ import logging
 
 import pytest
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
@@ -70,6 +71,19 @@ async def test_state_class_is_sent_only_when_home_assistant_defines_it(
     bodies = await _run(hass, aioclient_mock, hide_diagnostic_entry, 2)
 
     assert [item["state_class"] for item in bodies[0]["state"]["sensors"]] == ["measurement", None]
+
+
+async def test_an_unhashable_state_class_is_sent_as_none_and_the_run_still_goes_out(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, hide_diagnostic_entry: MockConfigEntry
+) -> None:
+    """An integration that stored a list as the state class does not break the run; the field goes out as None."""
+    sensor = register_unit_sensor(hass, "odd", unit=None, name="Odd")
+    er.async_get(hass).async_update_entity(sensor.entity_id, capabilities={"state_class": ["measurement"]})
+
+    bodies = await _run(hass, aioclient_mock, hide_diagnostic_entry, 1)
+
+    assert len(bodies) == 1
+    assert bodies[0]["state"]["sensors"][0]["state_class"] is None
 
 
 async def test_hostile_text_leaves_every_question_unchanged_and_is_capped(

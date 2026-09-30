@@ -29,13 +29,13 @@ def decided_in_code(entry: er.RegistryEntry) -> bool:
 
 
 def _has_open_device_class_card(hass: HomeAssistant, entry: er.RegistryEntry) -> bool:
-    """Whether a device class card for this sensor exists and has not been ignored.
+    """Whether a device class card for this sensor is showing in Repairs and has not been ignored.
 
     Reads the issue registry directly: importing repairs.py from here would
     close an import cycle through the fix flow.
     """
     issue = ir.async_get(hass).async_get_issue(DOMAIN, f"{DEVICE_CLASS_ISSUE_PREFIX}{entry.id}")
-    return issue is not None and issue.dismissed_version is None
+    return issue is not None and issue.active and issue.dismissed_version is None
 
 
 def qualifies(
@@ -95,7 +95,7 @@ def describe(hass: HomeAssistant, entry: er.RegistryEntry) -> tuple[dict[str, An
         **entity_text(hass, entry),
         "integration": entry.platform,
         "unit": clean_text(entry.unit_of_measurement, DEVICE_TEXT_MAX_CHARS) or None,
-        "state_class": state_class if state_class in KNOWN_STATE_CLASSES else None,
+        "state_class": state_class if isinstance(state_class, str) and state_class in KNOWN_STATE_CLASSES else None,
     }
     subject: Item = {"registry_id": entry.id, "entity_id": entry.entity_id}
     return state_item, subject

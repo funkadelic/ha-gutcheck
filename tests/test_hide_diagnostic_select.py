@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Any
 
 from homeassistant.core import HomeAssistant
@@ -33,6 +34,7 @@ from custom_components.gutcheck.recipes.device_class_cards import sync_device_cl
 from custom_components.gutcheck.recipes.device_class_describe import candidate_classes
 from custom_components.gutcheck.recipes.hide_diagnostic import HideDiagnosticRecipe
 from custom_components.gutcheck.recipes.hide_diagnostic_const import OPTION_DIAGNOSTIC, OPTION_PRIMARY
+from custom_components.gutcheck.recipes.hide_diagnostic_describe import qualifies
 from custom_components.gutcheck.recipes.safety import SafetyRules
 from custom_components.gutcheck.recipes.shapes import Batch
 
@@ -204,6 +206,19 @@ async def test_an_open_device_class_card_holds_a_sensor_back_until_it_is_ignored
     assert [item["name"] for item in bodies[0]["state"]["sensors"]] == ["Plain"]
     assert _issue(hass, HIDE_DIAGNOSTIC_ISSUE_PREFIX, plain) is not None
     assert _issue(hass, HIDE_DIAGNOSTIC_ISSUE_PREFIX, signal) is not None
+
+
+async def test_an_inactive_device_class_card_does_not_hold_a_sensor_back(hass: HomeAssistant) -> None:
+    """A card that is not showing in Repairs (inactive, as after a restart before its recipe reruns) is not an open card."""
+    sensor = register_unit_sensor(hass, "plain_pct", unit="%", name="Plain")
+    _open_device_class_card(hass, sensor)
+    assert not qualifies(hass, SafetyRules(None), sensor)
+
+    registry = ir.async_get(hass)
+    key = (DOMAIN, f"{DEVICE_CLASS_ISSUE_PREFIX}{sensor.id}")
+    registry.issues[key] = replace(registry.issues[key], active=False)
+
+    assert qualifies(hass, SafetyRules(None), sensor)
 
 
 async def test_an_ignored_hide_card_survives_a_later_open_device_class_card(
