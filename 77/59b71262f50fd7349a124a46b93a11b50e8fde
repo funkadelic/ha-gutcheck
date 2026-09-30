@@ -1,0 +1,26 @@
+custom_components/gutcheck/__init__.py
+  s_16c70a9fb1ed26::t_85d5e710999d94 31,79,81-88
+custom_components/gutcheck/recipes/registry.py
+  s_16c70a9fb1ed26::t_85d5e710999d94 1-89
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7759b71262f50fd7349a124a46b93a11b50e8fde",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_16c70a9fb1ed26": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d036a682-291c-4164-a3fb-8737cd9a481b",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
