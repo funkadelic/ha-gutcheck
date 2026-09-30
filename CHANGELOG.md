@@ -3,6 +3,12 @@
 ## [0.12.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.11.0...v0.12.0) (2026-09-30)
 
 
+### What's new
+
+* The stuck integration check now raises a Repairs card for any integration that has failed to set up for over a week and that Gut Check can't diagnose. The card shows the error the integration reported and links to its page. Until now, those integrations appeared only in the check's sensor attributes. The check is off by default: go to Settings > Devices & services > Gut Check > Configure and tick "Run the weekly stuck integration check".
+* If a check can't run because the daily budget is used up or the service is unreachable, its sensor keeps the last result. A new `last_error` attribute gives the reason until the next successful run.
+
+
 ### Added
 
 * raise a card for an integration that stays unsure for a week ([#62](https://github.com/funkadelic/ha-gutcheck/issues/62)) ([0d3c02b](https://github.com/funkadelic/ha-gutcheck/commit/0d3c02b10c89c8d43676b1af376014ad2a945f02))
