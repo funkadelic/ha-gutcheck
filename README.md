@@ -105,18 +105,18 @@ TypeSafe AI measures usage in tokens, about three characters of text each, and c
 | Critical label suggestions | 0 when only smoke, carbon monoxide or gas sensors qualify; 26,701 for 59 asked entities on a real run | about $0.0011 |
 | Diagnostic sensor suggestions | 0 when only signal-strength sensors qualify; 58,661 for 122 asked sensors on a real run (13 requests) | about $0.0025 |
 
-The critical label figure was measured when the run went out as one request. Sending ten items per request, as Gut Check does now, adds about 4 to 8 percent to it.
+One run of every check on that install comes to about a cent.
 
 Gut Check enforces a daily token budget so cost stays predictable. `sensor.gut_check_tokens_used_today` and `sensor.gut_check_cost_today` show what has been spent and what it cost, both resetting at local midnight. The default of 500,000 tokens leaves room for a first run on a large install; running checks by hand several times in one day can reach it.
 
-Gut Check sizes up every run before sending it and refuses one that would go over what is left, so a refused run spends nothing. A run goes out as one or more requests, at most ten items each and fewer when ten would be too large, and Gut Check weighs the whole run against what is left, so it never stops halfway because the budget ran out. The affected sensor keeps its last result, and its `last_error` attribute says why the run did not go through, until a run succeeds. A run that needs more than the whole daily budget is refused every day until you raise it. Gut Check sets aside more than any run has been billed so far, then corrects the counter to what the API reports, so a run that goes through should stay under the cap, and once the counter is over, every later run that day is refused.
+Gut Check sizes up each run before sending it. A run that would go over what is left of the day's budget is refused whole, so it spends nothing and never stops halfway. The check's sensor keeps its last result and its `last_error` attribute says why. A run that needs more than the whole daily budget is refused every day until you raise it.
 
 ## Options
 
 Open the integration's **Configure** screen to:
 
 - Turn the home health check on or off
-- Turn the weekly update review on or off
+- Turn the update review on or off
 - Turn area suggestions on or off
 - Turn device class suggestions on or off (off by default)
 - Turn the stuck integration check on or off (off by default)
@@ -138,9 +138,9 @@ A run can ask about several qualifying sensors at once. For each sensor with a u
 
 For each integration the stuck integration check looks at, Gut Check sends its integration name, whether Home Assistant is still retrying it or has stopped, how long Gut Check has seen it failing (grouped, for example "longer than 1 week"; the first time it reads unknown), and the error message the integration reported, with email addresses and any login, query or fragment in a web address removed, then cleaned and cut to 300 characters. It never sends the entry's title (often an account email), its settings, or anything about its devices or entities. The error text is read only as a description, never as instructions, and the three answers it can choose between are fixed in code.
 
-For each asked valve, switch, siren or moisture sensor, Gut Check sends its domain, device class, name, device name, manufacturer, model, integration and entity category. It never sends an entity id, area, state or any label; names are read only as a description, never as an instruction. A settings or diagnostic entity is never asked, whatever its domain. A smoke, carbon monoxide or gas sensor is decided by its device class alone and sends nothing.
+For each asked valve, switch, siren or moisture sensor, Gut Check sends its domain, device class, name, device name, manufacturer, model, integration and entity category. It never sends an entity ID, area, state or any label; names are read only as a description, never as an instruction. A settings or diagnostic entity is never asked, whatever its domain. A smoke, carbon monoxide or gas sensor is decided by its device class alone and sends nothing.
 
-For each asked sensor with no device class, Gut Check sends its name, its device's name, manufacturer and model, integration, unit and state class. It never sends a reading or any other state, an entity id, an area or a label. Names are read only as a description, never as an instruction. A signal-strength sensor is decided by its device class alone and sends nothing.
+For each asked sensor with no device class, Gut Check sends its name, its device's name, manufacturer and model, integration, unit and state class. It never sends a reading or any other state, an entity ID, an area or a label. Names are read only as a description, never as an instruction. A signal-strength sensor is decided by its device class alone and sends nothing.
 
 To see exactly what was sent on the last completed run, open **Developer tools > States**, find the check's sensor, and look at its `last_payload` attribute. A run that went out as several requests shows one entry per request. A run that fails partway leaves the previous run's payload in place.
 
@@ -156,13 +156,13 @@ The update review reads every pending update except disabled ones, including fir
 
 Area suggestions skip service devices such as add-ons and accounts, disabled devices, devices that already have an area, devices with no entities, anything with a device tracker, devices where you placed any entity's area by hand, and anything carrying your critical label, on the device or on any of its entities. They do cover devices with locks, alarm panels, garage doors or covers, because an area is only a label on the device, and it changes only when you confirm the card.
 
-Device class suggestions skip sensors with no unit, sensors that already have a device class (their own or one set by their integration), disabled sensors, sensors or devices carrying your critical label, Gut Check's own sensors, and units that no device class accepts.
+Device class suggestions skip sensors with no unit, sensors that already have a device class (their own or one set by their integration), disabled sensors, sensors or devices carrying your critical label, Gut Check's own sensors, and units that no device class accepts. Gut Check asks the model even when only one class accepts the unit, because some integrations reuse a unit symbol for something else (a water filter reporting months as "m", which Home Assistant reads as meters).
 
 The stuck integration check only looks at integrations stuck retrying or stopped with a setup error; ignored and disabled integrations never start, so they are never included, and an integration Home Assistant is already asking you to sign in to again is counted with no question and no card. It ignores your critical label, because it reads only an integration's setup state and error, never its entities or devices, and it never acts. An integration behind a lock or alarm is checked like any other.
 
-Critical label suggestions only consider valves, switches, sirens and binary sensors whose device class is smoke, carbon monoxide, gas or moisture. They never consider a disabled entity, Gut Check's own, a lock, an alarm panel, a cover, a settings or diagnostic entity, or anything already carrying the label on itself or its device.
+Critical label suggestions only consider valves, switches, sirens and binary sensors whose device class is smoke, carbon monoxide, gas or moisture. They never consider a disabled entity, Gut Check's own, a lock, an alarm panel, a cover, a settings or diagnostic entity, or anything already carrying the label on itself or its device. Moisture sensors are asked because Home Assistant gives the same device class to a water leak sensor and to a rain or soil moisture sensor.
 
-Diagnostic sensor suggestions only consider sensors with no device class or a signal-strength one. They never consider another device class (battery, timestamp and data size included), a binary sensor or any other kind of entity, a sensor that is already hidden or already a settings or diagnostic entity, a disabled sensor, Gut Check's own sensors, or anything carrying your critical label on itself or its device. A sensor with an open device class card waits: it is considered again once you set or refuse its class.
+Diagnostic sensor suggestions only consider sensors with no device class or a signal-strength one. They never consider another device class (battery, timestamp and data size included), a binary sensor or any other kind of entity, a sensor that is already hidden or already a settings or diagnostic entity, a disabled sensor, Gut Check's own sensors, or anything carrying your critical label on itself or its device. A sensor with an open device class card waits until you set or refuse its class. Each sensor with no device class is asked one question: does it describe the device or its connection, or something in your home you would watch or automate on?
 
 ### Restored entities
 
@@ -174,7 +174,7 @@ Each enabled check gets one sensor. Its state is how many of that check's Repair
 
 `sensor.gut_check_home_health_check` counts the open worth-fixing cards. Its attributes carry the full list for each group, plus an `unsure` list for anything below the confidence threshold or that did not clearly fit any group. Unsure entities are never turned into a Repairs card, and never treated as worth fixing. An unsure entity can also carry a `lean`: `needs_attention` when worth fixing and safe to remove together reach 70 percent probability, or `expected` when expected alone does. A lean never raises a Repairs card.
 
-`sensor.gut_check_update_review` counts the open possibly-breaking cards, while every pending update is still scored routine, feature, or possibly breaking. Its attributes carry the full list for each level, plus an `unsure` list the same way. An update Gut Check already scored is re-read only when its installed, offered or skipped version changes, and one that landed in unsure is re-read on every run. Pressing the Run update review button re-reads every pending update whether or not anything changed, still at most 50 per run; the rest, and any update entity that is unavailable at the time, keep their last score until a later run reaches them.
+Needing a Home Assistant restart after installing does not make an update possibly breaking. `sensor.gut_check_update_review` counts the open possibly-breaking cards, while every pending update is still scored routine, feature, or possibly breaking. Its attributes carry the full list for each level, plus an `unsure` list the same way. An update Gut Check already scored is re-read only when its installed, offered or skipped version changes, and one that landed in unsure is re-read on every run. Pressing the Run update review button re-reads every pending update whether or not anything changed, still at most 50 per run; the rest, and any update entity that is unavailable at the time, keep their last score until a later run reaches them.
 
 `sensor.gut_check_area_suggestions` counts the suggestion cards waiting in Repairs. Suggestions held back by the ten-new-cards-per-run cap, and ones you chose not to have, are not counted. Its attributes list each one with its suggested area and confidence, plus an `unsure` list for anything below the confidence threshold or where none of the listed areas clearly fit.
 
@@ -188,19 +188,25 @@ The stuck integration check's sensor, `sensor.gut_check_stuck_integration_check`
 
 ### Repairs cards
 
-Worth-fixing entities get one card each under **Settings > Repairs**. A card clears itself once the entity it names is available again. Ignoring a card hides it and Gut Check remembers that choice on later runs.
+Cards appear under **Settings > Repairs**. The health check, update review and stuck integration check raise advisory cards that point you at something to look into:
 
-A possibly-breaking update gets one card, linking to its release notes where the integration provides them. The card clears itself the moment the update is installed or skipped, not on a version bump alone, so an open card still has an unread update behind it.
+- **Worth fixing**: One card per entity. It clears once the entity is available again, and ignoring it hides it on later runs too.
+- **Possibly breaking**: One card per update, linking to its release notes where the integration provides them. It clears when the update is installed or skipped, not on a version bump alone, so an open card still has an unread update behind it.
+- **Stuck integration**: One card per sign-in problem or broken-for-good integration, and one per integration Gut Check has stayed unsure about for a week or more, each linking to the integration's page. It clears once the integration loads, is disabled or is removed, and stays through a retry that fails again. Ignoring it hides it for as long as the integration keeps getting a card, even if the card changes kind. Turning the check off clears its cards, ignored ones included.
 
-An area suggestion gets one card per device, up to ten new cards per run, most confident first; the rest wait for a later run or a button press. A card clears when you assign its area, when the device gets an area another way or stops qualifying, or when a later run no longer suggests an area for it. Choosing not to have an area suggested moves the card to your ignored repairs, where it stays for as long as the device still qualifies, including across turning area suggestions off and back on. If the device or the suggested area changed by the time you open a card, assigning does nothing, tells you so, and removes the card.
+The four suggestion checks raise cards that change something when you confirm them, and they share these rules:
 
-A device class suggestion gets one card per sensor, up to ten new cards per run, most confident first. A card clears when you set its class, when the sensor gets a class another way or stops qualifying, or when a later run no longer suggests a class for it. Choosing not to have a class suggested moves the card to your ignored repairs, where it stays for as long as the sensor still qualifies, including across turning device class suggestions off and back on. If the sensor changed by the time you open a card, setting a class does nothing and tells you so.
+- One card per device or entity, at most ten new cards per run. Suggestions decided from device class alone come first, then the rest by confidence, and the rest wait for a later run or a button press.
+- A card clears when you confirm it, when the same change is made another way, when its device or entity stops qualifying, or when a later run no longer suggests it.
+- Declining moves the card to your ignored repairs. It stays there as long as the device or entity still qualifies, including when you turn the check off and back on. An ignored critical label card also stays when you clear your critical label, and an ignored diagnostic sensor card stays while you keep the sensor hidden yourself.
+- If the device or entity, the suggested area, or your critical label changed by the time you open a card, confirming does nothing, tells you so, and removes the card.
 
-The stuck integration check raises one card per sign-in problem or broken-for-good integration, and one per integration it has stayed unsure about for a week or more, each linking to that integration's page. A card clears as soon as the integration loads again, is disabled, or is removed, but stays through a retry that fails again. Ignoring a card hides it for as long as the integration keeps getting a card, even if the card moves between sign-in problem, broken for good and unsure for a week or more; turning the check off clears its cards, ignored ones included.
-
-A critical label suggestion gets one card per entity, up to ten new cards per run: entities decided by device class come first, then the rest by confidence. A card clears when you confirm it, when the entity gets the label another way or stops qualifying, or when a later run no longer suggests it. Choosing not to have the label suggested moves the card to your ignored repairs, where it stays for as long as the entity still qualifies, including across turning critical label suggestions off and back on and clearing the label. If the entity stops qualifying or your critical label changed by the time you open a card, confirming does nothing, tells you so, and removes the card.
-
-A diagnostic sensor suggestion gets one card per sensor, up to ten new cards per run: signal-strength sensors come first, then the rest by confidence. A card clears when you confirm it, when the sensor is hidden, given a device class or made a settings or diagnostic entity another way or stops qualifying, or when a later run no longer suggests it. Ignoring a card moves it to your ignored repairs, where it stays for as long as the sensor still qualifies or you have hidden it yourself, including across turning diagnostic sensor suggestions off and back on. If the sensor changed by the time you open a card, confirming does nothing, tells you so, and removes the card.
+| Card | Choices |
+| --- | --- |
+| Area | Assign the suggested area, or don't suggest one for this device |
+| Device class | Set the suggested class, pick a different class that accepts the sensor's unit (offered when another fits), or don't suggest one for this sensor |
+| Critical label | Add your critical label to this entity only, never its device, leaving its other labels alone; or don't suggest it |
+| Diagnostic sensor | Hide the sensor, or don't suggest hiding it |
 
 ### Changing something back
 
