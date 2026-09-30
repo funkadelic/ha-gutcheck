@@ -160,3 +160,31 @@ async def test_areas_and_updates_reindex_through_the_same_split(
         assert list(request["state"]) == [list_key]
         instructions = [question["instructions"] for question in request["questions"].values()]
         assert instructions == [template.format(index=local) for local in range(len(instructions))]
+
+
+def test_a_capped_run_that_fits_is_still_sliced_at_the_cap() -> None:
+    """A cap below the subject count slices a run that fits one request into re-indexed requests of at most the cap."""
+    batch, payload, _response = _captured_batch()
+    assert request_fits(payload)
+    batch.max_per_request = 10
+
+    payloads = split_batch(batch)
+
+    assert [len(request["questions"]) for request in payloads] == [10] * (len(payload["questions"]) // 10) + (
+        [len(payload["questions"]) % 10] if len(payload["questions"]) % 10 else []
+    )
+    assert [entity for request in payloads for entity in request["state"]["entities"]] == payload["state"]["entities"]
+    for request in payloads:
+        for local, question in enumerate(request["questions"].values()):
+            assert question["instructions"] == HEALTH_INSTRUCTIONS.format(index=local)
+
+
+def test_a_run_within_its_cap_goes_out_untouched() -> None:
+    """A cap at or above the subject count changes nothing: the run still goes out as one request."""
+    batch, _payload, _response = _captured_batch()
+    batch.max_per_request = len(batch.questions)
+
+    payloads = split_batch(batch)
+
+    assert len(payloads) == 1
+    assert payloads[0]["questions"] is batch.questions

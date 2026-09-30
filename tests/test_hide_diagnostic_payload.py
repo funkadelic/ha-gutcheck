@@ -7,6 +7,7 @@ import logging
 
 import pytest
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import issue_registry as ir
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
@@ -14,6 +15,8 @@ from custom_components.gutcheck.const import DEVICE_TEXT_MAX_CHARS, HIDE_DIAGNOS
 from custom_components.gutcheck.recipes.hide_diagnostic_const import (
     HIDE_DIAGNOSTIC_CRITERIA,
     HIDE_DIAGNOSTIC_INSTRUCTIONS,
+    HIDE_DIAGNOSTIC_SENSORS_PER_REQUEST,
+    MAX_NEW_HIDE_DIAGNOSTIC_CARDS_PER_RUN,
     OPTION_DIAGNOSTIC,
 )
 
@@ -114,3 +117,31 @@ async def test_no_log_record_carries_a_name_unit_or_state_value(
     for message in records:
         for secret in ("Wi-Fi connection", "Pixel 9", "SecretUnit", "HomeNet-5G"):
             assert secret not in message
+
+
+async def test_a_run_sends_at_most_the_capped_sensors_per_request(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, hide_diagnostic_entry: MockConfigEntry
+) -> None:
+    """Two more sensors than the cap go out as two requests, each asking only about its own sensors, and all get cards."""
+    count = HIDE_DIAGNOSTIC_SENSORS_PER_REQUEST + 2
+    for index in range(count):
+        register_unit_sensor(hass, f"s{index}", unit=None, name=f"Sensor {index}", device_name=f"Device {index}")
+    answer = hide_diagnostic_answer(OPTION_DIAGNOSTIC, 0.9)
+    split_at = f"h{HIDE_DIAGNOSTIC_SENSORS_PER_REQUEST}"
+    register_jev_responses_by_question(
+        aioclient_mock,
+        {
+            "h0": api_response({f"h{index}": answer for index in range(HIDE_DIAGNOSTIC_SENSORS_PER_REQUEST)}),
+            split_at: api_response({f"h{index}": answer for index in range(HIDE_DIAGNOSTIC_SENSORS_PER_REQUEST, count)}),
+        },
+    )
+    hide_diagnostic_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(hide_diagnostic_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    bodies = posted_bodies(aioclient_mock)
+    assert [len(body["state"]["sensors"]) for body in bodies] == [HIDE_DIAGNOSTIC_SENSORS_PER_REQUEST, 2]
+    assert [len(body["questions"]) for body in bodies] == [HIDE_DIAGNOSTIC_SENSORS_PER_REQUEST, 2]
+    assert bodies[1]["questions"][split_at]["instructions"] == HIDE_DIAGNOSTIC_INSTRUCTIONS.format(index=0)
+    issues = [issue_id for (domain, issue_id) in ir.async_get(hass).issues if issue_id.startswith(HIDE_DIAGNOSTIC_ISSUE_PREFIX)]
+    assert len(issues) == min(count, MAX_NEW_HIDE_DIAGNOSTIC_CARDS_PER_RUN)

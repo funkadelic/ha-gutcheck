@@ -37,6 +37,9 @@ class Batch:
     # Per-question override of template, for a recipe whose instructions vary
     # by question. A question id missing here falls back to template.
     templates: dict[str, str] = field(default_factory=dict)
+    # Most subjects one request may carry, 0 for no cap. The model answers
+    # worse the more subjects share one request's state.
+    max_per_request: int = 0
 
 
 class RecipeResult(TypedDict):
