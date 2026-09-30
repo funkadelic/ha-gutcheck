@@ -1,0 +1,29 @@
+tests/fixtures/captured/config_entry_payload.json
+  s_fdc7d3e286719d::t_bc932022fc1808 1-27
+tests/fixtures/captured/config_entry_response.json
+  s_fdc7d3e286719d::t_bc932022fc1808 1-22
+tests/test_config_entry_captured.py
+  s_fdc7d3e286719d::t_0066833a0ec8c7 1-89,91-92
+  s_fdc7d3e286719d::t_ae485c7db9f139 90
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1a22e2969ddcac30ae294f738c06012eb322bd4b",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_fdc7d3e286719d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "20f14a30-bd72-4116-ae1f-0d201866fa84",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
