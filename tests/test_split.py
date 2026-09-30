@@ -22,15 +22,14 @@ from custom_components.gutcheck.recipes.updates import UpdateRecipe
 from custom_components.gutcheck.sizing import estimate_tokens, request_fits
 from custom_components.gutcheck.split import merge, split_batch
 
-from .conftest import create_areas, load_fixture, register_area_device, register_pending_update
+from .conftest import captured_whole, create_areas, register_area_device, register_pending_update
 
 LIMIT = "custom_components.gutcheck.sizing.REQUEST_TOKEN_LIMIT"
 
 
 def _captured_batch() -> tuple[Batch, SystemOneRequest, SystemOneResponse]:
     """The captured health pair, with a batch built from its payload."""
-    payload = load_fixture("captured", "health_payload.json")
-    response = load_fixture("captured", "health_response.json")
+    payload, response = captured_whole("health", "entities")
     batch = Batch(
         state=payload["state"],
         questions=payload["questions"],
