@@ -10,14 +10,14 @@
 [![License](https://img.shields.io/github/license/funkadelic/ha-gutcheck.svg)](LICENSE)
 [![HACS](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz/docs/faq/custom_repositories/)
 
-Home Assistant is good at following rules you write. It isn't good at judgment calls like "is this a problem?", "is now a good time?", or "should I bother anyone about this?" Gut Check adds an AI that makes those small calls, shows you how sure it is, and leaves alone anything it isn't sure about. Nothing changes until you say so.
+Gut Check gives your Home Assistant install a weekly checkup. It finds entities that stopped reporting, updates that might break something, and integrations that quietly failed to start. It also suggests fixes for loose ends: devices with no area, sensors with no type, and clutter on your dashboards. An AI model makes the judgment calls and says how sure it is, and Gut Check leaves alone anything it isn't sure about. Every finding waits in Repairs, and nothing changes until you say so.
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=funkadelic&repository=ha-gutcheck&category=integration)
 
 ## Contents
 
-- [How Gut Check decides](#how-gut-check-decides)
 - [What it does](#what-it-does)
+- [How Gut Check decides](#how-gut-check-decides)
 - [What Gut Check will never do](#what-gut-check-will-never-do)
 - [Install and set up](#install-and-set-up)
 - [Running the checks](#running-the-checks)
@@ -32,27 +32,37 @@ Home Assistant is good at following rules you write. It isn't good at judgment c
   - [Changing something back](#changing-something-back)
 - [Remove](#remove)
 
+## What it does
+
+- **Home health check**: Sorts unavailable entities into expected, worth fixing and safe to remove.
+- **Update review**: Flags pending updates that might break something.
+- **Area suggestions**: Suggests an area for each device that has none.
+- **Device class suggestions**: Suggests a type for sensors that report a unit but have none.
+- **Stuck integration check**: Sorts integrations that failed to start into passing glitches, sign-in problems and broken for good.
+- **Critical label suggestions**: Finds safety devices that are missing your critical label.
+- **Diagnostic sensor suggestions**: Suggests hiding sensors about the device itself, such as Wi-Fi signal, that clutter your dashboards.
+
+The first three are on when you add Gut Check. Switch the others on in Configure.
+
+**Home health check.** Unavailable entities pile up and most are harmless, so the few that need fixing get lost. Gut Check sorts them into expected (normal, nothing to do), worth fixing (should be working), and safe to remove (left over from something no longer installed). Each worth-fixing entity gets a Repairs card, which clears itself once the entity comes back.
+
+**Update review.** Most updates are safe to install, but now and then one renames or removes something your setup relies on. Gut Check reads each pending update's release notes and scores it routine, feature (adds something, nothing existing changes), or possibly breaking (removes or renames something, or needs a manual step). Each possibly-breaking update gets a Repairs card linking to its release notes.
+
+**Area suggestions.** A device with no area is left out of room pages, room-based voice commands, and automations that target a whole room. Gut Check suggests one of your existing areas for each such device, or nothing when it isn't sure. From the suggestion's Repairs card you assign the area, or tell Gut Check not to suggest one for that device.
+
+**Device class suggestions.** A device class tells Home Assistant what a sensor measures, such as temperature, energy or humidity. Without one, the sensor gets a generic icon, its units can't be converted, and an energy, gas or water sensor can't go on the Energy dashboard. Gut Check suggests a class for sensors that report a unit but have none, choosing only from classes that accept that unit. You set it, pick a different class, or decline from its Repairs card.
+
+**Stuck integration check.** An integration that fails to start only shows an error in the integrations list, so it's easy to miss for weeks. Gut Check reads the error each one reported and sorts it as a passing glitch, a sign-in problem, or broken for good (the device or account is gone, or Home Assistant stopped retrying). Sign-in problems and broken integrations get a Repairs card linking to the integration's page. So does any integration Gut Check stays unsure about for a week; that card shows the error and makes no guess at the cause.
+
+**Critical label suggestions.** Your critical label marks the devices Gut Check must never act on, such as smoke alarms, leak sensors and water shutoff valves. The health check still tells you when one goes offline. This check finds the ones you haven't labelled yet. Smoke, carbon monoxide and gas sensors are suggested from their type alone, and Gut Check asks the model about valves, switches, sirens and moisture sensors. Confirming a card adds the label to that entity only. Pick your critical label in Configure first.
+
+**Diagnostic sensor suggestions.** Many integrations add sensors about the device itself rather than your home, such as Wi-Fi signal strength, the network a phone is on, or its SIM carrier or storage. They crowd your temperatures and power readings on auto-generated dashboards and area pages. Gut Check suggests hiding them. A hidden sensor keeps working and recording history, and you can change it back from Configure.
+
 ## How Gut Check decides
 
 Gut Check uses Jev, a decision model from [TypeSafe AI](https://typesafe.ai/) that answers one kind of question: given these facts, which of these answers fits? Gut Check sends a short description of each item along with a fixed list of answers. Jev picks one and says how likely it is to be right.
 
-Jev can't write a reply, make up a new option, or tell Home Assistant to do anything. When it isn't confident, Gut Check marks the item unsure and leaves it alone. TypeSafe AI charges only for the text Gut Check sends, so a weekly checkup costs a fraction of a cent.
-
-## What it does
-
-**Weekly home health check.** Unavailable entities pile up over time and most are harmless, so the few that need fixing are hard to spot. Gut Check sorts your unavailable entities into three groups: expected (normal, no action needed), worth fixing (should be working, look into it), and safe to remove (left over from something no longer installed). Each worth-fixing entity gets a card in Repairs.
-
-**Update review.** Most updates are safe to install, but now and then one renames or removes something your setup relies on. Gut Check reads the release notes on every pending update and scores each one routine (nothing to do beyond installing it), feature (adds something while every existing setup keeps working), or possibly breaking (removes or renames something, or needs a migration or a manual step). Needing a Home Assistant restart after installing does not count as a manual step. Each possibly-breaking update gets a card in Repairs. It never installs, skips, or changes an update.
-
-**Area suggestions.** A device with no area is left out of room pages, room-based voice commands and automations that target a whole room. Gut Check suggests one of your existing areas for each device that has none, or suggests nothing when it isn't sure or nothing fits. Each suggestion is a Repairs card with two choices: assign the area, or tell Gut Check not to suggest one for that device. It never creates an area and never moves a device on its own.
-
-**Device class suggestions.** A sensor with no device class gets a generic icon, Home Assistant can't convert its units, and an energy, gas or water sensor can't be picked for the Energy dashboard. Gut Check suggests a device class for sensors that report a unit but have none. It narrows the options to the device classes that accept the sensor's unit and asks the model even when only one fits, because some integrations reuse a unit symbol for something else (a water filter reporting months as "m", which Home Assistant reads as meters). Each suggestion is a Repairs card with three choices: set the suggested class, pick a different class that accepts the sensor's unit (offered when another class fits), or tell Gut Check not to suggest one for that sensor. It never sets a class on its own, and it is off until you switch it on.
-
-**Stuck integration check.** An integration that fails to set up only shows an error in the integrations list, so it's easy to miss for weeks. Gut Check looks at every integration that failed to set up and is stuck retrying or has stopped with an error, reads the error it reported, and sorts it as a passing glitch (the error looks temporary and Home Assistant is still retrying), a sign-in problem (the saved login stopped working), or broken for good (for example the device or account is gone, or Home Assistant has stopped retrying after a temporary error). Each sign-in problem and broken-for-good integration gets a card in Repairs, linking to that integration's page. An integration Gut Check stays unsure about for a week or more gets a card too, showing the error it reported and making no guess at the cause. When Home Assistant is already asking you to sign in again, Gut Check leaves it to that card instead of raising its own. It never reloads, reconfigures, signs in to, disables or removes an integration, and it is off until you switch it on.
-
-**Critical label suggestions.** Gut Check never acts on an entity with your critical label, while the home health check keeps watching it. Gut Check suggests your critical label (life safety and water damage devices) for entities that might need it. Smoke, carbon monoxide and gas sensors are decided from their device class alone, with nothing sent. Valves, switches, sirens and moisture sensors are each asked one question; moisture is asked because Home Assistant gives the same device class to a water leak sensor and to a rain or soil moisture sensor. Each suggestion is a Repairs card; confirming adds your critical label to that entity only, never its device, and leaves every other label untouched. Ignoring stops Gut Check suggesting it for that entity. It never removes the label, and it is off until you switch it on and pick a critical label in Configure.
-
-**Diagnostic sensor suggestions.** Integrations add sensors that describe the device rather than your home, such as signal strength, the Wi-Fi network a phone is on, its SIM carrier or its storage, and they crowd your temperatures and power readings on the auto-generated dashboards and area pages. Gut Check suggests hiding them. Signal-strength sensors are decided from their device class alone, with nothing sent. Sensors with no device class are each asked one question: does this describe the device or its connection, or something in your home you would watch or automate on? Each suggestion is a Repairs card. Confirming hides that sensor, which keeps it off auto-generated dashboards while it keeps working and recording history. Ignoring the card stops Gut Check suggesting it. A hidden sensor can be changed back from Configure. It never hides anything on its own, and it is off until you switch it on.
+Jev can't write a reply, make up a new option, or tell Home Assistant to do anything. When it isn't confident, Gut Check marks the item unsure and leaves it alone. A weekly checkup usually costs a fraction of a cent; see [Cost](#cost).
 
 ## What Gut Check will never do
 
