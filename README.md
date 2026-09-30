@@ -10,7 +10,7 @@
 [![License](https://img.shields.io/github/license/funkadelic/ha-gutcheck.svg)](LICENSE)
 [![HACS](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz/docs/faq/custom_repositories/)
 
-Gut Check gives your Home Assistant install a weekly checkup. It finds entities that stopped reporting, updates that might break something, and integrations that quietly failed to start. It also suggests fixes for loose ends: devices with no area, sensors with no type, and clutter on your dashboards. Jev, a decision model from TypeSafe AI, makes the judgment calls and says how sure it is, and Gut Check leaves alone anything it isn't sure about. Every finding waits in Repairs, and nothing changes until you say so.
+Gut Check gives your Home Assistant install a weekly checkup. It finds entities that stopped reporting, updates that might break something, and integrations that quietly failed to start. It also suggests fixes for loose ends: devices with no area, sensors with no type, and clutter on your dashboards. Jev, a decision model from TypeSafe AI, makes the judgment calls and says how sure it is, and Gut Check leaves alone anything it isn't sure about. Anything that needs you waits in **Settings > Repairs** for you to act on or ignore.
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=funkadelic&repository=ha-gutcheck&category=integration)
 
