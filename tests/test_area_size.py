@@ -16,6 +16,8 @@ from custom_components.gutcheck.const import (
     RECIPE_AREAS,
 )
 from custom_components.gutcheck.recipes.areas import AreaRecipe
+from custom_components.gutcheck.recipes.shapes import Batch
+from custom_components.gutcheck.recipes.update_const import UPDATE_INSTRUCTIONS
 from custom_components.gutcheck.sizing import reservation
 from custom_components.gutcheck.split import split_batch
 
@@ -24,6 +26,7 @@ from .conftest import (
     area_answer,
     assert_capped_run_fits,
     create_areas,
+    load_captured,
     load_fixture,
     posted_bodies,
     register_area_device,
@@ -124,12 +127,18 @@ async def test_an_oversized_area_request_is_refused_with_no_partial_result(
 async def test_the_captured_installs_first_day_runs_reserved_at_once_fit_the_default_budget(
     hass: HomeAssistant,
 ) -> None:
-    """The captured install's health, update and area runs, admitted concurrently, still fit day one."""
-    health_payload = load_fixture("captured", "health_payload.json")
-    health_reserved = reservation(health_payload)
+    """The captured install's health, update and area runs, summed per request and admitted concurrently, fit day one."""
+    health_reserved = sum(reservation(request) for request in load_captured("health")[0])
 
     update_payload = load_fixture("captured", "update_payload.json")
-    update_reserved = reservation(update_payload)
+    update_batch = Batch(
+        state=update_payload["state"],
+        questions=update_payload["questions"],
+        subjects={},
+        list_key="updates",
+        template=UPDATE_INSTRUCTIONS,
+    )
+    update_reserved = sum(reservation(request) for request in split_batch(update_batch))
 
     _build_realistic_devices(hass)
     recipe = AreaRecipe(critical_label=None)

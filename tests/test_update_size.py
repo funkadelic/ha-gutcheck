@@ -16,7 +16,6 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClien
 from custom_components.gutcheck.const import (
     DEFAULT_DAILY_BUDGET,
     DOMAIN,
-    MODEL,
     OPTION_POSSIBLY_BREAKING,
     OPTION_WORTH_FIXING,
     RECIPE_HEALTH,
@@ -27,8 +26,10 @@ from custom_components.gutcheck.const import (
     UPDATES_ISSUE_PREFIX,
     VERSION_JUMP_MAJOR,
 )
+from custom_components.gutcheck.recipes.shapes import Batch
 from custom_components.gutcheck.recipes.update_const import MAX_UPDATES_PER_RUN, UPDATE_CRITERIA, UPDATE_INSTRUCTIONS
-from custom_components.gutcheck.sizing import estimate, reservation
+from custom_components.gutcheck.sizing import estimate
+from custom_components.gutcheck.split import split_batch
 
 from .conftest import (
     SAFETY_FACTOR,
@@ -117,17 +118,20 @@ def test_max_updates_per_run_is_set_from_the_measured_ceiling_with_the_safety_fa
 
 
 def test_a_full_size_update_run_reserves_within_the_default_budget() -> None:
-    """The largest run update review sends, held at the budget reservation, still fits a day's default budget."""
-    body = {
-        "state": {"updates": [_full_size_state_item() for _ in range(MAX_UPDATES_PER_RUN)]},
-        "model": MODEL,
-        "questions": {
+    """The largest run update review sends, measured per request, still fits a day's default budget."""
+    batch = Batch(
+        state={"updates": [_full_size_state_item() for _ in range(MAX_UPDATES_PER_RUN)]},
+        questions={
             f"u{i}": {"type": "score", "instructions": UPDATE_INSTRUCTIONS.format(index=i), "criteria": UPDATE_CRITERIA}
             for i in range(MAX_UPDATES_PER_RUN)
         },
-    }
+        subjects={},
+        list_key="updates",
+        template=UPDATE_INSTRUCTIONS,
+    )
 
-    assert reservation(body) <= DEFAULT_DAILY_BUDGET
+    total = assert_capped_run_fits(split_batch(batch), "updates", MAX_UPDATES_PER_RUN)
+    print(f"full-size update run, factored: {total:.0f} tokens over {MAX_UPDATES_PER_RUN} updates")
 
 
 async def test_more_pending_than_the_cap_asks_about_the_highest_jump_ones_first(
