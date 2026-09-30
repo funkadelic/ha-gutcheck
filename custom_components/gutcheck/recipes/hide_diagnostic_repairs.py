@@ -17,13 +17,14 @@ def hide_entity(hass: HomeAssistant, safety: SafetyRules, data: IssueData) -> bo
     Returns False and writes nothing when the registry id is missing or
     malformed, the sensor no longer qualifies (removed, disabled, categorised,
     already hidden, given a device class, or now critical), or no Gut Check
-    entry is loaded to record the write against. The write sets hidden_by to
-    the user and touches no other registry field.
+    entry is loaded to record the write against. An open device class card
+    does not block it, because the user already chose to hide. The write sets
+    hidden_by to the user and touches no other registry field.
     """
     registry_id = data.get("registry_id")
     if not isinstance(registry_id, str):
         return False
-    entry = qualifying_entry(hass, safety, registry_id)
+    entry = qualifying_entry(hass, safety, registry_id, ignore_overlap=True)
     loaded_entries = hass.config_entries.async_loaded_entries(DOMAIN)
     if entry is None or not loaded_entries:
         return False

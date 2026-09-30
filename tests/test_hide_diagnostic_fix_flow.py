@@ -106,7 +106,7 @@ def _open_device_class_card(hass: HomeAssistant, sensor: er.RegistryEntry, entry
 
 @pytest.mark.parametrize(
     "change",
-    [_remove, _disable, _hide_by_integration, _categorise, _give_temperature_class, _label_critical, _open_device_class_card],
+    [_remove, _disable, _hide_by_integration, _categorise, _give_temperature_class, _label_critical],
 )
 async def test_confirm_after_the_sensor_changed_aborts_as_outdated_and_writes_nothing(
     hass: HomeAssistant,
@@ -115,8 +115,7 @@ async def test_confirm_after_the_sensor_changed_aborts_as_outdated_and_writes_no
     change: Callable[[HomeAssistant, er.RegistryEntry, MockConfigEntry], None],
 ) -> None:
     """Every way the sensor can stop qualifying aborts the confirm, removes the card and leaves hidden_by as it was."""
-    unit = "%" if change is _open_device_class_card else None
-    sensor, issue_id = await _raise_card(hass, aioclient_mock, hide_diagnostic_entry, unit)
+    sensor, issue_id = await _raise_card(hass, aioclient_mock, hide_diagnostic_entry)
     change(hass, sensor, hide_diagnostic_entry)
 
     result = await _choose(hass, issue_id, "confirm")
@@ -126,6 +125,21 @@ async def test_confirm_after_the_sensor_changed_aborts_as_outdated_and_writes_no
     assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
     untouched = er.RegistryEntryHider.INTEGRATION if change is _hide_by_integration else None
     assert _hidden_by(hass, sensor) is untouched
+
+
+async def test_confirm_hides_and_records_while_a_device_class_card_is_open(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, hide_diagnostic_entry: MockConfigEntry
+) -> None:
+    """An open device class card for the same sensor does not stop the user's explicit hide."""
+    sensor, issue_id = await _raise_card(hass, aioclient_mock, hide_diagnostic_entry, "%")
+    _open_device_class_card(hass, sensor, hide_diagnostic_entry)
+
+    result = await _choose(hass, issue_id, "confirm")
+
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert _hidden_by(hass, sensor) is er.RegistryEntryHider.USER
+    assert hide_diagnostic_entry.runtime_data.applied_hidden.ids() == (sensor.id,)
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
 
 
 async def test_confirm_aborts_when_card_data_lacks_the_registry_id(
