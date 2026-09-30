@@ -1,0 +1,38 @@
+custom_components/gutcheck/recipes/device_class_undo.py
+  s_16c70a9fb1ed26::t_e14cc23f084968 6,9,12
+custom_components/gutcheck/recipes/hide_diagnostic_undo.py
+  s_16c70a9fb1ed26::t_e14cc23f084968 12,23
+tests/test_device_class_undo.py
+  s_16c70a9fb1ed26::t_98c43840ac5101 27,173,183
+custom_components/gutcheck/options_flow.py
+  s_16c70a9fb1ed26::t_e14cc23f084968 33-34
+custom_components/gutcheck/recipes/applied_records.py
+  s_16c70a9fb1ed26::t_e14cc23f084968 1-114
+tests/test_diagnostics.py
+  s_16c70a9fb1ed26::t_e14cc23f084968 130
+  s_16c70a9fb1ed26::t_df5c740f36c9d0 27
+  s_16c70a9fb1ed26::t_98c43840ac5101 33,128
+custom_components/gutcheck/__init__.py
+  s_16c70a9fb1ed26::t_e14cc23f084968 29,55-56,73,75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "961a4615baa3e50c98d7726eb7c19b61f97ae1d4",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_16c70a9fb1ed26": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d036a682-291c-4164-a3fb-8737cd9a481b",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
