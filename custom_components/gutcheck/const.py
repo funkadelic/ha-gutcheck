@@ -25,12 +25,8 @@ CONF_CHANGE_BACK: Final = "change_back"
 CONF_UNDO_SENSORS: Final = "sensors"
 CONF_UNDO_HIDDEN_SENSORS: Final = "hidden_sensors"
 
-# A fresh install's first-day runs reserve at once: about 80,000 for the
-# health check and 38,000 for area suggestions on a 1,300-entity install.
-# A full 50-update review adds about 71,000, so a large update backlog can
-# push one first-day run to the next day. A device class run at the target
-# install's real counts (58 asked, every one) reserves about 39,600, and
-# only runs once switched on.
+# Sized for a large install's first day, when every enabled check reserves at
+# once: about 150,000 on a 1,300-entity install with 149 unavailable entities.
 DEFAULT_DAILY_BUDGET: Final = 500_000
 CHARS_PER_TOKEN: Final = 4
 # Budget reservations only, held until the API reports real usage; captured
