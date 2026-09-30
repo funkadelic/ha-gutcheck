@@ -1,0 +1,24 @@
+CHANGELOG.md
+  s_762d352a648e6e::t_14a82257840f4d 6-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3f1b89becf9635d1ec7d4fc0e9a5d59bf1075ba8",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_762d352a648e6e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "53d06fd1-ceb2-47c0-87b3-20c6ed571e9c",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
