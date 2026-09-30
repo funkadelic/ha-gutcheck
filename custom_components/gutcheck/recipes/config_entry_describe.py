@@ -11,7 +11,7 @@ from homeassistant.util import dt as dt_util
 
 from ..const import DOMAIN
 from ..describe import bucket_longer_than, clean_text
-from .config_entry_const import CONFIG_ENTRY_REASON_MAX_CHARS, REDACTED, REDACTED_EMAIL
+from .config_entry_const import CONFIG_ENTRY_REASON_MAX_CHARS, CONFIG_ENTRY_UNSURE_CARD_AFTER, REDACTED, REDACTED_EMAIL
 from .shapes import Item, RecipeResult
 
 # Linear on any input: each match starts at "://" or at the start of a run, and possessive quantifiers never backtrack.
@@ -57,9 +57,13 @@ def first_seen(previous: RecipeResult | None, entry_id: str, now: datetime) -> d
         return now
     buckets = (*previous["items"].values(), previous["unsure"])
     prior = next((item for bucket in buckets for item in bucket if item.get("entry_id") == entry_id), None)
-    seen = prior.get("first_seen") if prior is not None else None
-    parsed = dt_util.parse_datetime(seen) if isinstance(seen, str) else None
-    return parsed or now
+    return (_parsed_first_seen(prior) if prior is not None else None) or now
+
+
+def _parsed_first_seen(item: Item) -> datetime | None:
+    """The item's first_seen as a datetime, or None when missing, non-string or unparseable."""
+    seen = item.get("first_seen")
+    return dt_util.parse_datetime(seen) if isinstance(seen, str) else None
 
 
 def failing_for(seen: datetime, now: datetime) -> str:
@@ -74,13 +78,17 @@ def redact_reason(reason: str) -> str:
     return _EMAIL_RE.sub(REDACTED_EMAIL, reason)
 
 
+def reason_text(entry: ConfigEntry) -> str | None:
+    """The redacted, cleaned reason exactly as the model sees it, or None when there is none."""
+    return (clean_text(redact_reason(entry.reason), CONFIG_ENTRY_REASON_MAX_CHARS) if entry.reason else "") or None
+
+
 def describe(entry: ConfigEntry, failing_for_words: str) -> Item:
     """One entry's model-visible state: never the title, entry id, data, options, source or unique id."""
-    reason = clean_text(redact_reason(entry.reason), CONFIG_ENTRY_REASON_MAX_CHARS) if entry.reason else ""
     return {
         "integration": entry.domain,
         "config_entry_state": entry.state.value.replace("_", " "),
-        "reason": reason or None,
+        "reason": reason_text(entry),
         "failing_for": failing_for_words,
     }
 
@@ -91,9 +99,21 @@ def describe_subject(entry: ConfigEntry, seen: datetime, failing_for_words: str)
         "entry_id": entry.entry_id,
         "integration": entry.domain,
         "title": entry.title,
+        "reason": reason_text(entry),
         "first_seen": seen.isoformat(),
         "failing_for": failing_for_words,
     }
+
+
+def long_unsure(result: RecipeResult) -> list[Item]:
+    """The unsure items first seen at least CONFIG_ENTRY_UNSURE_CARD_AFTER before the run."""
+    cutoff = datetime.fromisoformat(result["last_run"]) - CONFIG_ENTRY_UNSURE_CARD_AFTER
+    # Items stored before "reason" existed wait for the next run rather than showing a false "none".
+    return [
+        item
+        for item in result["unsure"]
+        if "reason" in item and (seen := _parsed_first_seen(item)) is not None and seen <= cutoff
+    ]
 
 
 def resolved(hass: HomeAssistant, entry_id: str) -> bool:

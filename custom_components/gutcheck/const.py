@@ -86,6 +86,7 @@ ISSUE_AREA_SUGGESTION: Final = "area_suggestion"
 ISSUE_DEVICE_CLASS_SUGGESTION: Final = "device_class_suggestion"
 ISSUE_CONFIG_ENTRY_NEEDS_REAUTH: Final = "config_entry_needs_reauth"
 ISSUE_CONFIG_ENTRY_DEAD: Final = "config_entry_dead"
+ISSUE_CONFIG_ENTRY_STILL_FAILING: Final = "config_entry_still_failing"
 ISSUE_CRITICAL_LABEL_SUGGESTION: Final = "critical_label_suggestion"
 ISSUE_HIDE_DIAGNOSTIC_SUGGESTION: Final = "hide_diagnostic_suggestion"
 

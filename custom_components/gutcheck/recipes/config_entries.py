@@ -17,7 +17,16 @@ from .config_entry_const import (
     OPTION_DEAD,
     OPTION_NEEDS_REAUTH,
 )
-from .config_entry_describe import describe, describe_subject, failing_for, first_seen, reauth_active, resolved, select
+from .config_entry_describe import (
+    describe,
+    describe_subject,
+    failing_for,
+    first_seen,
+    long_unsure,
+    reauth_active,
+    resolved,
+    select,
+)
 from .config_entry_repairs import ConfigEntryIssueTracker
 from .gate import gate_choice
 from .shapes import Batch, Item, RecipeResult
@@ -85,12 +94,12 @@ class ConfigEntryRecipe:
         )
 
     async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:
-        """Sync both advisory card kinds and log counts."""
-        self._issues.sync(hass, result["items"].get(OPTION_NEEDS_REAUTH, []), result["items"].get(OPTION_DEAD, []))
+        """Sync all advisory card kinds and log counts."""
+        self._sync(hass, result)
         _LOGGER.debug("config entry triage run complete, counts=%s", result["counts"])
 
     async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
-        """Drop any bucket item whose entry has recovered since the run, then re-sync both card kinds.
+        """Drop any bucket item whose entry has recovered since the run, then re-sync all card kinds.
 
         A restore calls no API, so an entry removed, disabled or loaded since
         the run must still drop from every bucket, including unsure, rather
@@ -104,7 +113,13 @@ class ConfigEntryRecipe:
             result["items"][option] = kept
             result["counts"][option] = len(kept)
         result["unsure"] = [item for item in result["unsure"] if not resolved(hass, str(item["entry_id"]))]
-        self._issues.sync(hass, result["items"].get(OPTION_NEEDS_REAUTH, []), result["items"].get(OPTION_DEAD, []))
+        self._sync(hass, result)
+
+    def _sync(self, hass: HomeAssistant, result: RecipeResult) -> None:
+        """Sync the sign-in, broken and still-failing cards from one result."""
+        self._issues.sync(
+            hass, result["items"].get(OPTION_NEEDS_REAUTH, []), result["items"].get(OPTION_DEAD, []), long_unsure(result)
+        )
 
     def shutdown(self) -> None:
         """Cancel the recovery subscription, if any."""

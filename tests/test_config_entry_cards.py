@@ -163,7 +163,7 @@ async def test_placeholders_never_carry_reason_and_an_empty_or_markdown_title_is
     triage_entry: MockConfigEntry,
     failing_entry: Any,
 ) -> None:
-    """No placeholder carries the reason text; an empty title falls back to the domain; markdown escapes."""
+    """Sign-in and broken cards never carry the reason; an empty title falls back to the domain; markdown escapes."""
     blank_title = await failing_entry("blank_hub", ConfigEntryError("a secret reason marker"), title="", entry_id="blank_entry")
     markdown_title = await failing_entry(
         "markdown_hub", ConfigEntryError("offline"), title="[Evil](https://evil.example)", entry_id="markdown_entry"
@@ -216,7 +216,7 @@ async def test_a_card_is_never_raised_for_a_gone_disabled_or_loaded_entry_at_syn
             ("stuck_entry", "stuck_hub"),
         )
     ]
-    tracker.sync(hass, [], items)
+    tracker.sync(hass, [], items, [])
     tracker.shutdown()
 
     assert [issue_id for domain, issue_id in ir.async_get(hass).issues if domain == DOMAIN] == [_issue_id("stuck_entry")]
