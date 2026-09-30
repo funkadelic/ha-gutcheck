@@ -1,0 +1,26 @@
+tests/test_last_error.py
+  s_fdc7d3e286719d::t_0342763a480dbc 1-43
+custom_components/gutcheck/coordinator.py
+  s_fdc7d3e286719d::t_7f0eb725eba1cf 112-118
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c7e0fee4fcd623d6192acceacaba0f9c1b8fedc4",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_fdc7d3e286719d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "20f14a30-bd72-4116-ae1f-0d201866fa84",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
