@@ -109,6 +109,13 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
             f"{self.config_entry.entry_id}_{self.recipe.recipe_id}_first_refresh",
         )
 
+    @callback
+    def _async_refresh_finished(self) -> None:
+        """Redraw after every failed run: the base class skips one that follows another, leaving last_error stale."""
+        super()._async_refresh_finished()
+        if not self.last_update_success:
+            self.async_update_listeners()
+
     def _keep_answer(self, payload: SystemOneRequest, response: SystemOneResponse) -> None:
         """Keep a billed response until the run succeeds, so a retry of the same request is free."""
         self._answered[_request_key(payload)] = response
