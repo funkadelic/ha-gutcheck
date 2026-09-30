@@ -38,7 +38,14 @@ def _has_open_device_class_card(hass: HomeAssistant, entry: er.RegistryEntry) ->
     return issue is not None and issue.dismissed_version is None
 
 
-def qualifies(hass: HomeAssistant, safety: SafetyRules, entry: er.RegistryEntry, *, ignore_overlap: bool = False) -> bool:
+def qualifies(
+    hass: HomeAssistant,
+    safety: SafetyRules,
+    entry: er.RegistryEntry,
+    *,
+    ignore_overlap: bool = False,
+    ignore_hidden: bool = False,
+) -> bool:
     """Whether this registry entry is a candidate this recipe may consider or re-check.
 
     Selection reads only domain, effective device class, entity_category and
@@ -46,12 +53,14 @@ def qualifies(hass: HomeAssistant, safety: SafetyRules, entry: er.RegistryEntry,
     exclusions, which walk the registries. An open device class card holds a
     sensor back from new suggestions; ignore_overlap=True skips that test for
     the two callers that must never delete a rejection the user already made
-    (keeping an ignored card, and the change-back).
+    (keeping an ignored card, and the change-back). ignore_hidden=True skips
+    the hidden_by test for keeping an ignored card, so hiding a sensor by hand
+    never drops its rejection.
     """
     if (
         entry.domain != Platform.SENSOR
         or entry.entity_category is not None
-        or entry.hidden_by is not None
+        or (entry.hidden_by is not None and not ignore_hidden)
         or _effective_device_class(entry) not in (None, SensorDeviceClass.SIGNAL_STRENGTH)
     ):
         return False
@@ -61,11 +70,16 @@ def qualifies(hass: HomeAssistant, safety: SafetyRules, entry: er.RegistryEntry,
 
 
 def qualifying_entry(
-    hass: HomeAssistant, safety: SafetyRules, registry_id: str, *, ignore_overlap: bool = False
+    hass: HomeAssistant,
+    safety: SafetyRules,
+    registry_id: str,
+    *,
+    ignore_overlap: bool = False,
+    ignore_hidden: bool = False,
 ) -> er.RegistryEntry | None:
     """The registry entry for registry_id, only when it still exists and still qualifies."""
     entry = er.async_get(hass).async_get(registry_id)
-    if entry is None or not qualifies(hass, safety, entry, ignore_overlap=ignore_overlap):
+    if entry is None or not qualifies(hass, safety, entry, ignore_overlap=ignore_overlap, ignore_hidden=ignore_hidden):
         return None
     return entry
 

@@ -38,10 +38,10 @@ def _still_qualifies(hass: HomeAssistant, safety: SafetyRules, issue_id: str) ->
     """Whether the sensor behind an existing card (the issue id, prefix stripped) still qualifies.
 
     Only decides whether an ignored card with no suggestion this run is kept,
-    so an open device class card must not cost the user's rejection.
+    so neither an open device class card nor a hand hide costs the user's rejection.
     """
     registry_id = issue_id.removeprefix(HIDE_DIAGNOSTIC_ISSUE_PREFIX)
-    return qualifying_entry(hass, safety, registry_id, ignore_overlap=True) is not None
+    return qualifying_entry(hass, safety, registry_id, ignore_overlap=True, ignore_hidden=True) is not None
 
 
 def reject_suggestion(hass: HomeAssistant, safety: SafetyRules, registry_id: str) -> None:

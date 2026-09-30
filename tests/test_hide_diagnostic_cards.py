@@ -5,6 +5,7 @@ from __future__ import annotations
 from homeassistant.components.repairs import repairs_flow_manager
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -180,3 +181,26 @@ async def test_an_ignored_card_outlives_an_open_device_class_card_a_restart_and_
     assert card is not None
     assert card.dismissed_version is not None
     assert _recipe_state(hass, hide_diagnostic_entry)[0] == "0"
+
+
+async def test_an_ignored_card_outlives_the_user_hiding_the_sensor_by_hand_and_unhiding_it(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, hide_diagnostic_entry: MockConfigEntry
+) -> None:
+    """Hiding a rejected sensor by hand keeps its ignored card, so unhiding it later raises no new card."""
+    sensor = register_unit_sensor(hass, "phone_wifi", unit=None, name="Wi-Fi connection")
+    diagnostic = api_response({"h0": hide_diagnostic_answer(OPTION_DIAGNOSTIC, 0.9)})
+    register_jev_responses(aioclient_mock, [diagnostic, diagnostic])
+    hide_diagnostic_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(hide_diagnostic_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+    await _ignore(hass, f"{HIDE_DIAGNOSTIC_ISSUE_PREFIX}{sensor.id}")
+    registry = er.async_get(hass)
+
+    for hidden_by in (er.RegistryEntryHider.USER, None):
+        registry.async_update_entity(sensor.entity_id, hidden_by=hidden_by)
+        await press_recipe_run(hass, hide_diagnostic_entry, RECIPE_HIDE_DIAGNOSTIC)
+        card = _card(hass, sensor.id)
+        assert card is not None
+        assert card.dismissed_version is not None
+        assert _recipe_state(hass, hide_diagnostic_entry)[0] == "0"
+    assert len(posted_bodies(aioclient_mock)) == 2
