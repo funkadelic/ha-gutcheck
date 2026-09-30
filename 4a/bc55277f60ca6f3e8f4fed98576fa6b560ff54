@@ -1,0 +1,26 @@
+tests/test_split_budget.py
+  s_16c70a9fb1ed26::t_349b891f033f61 198-215
+custom_components/gutcheck/budget.py
+  s_16c70a9fb1ed26::t_349b891f033f61 142,181-183
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4abc55277f60ca6f3e8f4fed98576fa6b560ff54",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_16c70a9fb1ed26": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d036a682-291c-4164-a3fb-8737cd9a481b",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
