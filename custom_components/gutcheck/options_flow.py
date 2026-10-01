@@ -40,13 +40,9 @@ OPTIONS_SCHEMA = vol.Schema(
         vol.Required(CONF_HEALTH_ENABLED, default=True): BooleanSelector(),
         vol.Required(CONF_UPDATES_ENABLED, default=True): BooleanSelector(),
         vol.Required(CONF_AREAS_ENABLED, default=True): BooleanSelector(),
-        # Off by default, unlike the other three: an upgraded install must
-        # not start raising device class cards unasked.
-        vol.Required(CONF_DEVICE_CLASS_ENABLED, default=False): BooleanSelector(),
-        # Off by default too: an upgraded install must not start raising
-        # stuck-integration cards unasked.
-        vol.Required(CONF_CONFIG_ENTRIES_ENABLED, default=False): BooleanSelector(),
-        # Off by default too: an upgraded install must not start raising
+        vol.Required(CONF_DEVICE_CLASS_ENABLED, default=True): BooleanSelector(),
+        vol.Required(CONF_CONFIG_ENTRIES_ENABLED, default=True): BooleanSelector(),
+        # Off by default: an upgraded install must not start raising
         # critical label cards unasked.
         vol.Required(CONF_CRITICAL_LABEL_ENABLED, default=False): BooleanSelector(),
         # Off by default too: an upgraded install must not start raising

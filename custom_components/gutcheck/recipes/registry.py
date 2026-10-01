@@ -57,19 +57,18 @@ class RecipeSpec:
 
 
 # Registration order matters: hide_diagnostic goes after device class so its
-# restore reads device class cards the device class restore already re-synced. Everything
-# after the first three is off by default, so an upgraded install does not
-# start raising cards unasked.
+# restore reads device class cards the device class restore already re-synced. The last
+# three are off by default, so an upgraded install does not start raising those cards unasked.
 RECIPE_SPECS: tuple[RecipeSpec, ...] = (
     RecipeSpec(CONF_HEALTH_ENABLED, True, RECIPE_HEALTH, HEALTH_ISSUE_PREFIX, HealthRecipe),
     RecipeSpec(CONF_UPDATES_ENABLED, True, RECIPE_UPDATES, UPDATES_ISSUE_PREFIX, UpdateRecipe),
     RecipeSpec(CONF_AREAS_ENABLED, True, RECIPE_AREAS, AREA_ISSUE_PREFIX, AreaRecipe, keep_ignored=True),
     RecipeSpec(
-        CONF_DEVICE_CLASS_ENABLED, False, RECIPE_DEVICE_CLASS, DEVICE_CLASS_ISSUE_PREFIX, DeviceClassRecipe, keep_ignored=True
+        CONF_DEVICE_CLASS_ENABLED, True, RECIPE_DEVICE_CLASS, DEVICE_CLASS_ISSUE_PREFIX, DeviceClassRecipe, keep_ignored=True
     ),
     RecipeSpec(
         CONF_CONFIG_ENTRIES_ENABLED,
-        False,
+        True,
         RECIPE_CONFIG_ENTRIES,
         CONFIG_ENTRY_ISSUE_PREFIX,
         lambda _label: ConfigEntryRecipe(),

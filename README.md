@@ -43,7 +43,7 @@ Gut Check gives your Home Assistant install a weekly checkup. It finds entities 
 - **Diagnostic sensor suggestions**: Suggests hiding sensors about the device itself, such as Wi-Fi signal, that clutter your dashboards.
 - **Recorder suggestions**: Finds the entities that fill the recorder fastest and suggests which to leave out of it.
 
-The first three are on when you add Gut Check. Switch the others on in Configure.
+The first five are on when you add Gut Check. Switch the others on in Configure.
 
 **Home health check.** Unavailable entities pile up and most are harmless, so the few that need fixing get lost. Gut Check sorts them into expected (normal, nothing to do), worth fixing (should be working), and safe to remove (left over from something no longer installed). Each worth-fixing entity gets a Repairs card, which clears itself once the entity comes back.
 
@@ -151,8 +151,8 @@ Open the integration's **Configure** screen to:
 - Turn the home health check on or off
 - Turn the update review on or off
 - Turn area suggestions on or off
-- Turn device class suggestions on or off (off by default)
-- Turn the stuck integration check on or off (off by default)
+- Turn device class suggestions on or off
+- Turn the stuck integration check on or off
 - Turn critical label suggestions on or off (off by default)
 - Turn diagnostic sensor suggestions on or off (off by default)
 - Turn recorder suggestions on or off (off by default)

@@ -44,30 +44,24 @@ async def _switch_config_entries(hass: HomeAssistant, entry: MockConfigEntry, en
     await hass.async_block_till_done(wait_background_tasks=True)
 
 
-async def test_off_by_default_then_disable_reenable_run_and_removal_timeline(
+async def test_on_by_default_then_disable_reenable_run_and_removal_timeline(
     hass: HomeAssistant,
     aioclient_mock: AiohttpClientMocker,
     mock_config_entry: MockConfigEntry,
     failing_entry: Any,
 ) -> None:
-    """Off by default; enabling raises cards; disable clears them like the update review; re-enable, run and removal follow."""
+    """On by default, so setup raises cards; disable clears them like the update review; re-enable, run and removal follow."""
     open_entry = await failing_entry("open_hub", ConfigEntryError("device offline"), title="Open Hub", entry_id="open_entry")
     ignored_entry = await failing_entry(
         "ignored_hub", ConfigEntryError("device offline"), title="Ignored Hub", entry_id="ignored_entry"
     )
-    mock_config_entry.add_to_hass(hass)
-    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
-    await hass.async_block_till_done(wait_background_tasks=True)
-
-    assert find_triage_sensor(hass, mock_config_entry) is None
-    assert find_triage_button(hass, mock_config_entry) is None
-    assert posted_bodies(aioclient_mock) == []
-
     both_dead = api_response(
         {"c0": area_answer(OPTION_DEAD, 0.9, CONFIG_ENTRY_OPTIONS), "c1": area_answer(OPTION_DEAD, 0.9, CONFIG_ENTRY_OPTIONS)}
     )
     register_jev_responses(aioclient_mock, [both_dead])
-    await _switch_config_entries(hass, mock_config_entry, True)
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
 
     assert find_triage_sensor(hass, mock_config_entry) is not None
     bodies = posted_bodies(aioclient_mock)

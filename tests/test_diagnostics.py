@@ -22,6 +22,8 @@ from custom_components.gutcheck.budget import BudgetGate
 from custom_components.gutcheck.client import GutCheckClient
 from custom_components.gutcheck.const import (
     CONF_AREAS_ENABLED,
+    CONF_CONFIG_ENTRIES_ENABLED,
+    CONF_DEVICE_CLASS_ENABLED,
     CONF_HEALTH_ENABLED,
     CONF_UPDATES_ENABLED,
     DEVICE_CLASS_APPLIED_STORE_KEY,
@@ -148,12 +150,18 @@ async def test_an_entry_with_every_recipe_off_dumps_an_empty_recipe_map(
     hass: HomeAssistant,
     hass_client: ClientSessionGenerator,
 ) -> None:
-    """An entry with health, updates and areas all disabled dumps a recipe map with nothing in it."""
+    """An entry with every default-on check disabled dumps a recipe map with nothing in it."""
     assert await async_setup_component(hass, "diagnostics", {})
     entry = MockConfigEntry(
         domain=DOMAIN,
         data={CONF_API_KEY: "test-key"},
-        options={CONF_HEALTH_ENABLED: False, CONF_UPDATES_ENABLED: False, CONF_AREAS_ENABLED: False},
+        options={
+            CONF_HEALTH_ENABLED: False,
+            CONF_UPDATES_ENABLED: False,
+            CONF_AREAS_ENABLED: False,
+            CONF_DEVICE_CLASS_ENABLED: False,
+            CONF_CONFIG_ENTRIES_ENABLED: False,
+        },
     )
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)
