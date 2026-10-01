@@ -94,6 +94,21 @@ async def test_card_names_the_device_being_updated(
     assert issue.translation_placeholders["name"] == expected
 
 
+async def test_card_prefers_the_users_entity_name_over_the_original(hass: HomeAssistant) -> None:
+    """With no device, a name the user gave the entity wins over the integration's original name."""
+    registry = er.async_get(hass)
+    entry = registry.async_get_or_create("update", "test", "renamed", original_name="Battery Threshold")
+    registry.async_update_entity(entry.entity_id, name="My threshold")
+    result = update_result({OPTION_POSSIBLY_BREAKING: [update_item(entry.entity_id, entry.id)]})
+
+    await UpdateRecipe(critical_label=None).async_act(hass, result)
+
+    issue = ir.async_get(hass).async_get_issue(DOMAIN, f"{UPDATES_ISSUE_PREFIX}{entry.id}")
+    assert issue is not None
+    assert issue.translation_placeholders is not None
+    assert issue.translation_placeholders["name"] == "My threshold"
+
+
 async def test_routine_feature_and_none_create_no_issue(hass: HomeAssistant) -> None:
     """Only possibly_breaking creates an issue; every other bucket creates none."""
     result = update_result(
