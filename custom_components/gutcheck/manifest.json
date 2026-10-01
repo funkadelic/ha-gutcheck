@@ -2,6 +2,7 @@
   "domain": "gutcheck",
   "name": "Gut Check",
   "after_dependencies": [
+    "lovelace",
     "recorder"
   ],
   "codeowners": [

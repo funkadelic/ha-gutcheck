@@ -70,7 +70,7 @@ def _clean(text: str | None) -> str | None:
     return clean_text(text, DEVICE_TEXT_MAX_CHARS) or None
 
 
-def describe(hass: HomeAssistant, entry: er.RegistryEntry, per_day: int) -> tuple[dict[str, Any], Item]:
+def describe(hass: HomeAssistant, entry: er.RegistryEntry, per_day: int, *, on_dashboard: bool) -> tuple[dict[str, Any], Item]:
     """One entity's model-visible state and its code-only subject.
 
     Built from the registry entry and its device only: never the entity id,
@@ -85,5 +85,8 @@ def describe(hass: HomeAssistant, entry: er.RegistryEntry, per_day: int) -> tupl
         "unit": _clean(entry.unit_of_measurement),
         "long_term_statistics": state_class in LONG_TERM_STATISTICS_CLASSES,
         "churn": churn_bucket(per_day),
+        "on_dashboard": on_dashboard,
     }
-    return state_item, subject(Ranked(entry.entity_id, entry, per_day))
+    asked = subject(Ranked(entry.entity_id, entry, per_day))
+    asked["on_dashboard"] = on_dashboard
+    return state_item, asked

@@ -119,6 +119,7 @@ async def test_heavy_writer_is_counted_asked_about_carded_and_restored_without_a
             "unit": "ppm",
             "long_term_statistics": True,
             "churn": "heavy",
+            "on_dashboard": False,
         }
     ]
     serialized = json.dumps(bodies[0])

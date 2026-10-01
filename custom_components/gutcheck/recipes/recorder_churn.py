@@ -15,7 +15,9 @@ from .recorder_churn_cards import sync_exclude_cards
 from .recorder_churn_const import (
     CHURN_TOP_N,
     OPTION_EXCLUDE,
+    OPTION_KEEP,
     OPTION_NOT_ASKED,
+    REASON_HISTORY_CARD,
     REASON_LOWER_RANK,
     REASON_NO_UNIQUE_ID,
     RECORDER_CHURN_CHOICES,
@@ -26,10 +28,27 @@ from .recorder_churn_const import (
 )
 from .recorder_churn_count import async_churn
 from .recorder_churn_describe import describe, rank, subject
+from .recorder_churn_refs import async_history_card_entity_ids
 from .safety import SafetyRules
 from .shapes import Batch, Item, RecipeResult
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _veto_dashboard_excludes(result: RecipeResult) -> None:
+    """Move every exclude item a recorder-backed dashboard card shows into keep.
+
+    Runs in async_act, before the coordinator saves the result, so a restore
+    reads the corrected buckets and needs no second veto.
+    """
+    items = result["items"]
+    shown = [item for item in items.get(OPTION_EXCLUDE, []) if item.get("on_dashboard")]
+    if not shown:
+        return
+    items[OPTION_EXCLUDE] = [item for item in items[OPTION_EXCLUDE] if not item.get("on_dashboard")]
+    items.setdefault(OPTION_KEEP, []).extend({**item, "reason": REASON_HISTORY_CARD} for item in shown)
+    for option in (OPTION_EXCLUDE, OPTION_KEEP):
+        result["counts"][option] = len(items[option])
 
 
 class RecorderChurnRecipe:
@@ -66,6 +85,7 @@ class RecorderChurnRecipe:
             raise UpdateFailed("recorder history unavailable", retry_after=FAILED_RUN_RETRY.total_seconds())
         window_days, counts = churn
         ranked = rank(hass, self._safety, counts, window_days)
+        on_dashboard = await async_history_card_entity_ids(hass)
 
         entities: list[dict[str, Any]] = []
         questions: dict[str, Question] = {}
@@ -77,7 +97,7 @@ class RecorderChurnRecipe:
                 reason = REASON_NO_UNIQUE_ID if item.entry is None else REASON_LOWER_RANK
                 carried[OPTION_NOT_ASKED].append({**subject(item), "reason": reason})
                 continue
-            state_item, asked = describe(hass, item.entry, item.per_day)
+            state_item, asked = describe(hass, item.entry, item.per_day, on_dashboard=item.entity_id in on_dashboard)
             index = len(entities)
             entities.append(state_item)
             question_id = f"r{index}"
@@ -106,7 +126,8 @@ class RecorderChurnRecipe:
         )
 
     async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:
-        """Sync one advisory card per exclude answer, and log counts."""
+        """Veto exclude answers for dashboard entities, sync one advisory card per exclude answer, and log counts."""
+        _veto_dashboard_excludes(result)
         sync_exclude_cards(hass, result["items"].get(OPTION_EXCLUDE, []))
         _LOGGER.debug("recorder suggestions run complete, counts=%s", result["counts"])
 

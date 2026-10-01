@@ -1,0 +1,57 @@
+"""Read-only lookups of what uses an entity: dashboards, never writes."""
+
+from __future__ import annotations
+
+from collections.abc import Iterator
+from typing import Any
+
+from homeassistant.components.lovelace.const import LOVELACE_DATA
+from homeassistant.core import HomeAssistant, valid_entity_id
+from homeassistant.exceptions import HomeAssistantError
+
+from .recorder_churn_const import RECORDER_CARD_TYPES
+
+
+def _entity_ids(node: Any) -> Iterator[str]:
+    """Every string anywhere inside nested dicts and lists that is a valid entity id."""
+    if isinstance(node, str):
+        if valid_entity_id(node):
+            yield node
+    elif isinstance(node, dict):
+        for value in node.values():
+            yield from _entity_ids(value)
+    elif isinstance(node, list):
+        for item in node:
+            yield from _entity_ids(item)
+
+
+def _history_card_ids(node: Any) -> set[str]:
+    """Entity ids inside any recorder-backed card found anywhere in a dashboard config."""
+    if isinstance(node, dict):
+        if node.get("type") in RECORDER_CARD_TYPES:
+            return set(_entity_ids(node))
+        children: list[Any] = list(node.values())
+    elif isinstance(node, list):
+        children = node
+    else:
+        return set()
+    return set().union(*(_history_card_ids(child) for child in children))
+
+
+async def async_history_card_entity_ids(hass: HomeAssistant) -> set[str]:
+    """Entity ids shown in a history, statistics or logbook card on any readable dashboard.
+
+    The auto-generated default and a YAML dashboard that fails to load raise
+    a HomeAssistantError and are skipped.
+    """
+    data = hass.data.get(LOVELACE_DATA)
+    if data is None:
+        return set()
+    shown: set[str] = set()
+    for dashboard in list(data.dashboards.values()):
+        try:
+            config = await dashboard.async_load(False)
+        except HomeAssistantError:
+            continue
+        shown |= _history_card_ids(config)
+    return shown
