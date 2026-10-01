@@ -221,6 +221,39 @@ The four suggestion checks raise cards that change something when you confirm th
 | Critical label | Add your critical label to this entity only, never its device, leaving its other labels alone; or don't suggest it |
 | Diagnostic sensor | Hide the sensor, or don't suggest hiding it |
 
+#### What the cards look like
+
+Click a card in the Repairs list to open it. Advisory cards offer Ignore and sometimes a link to read more. Suggestion cards list their choices.
+
+**Worth fixing (health check)**
+
+<img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/card-unavailable.png" alt="Unavailable entity card in the Repairs list" width="598">
+
+<img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/modal-unavailable.png" alt="Unavailable entity card, opened" width="580">
+
+**Possibly breaking (update review)**
+
+<img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/card-update.png" alt="Possibly breaking update card in the Repairs list" width="598">
+
+<img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/modal-update.png" alt="Possibly breaking update card, opened" width="580">
+
+**Recorder**
+
+<img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/card-recorder-exclude.png" alt="Recorder card in the Repairs list" width="598">
+
+<img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/modal-recorder-exclude.png" alt="Recorder card, opened" width="580">
+
+**Device class**
+
+<img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/card-device-class.png" alt="Device class card in the Repairs list" width="598">
+
+<img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/modal-device-class.png" alt="Device class card, opened" width="580">
+
+**Diagnostic sensor**
+
+<img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/card-hide-diagnostic.png" alt="Diagnostic sensor card in the Repairs list" width="598">
+
+<img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/modal-hide-diagnostic.png" alt="Diagnostic sensor card, opened" width="580">
 ### Changing something back
 
 Home Assistant's own entity settings have no device class control for a sensor, so Gut Check gives you one. Open the integration's Configure screen, tick **Change back something Gut Check set**, and pick sensors in either list: the sensors whose device class Gut Check set, and the sensors it hid. Gut Check clears a class it set or unhides a sensor it hid, leaves any that were changed since, and stops making that suggestion for them. Unhiding a sensor from its own entity settings instead lets Gut Check suggest hiding it again later; changing it back from Configure is what stops that. Removing Gut Check keeps the classes it set and the sensors it hid, so change them back first if you want those gone too.
