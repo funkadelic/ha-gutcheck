@@ -5,7 +5,7 @@ rules:
   action-setup:
     status: exempt
     comment: No services.async_register call exists anywhere in this integration.
-  # const.py:46 sets RECIPE_INTERVAL to a 7-day timedelta; button.py gives every
+  # const.py's RECIPE_INTERVAL is set to a 7-day timedelta; button.py gives every
   # recipe a button to run it on demand between those runs.
   appropriate-polling: done
   # brand/icon.png and brand/logo.png ship in the release asset, and every HA
