@@ -7,15 +7,18 @@ from collections.abc import Callable
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 
-from .recorder_churn_const import OPTION_EXCLUDE, OPTION_KEEP, REASON_ENERGY, REASON_HISTORY_CARD
+from .recorder_churn_const import OPTION_EXCLUDE, OPTION_KEEP, REASON_DERIVED_SOURCE, REASON_ENERGY, REASON_HISTORY_CARD
 from .recorder_churn_describe import keep_reason
+from .recorder_churn_readers import recorder_reader_sources
 from .recorder_churn_refs import async_energy_entity_ids, async_history_card_entity_ids
 from .shapes import Item, RecipeResult
 
 
 async def async_code_keeps(hass: HomeAssistant) -> dict[str, str]:
-    """Entity ids code keeps without asking, each with its reason."""
-    return dict.fromkeys(await async_energy_entity_ids(hass), REASON_ENERGY)
+    """Entity ids code keeps without asking, each with its reason; the Energy reason wins."""
+    keeps = dict.fromkeys(recorder_reader_sources(hass), REASON_DERIVED_SOURCE)
+    keeps.update(dict.fromkeys(await async_energy_entity_ids(hass), REASON_ENERGY))
+    return keeps
 
 
 def veto_excludes(result: RecipeResult, reason_for: Callable[[Item], str | None]) -> None:

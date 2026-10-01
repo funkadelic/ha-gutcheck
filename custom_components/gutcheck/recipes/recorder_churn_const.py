@@ -37,6 +37,14 @@ RECORDER_FILTER_DOCS_URL: Final = "https://www.home-assistant.io/integrations/re
 # Leaving one out of the recorder stops its statistics, which the Energy dashboard and cost tracking read.
 KEPT_STATE_CLASSES: Final = frozenset({SensorStateClass.TOTAL, SensorStateClass.TOTAL_INCREASING})
 
+# Built-in sensors that read their source's recorded history, mapped to the attribute path
+# holding the source on a running one (private names, checked against Home Assistant 2026.9.2).
+RECORDER_READER_SOURCE_ATTRS: Final[dict[str, tuple[str, ...]]] = {
+    "statistics": ("_source_entity_id",),
+    "history_stats": ("coordinator", "_history_stats", "entity_id"),
+    "filter": ("_entity",),
+}
+
 # The built-in cards that read recorded history; custom cards are not recognised.
 RECORDER_CARD_TYPES: Final = frozenset({"history-graph", "statistics-graph", "statistic", "logbook"})
 
@@ -46,6 +54,7 @@ REASON_LOWER_RANK: Final = "lower_rank"
 REASON_HISTORY_CARD: Final = "history_card"
 REASON_ENERGY: Final = "energy_dashboard"
 REASON_TOTAL_STATE_CLASS: Final = "total_state_class"
+REASON_DERIVED_SOURCE: Final = "derived_sensor_source"
 
 RECORDER_CHURN_INSTRUCTIONS: Final = (
     "`entities[{index}]` describes one Home Assistant entity that writes new states to the recorder far "
@@ -67,8 +76,7 @@ RECORDER_CHURN_INSTRUCTIONS: Final = (
 RECORDER_CHURN_CRITERIA: Final[dict[str, str | None]] = {
     OPTION_EXCLUDE: (
         "Nothing needs its recorded history: no person would look back at how it changed, and when "
-        "`long_term_statistics` is true nobody needs those statistics either. For example a raw or "
-        "intermediate value that a template, average or other sensor already summarizes, a signal "
+        "`long_term_statistics` is true nobody needs those statistics either. For example a signal "
         "strength, uptime or connection counter, or a value that automations only read live."
     ),
     OPTION_THROTTLE: (

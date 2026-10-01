@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from custom_components.gutcheck.client import validate_response
-from custom_components.gutcheck.const import SUBJECTS_PER_REQUEST
+from custom_components.gutcheck.const import OPTION_NONE, SUBJECTS_PER_REQUEST
 from custom_components.gutcheck.recipes.gate import classify
 from custom_components.gutcheck.recipes.recorder_churn import RecorderChurnRecipe
 from custom_components.gutcheck.recipes.recorder_churn_const import (
@@ -23,13 +23,13 @@ from custom_components.gutcheck.recipes.recorder_churn_const import (
     OPTION_KEEP,
     OPTION_NOT_ASKED,
     OPTION_THROTTLE,
+    REASON_DERIVED_SOURCE,
     REASON_ENERGY,
     REASON_HISTORY_CARD,
     REASON_LOWER_RANK,
     REASON_NO_UNIQUE_ID,
     REASON_TOTAL_STATE_CLASS,
     RECORDER_CHURN_CHOICES,
-    RECORDER_CHURN_CRITERIA,
     RECORDER_CHURN_INSTRUCTIONS,
 )
 from custom_components.gutcheck.recipes.recorder_churn_describe import churn_bucket
@@ -44,6 +44,28 @@ ASKED = 30
 REQUESTS = 3
 COUNTS = (6, 19, 0, 5)
 INPUT_TOKENS = 21_855
+
+# The criteria the capture was asked with. The recipe's wording has moved on
+# since; the next live capture replaces this with RECORDER_CHURN_CRITERIA.
+_CAPTURED_CRITERIA = {
+    OPTION_EXCLUDE: (
+        "Nothing needs its recorded history: no person would look back at how it changed, and when "
+        "`long_term_statistics` is true nobody needs those statistics either. For example a raw or "
+        "intermediate value that a template, average or other sensor already summarizes, a signal "
+        "strength, uptime or connection counter, or a value that automations only read live."
+    ),
+    OPTION_THROTTLE: (
+        "Its history is worth keeping, but it reports far more often than anyone needs to see it change, "
+        "so its device or integration should report less often, for example a power, carbon dioxide, "
+        "temperature or humidity reading that updates every few seconds."
+    ),
+    OPTION_KEEP: (
+        "Its history is worth keeping as it is: each change is a real event or normal for what it is, for "
+        "example a motion or door sensor, a media player, a person or device tracker, or a value used for "
+        "energy or cost tracking."
+    ),
+    OPTION_NONE: "Its fields do not say clearly what it reports or whether anyone needs its history.",
+}
 
 
 def _load(name: str) -> Any:
@@ -125,8 +147,8 @@ def test_the_captured_recorder_churn_requests_are_at_most_ten_entities_with_the_
         assert all(set(item) == fields for item in payload["state"]["entities"])
 
 
-def test_the_captured_recorder_churn_questions_match_the_current_wording() -> None:
-    """A change to the instructions or criteria leaves the captured pair stale until both are recaptured.
+def test_the_captured_recorder_churn_questions_match_the_capture_time_wording() -> None:
+    """The captured questions carry the wording they were asked with, so the answers below read against it.
 
     Each request counts its own entities from zero, so the instruction index
     is the question's position within its request, while the key stays global.
@@ -135,7 +157,7 @@ def test_the_captured_recorder_churn_questions_match_the_current_wording() -> No
         for local, question in enumerate(payload["questions"].values()):
             assert question["type"] == "choice"
             assert question["instructions"] == RECORDER_CHURN_INSTRUCTIONS.format(index=local)
-            assert question["criteria"] == RECORDER_CHURN_CRITERIA
+            assert question["criteria"] == _CAPTURED_CRITERIA
 
 
 def test_recorder_churn_answer_builder_matches_a_captured_answer_key_set() -> None:
@@ -199,6 +221,7 @@ def test_the_snapshot_reasons_are_the_ones_the_recipe_defines() -> None:
     items = _snapshot()["items"]
     assert {item["reason"] for item in items[OPTION_NOT_ASKED]} <= {REASON_NO_UNIQUE_ID, REASON_LOWER_RANK}
     assert {item["reason"] for item in items[OPTION_KEEP] if "reason" in item} <= {
+        REASON_DERIVED_SOURCE,
         REASON_ENERGY,
         REASON_TOTAL_STATE_CLASS,
         REASON_HISTORY_CARD,
