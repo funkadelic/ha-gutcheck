@@ -1,0 +1,344 @@
+{
+  "items": {
+    "exclude": [
+      {
+        "changes_per_day": 4675,
+        "bucket": "very heavy",
+        "on_dashboard": false,
+        "confidence": 0.83,
+        "choice": "exclude"
+      },
+      {
+        "changes_per_day": 3303,
+        "bucket": "very heavy",
+        "on_dashboard": false,
+        "confidence": 0.82,
+        "choice": "exclude"
+      },
+      {
+        "changes_per_day": 3203,
+        "bucket": "very heavy",
+        "on_dashboard": false,
+        "confidence": 0.84,
+        "choice": "exclude"
+      },
+      {
+        "changes_per_day": 2131,
+        "bucket": "heavy",
+        "on_dashboard": false,
+        "confidence": 0.77,
+        "choice": "exclude"
+      },
+      {
+        "changes_per_day": 1659,
+        "bucket": "heavy",
+        "on_dashboard": false,
+        "confidence": 0.85,
+        "choice": "exclude"
+      }
+    ],
+    "throttle": [
+      {
+        "changes_per_day": 12570,
+        "bucket": "extreme",
+        "on_dashboard": true,
+        "confidence": 0.98,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 12057,
+        "bucket": "extreme",
+        "on_dashboard": true,
+        "confidence": 0.98,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 11508,
+        "bucket": "extreme",
+        "on_dashboard": true,
+        "confidence": 0.97,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 6125,
+        "bucket": "very heavy",
+        "on_dashboard": false,
+        "confidence": 0.96,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 5735,
+        "bucket": "very heavy",
+        "on_dashboard": false,
+        "confidence": 0.96,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 5408,
+        "bucket": "very heavy",
+        "on_dashboard": false,
+        "confidence": 0.82,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 5038,
+        "bucket": "very heavy",
+        "on_dashboard": false,
+        "confidence": 0.94,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 3325,
+        "bucket": "very heavy",
+        "on_dashboard": false,
+        "confidence": 0.58,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 3287,
+        "bucket": "very heavy",
+        "on_dashboard": false,
+        "confidence": 0.97,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 3034,
+        "bucket": "very heavy",
+        "on_dashboard": false,
+        "confidence": 0.83,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 2914,
+        "bucket": "heavy",
+        "on_dashboard": false,
+        "confidence": 0.9,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 2594,
+        "bucket": "heavy",
+        "on_dashboard": false,
+        "confidence": 0.89,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 2259,
+        "bucket": "heavy",
+        "on_dashboard": false,
+        "confidence": 0.63,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 2103,
+        "bucket": "heavy",
+        "on_dashboard": false,
+        "confidence": 0.57,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 2064,
+        "bucket": "heavy",
+        "on_dashboard": true,
+        "confidence": 0.66,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 1940,
+        "bucket": "heavy",
+        "on_dashboard": false,
+        "confidence": 0.8,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 1934,
+        "bucket": "heavy",
+        "on_dashboard": true,
+        "confidence": 0.86,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 1732,
+        "bucket": "heavy",
+        "on_dashboard": true,
+        "confidence": 0.88,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 1598,
+        "bucket": "heavy",
+        "on_dashboard": true,
+        "confidence": 0.87,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 1584,
+        "bucket": "heavy",
+        "on_dashboard": true,
+        "confidence": 0.88,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 1500,
+        "bucket": "heavy",
+        "on_dashboard": true,
+        "confidence": 0.66,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 1372,
+        "bucket": "heavy",
+        "on_dashboard": true,
+        "confidence": 0.78,
+        "choice": "throttle"
+      }
+    ],
+    "keep": [
+      {
+        "changes_per_day": 11267,
+        "bucket": "extreme",
+        "reason": "energy_dashboard"
+      },
+      {
+        "changes_per_day": 5995,
+        "bucket": "very heavy",
+        "reason": "energy_dashboard"
+      },
+      {
+        "changes_per_day": 5286,
+        "bucket": "very heavy",
+        "reason": "derived_sensor_source"
+      },
+      {
+        "changes_per_day": 4540,
+        "bucket": "very heavy",
+        "reason": "energy_dashboard"
+      },
+      {
+        "changes_per_day": 2866,
+        "bucket": "heavy",
+        "reason": "derived_sensor_source"
+      },
+      {
+        "changes_per_day": 2857,
+        "bucket": "heavy",
+        "reason": "derived_sensor_source"
+      },
+      {
+        "changes_per_day": 2792,
+        "bucket": "heavy",
+        "reason": "derived_sensor_source"
+      },
+      {
+        "changes_per_day": 2317,
+        "bucket": "heavy",
+        "reason": "derived_sensor_source"
+      },
+      {
+        "changes_per_day": 1439,
+        "bucket": "heavy",
+        "reason": "total_state_class"
+      },
+      {
+        "changes_per_day": 1439,
+        "bucket": "heavy",
+        "reason": "total_state_class"
+      },
+      {
+        "changes_per_day": 1439,
+        "bucket": "heavy",
+        "reason": "total_state_class"
+      },
+      {
+        "changes_per_day": 1439,
+        "bucket": "heavy",
+        "reason": "total_state_class"
+      },
+      {
+        "changes_per_day": 1439,
+        "bucket": "heavy",
+        "reason": "total_state_class"
+      },
+      {
+        "changes_per_day": 1438,
+        "bucket": "heavy",
+        "reason": "total_state_class"
+      },
+      {
+        "changes_per_day": 1438,
+        "bucket": "heavy",
+        "reason": "energy_dashboard"
+      },
+      {
+        "changes_per_day": 1438,
+        "bucket": "heavy",
+        "reason": "total_state_class"
+      },
+      {
+        "changes_per_day": 1433,
+        "bucket": "heavy",
+        "reason": "derived_sensor_source"
+      },
+      {
+        "changes_per_day": 1364,
+        "bucket": "heavy",
+        "reason": "derived_sensor_source"
+      },
+      {
+        "changes_per_day": 1293,
+        "bucket": "heavy",
+        "reason": "energy_dashboard"
+      },
+      {
+        "changes_per_day": 1290,
+        "bucket": "heavy",
+        "reason": "total_state_class"
+      }
+    ],
+    "not_asked": [
+      {
+        "changes_per_day": 1283,
+        "bucket": "heavy",
+        "reason": "lower_rank"
+      },
+      {
+        "changes_per_day": 1142,
+        "bucket": "heavy",
+        "reason": "lower_rank"
+      },
+      {
+        "changes_per_day": 1118,
+        "bucket": "heavy",
+        "reason": "lower_rank"
+      },
+      {
+        "changes_per_day": 1014,
+        "bucket": "heavy",
+        "reason": "lower_rank"
+      }
+    ]
+  },
+  "unsure": [
+    {
+      "changes_per_day": 2511,
+      "bucket": "heavy",
+      "on_dashboard": false,
+      "confidence": 0.23,
+      "choice": "throttle"
+    },
+    {
+      "changes_per_day": 1409,
+      "bucket": "heavy",
+      "on_dashboard": false,
+      "confidence": 0.33,
+      "choice": "throttle"
+    },
+    {
+      "changes_per_day": 1386,
+      "bucket": "heavy",
+      "on_dashboard": false,
+      "confidence": 0.47,
+      "choice": "throttle"
+    }
+  ]
+}

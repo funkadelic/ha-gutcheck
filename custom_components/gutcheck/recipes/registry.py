@@ -13,6 +13,7 @@ from ..const import (
     CONF_DEVICE_CLASS_ENABLED,
     CONF_HEALTH_ENABLED,
     CONF_HIDE_DIAGNOSTIC_ENABLED,
+    CONF_RECORDER_CHURN_ENABLED,
     CONF_UPDATES_ENABLED,
     CONFIG_ENTRY_ISSUE_PREFIX,
     CRITICAL_LABEL_ISSUE_PREFIX,
@@ -25,7 +26,9 @@ from ..const import (
     RECIPE_DEVICE_CLASS,
     RECIPE_HEALTH,
     RECIPE_HIDE_DIAGNOSTIC,
+    RECIPE_RECORDER_CHURN,
     RECIPE_UPDATES,
+    RECORDER_CHURN_ISSUE_PREFIX,
     UPDATES_ISSUE_PREFIX,
 )
 from .areas import AreaRecipe
@@ -34,6 +37,7 @@ from .critical_label import CriticalLabelRecipe
 from .device_class import DeviceClassRecipe
 from .health import HealthRecipe
 from .hide_diagnostic import HideDiagnosticRecipe
+from .recorder_churn import RecorderChurnRecipe
 from .shapes import Recipe
 from .updates import UpdateRecipe
 
@@ -52,8 +56,8 @@ class RecipeSpec:
     keep_ignored: bool = False
 
 
-# Registration order matters: hide_diagnostic goes last so its restore reads
-# device class cards the device class restore already re-synced. Everything
+# Registration order matters: hide_diagnostic goes after device class so its
+# restore reads device class cards the device class restore already re-synced. Everything
 # after the first three is off by default, so an upgraded install does not
 # start raising cards unasked.
 RECIPE_SPECS: tuple[RecipeSpec, ...] = (
@@ -84,6 +88,14 @@ RECIPE_SPECS: tuple[RecipeSpec, ...] = (
         RECIPE_HIDE_DIAGNOSTIC,
         HIDE_DIAGNOSTIC_ISSUE_PREFIX,
         HideDiagnosticRecipe,
+        keep_ignored=True,
+    ),
+    RecipeSpec(
+        CONF_RECORDER_CHURN_ENABLED,
+        False,
+        RECIPE_RECORDER_CHURN,
+        RECORDER_CHURN_ISSUE_PREFIX,
+        RecorderChurnRecipe,
         keep_ignored=True,
     ),
 )

@@ -41,6 +41,7 @@ Gut Check gives your Home Assistant install a weekly checkup. It finds entities 
 - **Stuck integration check**: Sorts integrations that failed to start into passing glitches, sign-in problems and broken for good.
 - **Critical label suggestions**: Finds safety devices that are missing your critical label.
 - **Diagnostic sensor suggestions**: Suggests hiding sensors about the device itself, such as Wi-Fi signal, that clutter your dashboards.
+- **Recorder suggestions**: Finds the entities that fill the recorder fastest and suggests which to leave out of it.
 
 The first three are on when you add Gut Check. Switch the others on in Configure.
 
@@ -58,6 +59,8 @@ The first three are on when you add Gut Check. Switch the others on in Configure
 
 **Diagnostic sensor suggestions.** Many integrations add sensors about the device itself rather than your home, such as Wi-Fi signal strength, the network a phone is on, or its SIM carrier or storage. They crowd your temperatures and power readings on auto-generated dashboards and area pages. Gut Check suggests hiding them. A hidden sensor keeps working and recording history, and you can change it back from Configure.
 
+**Recorder suggestions.** Home Assistant's recorder keeps every state change for its history and statistics, and a few chatty entities, such as a sensor that updates every few seconds, can take up much of the database. Gut Check counts each entity's changes over the last week from the recorder itself. For the busiest ones it asks whether the history is worth keeping as it is, worth keeping at a slower rate (a setting on the device or integration), or not needed. Up to ten "not needed" answers a run, busiest first, get a Repairs card with a snippet to add to your configuration.yaml yourself. Gut Check never changes your recorder settings, and this check is off until you switch it on.
+
 ## How Gut Check decides
 
 Gut Check uses Jev, a decision model from [TypeSafe AI](https://typesafe.ai/) that answers one kind of question: given these facts, which of these answers fits? Gut Check sends a short description of each item along with a fixed list of answers. Jev picks one and says how likely it is to be right.
@@ -72,6 +75,7 @@ Jev can't write a reply, make up a new option, or tell Home Assistant to do anyt
 - Act on its own. Every actionable finding waits for you in Repairs.
 - Remove your critical label from anything, or change any other label it carries.
 - Hide a sensor you haven't confirmed, or unhide one on its own.
+- Change your recorder settings or edit a configuration file.
 - Guess. When it isn't confident in an answer, it does nothing.
 
 ## Install and set up
@@ -104,6 +108,7 @@ TypeSafe AI measures usage in tokens, about three characters of text each, and c
 | Stuck integration check | 0 when nothing is stuck; about 550 estimated per stuck integration | under $0.0001 per stuck integration (estimated) |
 | Critical label suggestions | 0 when only smoke, carbon monoxide or gas sensors qualify; 26,701 for 59 asked entities on a real run | about $0.0011 |
 | Diagnostic sensor suggestions | 0 when only signal-strength sensors qualify; 58,661 for 122 asked sensors on a real run (13 requests) | about $0.0025 |
+| Recorder suggestions | 0 when nothing writes more than 1,000 times a day; 21,641 for 30 asked entities on a real run (3 requests) | under $0.001 |
 
 One run of every check on that install comes to about a cent.
 
@@ -122,6 +127,7 @@ Open the integration's **Configure** screen to:
 - Turn the stuck integration check on or off (off by default)
 - Turn critical label suggestions on or off (off by default)
 - Turn diagnostic sensor suggestions on or off (off by default)
+- Turn recorder suggestions on or off (off by default)
 - Set the daily token budget (default 500,000 tokens)
 - Pick your critical label; Gut Check never acts on or changes anything carrying it, on the entity or its device. The home health check still tells you when a labelled entity goes offline; every other check leaves it out entirely.
 - Change back a device class Gut Check set or a sensor it hid, once anything is recorded
@@ -141,6 +147,8 @@ For each integration the stuck integration check looks at, Gut Check sends its i
 For each asked valve, switch, siren or moisture sensor, Gut Check sends its domain, device class, name, device name, manufacturer, model, integration and entity category. It never sends an entity ID, area, state or any label; names are read only as a description, never as an instruction. A settings or diagnostic entity is never asked, whatever its domain. A smoke, carbon monoxide or gas sensor is decided by its device class alone and sends nothing.
 
 For each asked sensor with no device class, Gut Check sends its name, its device's name, manufacturer and model, integration, unit and state class. It never sends a reading or any other state, an entity ID, an area or a label. Names are read only as a description, never as an instruction. A signal-strength sensor is decided by its device class alone and sends nothing.
+
+For each asked entity, recorder suggestions send its name, its device's name, manufacturer and model, its domain, integration, device class and unit, how often it changes (grouped as heavy, very heavy or extreme, never the count), whether Home Assistant keeps long-term statistics for it, whether an automation, script, scene or group lists it, and whether a dashboard Gut Check could read shows its history. They never send an entity ID, a count, a reading or any other state, an area or a label. Names are read only as a description, never as an instruction.
 
 To see exactly what was sent on the last completed run, open **Developer tools > States**, find the check's sensor, and look at its `last_payload` attribute. A run that went out as several requests shows one entry per request. A run that fails partway leaves the previous run's payload in place.
 
@@ -164,6 +172,8 @@ Critical label suggestions only consider valves, switches, sirens and binary sen
 
 Diagnostic sensor suggestions only consider sensors with no device class or a signal-strength one. They never consider another device class (battery, timestamp and data size included), a binary sensor or any other kind of entity, a sensor that is already hidden or already a settings or diagnostic entity, a disabled sensor, Gut Check's own sensors, or anything carrying your critical label on itself or its device. A sensor with an open device class card waits until you set or refuse its class. Each sensor with no device class is asked one question: does it describe the device or its connection, or something in your home you would watch or automate on?
 
+Recorder suggestions only rank entities that changed at least 1,000 times a day on average over the last week, or over the recorder's whole history when it keeps less. They never consider a lock, alarm panel, cover, disabled entity, Gut Check's own entities, or anything carrying your critical label, and they skip an entity your recorder settings already leave out. An entity in the Energy dashboard, a sensor whose statistics are totals, and the source of a statistics, history stats or filter sensor (these read the recorder, not the live state) are kept without asking. At most 30 are asked per run, the busiest first, and the rest are listed only. An entity with no unique ID is listed but never asked, since a card could not be tied to it. An entity whose history a dashboard card draws never gets a card. That covers history and statistics graphs, statistic and logbook cards, a sensor card with a graph, a graph header or footer on an entities card, a tile card's trend graph, and the ApexCharts, mini graph, Plotly, history explorer and mini history custom cards. Other custom cards are not recognised. After a restart, a card does not come back for an entity your recorder settings now leave out, or one you have since added to the Energy dashboard or a history card.
+
 ### Restored entities
 
 A restored entity is one its integration no longer provides. The health check sorts it as safe to remove without asking the model once it has been gone for 31 days, as long as its integration is still loaded or it has none. If the recorder keeps less history than that (`purge_keep_days`, 10 days by default) and has recorded the outage, being gone for that whole history is enough. With the recorder off this rarely applies, because a restart resets the entity's last-changed time, the only other date Gut Check has. These entities carry no confidence value in the sensor's attributes.
@@ -184,15 +194,18 @@ The stuck integration check's sensor, `sensor.gut_check_stuck_integration_check`
 
 `sensor.gut_check_diagnostic_sensor_suggestions` counts the open hide cards. Its attributes list suggested sensors (a signal-strength one carries no confidence), a `primary` list for sensors Gut Check judged to be about your home, and an `unsure` list.
 
+`sensor.gut_check_recorder_suggestions` counts the open recorder cards. Its attributes list every ranked entity with its changes per day and rate word, grouped as `exclude`, `throttle`, `keep` (with why, for those kept without asking or because a dashboard shows them) and `not_asked` (with why), plus an `unsure` list.
+
 `sensor.gut_check_critical_label_suggestions` counts the open critical label cards. Its attributes list suggested entities (a smoke, carbon monoxide or gas sensor decided by device class alone carries no confidence), a `not_critical` list, and an `unsure` list.
 
 ### Repairs cards
 
-Cards appear under **Settings > Repairs**. The health check, update review and stuck integration check raise advisory cards that point you at something to look into:
+Cards appear under **Settings > Repairs**. The health check, update review, stuck integration check and recorder suggestions raise advisory cards that point you at something to look into:
 
 - **Worth fixing**: One card per entity. It clears once the entity is available again, and ignoring it hides it on later runs too.
 - **Possibly breaking**: One card per update, linking to its release notes where the integration provides them. It clears when the update is installed or skipped, not on a version bump alone, so an open card still has an unread update behind it.
 - **Stuck integration**: One card per sign-in problem or broken-for-good integration, and one per integration Gut Check has stayed unsure about for a week or more, each linking to the integration's page. It clears once the integration loads, is disabled or is removed, and stays through a retry that fails again. Ignoring it hides it for as long as the integration keeps getting a card, even if the card changes kind. Turning the check off clears its cards, ignored ones included.
+- **Recorder**: One card per entity Gut Check thinks needs no history, at most ten, busiest first. It shows the snippet to add to the recorder section of your configuration.yaml and links to the recorder docs; restart Home Assistant after adding it. The card clears on a later run once the entity no longer comes back as not needed. Ignoring it hides it on later checks, including when you turn the check off and back on.
 
 The four suggestion checks raise cards that change something when you confirm them, and they share these rules:
 
@@ -216,4 +229,4 @@ Home Assistant's own entity settings have no device class control for a sensor, 
 
 Delete the integration from **Settings > Devices & services**. That removes its entities, clears every Repairs card it created (ignored ones included), and deletes its stored budget and check results. Then remove the download from HACS.
 
-Nothing Gut Check suggested and you accepted is undone: a device you moved to an area, for example, stays where you put it. A label added from a card stays too, like an area or a device class Gut Check set, and so does a sensor hidden from a card.
+Nothing Gut Check suggested and you accepted is undone: a device you moved to an area, for example, stays where you put it. A label added from a card stays too, like an area or a device class Gut Check set, and so does a sensor hidden from a card. A recorder exclusion you added yourself stays in your configuration.yaml.

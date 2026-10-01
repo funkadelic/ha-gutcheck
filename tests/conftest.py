@@ -47,6 +47,7 @@ from custom_components.gutcheck.const import (
     CONF_DEVICE_CLASS_ENABLED,
     CONF_HEALTH_ENABLED,
     CONF_HIDE_DIAGNOSTIC_ENABLED,
+    CONF_RECORDER_CHURN_ENABLED,
     CONF_UPDATES_ENABLED,
     DEFAULT_DAILY_BUDGET,
     DEVICE_CLASS_ISSUE_PREFIX,
@@ -64,6 +65,7 @@ from custom_components.gutcheck.const import (
 from custom_components.gutcheck.recipes.critical_label_const import CRITICAL_LABEL_CHOICES
 from custom_components.gutcheck.recipes.device_class_cards import sync_device_class_cards
 from custom_components.gutcheck.recipes.hide_diagnostic_const import HIDE_DIAGNOSTIC_CHOICES
+from custom_components.gutcheck.recipes.recorder_churn_const import RECORDER_CHURN_CHOICES
 from custom_components.gutcheck.recipes.safety import SafetyRules
 from custom_components.gutcheck.recipes.shapes import Item, RecipeResult
 from custom_components.gutcheck.recipes.update_const import UPDATE_CRITERIA
@@ -87,6 +89,7 @@ KEPT_DEVICE_CLASS_OPTIONS = {
     CONF_CONFIG_ENTRIES_ENABLED: False,
     CONF_CRITICAL_LABEL_ENABLED: False,
     CONF_HIDE_DIAGNOSTIC_ENABLED: False,
+    CONF_RECORDER_CHURN_ENABLED: False,
     CONF_DAILY_BUDGET: DEFAULT_DAILY_BUDGET,
 }
 
@@ -169,6 +172,11 @@ def critical_label_answer(choice: str, confidence: float) -> dict[str, Any]:
 def hide_diagnostic_answer(choice: str, confidence: float) -> dict[str, Any]:
     """Build a documented-shape choice answer over the diagnostic sensor recipe's own choices."""
     return area_answer(choice, confidence, HIDE_DIAGNOSTIC_CHOICES)
+
+
+def recorder_churn_answer(choice: str, confidence: float) -> dict[str, Any]:
+    """Build a documented-shape choice answer over the recorder suggestions recipe's own choices."""
+    return area_answer(choice, confidence, RECORDER_CHURN_CHOICES)
 
 
 def register_jev_responses(aioclient_mock: AiohttpClientMocker, responses: list[Any]) -> None:
@@ -810,5 +818,29 @@ def hide_diagnostic_entry() -> MockConfigEntry:
             CONF_CONFIG_ENTRIES_ENABLED: False,
             CONF_CRITICAL_LABEL_ENABLED: False,
             CONF_HIDE_DIAGNOSTIC_ENABLED: True,
+            CONF_RECORDER_CHURN_ENABLED: False,
+        },
+    )
+
+
+@pytest.fixture
+def recorder_churn_entry() -> MockConfigEntry:
+    """A Gut Check config entry with only recorder suggestions switched on.
+
+    Every other recipe is switched off, so every POST in a test using this
+    fixture is this recipe's own.
+    """
+    return MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_API_KEY: "test-key"},
+        options={
+            CONF_HEALTH_ENABLED: False,
+            CONF_UPDATES_ENABLED: False,
+            CONF_AREAS_ENABLED: False,
+            CONF_DEVICE_CLASS_ENABLED: False,
+            CONF_CONFIG_ENTRIES_ENABLED: False,
+            CONF_CRITICAL_LABEL_ENABLED: False,
+            CONF_HIDE_DIAGNOSTIC_ENABLED: False,
+            CONF_RECORDER_CHURN_ENABLED: True,
         },
     )

@@ -40,7 +40,8 @@
           "daily_budget": "Daily token budget (input tokens)",
           "critical_label": "Critical label",
           "change_back": "Change back something Gut Check set",
-          "hide_diagnostic_enabled": "Run the weekly diagnostic sensor suggestions"
+          "hide_diagnostic_enabled": "Run the weekly diagnostic sensor suggestions",
+          "recorder_churn_enabled": "Run the weekly recorder suggestions"
         },
         "data_description": {
           "updates_enabled": "Scores pending updates as routine, feature, or possibly breaking. Advisory only, never installs anything.",
@@ -51,7 +52,8 @@
           "daily_budget": "A hard stop for the day. It resets at local midnight.",
           "critical_label": "Gut Check never acts on or changes an entity or device with this label. The home health check still watches it and tells you if it goes offline, but every other check leaves it out. Locks, alarms and covers are never checked, label or not.",
           "change_back": "Opens a list of the sensors whose device class Gut Check set, and the sensors it hid, from suggestions you confirmed, so you can change any of them back.",
-          "hide_diagnostic_enabled": "Suggests hiding sensors that report on a device or its connection, such as signal strength, network name or storage used, rather than on your home. Nothing is hidden until you confirm a suggestion in Repairs."
+          "hide_diagnostic_enabled": "Suggests hiding sensors that report on a device or its connection, such as signal strength, network name or storage used, rather than on your home. Nothing is hidden until you confirm a suggestion in Repairs.",
+          "recorder_churn_enabled": "Ranks the entities that write to the recorder most often and suggests which could be left out of its history. Gut Check never changes your recorder settings. Each suggestion is a Repairs card with a snippet you add to configuration.yaml yourself."
         }
       },
       "change_back": {
@@ -92,6 +94,9 @@
       },
       "hide_diagnostic": {
         "name": "Diagnostic sensor suggestions"
+      },
+      "recorder_churn": {
+        "name": "Recorder suggestions"
       }
     },
     "button": {
@@ -115,6 +120,9 @@
       },
       "hide_diagnostic_run": {
         "name": "Run diagnostic sensor suggestions"
+      },
+      "recorder_churn_run": {
+        "name": "Run recorder suggestions"
       }
     }
   },
@@ -222,6 +230,10 @@
           "suggestion_ignored": "Gut Check will stop suggesting hiding this sensor. The card is now in your ignored repairs."
         }
       }
+    },
+    "recorder_exclude_suggestion": {
+      "title": "Recorder: {entity_id}",
+      "description": "Gut Check counted how often `{entity_id}` writes a new state to the recorder and rates it **{bucket}** (1,000 to 3,000 changes a day is heavy, 3,000 to 10,000 very heavy, 10,000 or more extreme). It thinks nothing needs this entity's history.\n\nTo stop recording it, add it to the `recorder:` section of your configuration.yaml, merging it into any `recorder:` section you already have, then restart Home Assistant:\n\n```yaml\nrecorder:\n  exclude:\n    entities:\n      - {entity_id}\n```\n\nThis stops its history and its long-term statistics. The entity keeps working, and automations still see its current state. Gut Check skips the source of a statistics, history stats or filter sensor, but cannot see everything that reads the recorder, such as an SQL sensor. If your recorder section already uses include filters, read the linked page first, because they change how an exclude applies. Gut Check never changes your configuration, and ignoring this card keeps it hidden on later checks."
     }
   },
   "exceptions": {
