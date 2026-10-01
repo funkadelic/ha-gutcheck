@@ -153,13 +153,23 @@ class RecorderChurnRecipe:
     async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:
         """Veto exclude answers for dashboard entities, sync one advisory card per exclude answer, and log counts."""
         _veto_dashboard_excludes(result)
-        sync_exclude_cards(hass, result["items"].get(OPTION_EXCLUDE, []))
+        sync_exclude_cards(hass, self._safety, result["items"].get(OPTION_EXCLUDE, []))
         _LOGGER.debug("recorder suggestions run complete, counts=%s", result["counts"])
 
-    async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
-        """Re-sync the cards from the stored result with no API call.
+    def _allowed(self, hass: HomeAssistant, item: Item) -> bool:
+        """Whether a stored item's entity is still allowed; one with no registry id or no entry stays."""
+        registry_id = item.get("registry_id")
+        return not (registry_id and self._safety.excludes_entity_id(hass, str(registry_id)))
 
-        A non-persistent card loads inactive after a restart until a sync
+    async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
+        """Drop items that became critical, then re-sync the cards from the stored result with no API call.
+
+        An entity removed since stays listed and simply gets no card. A
+        non-persistent card loads inactive after a restart until a sync
         re-creates it.
         """
-        sync_exclude_cards(hass, result["items"].get(OPTION_EXCLUDE, []))
+        for option, items in result["items"].items():
+            result["items"][option] = [item for item in items if self._allowed(hass, item)]
+            result["counts"][option] = len(result["items"][option])
+        result["unsure"] = [item for item in result["unsure"] if self._allowed(hass, item)]
+        sync_exclude_cards(hass, self._safety, result["items"].get(OPTION_EXCLUDE, []))
