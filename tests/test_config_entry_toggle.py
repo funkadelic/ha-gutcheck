@@ -50,7 +50,7 @@ async def test_on_by_default_then_disable_reenable_run_and_removal_timeline(
     mock_config_entry: MockConfigEntry,
     failing_entry: Any,
 ) -> None:
-    """On by default, so setup raises cards; disable clears them like the update review; re-enable, run and removal follow."""
+    """On by default, so setup raises cards; disable, re-enable, run and removal follow the update review."""
     open_entry = await failing_entry("open_hub", ConfigEntryError("device offline"), title="Open Hub", entry_id="open_entry")
     ignored_entry = await failing_entry(
         "ignored_hub", ConfigEntryError("device offline"), title="Ignored Hub", entry_id="ignored_entry"
