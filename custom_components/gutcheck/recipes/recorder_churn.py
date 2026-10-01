@@ -1,0 +1,111 @@
+"""Recorder suggestions recipe: one choice question per heaviest recorder writer."""
+
+from __future__ import annotations
+
+import logging
+from typing import Any
+
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.update_coordinator import UpdateFailed
+
+from ..const import FAILED_RUN_RETRY, RECIPE_RECORDER_CHURN, RECORDER_CHURN_ISSUE_PREFIX
+from ..models import Question
+from .gate import gate_choice
+from .recorder_churn_cards import sync_exclude_cards
+from .recorder_churn_const import (
+    OPTION_EXCLUDE,
+    OPTION_NOT_ASKED,
+    RECORDER_CHURN_CHOICES,
+    RECORDER_CHURN_CONFIDENCE_THRESHOLD,
+    RECORDER_CHURN_CRITERIA,
+    RECORDER_CHURN_INSTRUCTIONS,
+    RECORDER_CHURN_OPTIONS,
+)
+from .recorder_churn_count import async_churn
+from .recorder_churn_describe import describe, rank
+from .safety import SafetyRules
+from .shapes import Batch, Item, RecipeResult
+
+_LOGGER = logging.getLogger(__name__)
+
+
+class RecorderChurnRecipe:
+    """Ranks entities by recorder writes per day and classifies each heavy one with one choice question."""
+
+    recipe_id = RECIPE_RECORDER_CHURN
+    options: tuple[str, ...] = RECORDER_CHURN_OPTIONS
+    issue_prefix = RECORDER_CHURN_ISSUE_PREFIX
+    # An unsure item carries no choice, so the entity id is the one field
+    # every stored item has, carried ones included.
+    stored_item_keys: frozenset[str] = frozenset({"entity_id"})
+
+    def __init__(self, critical_label: str | None) -> None:
+        """Build the shared safety guard."""
+        self._safety = SafetyRules(critical_label)
+
+    def gate(self, answer: object) -> str | None:
+        """Gate one answer through the choice gate over exclude, throttle and keep.
+
+        OPTION_NONE is in the criteria only, so a confident "none of these"
+        lands in unsure.
+        """
+        return gate_choice(answer, RECORDER_CHURN_CHOICES, RECORDER_CHURN_CONFIDENCE_THRESHOLD)
+
+    async def async_prepare(self, hass: HomeAssistant, previous: RecipeResult | None = None, *, force: bool = False) -> Batch:
+        """Count, rank and ask one choice question per ranked entity.
+
+        previous and force are unused, since nothing carries forward between
+        runs. With no recorder or a failed count the run fails, so the sensor
+        keeps its last report.
+        """
+        churn = await async_churn(hass)
+        if churn is None:
+            raise UpdateFailed("recorder history unavailable", retry_after=FAILED_RUN_RETRY.total_seconds())
+        window_days, counts = churn
+        ranked = rank(hass, self._safety, counts, window_days)
+
+        entities: list[dict[str, Any]] = []
+        questions: dict[str, Question] = {}
+        subjects: dict[str, Item] = {}
+        carried: dict[str, list[Item]] = {OPTION_NOT_ASKED: []}
+        for item in ranked:
+            assert item.entry is not None  # rank keeps only entities with a registry entry
+            state_item, subject = describe(hass, item.entry, item.per_day)
+            index = len(entities)
+            entities.append(state_item)
+            question_id = f"r{index}"
+            questions[question_id] = {
+                "type": "choice",
+                "instructions": RECORDER_CHURN_INSTRUCTIONS.format(index=index),
+                "criteria": RECORDER_CHURN_CRITERIA,
+            }
+            subjects[question_id] = subject
+
+        _LOGGER.debug(
+            "recorder suggestions counted=%s ranked=%s asked=%s window_days=%s",
+            len(counts),
+            len(ranked),
+            len(entities),
+            window_days,
+        )
+        return Batch(
+            state={"entities": entities},
+            questions=questions,
+            subjects=subjects,
+            carried=carried,
+            list_key="entities",
+            template=RECORDER_CHURN_INSTRUCTIONS,
+        )
+
+    async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:
+        """Sync one advisory card per exclude answer, and log counts."""
+        sync_exclude_cards(hass, result["items"].get(OPTION_EXCLUDE, []))
+        _LOGGER.debug("recorder suggestions run complete, counts=%s", result["counts"])
+
+    async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
+        """Re-sync the cards from the stored result with no API call.
+
+        A non-persistent card loads inactive after a restart until a sync
+        re-creates it.
+        """
+        sync_exclude_cards(hass, result["items"].get(OPTION_EXCLUDE, []))

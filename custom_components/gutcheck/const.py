@@ -19,6 +19,7 @@ CONF_DEVICE_CLASS_ENABLED: Final = "device_class_enabled"
 CONF_CONFIG_ENTRIES_ENABLED: Final = "config_entries_enabled"
 CONF_CRITICAL_LABEL_ENABLED: Final = "critical_label_enabled"
 CONF_HIDE_DIAGNOSTIC_ENABLED: Final = "hide_diagnostic_enabled"
+CONF_RECORDER_CHURN_ENABLED: Final = "recorder_churn_enabled"
 # The Configure checkbox and step id for changing back anything Gut Check set (a
 # device class or a hidden sensor); never saved as an option.
 CONF_CHANGE_BACK: Final = "change_back"
@@ -57,6 +58,7 @@ RECIPE_DEVICE_CLASS: Final = "device_class"
 RECIPE_CONFIG_ENTRIES: Final = "config_entries"
 RECIPE_CRITICAL_LABEL: Final = "critical_label"
 RECIPE_HIDE_DIAGNOSTIC: Final = "hide_diagnostic"
+RECIPE_RECORDER_CHURN: Final = "recorder_churn"
 # Every recipe id this integration ships, so async_remove_entry can clean up
 # each one's Store without needing a line added by hand for each new recipe.
 ALL_RECIPE_IDS: Final = (
@@ -67,6 +69,7 @@ ALL_RECIPE_IDS: Final = (
     RECIPE_CONFIG_ENTRIES,
     RECIPE_CRITICAL_LABEL,
     RECIPE_HIDE_DIAGNOSTIC,
+    RECIPE_RECORDER_CHURN,
 )
 RECIPE_INTERVAL: Final = timedelta(days=7)
 FAILED_RUN_RETRY: Final = timedelta(hours=1)
@@ -82,6 +85,7 @@ DEVICE_CLASS_ISSUE_PREFIX: Final = "device_class_"
 CONFIG_ENTRY_ISSUE_PREFIX: Final = "config_entry_"
 CRITICAL_LABEL_ISSUE_PREFIX: Final = "critical_label_"
 HIDE_DIAGNOSTIC_ISSUE_PREFIX: Final = "hide_diagnostic_"
+RECORDER_CHURN_ISSUE_PREFIX: Final = "recorder_exclude_"
 ISSUE_AREA_SUGGESTION: Final = "area_suggestion"
 ISSUE_DEVICE_CLASS_SUGGESTION: Final = "device_class_suggestion"
 ISSUE_CONFIG_ENTRY_NEEDS_REAUTH: Final = "config_entry_needs_reauth"
@@ -89,6 +93,7 @@ ISSUE_CONFIG_ENTRY_DEAD: Final = "config_entry_dead"
 ISSUE_CONFIG_ENTRY_STILL_FAILING: Final = "config_entry_still_failing"
 ISSUE_CRITICAL_LABEL_SUGGESTION: Final = "critical_label_suggestion"
 ISSUE_HIDE_DIAGNOSTIC_SUGGESTION: Final = "hide_diagnostic_suggestion"
+ISSUE_RECORDER_EXCLUDE_SUGGESTION: Final = "recorder_exclude_suggestion"
 
 BLOCKED_DOMAINS: Final = frozenset(
     {

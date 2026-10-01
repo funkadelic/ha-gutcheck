@@ -25,6 +25,7 @@ from custom_components.gutcheck.const import (
     CONF_DEVICE_CLASS_ENABLED,
     CONF_HEALTH_ENABLED,
     CONF_HIDE_DIAGNOSTIC_ENABLED,
+    CONF_RECORDER_CHURN_ENABLED,
     CONF_UPDATES_ENABLED,
     DEFAULT_DAILY_BUDGET,
     DOMAIN,
@@ -94,6 +95,7 @@ async def test_defaults_apply_when_options_never_saved(
     assert defaults[CONF_CONFIG_ENTRIES_ENABLED] is False
     assert defaults[CONF_CRITICAL_LABEL_ENABLED] is False
     assert defaults[CONF_HIDE_DIAGNOSTIC_ENABLED] is False
+    assert defaults[CONF_RECORDER_CHURN_ENABLED] is False
     assert defaults[CONF_DAILY_BUDGET] == DEFAULT_DAILY_BUDGET
     assert CONF_CRITICAL_LABEL not in defaults
 
@@ -414,6 +416,7 @@ async def test_a_save_drops_the_change_back_key_an_earlier_release_left_in_the_o
         CONF_CONFIG_ENTRIES_ENABLED: False,
         CONF_CRITICAL_LABEL_ENABLED: False,
         CONF_HIDE_DIAGNOSTIC_ENABLED: False,
+        CONF_RECORDER_CHURN_ENABLED: False,
         CONF_DAILY_BUDGET: 12345,
     }
     entry = MockConfigEntry(domain=DOMAIN, data={CONF_API_KEY: "test-key"}, options={**options, "undo_device_class": False})
