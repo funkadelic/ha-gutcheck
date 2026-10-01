@@ -3,6 +3,12 @@
 ## [0.14.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.13.0...v0.14.0) (2026-10-01)
 
 
+### What's new
+
+* Repairs card titles drop their trailing words, so more of a long entity name fits. Update cards now name the integration or add-on being updated, such as "Update: Presence Simulation".
+* Device class suggestions and the stuck integration check are now on by default. If you have never saved Gut Check's Configure screen, both switch on with this update. If you have, your choices stay as they are. To change them, go to Settings > Devices & services > Gut Check > Configure.
+
+
 ### Added
 
 * turn on device class suggestions and the stuck integration check by default ([#70](https://github.com/funkadelic/ha-gutcheck/issues/70)) ([858f7e7](https://github.com/funkadelic/ha-gutcheck/commit/858f7e7295f73e4c600e52f507afbaae3b376a37))
