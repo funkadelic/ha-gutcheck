@@ -1,0 +1,33 @@
+tests/fixtures/captured/recorder_churn_payload.json
+  s_e4639f280f1dee::t_4250aedc8b3d1f 1-20,22-34,36-48,50-104,106-255,257-283,285-311,313-325,327-339,341-353,355-367,369-380,383,385-504,506-531,534,536-560,562-588,590-616,618-630,632-749
+  s_e4639f280f1dee::t_9f09cf2a8460c3 21,35,49,105,256,284,312,326,340,354,368,381-382,384,505,532-533,535,561,589,617,631
+tests/test_recorder_churn_captured.py
+  s_e4639f280f1dee::t_da2d64e6d816b6 1-41,44-215
+  s_e4639f280f1dee::t_9ce7755175aae5 42-43
+  s_e4639f280f1dee::t_d0780e4ada1b0d 216-218
+tests/fixtures/captured/recorder_churn_response.json
+  s_e4639f280f1dee::t_276ff9ec7ab773 1-359
+tests/fixtures/captured/recorder_churn_snapshot.json
+  s_e4639f280f1dee::t_4250aedc8b3d1f 1-344
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "24da3d0bf822667ffca2ad509c2f55d3814e6924",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_e4639f280f1dee": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d88a18b1-1cb6-40c3-895a-f1295424d8b6",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
