@@ -15,7 +15,6 @@ from .recorder_churn_const import (
     CHURN_FLOOR_PER_DAY,
     KEPT_STATE_CLASSES,
     LONG_TERM_STATISTICS_CLASSES,
-    REASON_ENERGY,
     REASON_TOTAL_STATE_CLASS,
 )
 from .safety import SafetyRules
@@ -77,10 +76,10 @@ def _clean(text: str | None) -> str | None:
     return clean_text(text, DEVICE_TEXT_MAX_CHARS) or None
 
 
-def keep_reason(entity_id: str, entry: er.RegistryEntry | None, energy_ids: set[str]) -> str | None:
-    """Why code keeps this entity with no question: the Energy dashboard names it, or its state class is a total."""
-    if entity_id in energy_ids:
-        return REASON_ENERGY
+def keep_reason(entity_id: str, entry: er.RegistryEntry | None, keeps: dict[str, str]) -> str | None:
+    """Why code keeps this entity with no question: its reason in keeps, or a total state class."""
+    if entity_id in keeps:
+        return keeps[entity_id]
     if entry is not None and (entry.capabilities or {}).get("state_class") in KEPT_STATE_CLASSES:
         return REASON_TOTAL_STATE_CLASS
     return None

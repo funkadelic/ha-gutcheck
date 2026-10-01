@@ -28,36 +28,26 @@ from .recorder_churn_const import (
 )
 from .recorder_churn_count import async_churn
 from .recorder_churn_describe import Ranked, describe, keep_reason, rank, subject
-from .recorder_churn_refs import async_energy_entity_ids, async_history_card_entity_ids, referenced
+from .recorder_churn_keep import async_code_keeps, async_veto_on_restore, veto_excludes
+from .recorder_churn_refs import async_history_card_entity_ids, referenced
 from .safety import SafetyRules
 from .shapes import Batch, Item, RecipeResult
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def _veto_dashboard_excludes(result: RecipeResult) -> None:
-    """Move every exclude item a recorder-backed dashboard card shows into keep.
-
-    Runs in async_act, before the coordinator saves the result, so a restore
-    reads the corrected buckets and needs no second veto.
-    """
-    items = result["items"]
-    shown = [item for item in items.get(OPTION_EXCLUDE, []) if item.get("on_dashboard")]
-    if not shown:
-        return
-    items[OPTION_EXCLUDE] = [item for item in items[OPTION_EXCLUDE] if not item.get("on_dashboard")]
-    items.setdefault(OPTION_KEEP, []).extend({**item, "reason": REASON_HISTORY_CARD} for item in shown)
-    for option in (OPTION_EXCLUDE, OPTION_KEEP):
-        result["counts"][option] = len(items[option])
+def _on_dashboard(item: Item) -> str | None:
+    """The history card reason for an exclude answer whose entity a dashboard graphs, else None."""
+    return REASON_HISTORY_CARD if item.get("on_dashboard") else None
 
 
-def _placement(item: Ranked, energy_ids: set[str], asked: int) -> tuple[str, str] | None:
+def _placement(item: Ranked, keeps: dict[str, str], asked: int) -> tuple[str, str] | None:
     """The bucket and reason code gives an entity without asking, or None when it is to be asked.
 
     Order: a code keep (Energy dashboard, total state class), no unique id
     (no card can be keyed without one), then the top-N cap on entities asked so far.
     """
-    reason = keep_reason(item.entity_id, item.entry, energy_ids)
+    reason = keep_reason(item.entity_id, item.entry, keeps)
     if reason is not None:
         return OPTION_KEEP, reason
     if item.entry is None:
@@ -102,14 +92,14 @@ class RecorderChurnRecipe:
         window_days, counts = churn
         ranked = rank(hass, self._safety, counts, window_days)
         on_dashboard = await async_history_card_entity_ids(hass)
-        energy_ids = await async_energy_entity_ids(hass)
+        keeps = await async_code_keeps(hass)
 
         entities: list[dict[str, Any]] = []
         questions: dict[str, Question] = {}
         subjects: dict[str, Item] = {}
         carried: dict[str, list[Item]] = {OPTION_KEEP: [], OPTION_NOT_ASKED: []}
         for item in ranked:
-            placement = _placement(item, energy_ids, len(entities))
+            placement = _placement(item, keeps, len(entities))
             if placement is not None:
                 option, reason = placement
                 carried[option].append({**subject(item), "reason": reason})
@@ -152,7 +142,8 @@ class RecorderChurnRecipe:
 
     async def async_act(self, hass: HomeAssistant, result: RecipeResult) -> None:
         """Veto exclude answers for dashboard entities, sync one advisory card per exclude answer, and log counts."""
-        _veto_dashboard_excludes(result)
+        # Before the coordinator saves the result, so a restore reads the corrected buckets.
+        veto_excludes(result, _on_dashboard)
         sync_exclude_cards(hass, self._safety, result["items"].get(OPTION_EXCLUDE, []))
         _LOGGER.debug("recorder suggestions run complete, counts=%s", result["counts"])
 
@@ -162,7 +153,7 @@ class RecorderChurnRecipe:
         return not (registry_id and self._safety.excludes_entity_id(hass, str(registry_id)))
 
     async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
-        """Drop items that became critical, then re-sync the cards from the stored result with no API call.
+        """Drop items that became critical, re-apply the code keeps, then re-sync the cards with no API call.
 
         An entity removed since stays listed and simply gets no card. A
         non-persistent card loads inactive after a restart until a sync
@@ -172,4 +163,5 @@ class RecorderChurnRecipe:
             result["items"][option] = [item for item in items if self._allowed(hass, item)]
             result["counts"][option] = len(result["items"][option])
         result["unsure"] = [item for item in result["unsure"] if self._allowed(hass, item)]
+        await async_veto_on_restore(hass, result)
         sync_exclude_cards(hass, self._safety, result["items"].get(OPTION_EXCLUDE, []))

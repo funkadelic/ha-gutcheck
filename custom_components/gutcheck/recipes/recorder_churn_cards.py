@@ -5,6 +5,7 @@ from __future__ import annotations
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
+from homeassistant.helpers.recorder import DATA_INSTANCE, get_instance
 
 from ..const import DOMAIN, ISSUE_RECORDER_EXCLUDE_SUGGESTION, RECORDER_CHURN_ISSUE_PREFIX
 from ..repairs import async_sync_issues, is_ignored
@@ -19,8 +20,16 @@ def _churn(item: Item) -> int:
     return int(value) if isinstance(value, int | float) else 0
 
 
+def _still_recorded(hass: HomeAssistant, entity_id: str) -> bool:
+    """False once the recorder's own filter leaves the entity out; True with no recorder or no filter."""
+    if DATA_INSTANCE not in hass.data:
+        return True
+    entity_filter = get_instance(hass).entity_filter
+    return entity_filter is None or entity_filter(entity_id)
+
+
 def _wanted(hass: HomeAssistant, safety: SafetyRules, excluded: list[Item]) -> dict[str, dict[str, str]]:
-    """Cards to open: the heaviest exclude items still registered, still allowed and not ignored.
+    """Cards to open: the heaviest exclude items still registered, allowed, recorded and not ignored.
 
     An ignored card never takes one of the MAX_RECORDER_EXCLUDE_CARDS slots.
     The entity id comes from the live entry, so a rename is followed.
@@ -33,7 +42,12 @@ def _wanted(hass: HomeAssistant, safety: SafetyRules, excluded: list[Item]) -> d
             break
         entry = entities.async_get(str(item["registry_id"]))
         issue_id = f"{RECORDER_CHURN_ISSUE_PREFIX}{item['registry_id']}"
-        if entry is None or safety.excludes(hass, entry) or is_ignored(issues, issue_id):
+        if (
+            entry is None
+            or safety.excludes(hass, entry)
+            or is_ignored(issues, issue_id)
+            or not _still_recorded(hass, entry.entity_id)
+        ):
             continue
         wanted[issue_id] = {"entity_id": entry.entity_id, "bucket": str(item["bucket"])}
     return wanted
