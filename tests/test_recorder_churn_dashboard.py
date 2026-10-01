@@ -127,6 +127,8 @@ _X = "sensor.x"
         ({"type": "custom:history-explorer-card", "entities": [{"entity": _X}]}, True),
         ({"type": "custom:mini-history-card", "entities": [{"entity": _X}]}, True),
         ({"type": "custom:button-card", "entity": _X}, False),
+        ({"type": "custom:button-card", "entity": _X, "styles": {"type": ["a"]}}, False),
+        ({"type": "tile", "entity": _X, "features": [{"type": {"a": 1}}]}, False),
     ],
 )
 async def test_only_recorder_backed_cards_count_wherever_they_are_nested(
