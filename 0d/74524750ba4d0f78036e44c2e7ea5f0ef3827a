@@ -1,0 +1,36 @@
+tests/test_recorder_churn_select.py
+  s_e4639f280f1dee::t_ffa754dd05f3e2 1-131,133-251
+  s_e4639f280f1dee::t_1520ef6ac79f3e 132
+custom_components/gutcheck/recipes/recorder_churn_describe.py
+  s_e4639f280f1dee::t_ae61510431b7a0 7,10,38-40,49-52
+custom_components/gutcheck/recipes/recorder_churn.py
+  s_e4639f280f1dee::t_ae61510431b7a0 16,19-20,28,75-80,89,92,96
+tests/test_safety_rules.py
+  s_e4639f280f1dee::t_37e721cfdb1bb1 9-12,27,34,42-53,73-75,81
+tests/test_recorder_churn.py
+  s_e4639f280f1dee::t_58cb815caab7d1 7,12,16,41,160-197,199-204
+  s_e4639f280f1dee::t_3bc47ee832d51e 198
+tests/conftest.py
+  s_e4639f280f1dee::t_d685a4804b5349 824-846
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0d74524750ba4d0f78036e44c2e7ea5f0ef3827a",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_e4639f280f1dee": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d88a18b1-1cb6-40c3-895a-f1295424d8b6",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
