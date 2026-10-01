@@ -78,7 +78,7 @@ def _schema_defaults(schema: Any) -> dict[str, Any]:
 async def test_defaults_apply_when_options_never_saved(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
 ) -> None:
-    """The init form's defaults are health on, the default budget, and no label."""
+    """The init form's defaults are the first five checks on, the default budget, and no label."""
     register_unavailable_entity(hass)
     register_jev_responses(aioclient_mock, [api_response({"e0": choice_answer(OPTION_EXPECTED, 0.9)})])
     mock_config_entry.add_to_hass(hass)
@@ -91,8 +91,8 @@ async def test_defaults_apply_when_options_never_saved(
     defaults = _schema_defaults(result["data_schema"])
     assert defaults[CONF_HEALTH_ENABLED] is True
     assert defaults[CONF_AREAS_ENABLED] is True
-    assert defaults[CONF_DEVICE_CLASS_ENABLED] is False
-    assert defaults[CONF_CONFIG_ENTRIES_ENABLED] is False
+    assert defaults[CONF_DEVICE_CLASS_ENABLED] is True
+    assert defaults[CONF_CONFIG_ENTRIES_ENABLED] is True
     assert defaults[CONF_CRITICAL_LABEL_ENABLED] is False
     assert defaults[CONF_HIDE_DIAGNOSTIC_ENABLED] is False
     assert defaults[CONF_RECORDER_CHURN_ENABLED] is False

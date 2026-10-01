@@ -46,28 +46,18 @@ def _device_class_issue_ids(hass: HomeAssistant) -> set[str]:
     }
 
 
-async def test_off_by_default_then_disable_reenable_run_and_removal_timeline(
+async def test_on_by_default_then_disable_reenable_run_and_removal_timeline(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, mock_config_entry: MockConfigEntry
 ) -> None:
-    """Off by default; enabling raises cards; disable keeps an ignored one; re-enable, run and removal follow the area recipe."""
+    """On by default, so setup raises cards; disable keeps an ignored one; re-enable, run and removal follow the area recipe."""
     open_sensor = register_unit_sensor(hass, "open", unit="%", name="Open Sensor")
     ignored_sensor = register_unit_sensor(hass, "ignored", unit="%", name="Ignored Sensor")
-    mock_config_entry.add_to_hass(hass)
-    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
-    await hass.async_block_till_done(wait_background_tasks=True)
-
-    assert find_recipe_sensor(hass, mock_config_entry, RECIPE_DEVICE_CLASS) is None
-    assert _device_class_button_entity_id(hass, mock_config_entry) is None
-    assert posted_bodies(aioclient_mock) == []
-
     both_confident = api_response(
         {"s0": area_answer("battery", 0.9, BATTERY_CANDIDATES), "s1": area_answer("battery", 0.9, BATTERY_CANDIDATES)}
     )
     register_jev_responses(aioclient_mock, [both_confident])
-    result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
-    await hass.config_entries.options.async_configure(
-        result["flow_id"], {CONF_DEVICE_CLASS_ENABLED: True, CONF_DAILY_BUDGET: DEFAULT_DAILY_BUDGET}
-    )
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done(wait_background_tasks=True)
 
     assert find_recipe_sensor(hass, mock_config_entry, RECIPE_DEVICE_CLASS) is not None
