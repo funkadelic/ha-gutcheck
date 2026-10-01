@@ -34,14 +34,16 @@ Gut Check gives your Home Assistant install a weekly checkup. It finds entities 
 
 ## What it does
 
-- **Home health check**: Sorts unavailable entities into expected, worth fixing and safe to remove.
-- **Update review**: Flags pending updates that might break something.
-- **Area suggestions**: Suggests an area for each device that has none.
-- **Device class suggestions**: Suggests a type for sensors that report a unit but have none.
-- **Stuck integration check**: Sorts integrations that failed to start into passing glitches, sign-in problems and broken for good.
-- **Critical label suggestions**: Finds safety devices that are missing your critical label.
-- **Diagnostic sensor suggestions**: Suggests hiding sensors about the device itself, such as Wi-Fi signal, that clutter your dashboards.
-- **Recorder suggestions**: Finds the entities that fill the recorder fastest and suggests which to leave out of it.
+Gut Check performs 8 checks (recipes if you will):
+
+1. **Home health check**: Sorts unavailable entities into expected, worth fixing and safe to remove.
+2. **Update review**: Flags pending updates that might break something.
+3. **Area suggestions**: Suggests an area for each device that has none.
+4. **Device class suggestions**: Suggests a type for sensors that report a unit but have none.
+5. **Stuck integration check**: Sorts integrations that failed to start into passing glitches, sign-in problems and broken for good.
+6. **Critical label suggestions**: Finds safety devices that are missing your critical label.
+7. **Diagnostic sensor suggestions**: Suggests hiding sensors about the device itself, such as Wi-Fi signal, that clutter your dashboards.
+8. **Recorder suggestions**: Finds the entities that fill the recorder fastest and suggests which to leave out of it.
 
 The first three are on when you add Gut Check. Switch the others on in Configure.
 
