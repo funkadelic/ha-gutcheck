@@ -6,6 +6,7 @@ import logging
 from typing import Any
 
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.update_coordinator import UpdateFailed
 
 from ..const import FAILED_RUN_RETRY, RECIPE_RECORDER_CHURN, RECORDER_CHURN_ISSUE_PREFIX
@@ -162,5 +163,9 @@ class RecorderChurnRecipe:
             result["items"][option] = [item for item in items if self._allowed(hass, item)]
             result["counts"][option] = len(result["items"][option])
         result["unsure"] = [item for item in result["unsure"] if self._allowed(hass, item)]
-        await async_veto_on_restore(hass, result)
+        try:
+            await async_veto_on_restore(hass, result)
+        except HomeAssistantError as err:
+            # A failed re-check must not fail setup; the stored cards stand until the next run.
+            _LOGGER.warning("recorder suggestions restore re-check skipped: %s", type(err).__name__)
         sync_exclude_cards(hass, self._safety, result["items"].get(OPTION_EXCLUDE, []))

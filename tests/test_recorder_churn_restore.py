@@ -10,6 +10,7 @@ from homeassistant.components.energy.data import async_get_manager
 from homeassistant.components.lovelace.const import LOVELACE_DATA
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.entityfilter import INCLUDE_EXCLUDE_BASE_FILTER_SCHEMA, convert_include_exclude_filter
@@ -143,6 +144,29 @@ async def test_an_entity_graphed_after_the_run_loses_its_card_on_restart(
         await restart_config_entry(hass, recorder_churn_entry)
 
     await _assert_moved_to_keep(hass, aioclient_mock, recorder_churn_entry, graphed, REASON_HISTORY_CARD)
+
+
+async def test_a_failed_energy_read_on_restart_keeps_the_stored_cards_and_loads(
+    hass: HomeAssistant,
+    aioclient_mock: AiohttpClientMocker,
+    recorder_churn_entry: MockConfigEntry,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """An unreadable Energy store at restart skips the re-check: the entry loads and both cards reopen."""
+    sensors = _two_heavy(hass)
+    with patch(_PATCH, AsyncMock(return_value=_counts(*sensors))):
+        await _run_twice_excluded(hass, aioclient_mock, recorder_churn_entry, sensors)
+        with patch(
+            "custom_components.gutcheck.recipes.recorder_churn_keep.async_energy_entity_ids",
+            AsyncMock(side_effect=HomeAssistantError("corrupt store detail")),
+        ):
+            await restart_config_entry(hass, recorder_churn_entry)
+
+    assert recorder_churn_entry.state is ConfigEntryState.LOADED
+    assert len(posted_bodies(aioclient_mock)) == 1
+    assert all(_card(hass, sensor) is not None for sensor in sensors)
+    assert "HomeAssistantError" in caplog.text
+    assert "corrupt store detail" not in caplog.text
 
 
 @pytest.mark.parametrize("missing", [None, "entity_id", "registry_id", "bucket"])
