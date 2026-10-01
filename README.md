@@ -59,6 +59,10 @@ The first three are on when you add Gut Check. Switch the others on in Configure
 
 **Area suggestions.** A device with no area is left out of room pages, room-based voice commands, and automations that target a whole room. Gut Check suggests one of your existing areas for each such device, or nothing when it isn't sure. From the suggestion's Repairs card you assign the area, or tell Gut Check not to suggest one for that device.
 
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/card-area.png" alt="Area card in the Repairs list" width="598"></picture>
+
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/modal-area.png" alt="Area card, opened" width="580"></picture>
+
 **Device class suggestions.** A device class tells Home Assistant what a sensor measures, such as temperature, energy or humidity. Without one, the sensor gets a generic icon, its units can't be converted, and an energy, gas or water sensor can't go on the Energy dashboard. Gut Check suggests a class for sensors that report a unit but have none, choosing only from classes that accept that unit. You set it, pick a different class, or decline from its Repairs card.
 
 <picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/card-device-class.png" alt="Device class card in the Repairs list" width="598"></picture>
@@ -68,6 +72,10 @@ The first three are on when you add Gut Check. Switch the others on in Configure
 **Stuck integration check.** An integration that fails to start only shows an error in the integrations list, so it's easy to miss for weeks. Gut Check reads the error each one reported and sorts it as a passing glitch, a sign-in problem, or broken for good (the device or account is gone, or Home Assistant stopped retrying). Sign-in problems and broken integrations get a Repairs card linking to the integration's page. So does any integration Gut Check stays unsure about for a week; that card shows the error and makes no guess at the cause.
 
 **Critical label suggestions.** Your critical label marks the entities and devices Gut Check must never act on, such as smoke alarms, leak sensors and water shutoff valves. The health check still tells you when one goes offline. This check finds the ones you haven't labelled yet. Smoke, carbon monoxide and gas sensors are suggested from their type alone, and Gut Check asks Jev about valves, switches, sirens and moisture sensors. Confirming a card adds the label to that entity only. Pick your critical label in Configure first.
+
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/card-critical-label.png" alt="Critical label card in the Repairs list" width="598"></picture>
+
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/modal-critical-label.png" alt="Critical label card, opened" width="580"></picture>
 
 **Diagnostic sensor suggestions.** Many integrations add sensors about the device itself rather than your home, such as Wi-Fi signal strength, the network a phone is on, or its SIM carrier or storage. They crowd your temperatures and power readings on auto-generated dashboards and area pages. Gut Check suggests hiding them. A hidden sensor keeps working and recording history, and you can change it back from Configure.
 
