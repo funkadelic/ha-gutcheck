@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any
 from unittest.mock import AsyncMock, patch
 
@@ -19,6 +21,7 @@ from custom_components.gutcheck.const import (
     ATTR_LAST_ERROR,
     ATTR_UNSURE,
     DOMAIN,
+    ISSUE_RECORDER_EXCLUDE_SUGGESTION,
     RECIPE_RECORDER_CHURN,
     RECORDER_CHURN_ISSUE_PREFIX,
 )
@@ -136,9 +139,13 @@ def test_churn_buckets_start_at_their_bound(per_day: int, word: str) -> None:
     assert churn_bucket(per_day) == word
 
 
-def test_the_instructions_name_every_bucket_bound() -> None:
-    """Each bound in the table appears with a thousands separator in the question."""
-    assert all(f"{bound:,}" in RECORDER_CHURN_INSTRUCTIONS for bound, _word in CHURN_BUCKETS)
+def test_the_question_and_the_card_name_every_bucket_bound() -> None:
+    """Each bound in the table appears with a thousands separator in the question and the card, the top one inclusive."""
+    path = Path(__file__).parent.parent / "custom_components" / "gutcheck" / "translations" / "en.json"
+    card = json.loads(path.read_text())["issues"][ISSUE_RECORDER_EXCLUDE_SUGGESTION]["description"]
+    for text in (RECORDER_CHURN_INSTRUCTIONS, card):
+        assert all(f"{bound:,}" in text for bound, _word in CHURN_BUCKETS)
+        assert f"{CHURN_BUCKETS[0][0]:,} or more" in text
 
 
 async def test_only_the_top_n_are_asked_in_requests_of_ten(
