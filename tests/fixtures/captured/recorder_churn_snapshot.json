@@ -1,0 +1,344 @@
+{
+  "items": {
+    "exclude": [
+      {
+        "changes_per_day": 4680,
+        "bucket": "very heavy",
+        "on_dashboard": false,
+        "confidence": 0.9,
+        "choice": "exclude"
+      },
+      {
+        "changes_per_day": 3306,
+        "bucket": "very heavy",
+        "on_dashboard": false,
+        "confidence": 0.98,
+        "choice": "exclude"
+      },
+      {
+        "changes_per_day": 3202,
+        "bucket": "very heavy",
+        "on_dashboard": false,
+        "confidence": 0.93,
+        "choice": "exclude"
+      },
+      {
+        "changes_per_day": 3033,
+        "bucket": "very heavy",
+        "on_dashboard": false,
+        "confidence": 0.57,
+        "choice": "exclude"
+      },
+      {
+        "changes_per_day": 2133,
+        "bucket": "heavy",
+        "on_dashboard": false,
+        "confidence": 0.9,
+        "choice": "exclude"
+      },
+      {
+        "changes_per_day": 2104,
+        "bucket": "heavy",
+        "on_dashboard": false,
+        "confidence": 0.5,
+        "choice": "exclude"
+      },
+      {
+        "changes_per_day": 1660,
+        "bucket": "heavy",
+        "on_dashboard": false,
+        "confidence": 0.97,
+        "choice": "exclude"
+      }
+    ],
+    "throttle": [
+      {
+        "changes_per_day": 12574,
+        "bucket": "extreme",
+        "on_dashboard": false,
+        "confidence": 0.97,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 12048,
+        "bucket": "extreme",
+        "on_dashboard": false,
+        "confidence": 0.97,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 11519,
+        "bucket": "extreme",
+        "on_dashboard": false,
+        "confidence": 0.97,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 6146,
+        "bucket": "very heavy",
+        "on_dashboard": false,
+        "confidence": 0.95,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 5780,
+        "bucket": "very heavy",
+        "on_dashboard": false,
+        "confidence": 0.95,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 5294,
+        "bucket": "very heavy",
+        "on_dashboard": true,
+        "confidence": 0.87,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 5041,
+        "bucket": "very heavy",
+        "on_dashboard": false,
+        "confidence": 0.93,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 3322,
+        "bucket": "very heavy",
+        "on_dashboard": false,
+        "confidence": 0.63,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 3275,
+        "bucket": "very heavy",
+        "on_dashboard": false,
+        "confidence": 0.97,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 2923,
+        "bucket": "heavy",
+        "on_dashboard": false,
+        "confidence": 0.85,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 2859,
+        "bucket": "heavy",
+        "on_dashboard": true,
+        "confidence": 0.73,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 2855,
+        "bucket": "heavy",
+        "on_dashboard": true,
+        "confidence": 0.66,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 2803,
+        "bucket": "heavy",
+        "on_dashboard": true,
+        "confidence": 0.68,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 2594,
+        "bucket": "heavy",
+        "on_dashboard": false,
+        "confidence": 0.71,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 2320,
+        "bucket": "heavy",
+        "on_dashboard": true,
+        "confidence": 0.88,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 2060,
+        "bucket": "heavy",
+        "on_dashboard": true,
+        "confidence": 0.88,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 1933,
+        "bucket": "heavy",
+        "on_dashboard": true,
+        "confidence": 0.84,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 1725,
+        "bucket": "heavy",
+        "on_dashboard": true,
+        "confidence": 0.78,
+        "choice": "throttle"
+      },
+      {
+        "changes_per_day": 1602,
+        "bucket": "heavy",
+        "on_dashboard": true,
+        "confidence": 0.81,
+        "choice": "throttle"
+      }
+    ],
+    "keep": [
+      {
+        "changes_per_day": 11287,
+        "bucket": "extreme",
+        "reason": "energy_dashboard"
+      },
+      {
+        "changes_per_day": 6003,
+        "bucket": "very heavy",
+        "reason": "energy_dashboard"
+      },
+      {
+        "changes_per_day": 4544,
+        "bucket": "very heavy",
+        "reason": "energy_dashboard"
+      },
+      {
+        "changes_per_day": 1439,
+        "bucket": "heavy",
+        "reason": "total_state_class"
+      },
+      {
+        "changes_per_day": 1439,
+        "bucket": "heavy",
+        "reason": "total_state_class"
+      },
+      {
+        "changes_per_day": 1439,
+        "bucket": "heavy",
+        "reason": "total_state_class"
+      },
+      {
+        "changes_per_day": 1439,
+        "bucket": "heavy",
+        "reason": "total_state_class"
+      },
+      {
+        "changes_per_day": 1439,
+        "bucket": "heavy",
+        "reason": "total_state_class"
+      },
+      {
+        "changes_per_day": 1438,
+        "bucket": "heavy",
+        "reason": "total_state_class"
+      },
+      {
+        "changes_per_day": 1438,
+        "bucket": "heavy",
+        "reason": "energy_dashboard"
+      },
+      {
+        "changes_per_day": 1438,
+        "bucket": "heavy",
+        "reason": "total_state_class"
+      },
+      {
+        "changes_per_day": 1295,
+        "bucket": "heavy",
+        "reason": "energy_dashboard"
+      },
+      {
+        "changes_per_day": 1293,
+        "bucket": "heavy",
+        "reason": "total_state_class"
+      }
+    ],
+    "not_asked": [
+      {
+        "changes_per_day": 1583,
+        "bucket": "heavy",
+        "reason": "lower_rank"
+      },
+      {
+        "changes_per_day": 1512,
+        "bucket": "heavy",
+        "reason": "lower_rank"
+      },
+      {
+        "changes_per_day": 1432,
+        "bucket": "heavy",
+        "reason": "lower_rank"
+      },
+      {
+        "changes_per_day": 1403,
+        "bucket": "heavy",
+        "reason": "lower_rank"
+      },
+      {
+        "changes_per_day": 1386,
+        "bucket": "heavy",
+        "reason": "lower_rank"
+      },
+      {
+        "changes_per_day": 1384,
+        "bucket": "heavy",
+        "reason": "lower_rank"
+      },
+      {
+        "changes_per_day": 1365,
+        "bucket": "heavy",
+        "reason": "lower_rank"
+      },
+      {
+        "changes_per_day": 1281,
+        "bucket": "heavy",
+        "reason": "lower_rank"
+      },
+      {
+        "changes_per_day": 1142,
+        "bucket": "heavy",
+        "reason": "lower_rank"
+      },
+      {
+        "changes_per_day": 1108,
+        "bucket": "heavy",
+        "reason": "lower_rank"
+      },
+      {
+        "changes_per_day": 1011,
+        "bucket": "heavy",
+        "reason": "lower_rank"
+      }
+    ]
+  },
+  "unsure": [
+    {
+      "changes_per_day": 5432,
+      "bucket": "very heavy",
+      "on_dashboard": false,
+      "confidence": 0.4,
+      "choice": "exclude"
+    },
+    {
+      "changes_per_day": 2512,
+      "bucket": "heavy",
+      "on_dashboard": false,
+      "confidence": 0.09,
+      "choice": "keep"
+    },
+    {
+      "changes_per_day": 2254,
+      "bucket": "heavy",
+      "on_dashboard": false,
+      "confidence": 0.41,
+      "choice": "exclude"
+    },
+    {
+      "changes_per_day": 1945,
+      "bucket": "heavy",
+      "on_dashboard": false,
+      "confidence": 0.33,
+      "choice": "exclude"
+    }
+  ]
+}

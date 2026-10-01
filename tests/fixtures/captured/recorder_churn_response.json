@@ -1,0 +1,359 @@
+[
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "r0": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.96,
+        "probabilities": {
+          "none_of_these": 0.01,
+          "keep": 0.0,
+          "exclude": 0.02,
+          "throttle": 0.97
+        }
+      },
+      "r1": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.98,
+        "probabilities": {
+          "none_of_these": 0.01,
+          "keep": 0.0,
+          "exclude": 0.01,
+          "throttle": 0.98
+        }
+      },
+      "r2": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.97,
+        "probabilities": {
+          "none_of_these": 0.01,
+          "keep": 0.0,
+          "exclude": 0.01,
+          "throttle": 0.98
+        }
+      },
+      "r3": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.96,
+        "probabilities": {
+          "none_of_these": 0.01,
+          "keep": 0.02,
+          "exclude": 0.0,
+          "throttle": 0.97
+        }
+      },
+      "r4": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.94,
+        "probabilities": {
+          "none_of_these": 0.01,
+          "keep": 0.01,
+          "exclude": 0.02,
+          "throttle": 0.96
+        }
+      },
+      "r5": {
+        "type": "choice",
+        "choice": "exclude",
+        "confidence": 0.5,
+        "probabilities": {
+          "none_of_these": 0.02,
+          "keep": 0.06,
+          "exclude": 0.62,
+          "throttle": 0.3
+        }
+      },
+      "r6": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.86,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "keep": 0.1,
+          "exclude": 0.0,
+          "throttle": 0.9
+        }
+      },
+      "r7": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.95,
+        "probabilities": {
+          "none_of_these": 0.01,
+          "keep": 0.02,
+          "exclude": 0.01,
+          "throttle": 0.96
+        }
+      },
+      "r8": {
+        "type": "choice",
+        "choice": "exclude",
+        "confidence": 0.91,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "keep": 0.0,
+          "exclude": 0.94,
+          "throttle": 0.06
+        }
+      },
+      "r9": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.62,
+        "probabilities": {
+          "none_of_these": 0.01,
+          "keep": 0.23,
+          "exclude": 0.04,
+          "throttle": 0.72
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 7312,
+      "output_tokens": 499
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "r10": {
+        "type": "choice",
+        "choice": "exclude",
+        "confidence": 0.99,
+        "probabilities": {
+          "exclude": 0.99,
+          "throttle": 0.01,
+          "keep": 0.0,
+          "none_of_these": 0.0
+        }
+      },
+      "r11": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.97,
+        "probabilities": {
+          "exclude": 0.01,
+          "throttle": 0.97,
+          "keep": 0.01,
+          "none_of_these": 0.01
+        }
+      },
+      "r12": {
+        "type": "choice",
+        "choice": "exclude",
+        "confidence": 0.96,
+        "probabilities": {
+          "exclude": 0.97,
+          "throttle": 0.03,
+          "keep": 0.0,
+          "none_of_these": 0.0
+        }
+      },
+      "r13": {
+        "type": "choice",
+        "choice": "exclude",
+        "confidence": 0.45,
+        "probabilities": {
+          "exclude": 0.59,
+          "throttle": 0.36,
+          "keep": 0.03,
+          "none_of_these": 0.02
+        }
+      },
+      "r14": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.87,
+        "probabilities": {
+          "exclude": 0.0,
+          "throttle": 0.91,
+          "keep": 0.08,
+          "none_of_these": 0.01
+        }
+      },
+      "r15": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.65,
+        "probabilities": {
+          "exclude": 0.0,
+          "throttle": 0.74,
+          "keep": 0.26,
+          "none_of_these": 0.0
+        }
+      },
+      "r16": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.63,
+        "probabilities": {
+          "exclude": 0.0,
+          "throttle": 0.72,
+          "keep": 0.27,
+          "none_of_these": 0.01
+        }
+      },
+      "r17": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.59,
+        "probabilities": {
+          "exclude": 0.01,
+          "throttle": 0.6799999999999999,
+          "keep": 0.3,
+          "none_of_these": 0.01
+        }
+      },
+      "r18": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.76,
+        "probabilities": {
+          "exclude": 0.01,
+          "throttle": 0.8099999999999999,
+          "keep": 0.16,
+          "none_of_these": 0.02
+        }
+      },
+      "r19": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.2,
+        "probabilities": {
+          "exclude": 0.06,
+          "throttle": 0.4,
+          "keep": 0.37,
+          "none_of_these": 0.17
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 7296,
+      "output_tokens": 507
+    }
+  },
+  {
+    "model": "jev-1.13.0",
+    "answers": {
+      "r21": {
+        "type": "choice",
+        "choice": "exclude",
+        "confidence": 0.44,
+        "probabilities": {
+          "none_of_these": 0.02,
+          "exclude": 0.57,
+          "throttle": 0.32,
+          "keep": 0.09
+        }
+      },
+      "r22": {
+        "type": "choice",
+        "choice": "exclude",
+        "confidence": 0.9,
+        "probabilities": {
+          "keep": 0.01,
+          "exclude": 0.93,
+          "throttle": 0.06,
+          "none_of_these": 0.0
+        }
+      },
+      "r24": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.89,
+        "probabilities": {
+          "none_of_these": 0.01,
+          "exclude": 0.0,
+          "throttle": 0.91,
+          "keep": 0.08
+        }
+      },
+      "r25": {
+        "type": "choice",
+        "choice": "exclude",
+        "confidence": 0.43,
+        "probabilities": {
+          "none_of_these": 0.03,
+          "exclude": 0.57,
+          "throttle": 0.3,
+          "keep": 0.1
+        }
+      },
+      "r28": {
+        "type": "choice",
+        "choice": "exclude",
+        "confidence": 0.97,
+        "probabilities": {
+          "keep": 0.0,
+          "exclude": 0.98,
+          "throttle": 0.02,
+          "none_of_these": 0.0
+        }
+      },
+      "r20": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.85,
+        "probabilities": {
+          "keep": 0.11,
+          "exclude": 0.0,
+          "throttle": 0.89,
+          "none_of_these": 0.0
+        }
+      },
+      "r23": {
+        "type": "choice",
+        "choice": "exclude",
+        "confidence": 0.37,
+        "probabilities": {
+          "keep": 0.06,
+          "exclude": 0.52,
+          "throttle": 0.4,
+          "none_of_these": 0.02
+        }
+      },
+      "r26": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.8,
+        "probabilities": {
+          "none_of_these": 0.0,
+          "exclude": 0.0,
+          "throttle": 0.86,
+          "keep": 0.14
+        }
+      },
+      "r27": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.79,
+        "probabilities": {
+          "keep": 0.15,
+          "exclude": 0.0,
+          "throttle": 0.84,
+          "none_of_these": 0.01
+        }
+      },
+      "r29": {
+        "type": "choice",
+        "choice": "throttle",
+        "confidence": 0.86,
+        "probabilities": {
+          "none_of_these": 0.01,
+          "exclude": 0.0,
+          "throttle": 0.9,
+          "keep": 0.09
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 7247,
+      "output_tokens": 503
+    }
+  }
+]
