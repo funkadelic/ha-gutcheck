@@ -63,9 +63,8 @@ class RecorderChurnRecipe:
     recipe_id = RECIPE_RECORDER_CHURN
     options: tuple[str, ...] = RECORDER_CHURN_OPTIONS
     issue_prefix = RECORDER_CHURN_ISSUE_PREFIX
-    # An unsure item carries no choice, so the entity id is the one field
-    # every stored item has, carried ones included.
-    stored_item_keys: frozenset[str] = frozenset({"entity_id"})
+    # subject() writes these on every item, unsure and carried ones included; restore reads all three.
+    stored_item_keys: frozenset[str] = frozenset({"entity_id", "registry_id", "bucket"})
 
     def __init__(self, critical_label: str | None) -> None:
         """Build the shared safety guard."""

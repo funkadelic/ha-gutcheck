@@ -5,18 +5,33 @@ from __future__ import annotations
 from typing import Any
 from unittest.mock import AsyncMock, patch
 
+import pytest
 from homeassistant.components.energy.data import async_get_manager
 from homeassistant.components.lovelace.const import LOVELACE_DATA
+from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.entityfilter import INCLUDE_EXCLUDE_BASE_FILTER_SCHEMA, convert_include_exclude_filter
 from homeassistant.setup import async_setup_component
+from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
-from custom_components.gutcheck.const import ATTR_COUNTS, ATTR_ITEMS, DOMAIN, RECIPE_RECORDER_CHURN, RECORDER_CHURN_ISSUE_PREFIX
-from custom_components.gutcheck.recipes.recorder_churn_const import REASON_ENERGY, REASON_HISTORY_CARD
+from custom_components.gutcheck.const import (
+    ATTR_COUNTS,
+    ATTR_ITEMS,
+    DOMAIN,
+    RECIPE_RECORDER_CHURN,
+    RECORDER_CHURN_ISSUE_PREFIX,
+    STORE_VERSION,
+)
+from custom_components.gutcheck.recipes.recorder_churn_const import (
+    REASON_ENERGY,
+    REASON_HISTORY_CARD,
+    RECORDER_CHURN_OPTIONS,
+)
+from custom_components.gutcheck.recipes.shapes import recipe_store_key
 
 from .conftest import (
     posted_bodies,
@@ -128,3 +143,40 @@ async def test_an_entity_graphed_after_the_run_loses_its_card_on_restart(
         await restart_config_entry(hass, recorder_churn_entry)
 
     await _assert_moved_to_keep(hass, aioclient_mock, recorder_churn_entry, graphed, REASON_HISTORY_CARD)
+
+
+@pytest.mark.parametrize("missing", [None, "entity_id", "registry_id", "bucket"])
+async def test_a_stored_exclude_item_missing_a_read_field_is_rejected_without_failing_setup(
+    hass: HomeAssistant, hass_storage: dict[str, Any], recorder_churn_entry: MockConfigEntry, missing: str | None
+) -> None:
+    """A complete stored item restores its card; one missing a field restore reads falls back to a fresh run."""
+    sensor = register_unit_sensor(hass, "stored", unit="W", name="Stored")
+    item: dict[str, Any] = {
+        "entity_id": sensor.entity_id,
+        "registry_id": sensor.id,
+        "changes_per_day": 9_000,
+        "bucket": "very heavy",
+        "confidence": 0.9,
+    }
+    item.pop(missing or "", None)
+    key = recipe_store_key(RECIPE_RECORDER_CHURN)
+    items = {option: [item] if option == "exclude" else [] for option in RECORDER_CHURN_OPTIONS}
+    hass_storage[key] = {
+        "version": STORE_VERSION,
+        "minor_version": 1,
+        "key": key,
+        "data": {
+            "last_run": dt_util.utcnow().isoformat(),
+            "counts": {option: len(bucket) for option, bucket in items.items()},
+            "items": items,
+            "unsure": [],
+            "last_payload": None,
+        },
+    }
+    recorder_churn_entry.add_to_hass(hass)
+    with patch(_PATCH, AsyncMock(return_value=(7, {}))):
+        assert await hass.config_entries.async_setup(recorder_churn_entry.entry_id)
+        await hass.async_block_till_done(wait_background_tasks=True)
+
+    assert recorder_churn_entry.state is ConfigEntryState.LOADED
+    assert (_card(hass, sensor) is not None) is (missing is None)
