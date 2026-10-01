@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 from homeassistant.const import STATE_OFF, STATE_ON, STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -51,7 +52,46 @@ async def test_possibly_breaking_creates_one_issue_with_a_validated_link(hass: H
     assert issue is not None
     assert issue.is_fixable is False
     assert issue.learn_more_url == "https://example.com/release"
-    assert issue.translation_placeholders == {"entity_id": "update.a", "latest_version": "2.0.0"}
+    assert issue.translation_placeholders == {"entity_id": "update.a", "name": "update.a", "latest_version": "2.0.0"}
+
+
+@pytest.mark.parametrize(
+    ("device_name", "name_by_user", "entity_name", "expected"),
+    [
+        ("Presence Simulation", None, None, "Presence Simulation"),
+        ("Presence Simulation", "Away lights", None, "Away lights"),
+        (None, None, "Battery Threshold", "Battery Threshold"),
+        (None, None, None, "update.no_device"),
+    ],
+)
+async def test_card_names_the_device_being_updated(
+    hass: HomeAssistant,
+    mock_config_entry: MockConfigEntry,
+    device_name: str | None,
+    name_by_user: str | None,
+    entity_name: str | None,
+    expected: str,
+) -> None:
+    """The title names the device, then the entity, then falls back to the entity id."""
+    mock_config_entry.add_to_hass(hass)
+    device_id = None
+    if device_name is not None:
+        device = dr.async_get(hass).async_get_or_create(
+            config_entry_id=mock_config_entry.entry_id, identifiers={("test", "dev")}, name=device_name
+        )
+        dr.async_get(hass).async_update_device(device.id, name_by_user=name_by_user)
+        device_id = device.id
+    entry = er.async_get(hass).async_get_or_create(
+        "update", "test", "no_device", suggested_object_id="no_device", device_id=device_id, original_name=entity_name
+    )
+    result = update_result({OPTION_POSSIBLY_BREAKING: [update_item(entry.entity_id, entry.id)]})
+
+    await UpdateRecipe(critical_label=None).async_act(hass, result)
+
+    issue = ir.async_get(hass).async_get_issue(DOMAIN, f"{UPDATES_ISSUE_PREFIX}{entry.id}")
+    assert issue is not None
+    assert issue.translation_placeholders is not None
+    assert issue.translation_placeholders["name"] == expected
 
 
 async def test_routine_feature_and_none_create_no_issue(hass: HomeAssistant) -> None:
@@ -262,7 +302,7 @@ async def test_restore_drops_a_newly_critical_entity_from_unsure_too(hass: HomeA
 
 
 async def test_no_placeholder_contains_release_note_text_or_title(hass: HomeAssistant) -> None:
-    """Placeholders are the entity id and the latest version only; nothing publisher-written reaches them."""
+    """No placeholder carries release-note text or the release title."""
     release_notes = "This release drops the legacy config format entirely"
     title = "Major overhaul of everything"
     item = update_item("update.a", "reg_a", latest_version="2.0.0")

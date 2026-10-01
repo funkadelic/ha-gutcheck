@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from homeassistant.const import STATE_ON
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
 from ..const import ISSUE_POSSIBLY_BREAKING_UPDATE, UPDATES_ISSUE_PREFIX
@@ -14,13 +15,13 @@ from .shapes import Item
 def _wanted_issues(possibly_breaking: list[Item]) -> dict[str, dict[str, str]]:
     """The issue id and placeholders for each possibly-breaking finding, keyed by registry id.
 
-    Placeholders are the entity id and the latest version only: the
-    publisher-written title and release-note excerpt must never become a
-    placeholder, since a Repairs card renders Markdown.
+    The release-note title and text never become a placeholder; the device
+    name does, sanitized like every placeholder, since a Repairs card renders Markdown.
     """
     return {
         f"{UPDATES_ISSUE_PREFIX}{item['registry_id']}": {
             "entity_id": str(item["entity_id"]),
+            "name": str(item["name"]),
             "latest_version": str(item["latest_version"]),
         }
         for item in possibly_breaking
@@ -38,13 +39,23 @@ def _learn_more_urls(possibly_breaking: list[Item]) -> dict[str, str]:
     return urls
 
 
-def _with_current_entity_ids(hass: HomeAssistant, items: list[Item]) -> list[Item]:
-    """Each item with its entity id re-read by registry id, so a rename since the run is followed."""
+def _with_current_names(hass: HomeAssistant, items: list[Item]) -> list[Item]:
+    """Each item with its entity id and display name re-read by registry id, so a rename since the run is followed.
+
+    The name is the device's (the integration or add-on being updated), then the entity's, then the entity id.
+    """
     registry = er.async_get(hass)
+    devices = dr.async_get(hass)
     resolved: list[Item] = []
     for item in items:
         entry = registry.async_get(str(item["registry_id"]))
-        resolved.append(item if entry is None else {**item, "entity_id": entry.entity_id})
+        if entry is None:
+            resolved.append({**item, "name": str(item["entity_id"])})
+            continue
+        device = devices.async_get(entry.device_id) if entry.device_id else None
+        device_name = (device.name_by_user or device.name) if device else None
+        name = device_name or entry.name or entry.original_name or entry.entity_id
+        resolved.append({**item, "entity_id": entry.entity_id, "name": name})
     return resolved
 
 
@@ -62,7 +73,7 @@ class UpdateIssueTracker:
         skipped and superseded in one condition; a version bump alone
         leaves the entity on and so never wrongly clears the card.
         """
-        possibly_breaking = _with_current_entity_ids(hass, possibly_breaking)
+        possibly_breaking = _with_current_names(hass, possibly_breaking)
         async_sync_issues(
             hass,
             UPDATES_ISSUE_PREFIX,
