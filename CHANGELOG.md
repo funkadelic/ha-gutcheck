@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.13.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.12.1...v0.13.0) (2026-10-01)
+
+
+### What's new
+
+* Gut Check can suggest which entities to leave out of the recorder. It counts how often each entity wrote a new state over the last week, and for the busiest ones it asks whether anyone needs their history. Each run, up to ten entities that Gut Check thinks are not needed get a Repairs card with the snippet to add to your configuration.yaml. Gut Check never changes your recorder settings itself. Entities in the Energy dashboard, sensors whose statistics are totals, and entities a dashboard graphs are never suggested. It is off by default: go to Settings > Devices & services > Gut Check > Configure and tick "Run the weekly recorder suggestions".
+
+
+### Added
+
+* suggest which busy entities to leave out of the recorder ([#65](https://github.com/funkadelic/ha-gutcheck/issues/65)) ([db60141](https://github.com/funkadelic/ha-gutcheck/commit/db601410c163bf20e1b842ad73b4c778b8bab463))
+
 ## [0.12.1](https://github.com/funkadelic/ha-gutcheck/compare/v0.12.0...v0.12.1) (2026-09-30)
 
 
