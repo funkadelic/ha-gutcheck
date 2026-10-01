@@ -1,0 +1,41 @@
+custom_components/gutcheck/recipes/recorder_churn_const.py
+  s_e4639f280f1dee::t_6393c199fd6b0c 37-39,47-48,59-61
+custom_components/gutcheck/manifest.json
+  s_e4639f280f1dee::t_49135a43c35592 5
+tests/test_recorder_churn.py
+  s_e4639f280f1dee::t_894aa08abd27a0 122
+custom_components/gutcheck/recipes/recorder_churn_describe.py
+  s_e4639f280f1dee::t_49135a43c35592 89-91
+  s_e4639f280f1dee::t_6393c199fd6b0c 13-20,80-88,106
+tests/test_recorder_churn_dashboard.py
+  s_e4639f280f1dee::t_d35064098b8b21 8,25,98-155
+tests/test_recorder_churn_keep.py
+  s_e4639f280f1dee::t_c0760162d1d536 201
+  s_e4639f280f1dee::t_426ea139cd80bc 1-200,202-216
+custom_components/gutcheck/recipes/recorder_churn.py
+  s_e4639f280f1dee::t_6393c199fd6b0c 30-31,54-56,59-62,65-69,105,110,112-115,117-124,136,140
+  s_e4639f280f1dee::t_21a014dc5a3558 57-58,63-64
+custom_components/gutcheck/recipes/recorder_churn_refs.py
+  s_e4639f280f1dee::t_6393c199fd6b0c 8-11,13,63-83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "29ceb333e93559ae988b98ae24a8590fbb199ab2",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_e4639f280f1dee": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d88a18b1-1cb6-40c3-895a-f1295424d8b6",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
