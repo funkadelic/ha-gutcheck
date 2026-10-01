@@ -27,8 +27,8 @@ from .recorder_churn_const import (
     RECORDER_CHURN_OPTIONS,
 )
 from .recorder_churn_count import async_churn
-from .recorder_churn_describe import describe, rank, subject
-from .recorder_churn_refs import async_history_card_entity_ids
+from .recorder_churn_describe import Ranked, describe, keep_reason, rank, subject
+from .recorder_churn_refs import async_energy_entity_ids, async_history_card_entity_ids, referenced
 from .safety import SafetyRules
 from .shapes import Batch, Item, RecipeResult
 
@@ -49,6 +49,22 @@ def _veto_dashboard_excludes(result: RecipeResult) -> None:
     items.setdefault(OPTION_KEEP, []).extend({**item, "reason": REASON_HISTORY_CARD} for item in shown)
     for option in (OPTION_EXCLUDE, OPTION_KEEP):
         result["counts"][option] = len(items[option])
+
+
+def _placement(item: Ranked, energy_ids: set[str], asked: int) -> tuple[str, str] | None:
+    """The bucket and reason code gives an entity without asking, or None when it is to be asked.
+
+    Order: a code keep (Energy dashboard, total state class), no unique id
+    (no card can be keyed without one), then the top-N cap on entities asked so far.
+    """
+    reason = keep_reason(item.entity_id, item.entry, energy_ids)
+    if reason is not None:
+        return OPTION_KEEP, reason
+    if item.entry is None:
+        return OPTION_NOT_ASKED, REASON_NO_UNIQUE_ID
+    if asked >= CHURN_TOP_N:
+        return OPTION_NOT_ASKED, REASON_LOWER_RANK
+    return None
 
 
 class RecorderChurnRecipe:
@@ -86,18 +102,26 @@ class RecorderChurnRecipe:
         window_days, counts = churn
         ranked = rank(hass, self._safety, counts, window_days)
         on_dashboard = await async_history_card_entity_ids(hass)
+        energy_ids = await async_energy_entity_ids(hass)
 
         entities: list[dict[str, Any]] = []
         questions: dict[str, Question] = {}
         subjects: dict[str, Item] = {}
-        carried: dict[str, list[Item]] = {OPTION_NOT_ASKED: []}
+        carried: dict[str, list[Item]] = {OPTION_KEEP: [], OPTION_NOT_ASKED: []}
         for item in ranked:
-            # No card can be keyed without a registry id, and only the top N are asked.
-            if item.entry is None or len(entities) >= CHURN_TOP_N:
-                reason = REASON_NO_UNIQUE_ID if item.entry is None else REASON_LOWER_RANK
-                carried[OPTION_NOT_ASKED].append({**subject(item), "reason": reason})
+            placement = _placement(item, energy_ids, len(entities))
+            if placement is not None:
+                option, reason = placement
+                carried[option].append({**subject(item), "reason": reason})
                 continue
-            state_item, asked = describe(hass, item.entry, item.per_day, on_dashboard=item.entity_id in on_dashboard)
+            assert item.entry is not None  # _placement sends a missing entry to not_asked
+            state_item, asked = describe(
+                hass,
+                item.entry,
+                item.per_day,
+                on_dashboard=item.entity_id in on_dashboard,
+                referenced=referenced(hass, item.entity_id),
+            )
             index = len(entities)
             entities.append(state_item)
             question_id = f"r{index}"
@@ -109,10 +133,11 @@ class RecorderChurnRecipe:
             subjects[question_id] = asked
 
         _LOGGER.debug(
-            "recorder suggestions counted=%s ranked=%s asked=%s not_asked=%s window_days=%s",
+            "recorder suggestions counted=%s ranked=%s asked=%s kept_in_code=%s not_asked=%s window_days=%s",
             len(counts),
             len(ranked),
             len(entities),
+            len(carried[OPTION_KEEP]),
             len(carried[OPTION_NOT_ASKED]),
             window_days,
         )

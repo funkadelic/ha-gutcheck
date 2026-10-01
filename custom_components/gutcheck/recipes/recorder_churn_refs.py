@@ -5,7 +5,12 @@ from __future__ import annotations
 from collections.abc import Iterator
 from typing import Any
 
+from homeassistant.components.automation import automations_with_entity
+from homeassistant.components.energy.data import async_get_manager
+from homeassistant.components.group import groups_with_entity
+from homeassistant.components.homeassistant.scene import scenes_with_entity
 from homeassistant.components.lovelace.const import LOVELACE_DATA
+from homeassistant.components.script import scripts_with_entity
 from homeassistant.core import HomeAssistant, valid_entity_id
 from homeassistant.exceptions import HomeAssistantError
 
@@ -55,3 +60,24 @@ async def async_history_card_entity_ids(hass: HomeAssistant) -> set[str]:
             continue
         shown |= _history_card_ids(config)
     return shown
+
+
+async def async_energy_entity_ids(hass: HomeAssistant) -> set[str]:
+    """Entity ids named anywhere in the Energy dashboard preferences, empty when never saved.
+
+    No error handling: a failed read must fail the run, since an empty set
+    would put an energy entity up for exclusion.
+    """
+    # A shared manager, loaded once.
+    manager = await async_get_manager(hass)
+    return set(_entity_ids(manager.data)) if manager.data is not None else set()
+
+
+def referenced(hass: HomeAssistant, entity_id: str) -> bool:
+    """Whether an automation, script, scene or group lists the entity.
+
+    Entities read only inside a template are not found.
+    """
+    return any(
+        find(hass, entity_id) for find in (automations_with_entity, scripts_with_entity, scenes_with_entity, groups_with_entity)
+    )

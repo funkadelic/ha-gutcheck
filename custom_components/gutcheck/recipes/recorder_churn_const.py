@@ -34,6 +34,9 @@ LONG_TERM_STATISTICS_CLASSES: Final = frozenset({SensorStateClass.MEASUREMENT, S
 
 RECORDER_FILTER_DOCS_URL: Final = "https://www.home-assistant.io/integrations/recorder/#configure-filter"
 
+# Leaving one out of the recorder stops its statistics, which the Energy dashboard and cost tracking read.
+KEPT_STATE_CLASSES: Final = frozenset({SensorStateClass.TOTAL, SensorStateClass.TOTAL_INCREASING})
+
 # The built-in cards that read recorded history; custom cards are not recognised.
 RECORDER_CARD_TYPES: Final = frozenset({"history-graph", "statistics-graph", "statistic", "logbook"})
 
@@ -41,6 +44,8 @@ RECORDER_CARD_TYPES: Final = frozenset({"history-graph", "statistics-graph", "st
 REASON_NO_UNIQUE_ID: Final = "no_unique_id"
 REASON_LOWER_RANK: Final = "lower_rank"
 REASON_HISTORY_CARD: Final = "history_card"
+REASON_ENERGY: Final = "energy_dashboard"
+REASON_TOTAL_STATE_CLASS: Final = "total_state_class"
 
 RECORDER_CHURN_INSTRUCTIONS: Final = (
     "`entities[{index}]` describes one Home Assistant entity that writes new states to the recorder far "
@@ -51,7 +56,9 @@ RECORDER_CHURN_INSTRUCTIONS: Final = (
     "`device_class` and `unit`, when set, say what it measures. Its `churn` says how often it changes: "
     "`heavy` is 1,000 to 3,000 changes a day, `very heavy` 3,000 to 10,000, and `extreme` more than "
     "10,000. When `long_term_statistics` is true, Home Assistant keeps long-term statistics for it, and "
-    "leaving it out of the recorder stops those statistics too. When `on_dashboard` is true, a dashboard "
+    "leaving it out of the recorder stops those statistics too. When `referenced` is true, an automation, script, scene or group "
+    "lists it; those read its live state, which leaving it out of the recorder does not change, and an "
+    "entity read only inside a template is not detected. When `on_dashboard` is true, a dashboard "
     "shows its history in a history graph, statistics graph, statistic or logbook card; not every "
     "dashboard can be read, so false does not prove nobody looks at its history. Using only the fields of "
     "`entities[{index}]`, decide whether its recorded history is worth keeping at this rate."

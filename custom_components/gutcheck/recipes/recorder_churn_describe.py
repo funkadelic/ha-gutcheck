@@ -10,7 +10,14 @@ from homeassistant.helpers import entity_registry as er
 from ..const import BLOCKED_DOMAINS, DEVICE_TEXT_MAX_CHARS
 from ..describe import clean_text
 from .entity_text import entity_text
-from .recorder_churn_const import CHURN_BUCKETS, CHURN_FLOOR_PER_DAY, LONG_TERM_STATISTICS_CLASSES
+from .recorder_churn_const import (
+    CHURN_BUCKETS,
+    CHURN_FLOOR_PER_DAY,
+    KEPT_STATE_CLASSES,
+    LONG_TERM_STATISTICS_CLASSES,
+    REASON_ENERGY,
+    REASON_TOTAL_STATE_CLASS,
+)
 from .safety import SafetyRules
 from .shapes import Item
 
@@ -70,7 +77,18 @@ def _clean(text: str | None) -> str | None:
     return clean_text(text, DEVICE_TEXT_MAX_CHARS) or None
 
 
-def describe(hass: HomeAssistant, entry: er.RegistryEntry, per_day: int, *, on_dashboard: bool) -> tuple[dict[str, Any], Item]:
+def keep_reason(entity_id: str, entry: er.RegistryEntry | None, energy_ids: set[str]) -> str | None:
+    """Why code keeps this entity with no question: the Energy dashboard names it, or its state class is a total."""
+    if entity_id in energy_ids:
+        return REASON_ENERGY
+    if entry is not None and (entry.capabilities or {}).get("state_class") in KEPT_STATE_CLASSES:
+        return REASON_TOTAL_STATE_CLASS
+    return None
+
+
+def describe(
+    hass: HomeAssistant, entry: er.RegistryEntry, per_day: int, *, on_dashboard: bool, referenced: bool
+) -> tuple[dict[str, Any], Item]:
     """One entity's model-visible state and its code-only subject.
 
     Built from the registry entry and its device only: never the entity id,
@@ -85,6 +103,7 @@ def describe(hass: HomeAssistant, entry: er.RegistryEntry, per_day: int, *, on_d
         "unit": _clean(entry.unit_of_measurement),
         "long_term_statistics": state_class in LONG_TERM_STATISTICS_CLASSES,
         "churn": churn_bucket(per_day),
+        "referenced": referenced,
         "on_dashboard": on_dashboard,
     }
     asked = subject(Ranked(entry.entity_id, entry, per_day))
