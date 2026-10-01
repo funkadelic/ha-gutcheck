@@ -108,7 +108,7 @@ TypeSafe AI measures usage in tokens, about three characters of text each, and c
 | Stuck integration check | 0 when nothing is stuck; about 550 estimated per stuck integration | under $0.0001 per stuck integration (estimated) |
 | Critical label suggestions | 0 when only smoke, carbon monoxide or gas sensors qualify; 26,701 for 59 asked entities on a real run | about $0.0011 |
 | Diagnostic sensor suggestions | 0 when only signal-strength sensors qualify; 58,661 for 122 asked sensors on a real run (13 requests) | about $0.0025 |
-| Recorder suggestions | 0 when nothing writes more than 1,000 times a day; 21,855 for 30 asked entities on a real run (3 requests) | under $0.001 |
+| Recorder suggestions | 0 when nothing writes more than 1,000 times a day; 21,641 for 30 asked entities on a real run (3 requests) | under $0.001 |
 
 One run of every check on that install comes to about a cent.
 
