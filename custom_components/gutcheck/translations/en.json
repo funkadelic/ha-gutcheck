@@ -128,11 +128,11 @@
   },
   "issues": {
     "unavailable_entity": {
-      "title": "Unavailable: {entity_id} needs attention",
+      "title": "Unavailable: {entity_id}",
       "description": "`{entity_id}` has been unavailable for {unavailable_for}. Gut Check thinks it is worth fixing. Nothing will be changed automatically, and ignoring this card keeps it hidden on later checks."
     },
     "possibly_breaking_update": {
-      "title": "Update: {entity_id} may need attention",
+      "title": "Update: {entity_id}",
       "description": "`{entity_id}` is offering version {latest_version}. Gut Check read the release notes and thinks this update could change or break something. Nothing is installed automatically, and ignoring this card keeps it hidden on later checks."
     },
     "area_suggestion": {
@@ -194,7 +194,7 @@
       }
     },
     "critical_label_suggestion": {
-      "title": "Critical label: {entity_id} may need your {label_name} label",
+      "title": "Critical label: {entity_id}",
       "fix_flow": {
         "step": {
           "init": {
