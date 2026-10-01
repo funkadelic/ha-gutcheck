@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD013 -->
 # ha-gutcheck
 
-![Gut Check](https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/custom_components/gutcheck/brand/logo.png)
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/custom_components/gutcheck/brand/logo.png" alt="Gut Check"></picture>
 
 [![Build](https://github.com/funkadelic/ha-gutcheck/actions/workflows/tests.yml/badge.svg)](https://github.com/funkadelic/ha-gutcheck/actions/workflows/tests.yml)
 [![Tests](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2Ffunkadelic%2Fe814bc9b80ce48781f29b860011051d9%2Fraw%2Fha-gutcheck-tests.json)](https://app.codecov.io/gh/funkadelic/ha-gutcheck/tests/main)
@@ -47,19 +47,47 @@ The first three are on when you add Gut Check. Switch the others on in Configure
 
 **Home health check.** Unavailable entities pile up and most are harmless, so the few that need fixing get lost. Gut Check sorts them into expected (normal, nothing to do), worth fixing (should be working), and safe to remove (left over from something no longer installed). Each worth-fixing entity gets a Repairs card, which clears itself once the entity comes back.
 
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/card-unavailable.png" alt="Unavailable entity card in the Repairs list" width="598"></picture>
+
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/modal-unavailable.png" alt="Unavailable entity card, opened" width="580"></picture>
+
 **Update review.** Most updates are safe to install, but now and then one renames or removes something your setup relies on. Gut Check reads each pending update's release notes and scores it routine, feature (adds something, nothing existing changes), or possibly breaking (removes or renames something, or needs a manual step other than a restart). Each possibly-breaking update gets a Repairs card, linking to its release notes where the integration provides them.
+
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/card-update.png" alt="Possibly breaking update card in the Repairs list" width="598"></picture>
+
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/modal-update.png" alt="Possibly breaking update card, opened" width="580"></picture>
 
 **Area suggestions.** A device with no area is left out of room pages, room-based voice commands, and automations that target a whole room. Gut Check suggests one of your existing areas for each such device, or nothing when it isn't sure. From the suggestion's Repairs card you assign the area, or tell Gut Check not to suggest one for that device.
 
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/card-area.png" alt="Area card in the Repairs list" width="598"></picture>
+
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/modal-area.png" alt="Area card, opened" width="580"></picture>
+
 **Device class suggestions.** A device class tells Home Assistant what a sensor measures, such as temperature, energy or humidity. Without one, the sensor gets a generic icon, its units can't be converted, and an energy, gas or water sensor can't go on the Energy dashboard. Gut Check suggests a class for sensors that report a unit but have none, choosing only from classes that accept that unit. You set it, pick a different class, or decline from its Repairs card.
+
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/card-device-class.png" alt="Device class card in the Repairs list" width="598"></picture>
+
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/modal-device-class.png" alt="Device class card, opened" width="580"></picture>
 
 **Stuck integration check.** An integration that fails to start only shows an error in the integrations list, so it's easy to miss for weeks. Gut Check reads the error each one reported and sorts it as a passing glitch, a sign-in problem, or broken for good (the device or account is gone, or Home Assistant stopped retrying). Sign-in problems and broken integrations get a Repairs card linking to the integration's page. So does any integration Gut Check stays unsure about for a week; that card shows the error and makes no guess at the cause.
 
 **Critical label suggestions.** Your critical label marks the entities and devices Gut Check must never act on, such as smoke alarms, leak sensors and water shutoff valves. The health check still tells you when one goes offline. This check finds the ones you haven't labelled yet. Smoke, carbon monoxide and gas sensors are suggested from their type alone, and Gut Check asks Jev about valves, switches, sirens and moisture sensors. Confirming a card adds the label to that entity only. Pick your critical label in Configure first.
 
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/card-critical-label.png" alt="Critical label card in the Repairs list" width="598"></picture>
+
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/modal-critical-label.png" alt="Critical label card, opened" width="580"></picture>
+
 **Diagnostic sensor suggestions.** Many integrations add sensors about the device itself rather than your home, such as Wi-Fi signal strength, the network a phone is on, or its SIM carrier or storage. They crowd your temperatures and power readings on auto-generated dashboards and area pages. Gut Check suggests hiding them. A hidden sensor keeps working and recording history, and you can change it back from Configure.
 
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/card-hide-diagnostic.png" alt="Diagnostic sensor card in the Repairs list" width="598"></picture>
+
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/modal-hide-diagnostic.png" alt="Diagnostic sensor card, opened" width="580"></picture>
+
 **Recorder suggestions.** Home Assistant's recorder keeps every state change for its history and statistics, and a few chatty entities, such as a sensor that updates every few seconds, can take up much of the database. Gut Check counts each entity's changes over the last week from the recorder itself. For the busiest ones it asks whether the history is worth keeping as it is, worth keeping at a slower rate (a setting on the device or integration), or not needed. Up to ten "not needed" answers a run, busiest first, get a Repairs card with a snippet to add to your configuration.yaml yourself. Gut Check never changes your recorder settings, and this check is off until you switch it on.
+
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/card-recorder-exclude.png" alt="Recorder card in the Repairs list" width="598"></picture>
+
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/repairs/modal-recorder-exclude.png" alt="Recorder card, opened" width="580"></picture>
 
 ## How Gut Check decides
 

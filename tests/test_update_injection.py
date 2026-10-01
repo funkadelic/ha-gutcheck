@@ -116,7 +116,7 @@ def test_hostile_answers_classify_into_three_buckets_or_unsure_with_nothing_lost
 
 @pytest.mark.parametrize("case_name", CASE_NAMES)
 async def test_no_part_of_a_hostile_note_reaches_a_repairs_placeholder(hass: HomeAssistant, case_name: str) -> None:
-    """Placeholders are the entity id and latest version only; a Repairs card renders Markdown."""
+    """Placeholders carry no release-note text or title; a Repairs card renders Markdown."""
     case = HOSTILE[case_name]
     title = "Publisher controlled title"
     item = update_item("update.a", "reg_a", latest_version="2.0.0", release_url=case["url"])
@@ -127,7 +127,7 @@ async def test_no_part_of_a_hostile_note_reaches_a_repairs_placeholder(hass: Hom
 
     issue = ir.async_get(hass).async_get_issue(DOMAIN, f"{UPDATES_ISSUE_PREFIX}reg_a")
     assert issue is not None
-    assert issue.translation_placeholders == {"entity_id": "update.a", "latest_version": "2.0.0"}
+    assert issue.translation_placeholders == {"entity_id": "update.a", "name": "update.a", "latest_version": "2.0.0"}
 
 
 async def test_a_script_scheme_release_url_never_becomes_a_card_link(hass: HomeAssistant) -> None:
