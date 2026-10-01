@@ -174,7 +174,8 @@ def test_captured_recorder_churn_answers_classify_with_every_entity_accounted_fo
     keep = result["items"][OPTION_KEEP]
     unsure = result["unsure"]
     assert len(exclude) + len(throttle) + len(keep) + len(unsure) == ASKED
-    assert (len(exclude), len(throttle), len(keep), len(unsure)) == COUNTS
+    counts = (len(exclude), len(throttle), len(keep), len(unsure))
+    assert counts == COUNTS
 
     confidences = sorted(answer["confidence"] for response in responses for answer in response["answers"].values())
     input_tokens = sum(response["usage"]["input_tokens"] for response in responses)
