@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import json
 from typing import Any
+from unittest.mock import patch
 
 import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import issue_registry as ir
+from homeassistant.helpers.entityfilter import INCLUDE_EXCLUDE_BASE_FILTER_SCHEMA, convert_include_exclude_filter
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.components.recorder.common import async_wait_recording_done
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
+from sqlalchemy.exc import SQLAlchemyError
 
 from custom_components.gutcheck.const import (
     ATTR_COUNTS,
@@ -35,6 +38,7 @@ from custom_components.gutcheck.recipes.recorder_churn_const import (
     RECORDER_CHURN_INSTRUCTIONS,
     RECORDER_FILTER_DOCS_URL,
 )
+from custom_components.gutcheck.recipes.recorder_churn_count import async_churn
 
 from .conftest import (
     api_response,
@@ -153,3 +157,48 @@ async def test_heavy_writer_is_counted_asked_about_carded_and_restored_without_a
     restored = hass.states.get(sensor_id)
     assert restored is not None
     assert restored.state == "1"
+
+
+async def test_no_recorder_means_no_count(hass: HomeAssistant) -> None:
+    """With no recorder there is nothing to count."""
+    assert await async_churn(hass) is None
+
+
+async def test_only_rows_inside_the_window_are_counted(recorder_mock: Any, hass: HomeAssistant, freezer: Any) -> None:
+    """Rows older than the 7-day window stay out of the count, and each entity gets one total."""
+    freezer.move_to("2026-01-01T00:00:00+00:00")
+    _write_states(hass, "sensor.a", 5)
+    await async_wait_recording_done(hass)
+
+    freezer.move_to("2026-01-09T00:00:00+00:00")
+    _write_states(hass, "sensor.a", 3)
+    _write_states(hass, "sensor.b", 2)
+    await async_wait_recording_done(hass)
+
+    assert await async_churn(hass) == (7, {"sensor.a": 3, "sensor.b": 2})
+
+
+@pytest.mark.parametrize("recorder_config", [{"purge_keep_days": 3}])
+async def test_the_window_never_outlasts_the_recorders_retention(recorder_mock: Any, hass: HomeAssistant) -> None:
+    """With three days kept the window is three days."""
+    _write_states(hass, "sensor.a", 2)
+    await async_wait_recording_done(hass)
+
+    assert await async_churn(hass) == (3, {"sensor.a": 2})
+
+
+async def test_an_entity_the_recorder_no_longer_records_is_left_out(recorder_mock: Any, hass: HomeAssistant) -> None:
+    """A filter added after rows exist hides that entity's lingering rows."""
+    _write_states(hass, "sensor.a", 2)
+    _write_states(hass, "sensor.b", 2)
+    await async_wait_recording_done(hass)
+    exclude = INCLUDE_EXCLUDE_BASE_FILTER_SCHEMA({"exclude": {"entities": ["sensor.a"]}})
+    recorder_mock.entity_filter = convert_include_exclude_filter(exclude).get_filter()
+
+    assert await async_churn(hass) == (7, {"sensor.b": 2})
+
+
+async def test_a_failing_query_reads_as_unavailable(recorder_mock: Any, hass: HomeAssistant) -> None:
+    """A database or schema error gives None, never an exception."""
+    with patch("custom_components.gutcheck.recipes.recorder_churn_count.session_scope", side_effect=SQLAlchemyError):
+        assert await async_churn(hass) is None

@@ -821,3 +821,26 @@ def hide_diagnostic_entry() -> MockConfigEntry:
             CONF_RECORDER_CHURN_ENABLED: False,
         },
     )
+
+
+@pytest.fixture
+def recorder_churn_entry() -> MockConfigEntry:
+    """A Gut Check config entry with only recorder suggestions switched on.
+
+    Every other recipe is switched off, so every POST in a test using this
+    fixture is this recipe's own.
+    """
+    return MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_API_KEY: "test-key"},
+        options={
+            CONF_HEALTH_ENABLED: False,
+            CONF_UPDATES_ENABLED: False,
+            CONF_AREAS_ENABLED: False,
+            CONF_DEVICE_CLASS_ENABLED: False,
+            CONF_CONFIG_ENTRIES_ENABLED: False,
+            CONF_CRITICAL_LABEL_ENABLED: False,
+            CONF_HIDE_DIAGNOSTIC_ENABLED: False,
+            CONF_RECORDER_CHURN_ENABLED: True,
+        },
+    )

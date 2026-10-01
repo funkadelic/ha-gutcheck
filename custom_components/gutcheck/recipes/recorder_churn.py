@@ -13,8 +13,11 @@ from ..models import Question
 from .gate import gate_choice
 from .recorder_churn_cards import sync_exclude_cards
 from .recorder_churn_const import (
+    CHURN_TOP_N,
     OPTION_EXCLUDE,
     OPTION_NOT_ASKED,
+    REASON_LOWER_RANK,
+    REASON_NO_UNIQUE_ID,
     RECORDER_CHURN_CHOICES,
     RECORDER_CHURN_CONFIDENCE_THRESHOLD,
     RECORDER_CHURN_CRITERIA,
@@ -22,7 +25,7 @@ from .recorder_churn_const import (
     RECORDER_CHURN_OPTIONS,
 )
 from .recorder_churn_count import async_churn
-from .recorder_churn_describe import describe, rank
+from .recorder_churn_describe import describe, rank, subject
 from .safety import SafetyRules
 from .shapes import Batch, Item, RecipeResult
 
@@ -69,8 +72,12 @@ class RecorderChurnRecipe:
         subjects: dict[str, Item] = {}
         carried: dict[str, list[Item]] = {OPTION_NOT_ASKED: []}
         for item in ranked:
-            assert item.entry is not None  # rank keeps only entities with a registry entry
-            state_item, subject = describe(hass, item.entry, item.per_day)
+            # No card can be keyed without a registry id, and only the top N are asked.
+            if item.entry is None or len(entities) >= CHURN_TOP_N:
+                reason = REASON_NO_UNIQUE_ID if item.entry is None else REASON_LOWER_RANK
+                carried[OPTION_NOT_ASKED].append({**subject(item), "reason": reason})
+                continue
+            state_item, asked = describe(hass, item.entry, item.per_day)
             index = len(entities)
             entities.append(state_item)
             question_id = f"r{index}"
@@ -79,13 +86,14 @@ class RecorderChurnRecipe:
                 "instructions": RECORDER_CHURN_INSTRUCTIONS.format(index=index),
                 "criteria": RECORDER_CHURN_CRITERIA,
             }
-            subjects[question_id] = subject
+            subjects[question_id] = asked
 
         _LOGGER.debug(
-            "recorder suggestions counted=%s ranked=%s asked=%s window_days=%s",
+            "recorder suggestions counted=%s ranked=%s asked=%s not_asked=%s window_days=%s",
             len(counts),
             len(ranked),
             len(entities),
+            len(carried[OPTION_NOT_ASKED]),
             window_days,
         )
         return Batch(

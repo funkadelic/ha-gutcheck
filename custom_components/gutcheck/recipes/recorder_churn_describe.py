@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import Any, NamedTuple
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, split_entity_id
 from homeassistant.helpers import entity_registry as er
 
-from ..const import DEVICE_TEXT_MAX_CHARS
+from ..const import BLOCKED_DOMAINS, DEVICE_TEXT_MAX_CHARS
 from ..describe import clean_text
 from .entity_text import entity_text
 from .recorder_churn_const import CHURN_BUCKETS, CHURN_FLOOR_PER_DAY, LONG_TERM_STATISTICS_CLASSES
@@ -35,7 +35,9 @@ def rank(hass: HomeAssistant, safety: SafetyRules, counts: dict[str, int], windo
     """Every allowed, existing entity at or above the floor, heaviest first.
 
     The per-day figure is the window's count divided by its days. An entity
-    with no registry entry is skipped, as is one the shared safety rules exclude.
+    the shared safety rules exclude is skipped. One with no registry entry is
+    kept only while it still has a live state outside the blocked domains: it
+    can carry no label, so those domains are its whole safety check.
     """
     registry = er.async_get(hass)
     ranked: list[Ranked] = []
@@ -44,7 +46,10 @@ def rank(hass: HomeAssistant, safety: SafetyRules, counts: dict[str, int], windo
         if per_day < CHURN_FLOOR_PER_DAY:
             continue
         entry = registry.async_get(entity_id)
-        if entry is None or safety.excludes(hass, entry):
+        if entry is None:
+            if hass.states.get(entity_id) is None or split_entity_id(entity_id)[0] in BLOCKED_DOMAINS:
+                continue
+        elif safety.excludes(hass, entry):
             continue
         ranked.append(Ranked(entity_id, entry, per_day))
     return sorted(ranked, key=lambda item: (-item.per_day, item.entity_id))

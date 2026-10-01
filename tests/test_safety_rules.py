@@ -6,6 +6,10 @@ naming HealthRecipe, so a recipe added later is covered once it is wired up.
 
 from __future__ import annotations
 
+from collections.abc import Iterator
+from unittest.mock import patch
+
+import pytest
 from homeassistant.const import CONF_API_KEY, STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
@@ -20,17 +24,31 @@ from custom_components.gutcheck.const import (
     CONF_CRITICAL_LABEL_ENABLED,
     CONF_DEVICE_CLASS_ENABLED,
     CONF_HIDE_DIAGNOSTIC_ENABLED,
+    CONF_RECORDER_CHURN_ENABLED,
     DOMAIN,
     OPTION_WORTH_FIXING,
     RECIPE_CRITICAL_LABEL,
     RECIPE_HEALTH,
 )
 from custom_components.gutcheck.recipes.health import HealthRecipe
+from custom_components.gutcheck.recipes.recorder_churn_const import CHURN_FLOOR_PER_DAY
 from custom_components.gutcheck.recipes.shapes import Recipe
 
 from .conftest import health_item, health_result
 
 CRITICAL = "critical"
+
+
+@pytest.fixture(autouse=True)
+def _every_entity_is_a_heavy_recorder_writer() -> Iterator[None]:
+    """Count every entity as far past the recorder suggestions floor, so its forbidden-entity checks bite."""
+
+    async def _churn(hass: HomeAssistant) -> tuple[int, dict[str, int]]:
+        """One day, ten times the floor for each entity with a state."""
+        return 1, {state.entity_id: 10 * CHURN_FLOOR_PER_DAY for state in hass.states.async_all()}
+
+    with patch("custom_components.gutcheck.recipes.recorder_churn.async_churn", _churn):
+        yield
 
 
 def _unavailable(
@@ -52,14 +70,15 @@ async def _registered_recipes(hass: HomeAssistant, critical_label: str | None = 
     Set up before any unavailable entity exists, so the first run sends nothing
     and the test never reaches the API. Clearing the label in the options flow
     leaves the key absent, so that is what a cleared label looks like here.
-    Device class, critical label and diagnostic sensor suggestions are
-    switched on too, so all six entity-reading recipes are checked, not just
-    the three on by default.
+    Device class, critical label, diagnostic sensor and recorder suggestions
+    are switched on too, so all seven entity-reading recipes are checked, not
+    just the three on by default.
     """
     options: dict[str, object] = {
         CONF_DEVICE_CLASS_ENABLED: True,
         CONF_CRITICAL_LABEL_ENABLED: True,
         CONF_HIDE_DIAGNOSTIC_ENABLED: True,
+        CONF_RECORDER_CHURN_ENABLED: True,
     }
     if critical_label:
         lr.async_get(hass).async_create("Critical")
