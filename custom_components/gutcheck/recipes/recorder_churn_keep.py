@@ -50,8 +50,8 @@ async def async_veto_on_restore(hass: HomeAssistant, result: RecipeResult) -> No
     registry = er.async_get(hass)
 
     def reason_for(item: Item) -> str | None:
-        """The keep reason for the item's entity under its current entity id, else None."""
+        """The keep reason for the item's entity under its current entity id; None once the entity is removed."""
         entry = registry.async_get(str(item["registry_id"]))
-        return keep_reason(entry.entity_id if entry else str(item["entity_id"]), entry, keeps)
+        return keep_reason(entry.entity_id, entry, keeps) if entry else None
 
     veto_excludes(result, reason_for)

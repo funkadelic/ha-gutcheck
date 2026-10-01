@@ -130,6 +130,27 @@ async def test_an_entity_added_to_energy_after_the_run_loses_its_card_on_restart
     await _assert_moved_to_keep(hass, aioclient_mock, recorder_churn_entry, meter, REASON_ENERGY)
 
 
+async def test_a_removed_entity_stays_in_exclude_on_restart_even_if_energy_still_names_it(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, recorder_churn_entry: MockConfigEntry
+) -> None:
+    """A stale Energy reference to a removed entity does not move it to keep; it just loses its card."""
+    gone, other = _two_heavy(hass)
+    with patch(_PATCH, AsyncMock(return_value=_counts(gone, other))):
+        await _run_twice_excluded(hass, aioclient_mock, recorder_churn_entry, (gone, other))
+
+        manager = await async_get_manager(hass)
+        await manager.async_update({"device_consumption": [{"stat_consumption": gone.entity_id}]})
+        er.async_get(hass).async_remove(gone.entity_id)
+        await restart_config_entry(hass, recorder_churn_entry)
+
+    assert len(posted_bodies(aioclient_mock)) == 1
+    assert _card(hass, gone) is None
+    state = hass.states.get(recipe_sensor_entity_id(hass, recorder_churn_entry, RECIPE_RECORDER_CHURN))
+    assert state is not None
+    assert state.attributes[ATTR_COUNTS]["exclude"] == 2
+    assert state.attributes[ATTR_ITEMS]["keep"] == []
+
+
 async def test_an_entity_graphed_after_the_run_loses_its_card_on_restart(
     hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, recorder_churn_entry: MockConfigEntry
 ) -> None:
