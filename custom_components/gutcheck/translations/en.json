@@ -53,7 +53,7 @@
           "critical_label": "Gut Check never acts on or changes an entity or device with this label. The home health check still watches it and tells you if it goes offline, but every other check leaves it out. Locks, alarms and covers are never checked, label or not.",
           "change_back": "Opens a list of the sensors whose device class Gut Check set, and the sensors it hid, from suggestions you confirmed, so you can change any of them back.",
           "hide_diagnostic_enabled": "Suggests hiding sensors that report on a device or its connection, such as signal strength, network name or storage used, rather than on your home. Nothing is hidden until you confirm a suggestion in Repairs.",
-          "recorder_churn_enabled": "Ranks the entities that write to the recorder most often and suggests which could be left out of its history. Advisory only: Gut Check never changes your recorder settings. Each suggestion is a Repairs card with a snippet you add to configuration.yaml yourself."
+          "recorder_churn_enabled": "Ranks the entities that write to the recorder most often and suggests which could be left out of its history. Gut Check never changes your recorder settings. Each suggestion is a Repairs card with a snippet you add to configuration.yaml yourself."
         }
       },
       "change_back": {

@@ -21,7 +21,6 @@ RECORDER_CHURN_CONFIDENCE_THRESHOLD: Final = 0.5
 # Caps the whole set of cards a run keeps open, highest churn first.
 MAX_RECORDER_EXCLUDE_CARDS: Final = 10
 
-# Seeded from the target install's live pass and tuned from live data.
 CHURN_WINDOW_DAYS: Final = 7
 CHURN_FLOOR_PER_DAY: Final = 1_000
 CHURN_TOP_N: Final = 30

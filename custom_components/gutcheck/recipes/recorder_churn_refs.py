@@ -1,4 +1,4 @@
-"""Read-only lookups of what uses an entity: dashboards, never writes."""
+"""Read-only lookups of what uses an entity: dashboard history cards, Energy preferences, automations, scripts, scenes, groups."""
 
 from __future__ import annotations
 
