@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from typing import Any
 from unittest.mock import patch
 
@@ -200,7 +201,14 @@ async def test_an_entity_the_recorder_no_longer_records_is_left_out(recorder_moc
     assert await async_churn(hass) == (7, {"sensor.b": 2})
 
 
-async def test_a_failing_query_reads_as_unavailable(recorder_mock: Any, hass: HomeAssistant) -> None:
-    """A database or schema error gives None, never an exception."""
-    with patch("custom_components.gutcheck.recipes.recorder_churn_count.session_scope", side_effect=SQLAlchemyError):
+async def test_a_failing_query_reads_as_unavailable(
+    recorder_mock: Any, hass: HomeAssistant, caplog: pytest.LogCaptureFixture
+) -> None:
+    """A database or schema error gives None, never an exception, and logs only the error type."""
+    with (
+        patch("custom_components.gutcheck.recipes.recorder_churn_count.session_scope", side_effect=SQLAlchemyError("secret")),
+        caplog.at_level(logging.DEBUG, logger="custom_components.gutcheck.recipes.recorder_churn_count"),
+    ):
         assert await async_churn(hass) is None
+    assert "recorder count failed: SQLAlchemyError" in caplog.text
+    assert "secret" not in caplog.text

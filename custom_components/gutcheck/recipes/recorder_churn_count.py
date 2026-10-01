@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from datetime import timedelta
 
 from homeassistant.components.recorder.db_schema import States, StatesMeta
@@ -11,6 +12,8 @@ from homeassistant.util import dt as dt_util
 from sqlalchemy import func, select
 
 from .recorder_churn_const import CHURN_WINDOW_DAYS
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def _count(hass: HomeAssistant, start_ts: float) -> dict[str, int]:
@@ -31,7 +34,7 @@ async def async_churn(hass: HomeAssistant) -> tuple[int, dict[str, int]] | None:
     The window is the shorter of CHURN_WINDOW_DAYS and the recorder's
     retention. An entity the recorder's own filter no longer records is left
     out, since its older rows linger until purge. None means no recorder, or
-    a query that failed (session_scope already logged why).
+    a query that failed.
     """
     if DATA_INSTANCE not in hass.data:
         return None
@@ -40,7 +43,9 @@ async def async_churn(hass: HomeAssistant) -> tuple[int, dict[str, int]] | None:
     start_ts = (dt_util.utcnow() - timedelta(days=window_days)).timestamp()
     try:
         counts = await instance.async_add_executor_job(_count, hass, start_ts)
-    except Exception:  # a schema or database error reads as unavailable
+    except Exception as err:  # a schema or database error reads as unavailable
+        # The type only: a session that is not ready fails before session_scope logs anything.
+        _LOGGER.debug("recorder count failed: %s", type(err).__name__)
         return None
     if instance.entity_filter is not None:
         counts = {entity_id: count for entity_id, count in counts.items() if instance.entity_filter(entity_id)}
