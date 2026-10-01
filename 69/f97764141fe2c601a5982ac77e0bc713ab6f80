@@ -1,0 +1,26 @@
+custom_components/gutcheck/quality_scale.yaml
+  s_e4639f280f1dee::t_a96308bbf230a1 8
+README.md
+  s_e4639f280f1dee::t_a96308bbf230a1 44,62-63,78,111,130,151-152,175-176,197-198,203,208,232
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "69f97764141fe2c601a5982ac77e0bc713ab6f80",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_e4639f280f1dee": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d88a18b1-1cb6-40c3-895a-f1295424d8b6",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
