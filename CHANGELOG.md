@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.12.1...v0.13.0) (2026-10-01)
+
+
+### Added
+
+* suggest which busy entities to leave out of the recorder ([#65](https://github.com/funkadelic/ha-gutcheck/issues/65)) ([db60141](https://github.com/funkadelic/ha-gutcheck/commit/db601410c163bf20e1b842ad73b4c778b8bab463))
+
 ## [0.12.1](https://github.com/funkadelic/ha-gutcheck/compare/v0.12.0...v0.12.1) (2026-09-30)
 
 
