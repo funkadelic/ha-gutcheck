@@ -113,12 +113,26 @@ _X = "sensor.x"
         ({"type": "conditional", "conditions": [], "card": {"type": "history-graph", "entities": [_X]}}, True),
         ({"type": "conditional", "conditions": [{"entity": _X, "state": "on"}], "card": {"type": "markdown"}}, False),
         ({"type": "history-graph", "title": "grid", "hours_to_show": 24, "entities": ["not an id", 5, None]}, False),
+        ({"type": "sensor", "entity": _X, "graph": "line"}, True),
+        ({"type": "sensor", "entity": _X}, False),
+        ({"type": "sensor", "entity": _X, "graph": "none"}, False),
+        ({"type": "entities", "entities": ["sensor.y"], "footer": {"type": "graph", "entity": _X}}, True),
+        ({"type": "entities", "entities": ["sensor.y"], "header": {"type": "graph", "entity": _X}}, True),
+        ({"type": "tile", "entity": _X, "features": [{"type": "trend-graph"}]}, True),
+        ({"type": "tile", "entity": _X, "features": ["trend-graph", {"type": "toggle"}]}, False),
+        ({"type": "tile", "entity": _X, "features": {"type": "trend-graph"}}, False),
+        ({"type": "custom:apexcharts-card", "series": [{"entity": _X, "type": "line", "group_by": {"func": "avg"}}]}, True),
+        ({"type": "custom:mini-graph-card", "entities": [_X]}, True),
+        ({"type": "custom:plotly-graph", "entities": [{"entity": _X}]}, True),
+        ({"type": "custom:history-explorer-card", "entities": [{"entity": _X}]}, True),
+        ({"type": "custom:mini-history-card", "entities": [{"entity": _X}]}, True),
+        ({"type": "custom:button-card", "entity": _X}, False),
     ],
 )
 async def test_only_recorder_backed_cards_count_wherever_they_are_nested(
     hass: HomeAssistant, card: dict[str, Any], shown: bool
 ) -> None:
-    """Every entity id inside a history, statistics, statistic or logbook card counts; other cards and non-ids do not."""
+    """Every entity id inside a card that draws history counts; other cards, a graphless sensor card and non-ids do not."""
     await _save_default_dashboard(hass, [card])
     assert await async_history_card_entity_ids(hass) == ({_X} if shown else set())
 

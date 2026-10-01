@@ -45,8 +45,27 @@ RECORDER_READER_SOURCE_ATTRS: Final[dict[str, tuple[str, ...]]] = {
     "filter": ("_entity",),
 }
 
-# The built-in cards that read recorded history; custom cards are not recognised.
-RECORDER_CARD_TYPES: Final = frozenset({"history-graph", "statistics-graph", "statistic", "logbook"})
+# Cards, and the entities card's graph header or footer, that draw recorded history, plus
+# well-known custom graph cards; every entity id anywhere in one counts. Other custom cards are not recognised.
+RECORDER_CARD_TYPES: Final = frozenset(
+    {
+        "history-graph",
+        "statistics-graph",
+        "statistic",
+        "logbook",
+        "graph",
+        "custom:apexcharts-card",
+        "custom:mini-graph-card",
+        "custom:plotly-graph",
+        "custom:history-explorer-card",
+        "custom:mini-history-card",
+    }
+)
+# The sensor card draws a history graph unless its graph option is unset or this.
+SENSOR_CARD_TYPE: Final = "sensor"
+SENSOR_CARD_NO_GRAPH: Final = "none"
+# A card feature (the tile card's) that draws its card's entity's recorded history.
+HISTORY_FEATURE_TYPES: Final = frozenset({"trend-graph"})
 
 # A reason explains a carried item in the sensor's attributes.
 REASON_NO_UNIQUE_ID: Final = "no_unique_id"
@@ -67,9 +86,10 @@ RECORDER_CHURN_INSTRUCTIONS: Final = (
     "10,000. When `long_term_statistics` is true, Home Assistant keeps long-term statistics for it, and "
     "leaving it out of the recorder stops those statistics too. When `referenced` is true, an automation, script, scene or group "
     "lists it; those read its live state, which leaving it out of the recorder does not change, and an "
-    "entity read only inside a template is not detected. When `on_dashboard` is true, a dashboard "
-    "shows its history in a history graph, statistics graph, statistic or logbook card; not every "
-    "dashboard can be read, so false does not prove nobody looks at its history. Using only the fields of "
+    "entity read only inside a template is not detected. When `on_dashboard` is true, a dashboard card "
+    "draws its history, for example a history or statistics graph, a sensor card's graph or a logbook; "
+    "not every dashboard or custom card can be read, so false does not prove nobody looks at its history. "
+    "Using only the fields of "
     "`entities[{index}]`, decide whether its recorded history is worth keeping at this rate."
 )
 

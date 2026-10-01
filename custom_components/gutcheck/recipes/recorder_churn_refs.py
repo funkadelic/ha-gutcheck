@@ -14,7 +14,7 @@ from homeassistant.components.script import scripts_with_entity
 from homeassistant.core import HomeAssistant, valid_entity_id
 from homeassistant.exceptions import HomeAssistantError
 
-from .recorder_churn_const import RECORDER_CARD_TYPES
+from .recorder_churn_const import HISTORY_FEATURE_TYPES, RECORDER_CARD_TYPES, SENSOR_CARD_NO_GRAPH, SENSOR_CARD_TYPE
 
 
 def _entity_ids(node: Any) -> Iterator[str]:
@@ -30,10 +30,21 @@ def _entity_ids(node: Any) -> Iterator[str]:
             yield from _entity_ids(item)
 
 
+def _reads_history(card: dict[str, Any]) -> bool:
+    """Whether a card, header, footer or feature config draws recorded history."""
+    card_type = card.get("type")
+    if card_type in RECORDER_CARD_TYPES:
+        return True
+    if card_type == SENSOR_CARD_TYPE and card.get("graph") not in (None, SENSOR_CARD_NO_GRAPH):
+        return True
+    features = card.get("features")
+    return isinstance(features, list) and any(isinstance(f, dict) and f.get("type") in HISTORY_FEATURE_TYPES for f in features)
+
+
 def _history_card_ids(node: Any) -> set[str]:
     """Entity ids inside any recorder-backed card found anywhere in a dashboard config."""
     if isinstance(node, dict):
-        if node.get("type") in RECORDER_CARD_TYPES:
+        if _reads_history(node):
             return set(_entity_ids(node))
         children: list[Any] = list(node.values())
     elif isinstance(node, list):
@@ -44,7 +55,7 @@ def _history_card_ids(node: Any) -> set[str]:
 
 
 async def async_history_card_entity_ids(hass: HomeAssistant) -> set[str]:
-    """Entity ids shown in a history, statistics or logbook card on any readable dashboard.
+    """Entity ids whose history a card draws on any readable dashboard.
 
     The auto-generated default and a YAML dashboard that fails to load raise
     a HomeAssistantError and are skipped.
