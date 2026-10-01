@@ -1,0 +1,33 @@
+tests/test_update_injection.py
+  s_71c97379855997::t_bae21e4b3d7db0 119
+  s_71c97379855997::t_827db6ea7f27b6 130
+custom_components/gutcheck/recipes/update_repairs.py
+  s_71c97379855997::t_827db6ea7f27b6 7,18-19,24,42-46,48,52-58,76
+custom_components/gutcheck/translations/en.json
+  s_71c97379855997::t_827db6ea7f27b6 135
+tests/test_update_repairs.py
+  s_71c97379855997::t_827db6ea7f27b6 55
+  s_71c97379855997::t_bae21e4b3d7db0 8,58-94,305
+  s_71c97379855997::t_a9cbd14b7f7176 56-57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4b543f6d4d24b876de48ce58e23d9908dc0afd5a",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_71c97379855997": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a11df4e1-d883-4bc0-a534-7216223c03cd",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
