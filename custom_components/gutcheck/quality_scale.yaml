@@ -39,3 +39,18 @@ rules:
   test-before-configure: done
   test-before-setup: done
   unique-config-entry: done
+  # Silver
+  # No services are registered; the run button raises a translated
+  # HomeAssistantError when its recipe is already running.
+  action-exceptions: done
+  config-entry-unloading: done
+  docs-configuration-parameters: done
+  docs-installation-parameters: done
+  entity-unavailable:
+    status: exempt
+    comment: Recipe sensors count open Repairs cards from the local issue registry, which stays accurate when the API fails; a failed run is reported in last_error.
+  integration-owner: done
+  log-when-unavailable: done
+  parallel-updates: done
+  reauthentication-flow: done
+  test-coverage: done

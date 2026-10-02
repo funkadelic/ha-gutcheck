@@ -30,6 +30,9 @@ from .const import (
 from .coordinator import RecipeCoordinator
 from .recipes.shapes import RecipeResult
 
+# Sensors update from the coordinator or a budget signal and never poll, so nothing to throttle.
+PARALLEL_UPDATES = 0
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
