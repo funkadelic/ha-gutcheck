@@ -1,0 +1,27 @@
+.github/workflows/tests.yml
+  s_bd3b72d36f388d::t_bdfa3d134d9898 33-37,40-49,56
+  s_bd3b72d36f388d::t_aa81408de40431 32
+.github/workflows/hassfest.yml
+  s_bd3b72d36f388d::t_bdfa3d134d9898 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "215337c59c624df00bfc4dc9a399ef43dad56ff4",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_bd3b72d36f388d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f28a66cb-7418-4efa-99ae-346a5e49a969",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
