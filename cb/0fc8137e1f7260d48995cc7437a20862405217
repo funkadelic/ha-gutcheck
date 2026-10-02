@@ -1,0 +1,19 @@
+.github/ISSUE_TEMPLATE/bug_report.yml
+  s_bd3b72d36f388d::t_a3765c7f182e98 1-68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "cb0fc8137e1f7260d48995cc7437a20862405217",
+  "prompts": {},
+  "sessions": {
+    "s_bd3b72d36f388d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f28a66cb-7418-4efa-99ae-346a5e49a969",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
