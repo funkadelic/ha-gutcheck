@@ -1,0 +1,38 @@
+tests/test_config_entry_edges.py
+  s_bd3b72d36f388d::t_62d72682773875 1-79
+tests/test_recorder_churn_edges.py
+  s_bd3b72d36f388d::t_f7d1da6fc2c3cf 48-58
+  s_bd3b72d36f388d::t_6ea884133199b5 26-27,31
+  s_bd3b72d36f388d::t_833ead350731a3 64-133
+  s_bd3b72d36f388d::t_9819820328119a 1-9
+  s_bd3b72d36f388d::t_3b639012b6d177 10-25,28-30,32-47,59-63
+tests/test_recorder_churn_refs_edges.py
+  s_bd3b72d36f388d::t_2131cce8b7a1fe 1-41
+tests/test_recorder_churn_count_edges.py
+  s_bd3b72d36f388d::t_6a29db066e76d7 1-22
+tests/test_recorder_churn_readers_edges.py
+  s_bd3b72d36f388d::t_f75291b809f97c 11,39,44
+  s_bd3b72d36f388d::t_2f5875951bdac3 1-10,12-38,43,45-77
+  s_bd3b72d36f388d::t_c473df18f65fe5 40-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6d3b9147c92f504dffe7952d91df2cb8547bf97d",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_bd3b72d36f388d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f28a66cb-7418-4efa-99ae-346a5e49a969",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+pyproject.toml
+  s_bd3b72d36f388d::t_03fbcac492904c 26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7b3204ae6915939ad727a51f0a3d85c93c7a3d63",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_bd3b72d36f388d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f28a66cb-7418-4efa-99ae-346a5e49a969",
+        "model": "unknown"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
