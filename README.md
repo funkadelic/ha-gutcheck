@@ -119,7 +119,7 @@ Home Assistant's recorder keeps every state change for its history and statistic
 
 Gut Check uses Jev, a decision model from [TypeSafe AI](https://typesafe.ai/) that answers one kind of question: given these facts, which of these answers fits? Gut Check sends a short description of each item along with a fixed list of answers. Jev picks one and says how likely it is to be right.
 
-Jev can't write a reply, make up a new option, or tell Home Assistant to do anything. When it isn't confident, Gut Check marks the item unsure and leaves it alone. A weekly checkup usually costs a fraction of a cent; see [Cost](#cost).
+Jev can't write a reply, make up a new option, or tell Home Assistant to do anything. When it isn't confident, Gut Check marks the item unsure and leaves it alone. A weekly run of every check costs about a cent; see [Cost](#cost).
 
 ## What Gut Check will never do
 
