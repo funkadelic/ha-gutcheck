@@ -1,0 +1,28 @@
+tests/test_health_describe_edges.py
+  s_bd3b72d36f388d::t_2ce07cdf0f6080 1-74
+tests/test_history_rows.py
+  s_bd3b72d36f388d::t_726caae1735d9b 1-45
+tests/test_health_edges.py
+  s_bd3b72d36f388d::t_b97e92bda90fe7 1-77
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ed4ed15b298e83c7035401b5bdd514517ed10a29",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_bd3b72d36f388d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f28a66cb-7418-4efa-99ae-346a5e49a969",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
