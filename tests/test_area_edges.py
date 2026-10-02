@@ -81,15 +81,18 @@ async def test_a_suggestion_that_no_longer_resolves_does_not_hide_the_ones_after
 async def test_the_card_names_the_device_by_the_best_field_it_has(hass: HomeAssistant) -> None:
     """User name, name, model, manufacturer, then the device id, each used when the ones before are empty."""
     create_areas(hass, "Kitchen")
+    renamed = register_area_device(hass, "renamed", name="Plug", name_by_user="Desk lamp", model="M-1")
+    named = register_area_device(hass, "named", name="Plug", model="M-1")
     maker = register_area_device(hass, "maker", name=None, manufacturer="Acme")
     modeled = register_area_device(hass, "modeled", name=None, model="M-1")
     bare = register_area_device(hass, "bare", name=None)
-    suggested = [{"registry_id": device.id, "choice": "Kitchen"} for device in (maker, modeled, bare)]
+    devices = (renamed, named, maker, modeled, bare)
+    suggested = [{"registry_id": device.id, "choice": "Kitchen"} for device in devices]
 
     resolved = _resolve(hass, area_options(hass), suggested)
 
-    names = [resolved[f"{AREA_ISSUE_PREFIX}{device.id}"].placeholders["device_name"] for device in (maker, modeled, bare)]
-    assert names == ["Acme", "M-1", bare.id]
+    names = [resolved[f"{AREA_ISSUE_PREFIX}{device.id}"].placeholders["device_name"] for device in devices]
+    assert names == ["Desk lamp", "Plug", "Acme", "M-1", bare.id]
 
 
 async def test_a_card_stays_only_for_a_device_that_still_qualifies(hass: HomeAssistant) -> None:

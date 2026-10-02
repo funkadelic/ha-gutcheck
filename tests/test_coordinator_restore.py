@@ -27,7 +27,7 @@ from .conftest import (
 async def _restored_updates_coordinator(
     hass: HomeAssistant, freezer: Any, aioclient_mock: AiohttpClientMocker
 ) -> RecipeCoordinator:
-    """Run the update recipe once, restart two days later so the result is restored, and clear the request log."""
+    """Run the update recipe once, then reload the entry two days later and check it restored with no new request."""
     freezer.move_to("2026-01-01T00:00:00-08:00")
     register_pending_update(hass, "update_a")
     register_jev_responses(

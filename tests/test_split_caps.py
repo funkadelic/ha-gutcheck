@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 from custom_components.gutcheck.sizing import estimate_tokens, request_fits
-from custom_components.gutcheck.split import split_batch
+from custom_components.gutcheck.split import _request, split_batch
 
 from .test_split import LIMIT, _captured_batch
 
@@ -32,3 +32,8 @@ def test_an_uncapped_oversized_run_packs_as_many_subjects_as_fit(monkeypatch: py
     assert 2 <= len(payloads) < len(payload["questions"])
     assert all(request_fits(request) for request in payloads)
     assert max(len(request["questions"]) for request in payloads) > 1
+    ids, start = list(batch.questions), 0
+    for request in payloads[:-1]:
+        end = start + len(request["questions"])
+        assert not request_fits(_request(batch, ids, start, end + 1)), "a request stopped before it was full"
+        start = end

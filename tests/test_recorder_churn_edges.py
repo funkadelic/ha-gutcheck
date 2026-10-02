@@ -67,8 +67,9 @@ async def test_a_card_is_not_wanted_for_an_entity_whose_device_carries_the_criti
 
 async def test_a_failed_count_retries_after_the_failed_run_delay(hass: HomeAssistant) -> None:
     """With no recorder the run fails and asks to be retried in an hour, not at the weekly time."""
+    recipe = RecorderChurnRecipe(None)
     with pytest.raises(UpdateFailed) as err:
-        await RecorderChurnRecipe(None).async_prepare(hass)
+        await recipe.async_prepare(hass)
 
     assert err.value.retry_after == FAILED_RUN_RETRY.total_seconds()
 

@@ -32,8 +32,9 @@ def test_a_response_billing_zero_input_tokens_is_accepted() -> None:
     """Zero is a valid usage figure; only a negative one is rejected."""
     body = api_response({}, 0)
     assert validate_response(body) is body
+    negative = api_response({}, -1)
     with pytest.raises(GutCheckResponseError):
-        validate_response(api_response({}, -1))
+        validate_response(negative)
 
 
 async def test_every_request_carries_the_configured_timeout(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
