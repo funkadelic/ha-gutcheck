@@ -1,0 +1,30 @@
+tests/test_budget_retry.py
+  s_bd3b72d36f388d::t_7e74d3205dafc2 1-38,40-51
+  s_bd3b72d36f388d::t_b3006c37285d95 39
+tests/test_coordinator_restore.py
+  s_bd3b72d36f388d::t_b3006c37285d95 8,33-35
+  s_bd3b72d36f388d::t_04adaeaa6b947d 1-7,9-32,36-110
+tests/test_coordinator_listeners.py
+  s_bd3b72d36f388d::t_b3006c37285d95 1-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ca103d0dc4b48d75fec7e671b5e95e6785ce61fe",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_bd3b72d36f388d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f28a66cb-7418-4efa-99ae-346a5e49a969",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
