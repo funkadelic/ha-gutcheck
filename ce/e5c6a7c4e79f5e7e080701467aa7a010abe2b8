@@ -1,0 +1,33 @@
+custom_components/gutcheck/quality_scale.yaml
+  s_3e81bb87d2f1ab::t_040ea242f84e40 42-56
+custom_components/gutcheck/sensor.py
+  s_3e81bb87d2f1ab::t_985894de39998c 33-34
+  s_3e81bb87d2f1ab::t_f769203d691457 35
+custom_components/gutcheck/button.py
+  s_3e81bb87d2f1ab::t_985894de39998c 15-17
+custom_components/gutcheck/manifest.json
+  s_3e81bb87d2f1ab::t_040ea242f84e40 17
+tests/test_quality_scale.py
+  s_3e81bb87d2f1ab::t_040ea242f84e40 1,7,9,50-62,69-70,72,86,88
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "cee5c6a7c4e79f5e7e080701467aa7a010abe2b8",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_3e81bb87d2f1ab": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a2c7a1c2-c92b-4654-8fbb-7d9196a36aa8",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
