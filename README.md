@@ -186,6 +186,8 @@ Open the integration's **Configure** screen to:
 - Pick your critical label; Gut Check never acts on or changes anything carrying it, on the entity or its device. The home health check still tells you when a labelled entity goes offline; every other check leaves it out entirely.
 - Change back a device class Gut Check set or a sensor it hid, once anything is recorded
 
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/options.png" alt="Gut Check options dialog" width="577"></picture>
+
 ## What gets sent, and what does not
 
 For each unavailable entity, Gut Check sends only: its domain, device class, integration, how long it has been unavailable (grouped, for example "1 to 4 weeks"), whether it is a restored entity with no integration behind it any more, its entity category, whether the same device has other entities that are still available, and, when it has one, the setup state of the config entry behind it (for example loaded, setup retry or setup error). Nothing else goes out, names and entity IDs included; the model matches its answers back to entities by position in the list.
