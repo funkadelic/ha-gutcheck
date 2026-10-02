@@ -1,0 +1,68 @@
+name: Bug report
+description: A check gave a wrong answer, failed to run, or Gut Check misbehaved
+labels: ["bug"]
+body:
+  - type: input
+    id: gutcheck-version
+    attributes:
+      label: Gut Check version
+      description: "**Settings > Devices & services > Gut Check** shows it under the name."
+      placeholder: "0.14.1"
+    validations:
+      required: true
+
+  - type: input
+    id: ha-version
+    attributes:
+      label: Home Assistant version
+      description: "**Settings > About** shows it."
+      placeholder: "2026.9.4"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: check
+    attributes:
+      label: Which check?
+      options:
+        - Home health check
+        - Update review
+        - Area suggestions
+        - Device class suggestions
+        - Stuck integration check
+        - Critical label suggestions
+        - Diagnostic sensor suggestions
+        - Recorder suggestions
+        - Setup or the Configure screen
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect instead?
+    validations:
+      required: true
+
+  - type: input
+    id: last-error
+    attributes:
+      label: The check sensor's last_error
+      description: In **Developer tools > States**, find the check's sensor and copy its `last_error` attribute. Leave this empty if it has none.
+
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: |
+        Go to **Settings > Devices & services > Gut Check**, open the three-dot menu and pick **Download diagnostics**, then drag the file here.
+
+        The file hides your API key but keeps entity, device and area names and the last payloads sent, so read it before you attach it.
