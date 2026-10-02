@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.14.2](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.1...v0.14.2) (2026-10-02)
+
+
+### Other Changes
+
+* add a contributing guide ([#77](https://github.com/funkadelic/ha-gutcheck/issues/77)) ([328d0d6](https://github.com/funkadelic/ha-gutcheck/commit/328d0d608cddf09f45c55370e1b6fb12681d6410))
+* close the gaps a full mutation run found ([#78](https://github.com/funkadelic/ha-gutcheck/issues/78)) ([053a1b3](https://github.com/funkadelic/ha-gutcheck/commit/053a1b3bb9f27499b80c1efa91382b4eaa4b5745))
+* test against home assistant 2026.9.4 ([#75](https://github.com/funkadelic/ha-gutcheck/issues/75)) ([2503080](https://github.com/funkadelic/ha-gutcheck/commit/250308023a03b4006d7bf43dc34168c997d660aa))
+
 ## [0.14.1](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.0...v0.14.1) (2026-10-02)
 
 
