@@ -23,7 +23,7 @@ mutation = ["mutmut>=3.8.0,<4"]
 # pytest config the suite needs to run at all.
 [tool.mutmut]
 source_paths = ["custom_components/"]
-also_copy = ["tests/", "pyproject.toml", "sonar-project.properties"]
+also_copy = ["tests/", "pyproject.toml", "sonar-project.properties", "README.md"]
 # Mutated log calls test nothing but log text. mutmut matches only the line a
 # statement starts on, and it keeps old mutants, so delete mutants/ after editing this.
 do_not_mutate_patterns = ['_LOGGER\.']
