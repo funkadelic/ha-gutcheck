@@ -30,7 +30,7 @@ from .const import (
 from .coordinator import RecipeCoordinator
 from .recipes.shapes import RecipeResult
 
-# Coordinator-driven; nothing to throttle.
+# Sensors update from the coordinator or a budget signal and never poll, so nothing to throttle.
 PARALLEL_UPDATES = 0
 
 
