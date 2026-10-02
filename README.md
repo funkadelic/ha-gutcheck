@@ -42,7 +42,7 @@ Gut Check gives your Home Assistant install a weekly checkup. It finds entities 
 
 ## What it does
 
-Gut Check performs 8 checks (recipes if you will):
+Gut Check performs 8 checks ("recipes" if you will):
 
 1. **Home health check**: Sorts unavailable entities into expected, worth fixing and safe to remove.
 2. **Update review**: Flags pending updates that might break something.
