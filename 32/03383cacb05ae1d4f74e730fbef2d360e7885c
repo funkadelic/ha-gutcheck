@@ -1,0 +1,19 @@
+CONTRIBUTING.md
+  s_bd3b72d36f388d::t_9d3aebabd376c4 1-84
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3203383cacb05ae1d4f74e730fbef2d360e7885c",
+  "prompts": {},
+  "sessions": {
+    "s_bd3b72d36f388d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f28a66cb-7418-4efa-99ae-346a5e49a969",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
