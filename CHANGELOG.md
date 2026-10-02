@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.14.1](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.0...v0.14.1) (2026-10-02)
+
+
+### Other Changes
+
+* meet the silver quality scale ([#71](https://github.com/funkadelic/ha-gutcheck/issues/71)) ([9218f10](https://github.com/funkadelic/ha-gutcheck/commit/9218f107a1f2a5edb20ea4de11787270cf287967))
+* show the options dialog in the readme ([#74](https://github.com/funkadelic/ha-gutcheck/issues/74)) ([aff7b6c](https://github.com/funkadelic/ha-gutcheck/commit/aff7b6c19f75c6452d093c9bd8ee9b07fbeef552))
+* speed up the test and lint checks ([#73](https://github.com/funkadelic/ha-gutcheck/issues/73)) ([718385c](https://github.com/funkadelic/ha-gutcheck/commit/718385c6a1088a79527fee31840b3beed3c1d611))
+
 ## [0.14.0](https://github.com/funkadelic/ha-gutcheck/compare/v0.13.0...v0.14.0) (2026-10-01)
 
 
