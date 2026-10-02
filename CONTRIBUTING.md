@@ -39,7 +39,7 @@ The pre-commit hook runs ruff on every commit and can rewrite files under you. S
 
 ## What CI runs
 
-Every pull request runs these checks. The four marked required must pass before a merge.
+These checks run on every pull request. The four marked required must pass before a merge.
 
 | Check | What it does |
 | --- | --- |
@@ -49,7 +49,7 @@ Every pull request runs these checks. The four marked required must pass before 
 | `pr-title` (required) | Checks the title is a Conventional Commit with a lowercase subject. |
 | pre-commit.ci | Runs the same hooks as the local pre-commit setup. |
 
-hassfest and HACS validation also run every night against `main`, so a change upstream shows up even when nobody pushes.
+hassfest and HACS validation also run once a day against `main`, so a new rule in either tool shows up even when nobody has pushed.
 
 Merging to `main` runs release-please, which keeps a release pull request open with the next version and changelog. Merging that pull request publishes the release and attaches `gutcheck.zip`, the file HACS installs.
 
@@ -60,7 +60,7 @@ Merging to `main` runs release-please, which keeps a release pull request open w
 - When behaviour depends on order or timing, drive the real sequence (setup, first refresh, later refreshes) and assert between the steps.
 - Mock the API client. The suite must never spend tokens.
 
-Mutation testing is run by hand, not in CI:
+CI doesn't run mutation testing. Run it by hand:
 
 ```bash
 .venv/bin/pip install --group mutation
