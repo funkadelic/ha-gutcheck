@@ -28,9 +28,9 @@ Gut Check gives your Home Assistant install a weekly checkup. It finds entities 
 - [How Gut Check decides](#how-gut-check-decides)
 - [What Gut Check will never do](#what-gut-check-will-never-do)
 - [Install and set up](#install-and-set-up)
+- [Options](#options)
 - [Running the checks](#running-the-checks)
 - [Cost](#cost)
-- [Options](#options)
 - [What gets sent, and what does not](#what-gets-sent-and-what-does-not)
 - [Reference](#reference)
   - [What each check leaves out](#what-each-check-leaves-out)
@@ -42,7 +42,7 @@ Gut Check gives your Home Assistant install a weekly checkup. It finds entities 
 
 ## What it does
 
-Gut Check performs 8 checks (recipes if you will):
+Gut Check performs 8 checks ("recipes" if you will):
 
 1. **Home health check**: Sorts unavailable entities into expected, worth fixing and safe to remove.
 2. **Update review**: Flags pending updates that might break something.
@@ -143,6 +143,24 @@ Jev can't write a reply, make up a new option, or tell Home Assistant to do anyt
 
 If the key is ever rejected later, Home Assistant opens a repair asking for a new one, and until you supply it each check keeps its last result. A check whose run hits the rejected key shows `api key rejected` in its sensor's `last_error` attribute. A check that has never finished a run shows unavailable instead.
 
+## Options
+
+Open the integration's **Configure** screen to:
+
+- Turn the home health check on or off
+- Turn the update review on or off
+- Turn area suggestions on or off
+- Turn device class suggestions on or off
+- Turn the stuck integration check on or off
+- Turn critical label suggestions on or off (off by default)
+- Turn diagnostic sensor suggestions on or off (off by default)
+- Turn recorder suggestions on or off (off by default)
+- Set the daily token budget (default 500,000 tokens)
+- Pick your critical label; Gut Check never acts on or changes anything carrying it, on the entity or its device. The home health check still tells you when a labelled entity goes offline; every other check leaves it out entirely.
+- Change back a device class Gut Check set or a sensor it hid, once anything is recorded
+
+<picture><img src="https://raw.githubusercontent.com/funkadelic/ha-gutcheck/main/docs/images/options.png" alt="Gut Check options dialog" width="577"></picture>
+
 ## Running the checks
 
 You don't need to set up a schedule. Once you add the integration, each check that is switched on runs by itself when Home Assistant finishes starting, then once a week after that. Restarting Home Assistant doesn't start an extra run: Gut Check keeps the last result and runs again when the week is up. If a run fails, it tries again an hour later, reusing the answers it already paid for and sending only the requests that went unanswered.
@@ -169,22 +187,6 @@ One run of every check on that install comes to about a cent.
 Gut Check enforces a daily token budget so cost stays predictable. `sensor.gut_check_tokens_used_today` and `sensor.gut_check_cost_today` show what has been spent and what it cost, both resetting at local midnight. The default of 500,000 tokens leaves room for a first run on a large install; running checks by hand several times in one day can reach it.
 
 Gut Check sizes up each run before sending it. A run that would go over what is left of the day's budget is refused whole, so it spends nothing and never stops halfway. The check's sensor keeps its last result and its `last_error` attribute says why. A run that needs more than the whole daily budget is refused every day until you raise it.
-
-## Options
-
-Open the integration's **Configure** screen to:
-
-- Turn the home health check on or off
-- Turn the update review on or off
-- Turn area suggestions on or off
-- Turn device class suggestions on or off
-- Turn the stuck integration check on or off
-- Turn critical label suggestions on or off (off by default)
-- Turn diagnostic sensor suggestions on or off (off by default)
-- Turn recorder suggestions on or off (off by default)
-- Set the daily token budget (default 500,000 tokens)
-- Pick your critical label; Gut Check never acts on or changes anything carrying it, on the entity or its device. The home health check still tells you when a labelled entity goes offline; every other check leaves it out entirely.
-- Change back a device class Gut Check set or a sensor it hid, once anything is recorded
 
 ## What gets sent, and what does not
 
