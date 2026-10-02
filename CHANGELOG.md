@@ -3,6 +3,12 @@
 ## [0.14.1](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.0...v0.14.1) (2026-10-02)
 
 
+### What's new
+
+* Gut Check now meets the Silver tier of Home Assistant's integration quality scale. It works the same as before.
+* The README shows a screenshot of the Configure screen, puts the Options section right after setup, and says a weekly run of every check costs about a cent.
+
+
 ### Other Changes
 
 * meet the silver quality scale ([#71](https://github.com/funkadelic/ha-gutcheck/issues/71)) ([9218f10](https://github.com/funkadelic/ha-gutcheck/commit/9218f107a1f2a5edb20ea4de11787270cf287967))
