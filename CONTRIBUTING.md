@@ -46,7 +46,7 @@ These checks run on every pull request. The four marked required must pass befor
 | `test` (required) | Installs the pinned test requirements, then runs ruff, mypy and pytest. It uploads coverage and test results to Codecov and runs a SonarQube scan, which is skipped on pull requests from forks because forks do not get the scan token. |
 | `validate` (required) | Runs Home Assistant's hassfest on the integration's manifest, translations and structure. |
 | `validate-hacs` (required) | Runs HACS's own repository validation. |
-| `pr-title` (required) | Checks the title is a Conventional Commit with a lowercase subject. |
+| `pr-title` (required) | Checks the title is a Conventional Commit whose subject starts with a lowercase letter and doesn't end with a period. |
 | pre-commit.ci | Runs the same hooks as the local pre-commit setup. |
 
 hassfest and HACS validation also run once a day against `main`, so a new rule in either tool shows up even when nobody has pushed.
@@ -79,6 +79,6 @@ CI doesn't run mutation testing. Run it by hand:
 ## Pull requests
 
 - Branch from `main` and open the pull request as a draft until it is ready.
-- The title must be a Conventional Commit with a lowercase subject: `feat`, `fix`, `perf`, `refactor`, `docs`, `test`, `build`, `ci` or `chore`. A check enforces this, because release-please builds the changelog and the version number from the squashed title.
+- The title must be a Conventional Commit using `feat`, `fix`, `perf`, `refactor`, `docs`, `test`, `build`, `ci` or `chore`, with a subject that starts with a lowercase letter and doesn't end with a period. A check enforces this, because release-please builds the changelog and the version number from the squashed title.
 - Keep each pull request to one change.
 - Don't edit the version in `manifest.json` or `const.py`, and don't add release tags. release-please does both.
