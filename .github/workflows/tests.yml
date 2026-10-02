@@ -53,7 +53,7 @@ jobs:
       # test to a source file by them, so without it the flake and failure views
       # cannot name where a test lives.
       - name: Run tests with pytest
-        run: pytest -n auto --cov-report=xml --junitxml=junit.xml -o junit_family=legacy
+        run: pytest --cov-report=xml --junitxml=junit.xml -o junit_family=legacy
 
       - name: SonarQube Scan
         if: >-
