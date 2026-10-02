@@ -1,12 +1,12 @@
-"""Guard the Bronze quality scale claim against drift.
+"""Guard the Silver quality scale claim against drift.
 
 hassfest never opens quality_scale.yaml for a custom integration
 (validate_iqs_file() in script/hassfest/quality_scale.py returns immediately
 when not integration.core), so this test is the only check on the verdicts.
 
-The 20-rule Bronze set below is hardcoded from home-assistant/core's own
+The Bronze and Silver rule sets below are hardcoded from home-assistant/core's own
 ALL_RULES at the time this file was written. A future HA release that changes
-the Bronze tier needs a manual bump here; this test's own failure message is
+either tier needs a manual bump here; this test's own failure message is
 what would surface that drift.
 """
 
@@ -47,16 +47,29 @@ BRONZE_RULES = frozenset(
     }
 )
 
+SILVER_RULES = BRONZE_RULES | {
+    "action-exceptions",
+    "config-entry-unloading",
+    "docs-configuration-parameters",
+    "docs-installation-parameters",
+    "entity-unavailable",
+    "integration-owner",
+    "log-when-unavailable",
+    "parallel-updates",
+    "reauthentication-flow",
+    "test-coverage",
+}
+
 
 def _rules() -> dict[str, object]:
     """The parsed rules mapping from the committed quality_scale.yaml."""
     return yaml.safe_load(QS_PATH.read_text(encoding="utf-8"))["rules"]  # type: ignore[no-any-return]
 
 
-def test_the_rule_key_set_matches_the_bronze_tier_exactly() -> None:
-    """The file lists exactly the Bronze rules, no more and no fewer."""
+def test_the_rule_key_set_matches_the_silver_tier_exactly() -> None:
+    """The file lists exactly the Bronze and Silver rules, no more and no fewer."""
     rules = _rules()
-    assert set(rules) == BRONZE_RULES, f"quality_scale.yaml rule keys drifted from the Bronze tier: {set(rules) ^ BRONZE_RULES}"
+    assert set(rules) == SILVER_RULES, f"quality_scale.yaml rule keys drifted from the Silver tier: {set(rules) ^ SILVER_RULES}"
 
 
 def test_every_rule_is_done_or_exempt_with_a_reason_when_exempt() -> None:
@@ -70,9 +83,9 @@ def test_every_rule_is_done_or_exempt_with_a_reason_when_exempt() -> None:
 
 
 def test_manifest_claims_the_same_tier_the_yaml_documents() -> None:
-    """The manifest claims Bronze, and hassfest validates the manifest."""
+    """The manifest claims Silver, and hassfest validates the manifest."""
     manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
-    assert manifest.get("quality_scale") == "bronze"
+    assert manifest.get("quality_scale") == "silver"
 
 
 def test_the_readme_still_carries_the_removal_heading_docs_removal_instructions_relies_on() -> None:

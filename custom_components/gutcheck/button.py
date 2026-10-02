@@ -12,6 +12,9 @@ from . import GutCheckConfigEntry, device_info
 from .const import DOMAIN
 from .coordinator import RecipeCoordinator
 
+# A press only schedules the coordinator run, so presses need no throttle.
+PARALLEL_UPDATES = 0
+
 
 async def async_setup_entry(
     hass: HomeAssistant,

@@ -30,6 +30,9 @@ from .const import (
 from .coordinator import RecipeCoordinator
 from .recipes.shapes import RecipeResult
 
+# Coordinator-driven; nothing to throttle.
+PARALLEL_UPDATES = 0
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
