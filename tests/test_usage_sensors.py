@@ -198,7 +198,7 @@ async def test_only_the_usage_sensors_are_diagnostic(hass: HomeAssistant, mock_c
     await hass.async_block_till_done(wait_background_tasks=True)
 
     entries = er.async_entries_for_config_entry(er.async_get(hass), mock_config_entry.entry_id)
-    diagnostic = {e.unique_id for e in entries if e.entity_category is EntityCategory.DIAGNOSTIC}
     usage = {f"{mock_config_entry.entry_id}{suffix}" for suffix in (TOKENS_UNIQUE_ID_SUFFIX, COST_UNIQUE_ID_SUFFIX)}
-    assert diagnostic == usage
-    assert len(entries) > len(usage)
+    categories = {e.unique_id: e.entity_category for e in entries}
+    assert usage < categories.keys()
+    assert categories == {uid: EntityCategory.DIAGNOSTIC if uid in usage else None for uid in categories}
