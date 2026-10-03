@@ -3,6 +3,12 @@
 ## [0.14.2](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.1...v0.14.2) (2026-10-03)
 
 
+### What's new
+
+* The Tokens today and Cost today sensors now sit under Diagnostic on the Gut Check device page, so they no longer appear on the auto-generated dashboard. Cards and automations that use them keep working.
+* Tested against Home Assistant 2026.9.4.
+
+
 ### Fixed
 
 * show the token and cost sensors under diagnostic ([#82](https://github.com/funkadelic/ha-gutcheck/issues/82)) ([713efa9](https://github.com/funkadelic/ha-gutcheck/commit/713efa9382c25940bf95a3cfb246caf308222588))
