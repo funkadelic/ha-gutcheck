@@ -7,6 +7,7 @@ from typing import Any
 import pytest
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.components.sensor.const import DEVICE_CLASS_STATE_CLASSES
+from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
@@ -187,3 +188,17 @@ async def test_both_sensors_reset_at_local_midnight_with_no_request(
     assert _sensor_state(hass, mock_config_entry, TOKENS_UNIQUE_ID_SUFFIX) == "0"
     assert _cost_value(hass, mock_config_entry) == pytest.approx(0.0)
     assert len(posted_bodies(aioclient_mock)) == posted_before
+
+
+async def test_only_the_usage_sensors_are_diagnostic(hass: HomeAssistant, mock_config_entry: MockConfigEntry) -> None:
+    """Tokens and cost sit under Diagnostic; recipe sensors and run buttons stay primary."""
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    entries = er.async_entries_for_config_entry(er.async_get(hass), mock_config_entry.entry_id)
+    diagnostic = {e.unique_id for e in entries if e.entity_category is EntityCategory.DIAGNOSTIC}
+    usage = {f"{mock_config_entry.entry_id}{suffix}" for suffix in (TOKENS_UNIQUE_ID_SUFFIX, COST_UNIQUE_ID_SUFFIX)}
+    assert diagnostic == usage
+    assert len(entries) > len(usage)
