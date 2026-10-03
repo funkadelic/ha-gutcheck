@@ -30,9 +30,9 @@ rules:
   docs-triggers:
     status: exempt
     comment: This integration does not provide any triggers.
-  entity-event-setup:
-    status: exempt
-    comment: No entity subscribes to the event bus; all state arrives through the coordinator refresh cycle.
+  # sensor.py subscribes to the budget signal and issue registry events in
+  # async_added_to_hass and unsubscribes through async_on_remove.
+  entity-event-setup: done
   entity-unique-id: done
   has-entity-name: done
   runtime-data: done
