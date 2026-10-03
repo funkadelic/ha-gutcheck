@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.14.2](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.1...v0.14.2) (2026-10-03)
+
+
+### Fixed
+
+* show the token and cost sensors under diagnostic ([#82](https://github.com/funkadelic/ha-gutcheck/issues/82)) ([713efa9](https://github.com/funkadelic/ha-gutcheck/commit/713efa9382c25940bf95a3cfb246caf308222588))
+
+
+### Other Changes
+
+* add a contributing guide ([#77](https://github.com/funkadelic/ha-gutcheck/issues/77)) ([328d0d6](https://github.com/funkadelic/ha-gutcheck/commit/328d0d608cddf09f45c55370e1b6fb12681d6410))
+* bump home-assistant/actions/hassfest ([#81](https://github.com/funkadelic/ha-gutcheck/issues/81)) ([4ee5c51](https://github.com/funkadelic/ha-gutcheck/commit/4ee5c51ab293507b2fbcb1912d46356690cd00ac))
+* bump ruff from 0.16.8 to 0.16.9 in the pip group ([#80](https://github.com/funkadelic/ha-gutcheck/issues/80)) ([2862481](https://github.com/funkadelic/ha-gutcheck/commit/28624816e3bda1ea442f212a9d74a86367ad2570))
+* close the gaps a full mutation run found ([#78](https://github.com/funkadelic/ha-gutcheck/issues/78)) ([053a1b3](https://github.com/funkadelic/ha-gutcheck/commit/053a1b3bb9f27499b80c1efa91382b4eaa4b5745))
+* say a weekly run of every check costs about a cent ([#79](https://github.com/funkadelic/ha-gutcheck/issues/79)) ([0b081fd](https://github.com/funkadelic/ha-gutcheck/commit/0b081fdaced764d48e72d4aeb2c7fd0ad9458850))
+* test against home assistant 2026.9.4 ([#75](https://github.com/funkadelic/ha-gutcheck/issues/75)) ([2503080](https://github.com/funkadelic/ha-gutcheck/commit/250308023a03b4006d7bf43dc34168c997d660aa))
+
 ## [0.14.1](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.0...v0.14.1) (2026-10-02)
 
 
