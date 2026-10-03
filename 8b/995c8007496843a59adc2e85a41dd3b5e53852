@@ -1,0 +1,29 @@
+tests/test_usage_sensors.py
+  s_06fd8c188ad13c::t_b4c9768073de52 10,201
+  s_06fd8c188ad13c::t_8a8ac1fa2a7902 191-200,202-204
+custom_components/gutcheck/sensor.py
+  s_06fd8c188ad13c::t_ac56ebc3a8f014 9,58
+custom_components/gutcheck/quality_scale.yaml
+  s_06fd8c188ad13c::t_8a8ac1fa2a7902 33-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8b995c8007496843a59adc2e85a41dd3b5e53852",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_06fd8c188ad13c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5dcc7468-784f-4c65-b342-c1f8e929294f",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
