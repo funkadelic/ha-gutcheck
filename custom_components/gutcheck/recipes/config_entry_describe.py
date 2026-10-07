@@ -50,8 +50,9 @@ def first_seen(previous: RecipeResult | None, entry_id: str, now: datetime) -> d
     missing, non-string or unparseable first_seen reads as first seen now.
 
     first_seen lives only in the stored result, which the first run reads
-    even when too old to restore. Only an unparseable store, or removing the
-    integration (which deletes its stores), resets it.
+    even when too old to restore. It starts over when the entry is missing
+    from that result (it recovered before failing again), when the store
+    cannot be parsed, or after the integration is removed.
     """
     if previous is None:
         return now
