@@ -181,7 +181,7 @@
           },
           "choose": {
             "title": "Choose a device class",
-            "description": "Pick the device class for `{entity_id}`. Only classes that accept `{unit}` are listed. You can change it back later from Gut Check's Configure screen.",
+            "description": "Pick the device class for `{entity_id}`. Only classes that accept `{unit}` are listed. You can change it back later from Gut Check's Configure screen.\n\n{descriptions}",
             "data": {
               "device_class": "Device class"
             }

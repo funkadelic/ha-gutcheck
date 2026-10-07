@@ -97,7 +97,7 @@ async def test_the_repair_flow_names_its_steps_and_carries_the_cards_text(
     picker = await manager.async_configure(menu["flow_id"], {"next_step_id": "choose"})  # type: ignore[attr-defined]
     assert picker["type"] is FlowResultType.FORM
     assert picker["step_id"] == "choose"
-    assert picker["description_placeholders"] == placeholders
+    assert picker["description_placeholders"] == {**placeholders, "descriptions": ""}
 
     done = await manager.async_configure(picker["flow_id"], {"device_class": "humidity"})  # type: ignore[attr-defined]
     assert done["type"] is FlowResultType.CREATE_ENTRY

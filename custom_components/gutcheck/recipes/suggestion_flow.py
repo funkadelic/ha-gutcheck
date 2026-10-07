@@ -27,7 +27,7 @@ from ..const import (
 )
 from .area_repairs import assign_area
 from .critical_label_repairs import add_critical_label
-from .device_class_repairs import other_class_choices, set_device_class
+from .device_class_repairs import choice_descriptions, other_class_choices, set_device_class
 from .hide_diagnostic_repairs import hide_entity
 from .safety import SafetyRules
 from .shapes import IssueData
@@ -113,7 +113,8 @@ class DeviceClassRepairFlow(SuggestionRepairFlow):
         if not choices:
             return self._outdated()
         schema = vol.Schema({vol.Required("device_class"): SelectSelector(SelectSelectorConfig(options=choices))})
-        return self.async_show_form(step_id="choose", data_schema=schema, description_placeholders=self._placeholders())
+        placeholders = {**(self._placeholders() or {}), "descriptions": choice_descriptions(choices)}
+        return self.async_show_form(step_id="choose", data_schema=schema, description_placeholders=placeholders)
 
 
 async def async_create_fix_flow(hass: HomeAssistant, issue_id: str, data: IssueData | None) -> RepairsFlow:

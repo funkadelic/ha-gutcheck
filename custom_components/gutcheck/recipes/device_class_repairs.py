@@ -7,13 +7,14 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.selector import SelectOptionDict
 
 from ..const import DOMAIN
-from .device_class_describe import candidate_classes, class_label, class_names, qualifying_entry
+from .device_class_const import DEVICE_CLASS_CHOICE_LINE, DEVICE_CLASS_DESCRIPTIONS
+from .device_class_describe import candidate_classes, class_names, qualifying_entry
 from .safety import SafetyRules
 from .shapes import IssueData
 
 
 async def other_class_choices(hass: HomeAssistant, safety: SafetyRules, data: IssueData) -> list[SelectOptionDict]:
-    """The live unit's other fitting classes as select options, labelled by class name and, for look-alikes, a description.
+    """The live unit's other fitting classes as select options, labelled by Home Assistant's own class names.
 
     Empty when either id is missing or malformed, or the sensor no longer
     qualifies; the suggested class itself is never offered.
@@ -27,10 +28,19 @@ async def other_class_choices(hass: HomeAssistant, safety: SafetyRules, data: Is
         return []
     names = await class_names(hass)
     return [
-        SelectOptionDict(value=cls, label=class_label(cls, names))
+        SelectOptionDict(value=cls, label=names.get(cls, cls))
         for cls in candidate_classes(entry.unit_of_measurement)
         if cls != device_class
     ]
+
+
+def choice_descriptions(choices: list[SelectOptionDict]) -> str:
+    """A Markdown list describing the offered look-alike classes, or an empty string when none has a description."""
+    return "\n".join(
+        DEVICE_CLASS_CHOICE_LINE.format(name=choice["label"], description=DEVICE_CLASS_DESCRIPTIONS[choice["value"]])
+        for choice in choices
+        if choice["value"] in DEVICE_CLASS_DESCRIPTIONS
+    )
 
 
 def set_device_class(hass: HomeAssistant, safety: SafetyRules, data: IssueData) -> bool:
