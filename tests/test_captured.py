@@ -10,6 +10,7 @@ import pytest
 
 from custom_components.gutcheck.client import validate_response
 from custom_components.gutcheck.const import (
+    OPTION_FEATURE,
     OPTION_ROUTINE,
     RELEASE_NOTES_MAX_CHARS,
 )
@@ -18,8 +19,8 @@ from custom_components.gutcheck.recipes.updates import UpdateRecipe
 
 FIXTURES = Path(__file__).parent / "fixtures" / "captured"
 
-# The sentence HACS appends to every integration update's release notes.
-HACS_RESTART_FOOTER = "You need to restart Home Assistant manually after updating."
+# The reminder HACS appends to every update's release notes, dropped before sending.
+HACS_FOOTER_TEXT = "You need to"
 
 
 def _load(name: str) -> dict[str, Any]:
@@ -81,13 +82,21 @@ def test_every_captured_update_answer_is_a_score_over_its_criteria_levels() -> N
         assert set(answer["probabilities"]) == {str(level) for level in range(len(question["criteria"]))}
 
 
-@pytest.mark.parametrize("question_id", ["u0", "u3"])
-def test_a_restart_footer_in_the_release_notes_still_gates_to_routine(question_id: str) -> None:
-    """HACS release notes ending in the manual-restart line still gate to routine."""
+@pytest.mark.parametrize("question_id", ["u0", "u3", "u6"])
+def test_hacs_bug_fix_releases_gate_to_routine_without_the_footer(question_id: str) -> None:
+    """HACS bug fix releases, a dashboard card among them, gate to routine with no restart or cache reminder sent."""
     payload = _load("update_payload.json")
     response = _load("update_response.json")
-    assert HACS_RESTART_FOOTER in _update(payload, question_id)["release_notes"]
+    assert HACS_FOOTER_TEXT not in _update(payload, question_id)["release_notes"]
     assert UpdateRecipe(None).gate(response["answers"][question_id]) == OPTION_ROUTINE
+
+
+def test_a_raised_minimum_home_assistant_version_alone_is_not_breaking() -> None:
+    """Battery Notes 3.7.0 adds an opt-in option and raises its minimum Home Assistant version: a feature."""
+    payload = _load("update_payload.json")
+    response = _load("update_response.json")
+    assert "Bump minimum HA version" in _update(payload, "u5")["release_notes"]
+    assert UpdateRecipe(None).gate(response["answers"]["u5"]) == OPTION_FEATURE
 
 
 def test_an_update_with_no_release_notes_gates_to_routine() -> None:

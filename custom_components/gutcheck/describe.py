@@ -12,7 +12,7 @@ from .const import (
     VERSION_JUMP_PATCH,
     VERSION_JUMP_UNKNOWN,
 )
-from .recipes.update_const import RELEASE_NOTES_RISK_HEADING_RE
+from .recipes.update_const import HACS_FOOTER_RE, RELEASE_NOTES_RISK_HEADING_RE
 
 _DAY = 86400
 _WEEK = 7 * _DAY
@@ -111,5 +111,5 @@ def _risk_first(text: str) -> str:
 
 
 def clean_release_notes(text: str | None) -> str:
-    """Clean a release note excerpt to plain text, risk sections first, capped at RELEASE_NOTES_MAX_CHARS."""
-    return clean_text(_risk_first(text or ""), RELEASE_NOTES_MAX_CHARS)
+    """Clean a release note excerpt to plain text, HACS footer dropped, risk sections first, capped at RELEASE_NOTES_MAX_CHARS."""
+    return clean_text(_risk_first(HACS_FOOTER_RE.sub("", text or "")), RELEASE_NOTES_MAX_CHARS)
