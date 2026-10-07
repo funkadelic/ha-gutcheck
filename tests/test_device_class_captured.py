@@ -15,7 +15,11 @@ from homeassistant.helpers import entity_registry as er
 from custom_components.gutcheck.client import validate_response
 from custom_components.gutcheck.const import OPTION_NONE, OPTION_SUGGESTED
 from custom_components.gutcheck.recipes.device_class import DeviceClassRecipe
-from custom_components.gutcheck.recipes.device_class_const import DEVICE_CLASS_INSTRUCTIONS, DEVICE_CLASS_NONE_DESCRIPTION
+from custom_components.gutcheck.recipes.device_class_const import (
+    DEVICE_CLASS_INSTRUCTIONS,
+    DEVICE_CLASS_NONE_DESCRIPTION,
+)
+from custom_components.gutcheck.recipes.device_class_describe import class_names, criteria
 from custom_components.gutcheck.recipes.device_class_wording import instructions_for, template_for
 from custom_components.gutcheck.recipes.gate import classify
 from custom_components.gutcheck.recipes.shapes import Batch
@@ -106,14 +110,14 @@ def test_captured_device_class_answers_classify_with_every_sensor_accounted_for(
 
     suggested = result["items"][OPTION_SUGGESTED]
     unsure = result["unsure"]
-    assert (len(suggested), len(unsure)) == (23, 35)
+    assert (len(suggested), len(unsure)) == (24, 34)
     assert len(suggested) + len(unsure) == ASKED
     for item in suggested:
         assert item["choice"] in whole["questions"][item["registry_id"]]["criteria"]
 
     confidences = sorted(answer["confidence"] for response in responses for answer in response["answers"].values())
     input_tokens = sum(response["usage"]["input_tokens"] for response in responses)
-    assert input_tokens == 21_285
+    assert input_tokens == 21_899
     print(f"real run: suggested={len(suggested)} unsure={len(unsure)}")
     print(f"real confidence spread: min={confidences[0]} median={confidences[len(confidences) // 2]} max={confidences[-1]}")
     print(f"real input_tokens: {input_tokens} over {len(responses)} requests")
@@ -180,3 +184,12 @@ async def test_the_real_sensor_shapes_round_trip_through_prepare_and_split(hass:
     assert sorted(json.dumps(c, sort_keys=True) for c in sent_criteria) == sorted(
         json.dumps(c, sort_keys=True) for c in captured_criteria
     )
+
+
+async def test_the_captured_criteria_match_the_current_class_labels(hass: HomeAssistant) -> None:
+    """Every captured question's criteria equal what criteria() builds now for its candidates."""
+    names = await class_names(hass)
+    for payload in load_captured("device_class")[0]:
+        for question in payload["questions"].values():
+            candidates = tuple(key for key in question["criteria"] if key != OPTION_NONE)
+            assert question["criteria"] == criteria(candidates, names)

@@ -244,18 +244,6 @@ async def test_each_questions_criteria_are_exactly_its_own_candidates_plus_none(
     assert set(question["criteria"].keys()) == {*GALLON_CANDIDATES, OPTION_NONE}
 
 
-async def test_criteria_use_home_assistants_own_translated_class_names(hass: HomeAssistant) -> None:
-    """The criteria description for each candidate is Home Assistant's own translated name for it."""
-    register_unit_sensor(hass, "tank", unit="gal")
-
-    batch = await DeviceClassRecipe(critical_label=None).async_prepare(hass)
-
-    criteria = next(iter(batch.questions.values()))["criteria"]
-    assert criteria["volume"] == "Volume"
-    assert criteria["volume_storage"] == "Stored volume"
-    assert criteria["water"] == "Water"
-
-
 def test_gate_accepts_a_known_class_at_the_threshold_and_rejects_just_below() -> None:
     """A known class at exactly the confidence threshold is accepted; a hair below is not."""
     recipe = DeviceClassRecipe(critical_label=None)

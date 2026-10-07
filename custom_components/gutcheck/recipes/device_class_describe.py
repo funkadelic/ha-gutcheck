@@ -11,7 +11,13 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.translation import async_get_translations
 
 from ..const import OPTION_NONE
-from .device_class_const import DEVICE_CLASS_NAME_KEY, DEVICE_CLASS_NAMES_LANGUAGE, DEVICE_CLASS_NONE_DESCRIPTION
+from .device_class_const import (
+    DEVICE_CLASS_DESCRIPTIONS,
+    DEVICE_CLASS_LABEL,
+    DEVICE_CLASS_NAME_KEY,
+    DEVICE_CLASS_NAMES_LANGUAGE,
+    DEVICE_CLASS_NONE_DESCRIPTION,
+)
 from .entity_text import entity_text
 from .safety import SafetyRules
 from .shapes import Item
@@ -63,9 +69,16 @@ async def class_names(hass: HomeAssistant) -> dict[str, str]:
     }
 
 
+def class_label(device_class: str, names: dict[str, str]) -> str:
+    """A class's name, followed by its description when it has one."""
+    name = names.get(device_class, device_class)
+    description = DEVICE_CLASS_DESCRIPTIONS.get(device_class)
+    return name if description is None else DEVICE_CLASS_LABEL.format(name=name, description=description)
+
+
 def criteria(candidates: tuple[str, ...], names: dict[str, str]) -> dict[str, str | None]:
-    """The choice criteria for a device class question: each candidate's name, plus none of these."""
-    criteria_map: dict[str, str | None] = {candidate: names.get(candidate, candidate) for candidate in candidates}
+    """The choice criteria for a device class question: each candidate's label, plus none of these."""
+    criteria_map: dict[str, str | None] = {candidate: class_label(candidate, names) for candidate in candidates}
     criteria_map[OPTION_NONE] = DEVICE_CLASS_NONE_DESCRIPTION
     return criteria_map
 

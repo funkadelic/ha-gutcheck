@@ -30,6 +30,7 @@ from custom_components.gutcheck.const import (
     DOMAIN,
 )
 from custom_components.gutcheck.recipes.device_class_cards import sync_device_class_cards
+from custom_components.gutcheck.recipes.device_class_const import DEVICE_CLASS_CHOICE_LINE, DEVICE_CLASS_DESCRIPTIONS
 from custom_components.gutcheck.recipes.device_class_describe import class_names
 from custom_components.gutcheck.recipes.safety import SafetyRules
 
@@ -137,6 +138,25 @@ async def test_choose_form_offers_every_other_fitting_class_labelled_by_name(
     assert {option["value"]: option["label"] for option in options} == {
         cls: names[cls] for cls in ("humidity", "moisture", "power_factor")
     }
+
+
+async def test_choose_form_describes_look_alike_classes(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, device_class_entry: MockConfigEntry
+) -> None:
+    """A gallons sensor suggested volume is offered stored volume and water by name, described in bold above the picker."""
+    _sensor, issue_id = await seed_device_class_card(hass, device_class_entry, unit="gal", choice="volume")
+    names = await class_names(hass)
+
+    result = await _open_choose(hass, issue_id)
+
+    selector = next(value for key, value in result["data_schema"].schema.items() if str(key) == "device_class")
+    assert isinstance(selector, SelectSelector)
+    labels = {option["value"]: option["label"] for option in selector.config["options"]}
+    assert labels == {cls: names[cls] for cls in ("volume_storage", "water")}
+    assert result["description_placeholders"]["descriptions"] == "\n".join(
+        DEVICE_CLASS_CHOICE_LINE.format(name=names[cls], description=DEVICE_CLASS_DESCRIPTIONS[cls])
+        for cls in ("volume_storage", "water")
+    )
 
 
 async def test_submitting_a_fitting_pick_sets_it_records_it_and_the_change_back_clears_it(
