@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.4](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.3...v0.14.4) (2026-10-07)
+
+
+### Fixed
+
+* suggest water for a water bill sensor and describe look-alike device classes ([#88](https://github.com/funkadelic/ha-gutcheck/issues/88)) ([102b1c2](https://github.com/funkadelic/ha-gutcheck/commit/102b1c2d65722f5a581aab33b8395515cb6c67db))
+
 ## [0.14.3](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.2...v0.14.3) (2026-10-07)
 
 
