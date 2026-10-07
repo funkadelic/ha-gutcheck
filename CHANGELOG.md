@@ -3,6 +3,12 @@
 ## [0.14.4](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.3...v0.14.4) (2026-10-07)
 
 
+### What's new
+
+* A water meter or water bill sensor in gallons is now suggested Water instead of Volume, and a weather station's pressure sensor is suggested Atmospheric pressure.
+* When you choose a different device class, classes that are easy to confuse, such as Water, Volume and Stored volume, now come with a one-line description of what each covers.
+
+
 ### Fixed
 
 * suggest water for a water bill sensor and describe look-alike device classes ([#88](https://github.com/funkadelic/ha-gutcheck/issues/88)) ([102b1c2](https://github.com/funkadelic/ha-gutcheck/commit/102b1c2d65722f5a581aab33b8395515cb6c67db))
