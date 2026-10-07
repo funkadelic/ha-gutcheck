@@ -32,3 +32,18 @@ def test_notes_without_headings_are_unchanged() -> None:
     """Notes with no column-0 heading clean exactly as before."""
     text = "Fixed issue #12 in the parser.\n#1234 tracked it.\n  # indented, not a heading\n\nMore prose."
     assert clean_release_notes(text) == clean_text(text, RELEASE_NOTES_MAX_CHARS)
+
+
+@pytest.mark.parametrize(
+    ("fixture", "kept"),
+    [
+        ("hacs_plugin_release_notes.json", "Match the full forecast period for the current temperature"),
+        ("hacs_integration_release_notes.json", "Bump minimum HA version to 2026.6"),
+    ],
+)
+def test_the_hacs_footer_is_dropped_and_the_notes_kept(fixture: str, kept: str) -> None:
+    """HACS's restart or clear-the-cache reminder never reaches the model; the change list does."""
+    cleaned = clean_release_notes(load_fixture("captured", fixture)["release_notes"])
+    assert "You need to" not in cleaned
+    assert not cleaned.endswith("---")
+    assert kept in cleaned

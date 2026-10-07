@@ -20,7 +20,7 @@ UPDATE_CRITERIA: Final[list[str]] = [
     "Routine: a maintenance release, bug fix, translation update, dependency bump or security patch. "
     "Nothing for the user to do beyond installing it and restarting Home Assistant.",
     "Feature: adds something user-visible, or changes a default, while every existing setup keeps working unchanged.",
-    "Possibly breaking: removes or renames something, requires a migration, raises a minimum version, or "
+    "Possibly breaking: removes or renames something, requires a migration, or "
     "needs a manual step after installing. Restarting Home Assistant after installing is not a manual step: "
     "it is normal for every update.",
 ]
@@ -34,3 +34,6 @@ MAX_UPDATES_PER_RUN: Final = 50
 
 # A release-note heading matching this moves ahead of the rest before the length cap.
 RELEASE_NOTES_RISK_HEADING_RE: Final = re.compile(r"\b(?:break|remov|deprecat|migrat)", re.IGNORECASE)
+
+# HACS appends the same restart or clear-the-cache reminder to every update's notes.
+HACS_FOOTER_RE: Final = re.compile(r"\s*-{3,}\s*<ha-alert[^>]*>You need to [^<]*after updating\.</ha-alert>\s*\Z")
