@@ -1,0 +1,40 @@
+tests/fixtures/captured/hacs_plugin_release_notes.json
+  s_7163f7293464b8::t_4b1008ece47a35 1-3
+custom_components/gutcheck/describe.py
+  s_7163f7293464b8::t_4b1008ece47a35 15,114-115
+custom_components/gutcheck/recipes/update_const.py
+  s_7163f7293464b8::t_4b1008ece47a35 23,37,39
+  s_7163f7293464b8::t_ce13fb759dcbee 38
+tests/test_release_notes_risk_first.py
+  s_7163f7293464b8::t_ce13fb759dcbee 35-49
+tests/fixtures/captured/hacs_integration_release_notes.json
+  s_7163f7293464b8::t_4b1008ece47a35 1-3
+tests/fixtures/captured/update_response.json
+  s_7163f7293464b8::t_9be3fd20979421 1
+tests/fixtures/captured/update_payload.json
+  s_7163f7293464b8::t_9be3fd20979421 11,38,48-65,77,86,95,104,113-131
+tests/test_captured.py
+  s_7163f7293464b8::t_9b5d84dde2ebc8 13,22-23,85-87,90,94-99
+  s_7163f7293464b8::t_3fb82a2c0db5b7 100-101
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "505eb449a36bb23bead65c043baf359b468f2077",
+  "prompts": {},
+  "humans": {
+    "h_705b7232b9f49b": {
+      "author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  },
+  "sessions": {
+    "s_7163f7293464b8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "cc7545c9-7a08-450a-8b15-0e38dcb8f857",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
