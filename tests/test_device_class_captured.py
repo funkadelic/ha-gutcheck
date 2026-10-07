@@ -9,13 +9,19 @@ from __future__ import annotations
 import json
 from typing import Any
 
+import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 
 from custom_components.gutcheck.client import validate_response
 from custom_components.gutcheck.const import OPTION_NONE, OPTION_SUGGESTED
 from custom_components.gutcheck.recipes.device_class import DeviceClassRecipe
-from custom_components.gutcheck.recipes.device_class_const import DEVICE_CLASS_INSTRUCTIONS, DEVICE_CLASS_NONE_DESCRIPTION
+from custom_components.gutcheck.recipes.device_class_const import (
+    DEVICE_CLASS_DESCRIPTIONS,
+    DEVICE_CLASS_INSTRUCTIONS,
+    DEVICE_CLASS_NONE_DESCRIPTION,
+)
+from custom_components.gutcheck.recipes.device_class_describe import class_names, criteria
 from custom_components.gutcheck.recipes.device_class_wording import instructions_for, template_for
 from custom_components.gutcheck.recipes.gate import classify
 from custom_components.gutcheck.recipes.shapes import Batch
@@ -25,6 +31,11 @@ from .conftest import area_answer, captured_whole, load_captured, register_unit_
 
 SIZES = [10, 10, 10, 10, 10, 8]
 ASKED = sum(SIZES)
+
+
+def _masked(criteria_map: dict[str, Any]) -> dict[str, Any]:
+    """Criteria with described classes' values blanked: the capture predates the descriptions."""
+    return {key: None if key in DEVICE_CLASS_DESCRIPTIONS else value for key, value in criteria_map.items()}
 
 
 def test_every_captured_device_class_response_passes_validate_response() -> None:
@@ -175,8 +186,22 @@ async def test_the_real_sensor_shapes_round_trip_through_prepare_and_split(hass:
     actual = sorted(json.dumps(item, sort_keys=True) for request in sent for item in request["state"]["sensors"])
     assert actual == expected
 
-    captured_criteria = [q["criteria"] for payload in payloads for q in payload["questions"].values()]
-    sent_criteria = [q["criteria"] for request in sent for q in request["questions"].values()]
+    captured_criteria = [_masked(q["criteria"]) for payload in payloads for q in payload["questions"].values()]
+    sent_criteria = [_masked(q["criteria"]) for request in sent for q in request["questions"].values()]
     assert sorted(json.dumps(c, sort_keys=True) for c in sent_criteria) == sorted(
         json.dumps(c, sort_keys=True) for c in captured_criteria
     )
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason="the capture predates the look-alike class descriptions; drop this mark when both fixtures are recaptured",
+)
+async def test_the_captured_criteria_match_the_current_class_labels(hass: HomeAssistant) -> None:
+    """Every captured question's criteria equal what criteria() builds now for its candidates."""
+    names = await class_names(hass)
+    for payload in load_captured("device_class")[0]:
+        for question in payload["questions"].values():
+            candidates = tuple(key for key in question["criteria"] if key != OPTION_NONE)
+            assert question["criteria"] == criteria(candidates, names)
