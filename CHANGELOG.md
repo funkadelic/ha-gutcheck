@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.14.3](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.2...v0.14.3) (2026-10-07)
+
+
+### Fixed
+
+* drop a recovered integration from the stuck integration check right away ([#86](https://github.com/funkadelic/ha-gutcheck/issues/86)) ([3948b93](https://github.com/funkadelic/ha-gutcheck/commit/3948b9302fb6a12b92af26e641a6457dc0f689d2))
+* keep how long an integration has been failing after a missed weekly run ([#84](https://github.com/funkadelic/ha-gutcheck/issues/84)) ([df64b75](https://github.com/funkadelic/ha-gutcheck/commit/df64b75a3269660292f6f23ccabaa04c52fa2927))
+* stop scoring an update as possibly breaking over a hacs reminder or a raised minimum version ([#87](https://github.com/funkadelic/ha-gutcheck/issues/87)) ([bdcb56c](https://github.com/funkadelic/ha-gutcheck/commit/bdcb56ce8e1cc26bb2c9a017f57d03b90d3623ee))
+
 ## [0.14.2](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.1...v0.14.2) (2026-10-03)
 
 
