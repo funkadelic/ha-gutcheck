@@ -172,7 +172,7 @@
         "step": {
           "init": {
             "title": "Suggested device class",
-            "description": "Gut Check suggests **{class_name}** for `{entity_id}`, which reports in {unit} but has no device class. Nothing changes until you choose. You can change it back later from Gut Check's Configure screen.",
+            "description": "Gut Check suggests **{class_name}** for `{entity_id}`, which reports in `{unit}` but has no device class. Nothing changes until you choose. You can change it back later from Gut Check's Configure screen.",
             "menu_options": {
               "confirm": "Set device class to {class_name}",
               "choose": "Choose a different device class",
@@ -181,7 +181,7 @@
           },
           "choose": {
             "title": "Choose a device class",
-            "description": "Pick the device class for `{entity_id}`. Only classes that accept {unit} are listed. You can change it back later from Gut Check's Configure screen.",
+            "description": "Pick the device class for `{entity_id}`. Only classes that accept `{unit}` are listed. You can change it back later from Gut Check's Configure screen.",
             "data": {
               "device_class": "Device class"
             }
