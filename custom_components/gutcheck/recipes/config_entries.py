@@ -118,11 +118,11 @@ class ConfigEntryRecipe:
         Assistant has not set up yet at restore time is not resolved, so it
         stays; the watch the sync re-arms drops it live once it loads.
         """
-        _drop_resolved(hass, result)
         self._sync(hass, result)
 
     def _sync(self, hass: HomeAssistant, result: RecipeResult) -> None:
-        """Sync the cards, then watch every listed entry so a recovered one drops live."""
+        """Drop entries that already recovered, sync the cards, then watch the rest so a recovered one drops live."""
+        _drop_resolved(hass, result)
         self._issues.sync(
             hass, result["items"].get(OPTION_NEEDS_REAUTH, []), result["items"].get(OPTION_DEAD, []), long_unsure(result)
         )

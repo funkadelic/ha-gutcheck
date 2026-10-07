@@ -115,6 +115,7 @@ def async_track_entry_recovery(hass: HomeAssistant, entry_ids: set[str], on_reco
     def _handle_change(_change: ConfigEntryChange, entry: ConfigEntry) -> None:
         """Delete the entry's card, if it has one, and call back once a listed entry has recovered."""
         if entry.entry_id in entry_ids and resolved(hass, entry.entry_id):
+            entry_ids.discard(entry.entry_id)
             ir.async_delete_issue(hass, DOMAIN, f"{CONFIG_ENTRY_ISSUE_PREFIX}{entry.entry_id}")
             on_recovered()
 

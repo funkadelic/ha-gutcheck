@@ -80,6 +80,9 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
     @callback
     def async_publish(self) -> None:
         """Save and redraw a result its recipe edited between runs, leaving the schedule and last error alone."""
+        data: RecipeResult | None = self.data  # None until the first run completes
+        if data is None:
+            return
         self._store.async_delay_save(lambda: self.data, 0)
         self.async_update_listeners()
 
