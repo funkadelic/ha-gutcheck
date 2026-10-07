@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.start import async_at_started
 from homeassistant.helpers.storage import Store
@@ -17,7 +18,7 @@ from homeassistant.util import dt as dt_util
 
 from .budget import BudgetExceededError, BudgetGate, RequestTooLargeError, RunOverDailyBudgetError
 from .client import GutCheckApiError, GutCheckAuthError
-from .const import DOMAIN, FAILED_RUN_RETRY, RECIPE_INTERVAL, STORE_VERSION
+from .const import DOMAIN, FAILED_RUN_RETRY, RECIPE_INTERVAL, SIGNAL_RESULT_CHANGED, STORE_VERSION
 from .models import SystemOneRequest, SystemOneResponse
 from .recipes.gate import carry_forward, classify
 from .recipes.shapes import LastPayload, Recipe, RecipeResult, _parse_stored_result, recipe_store_key
@@ -72,6 +73,15 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
         # Responses already billed in a failed run, keyed by their exact request; memory only.
         self._answered: dict[str, SystemOneResponse] = {}
         entry.async_on_unload(self._answered.clear)
+        entry.async_on_unload(
+            async_dispatcher_connect(hass, SIGNAL_RESULT_CHANGED.format(recipe_id=recipe.recipe_id), self.async_publish)
+        )
+
+    @callback
+    def async_publish(self) -> None:
+        """Save and redraw a result its recipe edited between runs, leaving the schedule and last error alone."""
+        self._store.async_delay_save(lambda: self.data, 0)
+        self.async_update_listeners()
 
     @callback
     def force_full_rescore(self) -> None:

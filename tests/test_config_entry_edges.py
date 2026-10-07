@@ -75,5 +75,6 @@ async def test_the_tracker_can_be_shut_down_twice(hass: HomeAssistant, failing_e
 
     tracker.sync(hass, [], [{"entry_id": entry.entry_id, "reason": "gone"}], [])
     assert ir.async_get(hass).async_get_issue(DOMAIN, f"{CONFIG_ENTRY_ISSUE_PREFIX}{entry.entry_id}") is not None
+    tracker.watch(hass, {entry.entry_id}, lambda: None)
     tracker.shutdown()
     tracker.shutdown()
