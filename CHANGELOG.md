@@ -3,6 +3,13 @@
 ## [0.14.3](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.2...v0.14.3) (2026-10-07)
 
 
+### What's new
+
+* Restarting Home Assistant after the weekly check was due no longer resets how long a broken integration has been failing, so its card still shows up on time.
+* A stuck integration that loads again now drops off the check right away, instead of staying listed until the next weekly run.
+* The update review no longer marks an update as possibly breaking just because HACS reminds you to restart or clear your browser cache, or because the update needs a newer Home Assistant version.
+
+
 ### Fixed
 
 * drop a recovered integration from the stuck integration check right away ([#86](https://github.com/funkadelic/ha-gutcheck/issues/86)) ([3948b93](https://github.com/funkadelic/ha-gutcheck/commit/3948b9302fb6a12b92af26e641a6457dc0f689d2))
