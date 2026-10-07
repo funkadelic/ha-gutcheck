@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import logging
+from functools import partial
 
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.util import dt as dt_util
 
-from ..const import CONFIG_ENTRY_ISSUE_PREFIX, RECIPE_CONFIG_ENTRIES
+from ..const import CONFIG_ENTRY_ISSUE_PREFIX, RECIPE_CONFIG_ENTRIES, SIGNAL_RESULT_CHANGED
 from ..models import Question
 from .config_entry_const import (
     CONFIG_ENTRY_CONFIDENCE_THRESHOLD,
@@ -32,6 +34,15 @@ from .gate import gate_choice
 from .shapes import Batch, Item, RecipeResult
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _drop_resolved(hass: HomeAssistant, result: RecipeResult) -> None:
+    """Drop every item whose entry has recovered, from every bucket, its count, and unsure."""
+    for option, items in result["items"].items():
+        kept = [item for item in items if not resolved(hass, str(item["entry_id"]))]
+        result["items"][option] = kept
+        result["counts"][option] = len(kept)
+    result["unsure"] = [item for item in result["unsure"] if not resolved(hass, str(item["entry_id"]))]
 
 
 class ConfigEntryRecipe:
@@ -99,27 +110,29 @@ class ConfigEntryRecipe:
         _LOGGER.debug("config entry triage run complete, counts=%s", result["counts"])
 
     async def restore(self, hass: HomeAssistant, result: RecipeResult) -> None:
-        """Drop any bucket item whose entry has recovered since the run, then re-sync all card kinds.
+        """Drop any item whose entry has recovered since the run, then re-sync all card kinds.
 
         A restore calls no API, so an entry removed, disabled or loaded since
         the run must still drop from every bucket, including unsure, rather
         than sitting stale until the next paid run notices. An entry Home
         Assistant has not set up yet at restore time is not resolved, so it
-        keeps its item and its card; the recovery listener the sync re-arms
-        clears it live if that entry then loads.
+        stays; the watch the sync re-arms drops it live once it loads.
         """
-        for option, items in result["items"].items():
-            kept = [item for item in items if not resolved(hass, str(item["entry_id"]))]
-            result["items"][option] = kept
-            result["counts"][option] = len(kept)
-        result["unsure"] = [item for item in result["unsure"] if not resolved(hass, str(item["entry_id"]))]
         self._sync(hass, result)
 
     def _sync(self, hass: HomeAssistant, result: RecipeResult) -> None:
-        """Sync the sign-in, broken and still-failing cards from one result."""
+        """Drop entries that already recovered, sync the cards, then watch the rest so a recovered one drops live."""
+        _drop_resolved(hass, result)
         self._issues.sync(
             hass, result["items"].get(OPTION_NEEDS_REAUTH, []), result["items"].get(OPTION_DEAD, []), long_unsure(result)
         )
+        entry_ids = {str(item["entry_id"]) for items in (*result["items"].values(), result["unsure"]) for item in items}
+        self._issues.watch(hass, entry_ids, partial(self._drop_and_publish, hass, result))
+
+    def _drop_and_publish(self, hass: HomeAssistant, result: RecipeResult) -> None:
+        """Trim the published result of recovered entries and tell the coordinator."""
+        _drop_resolved(hass, result)
+        async_dispatcher_send(hass, SIGNAL_RESULT_CHANGED.format(recipe_id=self.recipe_id))
 
     def shutdown(self) -> None:
         """Cancel the recovery subscription, if any."""

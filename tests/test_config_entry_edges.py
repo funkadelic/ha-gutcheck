@@ -7,11 +7,12 @@ from datetime import timedelta
 from typing import Any
 
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryError
+from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryError, ConfigEntryNotReady
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.util import dt as dt_util
+from pytest_homeassistant_custom_component.common import MockConfigEntry, flush_store
 
-from custom_components.gutcheck.const import CONFIG_ENTRY_ISSUE_PREFIX, DOMAIN
+from custom_components.gutcheck.const import CONFIG_ENTRY_ISSUE_PREFIX, DOMAIN, RECIPE_CONFIG_ENTRIES
 from custom_components.gutcheck.recipes.config_entries import ConfigEntryRecipe
 from custom_components.gutcheck.recipes.config_entry_repairs import ConfigEntryIssueTracker, _wanted_issues
 
@@ -75,5 +76,54 @@ async def test_the_tracker_can_be_shut_down_twice(hass: HomeAssistant, failing_e
 
     tracker.sync(hass, [], [{"entry_id": entry.entry_id, "reason": "gone"}], [])
     assert ir.async_get(hass).async_get_issue(DOMAIN, f"{CONFIG_ENTRY_ISSUE_PREFIX}{entry.entry_id}") is not None
+    tracker.watch(hass, {entry.entry_id}, lambda: None)
     tracker.shutdown()
     tracker.shutdown()
+
+
+async def test_a_run_drops_an_entry_that_loaded_while_its_question_was_in_flight(hass: HomeAssistant, failing_entry: Any) -> None:
+    """An item whose entry is already loaded when the run acts leaves the result instead of waiting for the next run."""
+    entry = await failing_entry("late_hub", None, title="Late", entry_id="late_entry")
+    recipe = ConfigEntryRecipe()
+    result = health_result({"dead": [{"entry_id": entry.entry_id, "reason": "gone"}]})
+    result["unsure"] = [{"entry_id": entry.entry_id}]
+    result["last_run"] = dt_util.utcnow().isoformat()
+
+    await recipe.async_act(hass, result)
+
+    assert result["items"]["dead"] == []
+    assert result["counts"]["dead"] == 0
+    assert result["unsure"] == []
+    recipe.shutdown()
+
+
+async def test_the_tracker_reports_a_recovery_once_and_ignores_later_reloads(hass: HomeAssistant, failing_entry: Any) -> None:
+    """A recovered entry is no longer watched, so reloading it does not report it again."""
+    entry = await failing_entry("retry_hub", ConfigEntryNotReady("offline"), None, title="Retry", entry_id="retry_entry")
+    calls: list[None] = []
+    tracker = ConfigEntryIssueTracker()
+    tracker.watch(hass, {entry.entry_id}, lambda: calls.append(None))
+
+    for _ in range(2):
+        await hass.config_entries.async_reload(entry.entry_id)
+        await hass.async_block_till_done()
+
+    assert len(calls) == 1
+    tracker.shutdown()
+
+
+async def test_publishing_before_the_first_run_finishes_saves_nothing(
+    hass: HomeAssistant, hass_storage: dict[str, Any], triage_entry: MockConfigEntry
+) -> None:
+    """With no result yet, an edit signal leaves the Store alone; the run's own save covers it."""
+    triage_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(triage_entry.entry_id)
+    await hass.async_block_till_done()
+    coordinator = triage_entry.runtime_data.coordinators[RECIPE_CONFIG_ENTRIES]
+    coordinator.data = None  # type: ignore[assignment]
+    hass_storage.clear()
+
+    coordinator.async_publish()
+    await flush_store(coordinator._store)
+
+    assert hass_storage == {}

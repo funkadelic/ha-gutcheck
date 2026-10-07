@@ -41,6 +41,8 @@ PRICE_PER_MTOK_USD: Final = 0.042
 STORE_VERSION: Final = 1
 BUDGET_STORE_KEY: Final = f"{DOMAIN}.budget"
 SIGNAL_BUDGET_UPDATED: Final = f"{DOMAIN}_budget_updated"
+# A recipe sends this after editing its published result between runs.
+SIGNAL_RESULT_CHANGED: Final = f"{DOMAIN}_result_changed_{{recipe_id}}"
 ATTR_DAILY_BUDGET: Final = "daily_budget"
 ATTR_REMAINING: Final = "remaining"
 

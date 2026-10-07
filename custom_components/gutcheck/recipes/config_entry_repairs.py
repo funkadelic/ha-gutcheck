@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from homeassistant.config_entries import SIGNAL_CONFIG_ENTRY_CHANGED, ConfigEntry, ConfigEntryChange
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
 from homeassistant.helpers import issue_registry as ir
@@ -57,11 +59,6 @@ def _learn_more_urls(wanted: dict[str, dict[str, str]]) -> dict[str, str]:
     }
 
 
-def _watched_entry_ids(*wanted_maps: dict[str, dict[str, str]]) -> dict[str, str]:
-    """Every wanted issue's entry_id mapped to its issue id, across all kinds."""
-    return {issue_id[len(CONFIG_ENTRY_ISSUE_PREFIX) :]: issue_id for wanted in wanted_maps for issue_id in wanted}
-
-
 class ConfigEntryIssueTracker:
     """Owns the recovery-tracking subscription for all three advisory card kinds."""
 
@@ -70,7 +67,7 @@ class ConfigEntryIssueTracker:
         self._unsub_recovery: CALLBACK_TYPE | None = None
 
     def sync(self, hass: HomeAssistant, needs_reauth: list[Item], dead: list[Item], still_failing: list[Item]) -> None:
-        """Sync the three card kinds under one prefix, each call keeping the others' ids, then re-arm recovery.
+        """Sync the three card kinds under one prefix, each call keeping the others' ids.
 
         One async_sync_issues call per kind under a shared prefix, each
         passing the other kinds' wanted ids as keep, so no call's stale sweep
@@ -92,10 +89,12 @@ class ConfigEntryIssueTracker:
                 _learn_more_urls(wanted),
                 keep=others - wanted.keys(),
             )
+
+    def watch(self, hass: HomeAssistant, entry_ids: set[str], on_recovered: Callable[[], None]) -> None:
+        """Replace the recovery watch with one over entry_ids."""
         self.shutdown()
-        watched = _watched_entry_ids(*(wanted for _, wanted in kinds))
-        if watched:
-            self._unsub_recovery = async_track_entry_recovery(hass, watched)
+        if entry_ids:
+            self._unsub_recovery = async_track_entry_recovery(hass, entry_ids, on_recovered)
 
     def shutdown(self) -> None:
         """Cancel the recovery subscription, if any."""
@@ -105,18 +104,19 @@ class ConfigEntryIssueTracker:
 
 
 @callback
-def async_track_entry_recovery(hass: HomeAssistant, watched: dict[str, str]) -> CALLBACK_TYPE:
-    """Delete a watched entry's issue the moment it loads, is disabled, or is removed.
+def async_track_entry_recovery(hass: HomeAssistant, entry_ids: set[str], on_recovered: Callable[[], None]) -> CALLBACK_TYPE:
+    """Delete a listed entry's card the moment it loads, is disabled, or is removed, then hand the recovery back.
 
-    watched maps entry_id to issue_id. No immediate check is needed: sync
-    never raises a card for an entry already resolved.
+    No immediate check is needed: sync never raises a card for an entry
+    already resolved.
     """
 
     @callback
     def _handle_change(_change: ConfigEntryChange, entry: ConfigEntry) -> None:
-        """Delete the watched entry's issue once it loads, is disabled, or is removed."""
-        issue_id = watched.get(entry.entry_id)
-        if issue_id is not None and resolved(hass, entry.entry_id):
-            ir.async_delete_issue(hass, DOMAIN, issue_id)
+        """Delete the entry's card, if it has one, and call back once a listed entry has recovered."""
+        if entry.entry_id in entry_ids and resolved(hass, entry.entry_id):
+            entry_ids.discard(entry.entry_id)
+            ir.async_delete_issue(hass, DOMAIN, f"{CONFIG_ENTRY_ISSUE_PREFIX}{entry.entry_id}")
+            on_recovered()
 
     return async_dispatcher_connect(hass, SIGNAL_CONFIG_ENTRY_CHANGED, _handle_change)
