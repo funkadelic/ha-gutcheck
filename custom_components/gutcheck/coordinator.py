@@ -67,6 +67,8 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
         self._force_done = 0
         self.running = False
         self._previous_success = True
+        # A stored result too old to restore, kept only as the first run's previous.
+        self._stale: RecipeResult | None = None
         # Responses already billed in a failed run, keyed by their exact request; memory only.
         self._answered: dict[str, SystemOneResponse] = {}
         entry.async_on_unload(self._answered.clear)
@@ -90,6 +92,7 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
             remaining = (last_run + RECIPE_INTERVAL - dt_util.utcnow()).total_seconds()
             self.config_entry.async_on_unload(async_call_later(self.hass, remaining, self._handle_scheduled_refresh))
         else:
+            self._stale = parsed[0] if parsed is not None else None
             self.config_entry.async_on_unload(async_at_started(self.hass, self._handle_started_refresh))
 
     @callback
@@ -162,7 +165,7 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
     async def _async_run(self) -> RecipeResult:
         """Run one select/describe/ask/act cycle, or carry the prior result forward when nothing changed."""
         generation = self._force_requested
-        previous = self.data
+        previous = self.data if self.data is not None else self._stale
         batch = await self.recipe.async_prepare(self.hass, previous, force=generation > self._force_done)
 
         if not batch.subjects:
@@ -185,6 +188,7 @@ class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
 
         await self.recipe.async_act(self.hass, result)
         await self._store.async_save(result)
+        self._stale = None
         self._force_done = generation
         self._answered.clear()
         return result

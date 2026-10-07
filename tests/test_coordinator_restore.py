@@ -5,22 +5,35 @@ from __future__ import annotations
 import asyncio
 from typing import Any
 
-from homeassistant.const import CONF_API_KEY
-from homeassistant.core import HomeAssistant
+from homeassistant.const import CONF_API_KEY, EVENT_HOMEASSISTANT_STARTED, STATE_UNAVAILABLE
+from homeassistant.core import CoreState, HomeAssistant
+from homeassistant.exceptions import ConfigEntryError
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker, AiohttpClientMockResponse
 
-from custom_components.gutcheck.const import API_URL, DOMAIN, OPTION_WORTH_FIXING, RECIPE_HEALTH, RECIPE_UPDATES
+from custom_components.gutcheck.const import (
+    API_URL,
+    DOMAIN,
+    OPTION_WORTH_FIXING,
+    RECIPE_CONFIG_ENTRIES,
+    RECIPE_HEALTH,
+    RECIPE_UPDATES,
+    STORE_VERSION,
+)
 from custom_components.gutcheck.coordinator import RecipeCoordinator
+from custom_components.gutcheck.recipes.config_entry_const import CONFIG_ENTRY_OPTIONS, OPTION_DEAD
+from custom_components.gutcheck.recipes.shapes import recipe_store_key
 
 from .conftest import (
     api_response,
+    area_answer,
     choice_answer,
     posted_bodies,
     register_jev_responses,
     register_pending_update,
     register_unavailable_entity,
     score_answer,
+    triage_sensor_entity_id,
 )
 
 
@@ -108,3 +121,53 @@ async def test_a_result_exactly_seven_days_old_is_not_restored(
     hold.set()
     await hass.async_block_till_done(wait_background_tasks=True)
     assert coordinator.running is False
+
+
+async def test_a_stale_stored_result_is_not_shown_but_the_first_run_keeps_its_first_seen(
+    hass: HomeAssistant,
+    freezer: Any,
+    hass_storage: dict[str, Any],
+    aioclient_mock: AiohttpClientMocker,
+    triage_entry: MockConfigEntry,
+    failing_entry: Any,
+) -> None:
+    """A result over a week old stays hidden, yet the first run still reads its first_seen."""
+    freezer.move_to("2026-01-10T00:00:00-08:00")
+    first_seen_at = "2026-01-01T08:00:00+00:00"
+    await failing_entry("stale_hub", ConfigEntryError("timed out"), title="Stale Hub", entry_id="stale_entry")
+    item = {
+        "entry_id": "stale_entry",
+        "integration": "stale_hub",
+        "title": "Stale Hub",
+        "first_seen": first_seen_at,
+        "failing_for": "unknown",
+    }
+    key = recipe_store_key(RECIPE_CONFIG_ENTRIES)
+    hass_storage[key] = {
+        "version": STORE_VERSION,
+        "minor_version": 1,
+        "key": key,
+        "data": {
+            "last_run": "2026-01-02T08:00:00+00:00",
+            "counts": {option: int(option == OPTION_DEAD) for option in CONFIG_ENTRY_OPTIONS},
+            "items": {option: [item] if option == OPTION_DEAD else [] for option in CONFIG_ENTRY_OPTIONS},
+            "unsure": [],
+            "last_payload": None,
+        },
+    }
+    hass.set_state(CoreState.not_running)
+    triage_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(triage_entry.entry_id)
+    await hass.async_block_till_done()
+
+    coordinator = triage_entry.runtime_data.coordinators[RECIPE_CONFIG_ENTRIES]
+    assert coordinator.data is None
+    assert hass.states.get(triage_sensor_entity_id(hass, triage_entry)).state == STATE_UNAVAILABLE
+    assert posted_bodies(aioclient_mock) == []
+
+    register_jev_responses(aioclient_mock, [api_response({"c0": area_answer(OPTION_DEAD, 0.9, CONFIG_ENTRY_OPTIONS)})])
+    hass.bus.async_fire(EVENT_HOMEASSISTANT_STARTED)
+    await hass.async_block_till_done(wait_background_tasks=True)
+
+    assert posted_bodies(aioclient_mock)[0]["state"]["entries"][0]["failing_for"] == "longer than 1 week"
+    assert coordinator.data["items"][OPTION_DEAD][0]["first_seen"] == first_seen_at

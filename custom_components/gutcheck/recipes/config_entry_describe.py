@@ -49,9 +49,10 @@ def first_seen(previous: RecipeResult | None, entry_id: str, now: datetime) -> d
     is no information about how long the underlying failure has lasted. A
     missing, non-string or unparseable first_seen reads as first seen now.
 
-    Ponytail: first-seen survives only through the stored result, so a gap
-    longer than the restore window resets it. A dedicated Store if that
-    ever matters.
+    first_seen lives only in the stored result, which the first run reads
+    even when too old to restore. It starts over when the entry is missing
+    from that result (it recovered before failing again), when the store
+    cannot be parsed, or after the integration is removed.
     """
     if previous is None:
         return now

@@ -68,8 +68,9 @@ class Recipe(Protocol):
         """Select subjects and build the request state and questions.
 
         previous is the coordinator's last completed result, or None before
-        any run has completed. force asks again about everything this run
-        can ask about. A recipe with no carry-forward path ignores both.
+        any run has completed; the first run after a restart may instead get
+        a stored result too old to restore. force asks again about everything
+        this run can ask about. A recipe with no carry-forward path ignores both.
         """
         ...
 
