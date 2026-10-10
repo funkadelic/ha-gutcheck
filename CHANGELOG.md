@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.5](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.4...v0.14.5) (2026-10-10)
+
+
+### Other Changes
+
+* bump SonarSource/sonarqube-scan-action ([#90](https://github.com/funkadelic/ha-gutcheck/issues/90)) ([97a190e](https://github.com/funkadelic/ha-gutcheck/commit/97a190e9d1ef79cc09b862057891e9063515dfe8))
+
 ## [0.14.4](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.3...v0.14.4) (2026-10-07)
 
 
