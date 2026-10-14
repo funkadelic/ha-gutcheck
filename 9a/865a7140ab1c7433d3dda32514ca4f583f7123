@@ -1,0 +1,19 @@
+custom_components/gutcheck/sensor.py
+  s_ac2f4c02ee3136::t_dbb0b9cc6f6870 149,159,169,183
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9a865a7140ab1c7433d3dda32514ca4f583f7123",
+  "prompts": {},
+  "sessions": {
+    "s_ac2f4c02ee3136": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6355c1be-9c8a-4c99-8b7a-bda604b60fb0",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
