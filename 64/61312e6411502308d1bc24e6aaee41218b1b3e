@@ -1,0 +1,19 @@
+.github/dependabot.yml
+  s_ac2f4c02ee3136::t_e108e0a1157074 30-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6461312e6411502308d1bc24e6aaee41218b1b3e",
+  "prompts": {},
+  "sessions": {
+    "s_ac2f4c02ee3136": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6355c1be-9c8a-4c99-8b7a-bda604b60fb0",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
