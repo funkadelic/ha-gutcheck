@@ -27,9 +27,8 @@ updates:
     cooldown:
       default-days: 5
       semver-major-days: 14
-    # One PR for minor and patch bumps, so pytest-homeassistant-custom-component
-    # and homeassistant-stubs move to a new HA release together. Majors still
-    # arrive one PR each.
+    # One PR for minor and patch bumps, so the test tools move together. Majors
+    # still arrive one PR each.
     groups:
       pip:
         patterns:
