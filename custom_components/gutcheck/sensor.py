@@ -128,9 +128,6 @@ class RecipeSummarySensor(CoordinatorEntity[RecipeCoordinator], SensorEntity):
     def __init__(self, coordinator: RecipeCoordinator, entry: ConfigEntry) -> None:
         """Bind the sensor to its coordinator and the shared Gut Check device."""
         super().__init__(coordinator)
-        # homeassistant-stubs types BaseCoordinatorEntity.coordinator as Incomplete
-        # (Any); keep our own correctly typed reference instead of relying on it.
-        self._recipe_coordinator: RecipeCoordinator = coordinator
         self._attr_translation_key = coordinator.recipe.recipe_id
         self._attr_unique_id = f"{entry.entry_id}_{coordinator.recipe.recipe_id}"
         self._attr_device_info = device_info(entry)
@@ -149,7 +146,7 @@ class RecipeSummarySensor(CoordinatorEntity[RecipeCoordinator], SensorEntity):
     @callback
     def _is_own_issue(self, event_data: ir.EventIssueRegistryUpdatedData) -> bool:
         """True for an issue this recipe raised."""
-        return event_data["domain"] == DOMAIN and event_data["issue_id"].startswith(self._recipe_coordinator.recipe.issue_prefix)
+        return event_data["domain"] == DOMAIN and event_data["issue_id"].startswith(self.coordinator.recipe.issue_prefix)
 
     @callback
     def _handle_issue_update(self, _event: Event[ir.EventIssueRegistryUpdatedData]) -> None:
@@ -159,7 +156,7 @@ class RecipeSummarySensor(CoordinatorEntity[RecipeCoordinator], SensorEntity):
     @property
     def _data(self) -> RecipeResult | None:
         """The coordinator's latest result, or None before the first run completes."""
-        return self._recipe_coordinator.data
+        return self.coordinator.data
 
     @property
     def available(self) -> bool:
@@ -169,7 +166,7 @@ class RecipeSummarySensor(CoordinatorEntity[RecipeCoordinator], SensorEntity):
     @property
     def native_value(self) -> int:
         """Open, unignored Repairs cards this recipe raised."""
-        prefix = self._recipe_coordinator.recipe.issue_prefix
+        prefix = self.coordinator.recipe.issue_prefix
         # Only active issues show in Repairs; a non-persistent one stays inactive
         # after a restart until this recipe's next run or restore recreates it.
         return sum(
@@ -183,7 +180,7 @@ class RecipeSummarySensor(CoordinatorEntity[RecipeCoordinator], SensorEntity):
         """Counts, items, unsure entries, the last payload, the last run time and why the last run failed."""
         data = self._data
         assert data is not None  # Home Assistant reads attributes only while available
-        coordinator = self._recipe_coordinator
+        coordinator = self.coordinator
         return {
             ATTR_COUNTS: data["counts"],
             ATTR_ITEMS: data["items"],
