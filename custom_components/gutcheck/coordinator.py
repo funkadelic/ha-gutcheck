@@ -45,6 +45,8 @@ def _request_key(payload: SystemOneRequest) -> str:
 class RecipeCoordinator(DataUpdateCoordinator[RecipeResult]):
     """Runs one recipe's select/describe/ask/act cycle on a fixed interval."""
 
+    config_entry: GutCheckConfigEntry
+
     def __init__(
         self,
         hass: HomeAssistant,

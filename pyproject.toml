@@ -77,3 +77,9 @@ strict = true
 local_partial_types = true
 warn_unreachable = true
 files = ["custom_components/gutcheck"]
+
+# BinarySensorDeviceClass moved to a const submodule in HA 2026.10, which the
+# 2026.9 minimum lacks, so the import stays on the package.
+[[tool.mypy.overrides]]
+module = ["homeassistant.components.binary_sensor"]
+implicit_reexport = true

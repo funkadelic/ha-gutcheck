@@ -12,7 +12,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Callable, Mapping
 
-import voluptuous as vol
+import probatio as vol
 from homeassistant.components.repairs import RepairsFlow, RepairsFlowResult
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import issue_registry as ir

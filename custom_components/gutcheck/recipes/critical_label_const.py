@@ -3,8 +3,7 @@
 from typing import Final
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
-from homeassistant.const import Platform
-from homeassistant.helpers.entity import EntityCategory
+from homeassistant.const import EntityCategory, Platform
 
 from ..const import OPTION_NONE
 

@@ -564,7 +564,8 @@ def register_area_device(
         if item.labels:
             entity_registry.async_update_entity(entry.entity_id, labels=set(item.labels))
         if item.area is not None:
-            entity_registry.async_update_entity(entry.entity_id, area_id=item.area)
+            # Home Assistant refuses an area of its own on an entity without a name of its own.
+            entity_registry.async_update_entity(entry.entity_id, name="Placed", area_id=item.area)
 
     resolved = device_registry.async_get(device.id)
     assert resolved is not None
