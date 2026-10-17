@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.14.5](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.4...v0.14.5) (2026-10-17)
+
+
+### Fixed
+
+* support home assistant 2026.10 ([#94](https://github.com/funkadelic/ha-gutcheck/issues/94)) ([734e961](https://github.com/funkadelic/ha-gutcheck/commit/734e961617cb35984e2e503d48a47cdf8c81e1f6))
+
+
+### Other Changes
+
+* bump actions/create-github-app-token ([#98](https://github.com/funkadelic/ha-gutcheck/issues/98)) ([d417d17](https://github.com/funkadelic/ha-gutcheck/commit/d417d178cacf60c91eed632483a4422b28d9d3bb))
+* bump ruff from 0.16.10 to 0.17.0 in the pip group ([#96](https://github.com/funkadelic/ha-gutcheck/issues/96)) ([1ad3abc](https://github.com/funkadelic/ha-gutcheck/commit/1ad3abc4776844c31c9eceacc70999337cbb680f))
+* bump SonarSource/sonarqube-scan-action ([#90](https://github.com/funkadelic/ha-gutcheck/issues/90)) ([97a190e](https://github.com/funkadelic/ha-gutcheck/commit/97a190e9d1ef79cc09b862057891e9063515dfe8))
+* bump the actions group with 2 updates ([#97](https://github.com/funkadelic/ha-gutcheck/issues/97)) ([f4c6379](https://github.com/funkadelic/ha-gutcheck/commit/f4c63791cbddb20802d5718367339054503dff63))
+* drop the empty homeassistant-stubs pin ([#95](https://github.com/funkadelic/ha-gutcheck/issues/95)) ([96408c4](https://github.com/funkadelic/ha-gutcheck/commit/96408c4cad8e5121cd37b200c17f39e4829fd3b9))
+
 ## [0.14.4](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.3...v0.14.4) (2026-10-07)
 
 
