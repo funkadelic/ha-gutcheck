@@ -9,8 +9,8 @@ from homeassistant.helpers import area_registry as ar
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
-from ..const import DEVICE_TEXT_MAX_CHARS, OPTION_NONE
-from ..describe import clean_text
+from ..const import OPTION_NONE
+from ..describe import clean_name, clean_text
 from .area_const import AREA_NAME_MAX_CHARS, AREA_NONE_DESCRIPTION
 from .shapes import Item
 
@@ -46,9 +46,9 @@ def describe(hass: HomeAssistant, device: dr.DeviceEntry) -> tuple[dict[str, Any
     Built from this device and its own entities only: never the linking
     parent device, another device, or the deprecated suggested-area property.
     """
-    name = clean_text(device.name_by_user or device.name, DEVICE_TEXT_MAX_CHARS) or None
-    manufacturer = clean_text(device.manufacturer, DEVICE_TEXT_MAX_CHARS) or None
-    model = clean_text(device.model, DEVICE_TEXT_MAX_CHARS) or None
+    name = clean_name(device.name_by_user or device.name)
+    manufacturer = clean_name(device.manufacturer)
+    model = clean_name(device.model)
     entries = er.async_entries_for_device(er.async_get(hass), device.id, include_disabled_entities=True)
     entity_domains = sorted({entry.domain for entry in entries})
     classes = {entry.device_class or entry.original_device_class for entry in entries}

@@ -173,6 +173,8 @@ AREA_OPTIONS: Final = (OPTION_SUGGESTED,)
 
 # 60 fits real device names. Shared by area and device class suggestions.
 DEVICE_TEXT_MAX_CHARS: Final = 60
+# Stand-in for a redacted email address; brackets survive clean_text.
+REDACTED_EMAIL: Final = "[email]"
 
 # Which device classes Gut Check set and which sensors it hid, each kept out
 # of the recipe's own Store because every run rewrites that one while

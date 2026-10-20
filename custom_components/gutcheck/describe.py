@@ -6,6 +6,8 @@ import re
 from awesomeversion import AwesomeVersion
 
 from .const import (
+    DEVICE_TEXT_MAX_CHARS,
+    REDACTED_EMAIL,
     RELEASE_NOTES_MAX_CHARS,
     VERSION_JUMP_MAJOR,
     VERSION_JUMP_MINOR,
@@ -75,6 +77,8 @@ _CODE_FENCE_RE = re.compile(r"```[a-zA-Z0-9]*\n?")
 _INLINE_CODE_RE = re.compile(r"`([^`]*)`")
 _WHITESPACE_RE = re.compile(r"\s+")
 _SECTION_START_RE = re.compile(r"(?m)^(?=#{1,6}\s)")
+# Linear on any input: possessive quantifiers never backtrack.
+_EMAIL_RE = re.compile(r"(?<![\w.+-])[\w.+-]++@[\w-]++\.[\w.-]++")
 
 
 def clean_text(text: str | None, max_chars: int) -> str:
@@ -113,3 +117,15 @@ def _risk_first(text: str) -> str:
 def clean_release_notes(text: str | None) -> str:
     """Clean a release note excerpt to plain text, HACS footer dropped, risk sections first, capped at RELEASE_NOTES_MAX_CHARS."""
     return clean_text(_risk_first(HACS_FOOTER_RE.sub("", text or "")), RELEASE_NOTES_MAX_CHARS)
+
+
+def redact_emails(text: str) -> str:
+    """Replace every email address with a fixed stand-in."""
+    return _EMAIL_RE.sub(REDACTED_EMAIL, text)
+
+
+def clean_name(text: str | None) -> str | None:
+    """A device or entity name, maker or model: emails redacted, cleaned, capped, None when empty."""
+    if not text:
+        return None
+    return clean_text(redact_emails(text), DEVICE_TEXT_MAX_CHARS) or None
