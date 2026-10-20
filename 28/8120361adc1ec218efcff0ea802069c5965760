@@ -1,0 +1,41 @@
+tests/test_area_edges.py
+  s_89f3a52c3e2042::t_eab744ab037f1c 72
+  s_89f3a52c3e2042::t_029540ed8ea9b9 63-71
+tests/test_describe_edges.py
+  s_89f3a52c3e2042::t_eab744ab037f1c 3-4,15-18,20-31
+  s_89f3a52c3e2042::t_d881a91611a60a 19
+README.md
+  s_89f3a52c3e2042::t_465308eadeac1d 209-210
+custom_components/gutcheck/recipes/config_entry_describe.py
+  s_89f3a52c3e2042::t_6651dc5bcbb0db 13-14,78
+tests/test_entity_text.py
+  s_89f3a52c3e2042::t_029540ed8ea9b9 1-27
+custom_components/gutcheck/recipes/config_entry_const.py
+  s_89f3a52c3e2042::t_6651dc5bcbb0db 18
+custom_components/gutcheck/describe.py
+  s_89f3a52c3e2042::t_2d0be3203adbad 129-131
+  s_89f3a52c3e2042::t_6651dc5bcbb0db 9-10,80-81,120-128
+custom_components/gutcheck/recipes/entity_text.py
+  s_89f3a52c3e2042::t_6651dc5bcbb0db 9,17-20
+custom_components/gutcheck/const.py
+  s_89f3a52c3e2042::t_6651dc5bcbb0db 176-177
+custom_components/gutcheck/recipes/area_describe.py
+  s_89f3a52c3e2042::t_2d0be3203adbad 12-13
+  s_89f3a52c3e2042::t_6651dc5bcbb0db 49-51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "288120361adc1ec218efcff0ea802069c5965760",
+  "prompts": {},
+  "sessions": {
+    "s_89f3a52c3e2042": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d109d62b-3df3-4626-b810-9450a5decc60",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": null
+    }
+  }
+}
