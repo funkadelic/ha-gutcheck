@@ -1,0 +1,34 @@
+custom_components/gutcheck/describe.py
+  s_89f3a52c3e2042::t_df0c7dee31c399 5,81-84,131-137
+tests/test_diagnostics.py
+  s_89f3a52c3e2042::t_dadfe979b7ad08 32,155-175
+  s_89f3a52c3e2042::t_4222aa358c291e 176-177
+custom_components/gutcheck/diagnostics.py
+  s_89f3a52c3e2042::t_97758fa9745bf2 18
+  s_89f3a52c3e2042::t_2c7b2550adff1f 4-6,19,26-27,30-42,44,56,66
+  s_89f3a52c3e2042::t_49f85aafae914d 28-29
+tests/test_describe_edges.py
+  s_89f3a52c3e2042::t_dadfe979b7ad08 4,32-41
+tests/test_config_entry_payload.py
+  s_89f3a52c3e2042::t_dadfe979b7ad08 115-121,205-213
+custom_components/gutcheck/recipes/config_entry_describe.py
+  s_89f3a52c3e2042::t_df0c7dee31c399 13,75,83
+README.md
+  s_89f3a52c3e2042::t_39abc7a10435a1 213
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f75b31faebb10aad3c0b531b500878cea9738508",
+  "prompts": {},
+  "sessions": {
+    "s_89f3a52c3e2042": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d109d62b-3df3-4626-b810-9450a5decc60",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
