@@ -29,6 +29,7 @@ from custom_components.gutcheck.const import (
     DEVICE_CLASS_APPLIED_STORE_KEY,
     DOMAIN,
     HIDE_DIAGNOSTIC_APPLIED_STORE_KEY,
+    RECIPE_CONFIG_ENTRIES,
     RECIPE_HEALTH,
 )
 from custom_components.gutcheck.diagnostics import async_get_config_entry_diagnostics
@@ -42,7 +43,7 @@ async def test_download_redacts_the_api_key_and_carries_the_rest(
     hass_client: ClientSessionGenerator,
     mock_config_entry: MockConfigEntry,
 ) -> None:
-    """A real download through HA's diagnostics view redacts the key and nothing else."""
+    """A real download through HA's diagnostics view redacts the key."""
     assert await async_setup_component(hass, "diagnostics", {})
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
@@ -65,7 +66,7 @@ async def test_download_carries_counts_items_unsure_and_last_payload_unredacted(
     hass_client: ClientSessionGenerator,
     mock_config_entry: MockConfigEntry,
 ) -> None:
-    """Nothing but the API key is touched: counts, items, unsure and the last payload survive byte-for-byte."""
+    """Items without a title survive byte-for-byte: counts, items, unsure and the last payload."""
     assert await async_setup_component(hass, "diagnostics", {})
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
@@ -101,6 +102,31 @@ async def test_download_carries_counts_items_unsure_and_last_payload_unredacted(
     assert isinstance(result["budget"]["daily_budget"], int)
     assert isinstance(result["budget"]["spent_today"], int)
     assert isinstance(result["budget"]["remaining"], int)
+
+
+async def test_download_redacts_config_entry_titles_in_items_and_unsure(
+    hass: HomeAssistant,
+    hass_client: ClientSessionGenerator,
+    mock_config_entry: MockConfigEntry,
+) -> None:
+    """Another integration's entry title is often an account email, so every bucket drops it."""
+    assert await async_setup_component(hass, "diagnostics", {})
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    item = {"entry_id": "e1", "integration": "cloud_login", "title": "me@example.com"}
+    unsure_item = {"entry_id": "e2", "integration": "other_cloud", "title": "you@example.com"}
+    mock_config_entry.runtime_data.coordinators[RECIPE_CONFIG_ENTRIES].async_set_updated_data(
+        {"items": {"worth_fixing": [item]}, "unsure": [unsure_item]}
+    )
+
+    result = await get_diagnostics_for_config_entry(hass, hass_client, mock_config_entry)
+
+    recipe = result["recipes"][RECIPE_CONFIG_ENTRIES]
+    assert recipe["items"]["worth_fixing"] == [{**item, "title": REDACTED}]
+    assert recipe["unsure"] == [{**unsure_item, "title": REDACTED}]
+    assert "example.com" not in json.dumps(result)
 
 
 async def test_a_second_stored_credential_fails_this_test_until_redaction_is_reviewed(hass: HomeAssistant) -> None:
