@@ -6,6 +6,9 @@
     "lovelace",
     "recorder"
   ],
+  "categories": [
+    "ai_voice.ai_models"
+  ],
   "codeowners": [
     "@funkadelic"
   ],
