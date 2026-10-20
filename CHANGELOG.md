@@ -3,6 +3,12 @@
 ## [0.14.5](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.4...v0.14.5) (2026-10-20)
 
 
+### What's new
+
+* Any email address in a device or entity name is replaced with `[email]` before Gut Check sends it to the model, and it no longer shows up in the diagnostics download.
+* The diagnostics download now hides the names of your other integrations' entries, which are often account emails.
+
+
 ### Fixed
 
 * redact config entry titles in the diagnostics download ([#101](https://github.com/funkadelic/ha-gutcheck/issues/101)) ([b0de44b](https://github.com/funkadelic/ha-gutcheck/commit/b0de44b804726437d61ba6688fb591fc6980caab))
