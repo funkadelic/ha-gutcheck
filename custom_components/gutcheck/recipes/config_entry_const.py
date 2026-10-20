@@ -15,8 +15,7 @@ CONFIG_ENTRY_OPTIONS: Final = (OPTION_TRANSIENT, OPTION_NEEDS_REAUTH, OPTION_DEA
 CONFIG_ENTRY_CONFIDENCE_THRESHOLD: Final = 0.5
 
 CONFIG_ENTRY_REASON_MAX_CHARS: Final = 300
-# Stand-ins for what redaction removes from a reason; brackets survive clean_text.
-REDACTED_EMAIL: Final = "[email]"
+# Stand-in for a redacted URL part; brackets survive clean_text.
 REDACTED: Final = "[redacted]"
 
 # An entry the check stays unsure about this long gets a card with no verdict.

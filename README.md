@@ -206,9 +206,11 @@ For each asked sensor with no device class, Gut Check sends its name, its device
 
 For each asked entity, recorder suggestions send its name, its device's name, manufacturer and model, its domain, integration, device class and unit, how often it changes (grouped as heavy, very heavy or extreme, never the count), whether Home Assistant keeps long-term statistics for it, whether an automation, script, scene or group lists it, and whether a dashboard Gut Check could read shows its history. They never send an entity ID, a count, a reading or any other state, an area or a label. Names are read only as a description, never as an instruction.
 
+Any email address in a device or entity name is replaced with `[email]` before it is sent. Some integrations, Google Drive among them, name a device after the account's email.
+
 To see exactly what was sent on the last completed run, open **Developer tools > States**, find the check's sensor, and look at its `last_payload` attribute. A run that went out as several requests shows one entry per request. A run that fails partway leaves the previous run's payload in place.
 
-The integration's three-dot menu also offers a diagnostics download. It replaces the API key and every title, other integrations' entry names among them, with a redacted marker; everything else, your device and area names and the last payload among them, comes through as it is, so read the file before attaching it to an issue.
+The integration's three-dot menu also offers a diagnostics download. It replaces the API key, every title (other integrations' entry names among them) and every email address with a redacted marker; everything else, your device and area names and the last payload among them, comes through as it is, so read the file before attaching it to an issue.
 
 ## Reference
 

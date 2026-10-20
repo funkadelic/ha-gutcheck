@@ -60,6 +60,16 @@ async def test_device_text_is_capped_and_disabled_entities_still_count(hass: Hom
     assert state_item["device_classes"] == ["outlet"]
 
 
+async def test_an_email_in_a_device_name_never_reaches_the_model_or_the_item(hass: HomeAssistant) -> None:
+    """An account device named after its email, as Google Drive does, is described with the email replaced."""
+    device = register_area_device(hass, "drive", name="me@example.com", entities=["sensor"])
+
+    state_item, subject = describe(hass, device)
+
+    assert state_item["name"] == "[email]"
+    assert subject["device_name"] == "[email]"
+
+
 async def test_a_suggestion_that_no_longer_resolves_does_not_hide_the_ones_after_it(hass: HomeAssistant) -> None:
     """An unknown device, then an unknown area, then a good one: only the good one gets a card entry."""
     areas = create_areas(hass, "Kitchen")

@@ -10,14 +10,13 @@ from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
 from ..const import DOMAIN
-from ..describe import bucket_longer_than, clean_text
-from .config_entry_const import CONFIG_ENTRY_REASON_MAX_CHARS, CONFIG_ENTRY_UNSURE_CARD_AFTER, REDACTED, REDACTED_EMAIL
+from ..describe import bucket_longer_than, clean_redacted, redact_emails
+from .config_entry_const import CONFIG_ENTRY_REASON_MAX_CHARS, CONFIG_ENTRY_UNSURE_CARD_AFTER, REDACTED
 from .shapes import Item, RecipeResult
 
 # Linear on any input: each match starts at "://" or at the start of a run, and possessive quantifiers never backtrack.
 _URL_USERINFO_RE = re.compile(r"://[^\s/@]++@")
 _URL_QUERY_RE = re.compile(r"(://[^\s?#]++)[?#]\S*+")
-_EMAIL_RE = re.compile(r"(?<![\w.+-])[\w.+-]++@[\w-]++\.[\w.-]++")
 
 TARGET_STATES = frozenset({ConfigEntryState.SETUP_RETRY, ConfigEntryState.SETUP_ERROR})
 # An ignored or user-disabled entry is never set up, so it stays not loaded and never matches.
@@ -73,15 +72,15 @@ def failing_for(seen: datetime, now: datetime) -> str:
 
 
 def redact_reason(reason: str) -> str:
-    """Drop a URL's sign-in part, query and fragment, and every email address, before anything else sees it."""
+    """Drop a URL's sign-in part, query and fragment, and every email address."""
     reason = _URL_USERINFO_RE.sub(f"://{REDACTED}@", reason)
     reason = _URL_QUERY_RE.sub(rf"\1?{REDACTED}", reason)
-    return _EMAIL_RE.sub(REDACTED_EMAIL, reason)
+    return redact_emails(reason)
 
 
 def reason_text(entry: ConfigEntry) -> str | None:
     """The redacted, cleaned reason exactly as the model sees it, or None when there is none."""
-    return (clean_text(redact_reason(entry.reason), CONFIG_ENTRY_REASON_MAX_CHARS) if entry.reason else "") or None
+    return clean_redacted(entry.reason, redact_reason, CONFIG_ENTRY_REASON_MAX_CHARS) or None
 
 
 def describe(entry: ConfigEntry, failing_for_words: str) -> Item:
