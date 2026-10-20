@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.14.5](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.4...v0.14.5) (2026-10-20)
+
+
+### What's new
+
+* Any email address in a device or entity name is replaced with `[email]` before Gut Check sends it to the model, and it no longer shows up in the diagnostics download.
+* The diagnostics download now hides the names of your other integrations' entries, which are often account emails.
+
+
+### Fixed
+
+* redact config entry titles in the diagnostics download ([#101](https://github.com/funkadelic/ha-gutcheck/issues/101)) ([b0de44b](https://github.com/funkadelic/ha-gutcheck/commit/b0de44b804726437d61ba6688fb591fc6980caab))
+* strip email addresses from device and entity names ([#102](https://github.com/funkadelic/ha-gutcheck/issues/102)) ([dd5e7aa](https://github.com/funkadelic/ha-gutcheck/commit/dd5e7aaf2d928f9141d8b405a46bc108c17d1416))
+* support home assistant 2026.10 ([#94](https://github.com/funkadelic/ha-gutcheck/issues/94)) ([734e961](https://github.com/funkadelic/ha-gutcheck/commit/734e961617cb35984e2e503d48a47cdf8c81e1f6))
+
+
+### Other Changes
+
+* bump actions/create-github-app-token ([#98](https://github.com/funkadelic/ha-gutcheck/issues/98)) ([d417d17](https://github.com/funkadelic/ha-gutcheck/commit/d417d178cacf60c91eed632483a4422b28d9d3bb))
+* bump ruff from 0.16.10 to 0.17.0 in the pip group ([#96](https://github.com/funkadelic/ha-gutcheck/issues/96)) ([1ad3abc](https://github.com/funkadelic/ha-gutcheck/commit/1ad3abc4776844c31c9eceacc70999337cbb680f))
+* bump SonarSource/sonarqube-scan-action ([#90](https://github.com/funkadelic/ha-gutcheck/issues/90)) ([97a190e](https://github.com/funkadelic/ha-gutcheck/commit/97a190e9d1ef79cc09b862057891e9063515dfe8))
+* bump the actions group with 2 updates ([#97](https://github.com/funkadelic/ha-gutcheck/issues/97)) ([f4c6379](https://github.com/funkadelic/ha-gutcheck/commit/f4c63791cbddb20802d5718367339054503dff63))
+* drop the empty homeassistant-stubs pin ([#95](https://github.com/funkadelic/ha-gutcheck/issues/95)) ([96408c4](https://github.com/funkadelic/ha-gutcheck/commit/96408c4cad8e5121cd37b200c17f39e4829fd3b9))
+* give pre-commit.ci autoupdates a conventional title ([#100](https://github.com/funkadelic/ha-gutcheck/issues/100)) ([4a3fce5](https://github.com/funkadelic/ha-gutcheck/commit/4a3fce5659842c76267aa7971416183435674671))
+
 ## [0.14.4](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.3...v0.14.4) (2026-10-07)
 
 
