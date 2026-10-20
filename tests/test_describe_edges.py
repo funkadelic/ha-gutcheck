@@ -1,7 +1,7 @@
 """Release-note ordering looks at a section's heading line only."""
 
 from custom_components.gutcheck.const import DEVICE_TEXT_MAX_CHARS
-from custom_components.gutcheck.describe import clean_name, clean_release_notes
+from custom_components.gutcheck.describe import clean_name, clean_release_notes, redact_emails
 
 
 def test_a_risk_word_in_a_section_body_does_not_promote_it() -> None:
@@ -29,3 +29,13 @@ def test_an_empty_name_is_none() -> None:
     """No name and an all-whitespace name both read as missing."""
     assert clean_name(None) is None
     assert clean_name("   ") is None
+
+
+def test_an_email_built_by_unescaping_is_still_redacted() -> None:
+    """An HTML entity that unescapes to an at sign cannot slip an address past redaction."""
+    assert clean_name("alice&#64;example.com") == "[email]"
+
+
+def test_every_unquoted_local_part_character_is_redacted_with_the_address() -> None:
+    """No piece of a local part with unusual but valid characters survives in front of the stand-in."""
+    assert redact_emails("owner john!doe#1%x/y=z@example.com here") == "owner [email] here"

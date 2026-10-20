@@ -2,6 +2,7 @@
 
 import html
 import re
+from collections.abc import Callable
 
 from awesomeversion import AwesomeVersion
 
@@ -77,8 +78,10 @@ _CODE_FENCE_RE = re.compile(r"```[a-zA-Z0-9]*\n?")
 _INLINE_CODE_RE = re.compile(r"`([^`]*)`")
 _WHITESPACE_RE = re.compile(r"\s+")
 _SECTION_START_RE = re.compile(r"(?m)^(?=#{1,6}\s)")
-# Linear on any input: possessive quantifiers never backtrack.
-_EMAIL_RE = re.compile(r"(?<![\w.+-])[\w.+-]++@[\w-]++\.[\w.-]++")
+# Every local-part character RFC 5322 allows unquoted. Linear: the lookbehind starts a match only
+# at the start of a run, and possessive quantifiers never backtrack.
+_EMAIL_LOCAL = r"\w.!#$%&'*+/=?^`{|}~-"
+_EMAIL_RE = re.compile(rf"(?<![{_EMAIL_LOCAL}])[{_EMAIL_LOCAL}]++@[\w-]++\.[\w.-]++")
 
 
 def clean_text(text: str | None, max_chars: int) -> str:
@@ -125,7 +128,10 @@ def redact_emails(text: str) -> str:
 
 
 def clean_name(text: str | None) -> str | None:
-    """A device or entity name, maker or model: emails redacted, cleaned, capped, None when empty."""
-    if not text:
-        return None
-    return clean_text(redact_emails(text), DEVICE_TEXT_MAX_CHARS) or None
+    """A device or entity name, maker or model: cleaned, emails redacted, capped, None when empty."""
+    return clean_redacted(text, redact_emails, DEVICE_TEXT_MAX_CHARS) or None
+
+
+def clean_redacted(text: str | None, redact: Callable[[str], str], max_chars: int) -> str:
+    """Clean first, since unescaping can build an address (`&#64;`), then redact, then cap."""
+    return redact(clean_text(text, len(text or "")))[:max_chars]

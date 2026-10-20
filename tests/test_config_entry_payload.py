@@ -112,7 +112,13 @@ def test_redaction_stays_linear_on_long_unmatched_runs() -> None:
     """Long runs that almost match finish at once instead of backtracking for minutes."""
     from custom_components.gutcheck.recipes.config_entry_describe import redact_reason
 
-    for text in ("a" * 100_000, "a" * 100_000 + "@", "http://" + "a" * 100_000, "x@" + "a" * 100_000 + "."):
+    for text in (
+        "a" * 100_000,
+        "a" * 100_000 + "@",
+        "!#%" * 30_000 + "@",
+        "http://" + "a" * 100_000,
+        "x@" + "a" * 100_000 + ".",
+    ):
         assert len(redact_reason(text)) <= len(text) + 20
 
 
@@ -196,3 +202,12 @@ async def test_no_gutcheck_log_record_contains_an_entrys_reason_or_title(
         message = record.getMessage()
         assert secret_reason not in message
         assert "Distinctive Title Marker" not in message
+
+
+def test_an_escaped_email_in_a_reason_is_redacted_once_unescaped() -> None:
+    """An address hidden behind an HTML entity is redacted after cleaning builds it, never sent."""
+    from types import SimpleNamespace
+
+    from custom_components.gutcheck.recipes.config_entry_describe import reason_text
+
+    assert reason_text(SimpleNamespace(reason="Login failed for jane&#64;example.com")) == "Login failed for [email]"
