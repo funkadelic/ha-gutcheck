@@ -1,8 +1,9 @@
 """Diagnostics download for Gut Check config entries.
 
 Redacts the API key and every `title` key, since a config entry title is often
-an account email. Other names and payloads stay in: a bug report needs them.
-Every value comes from this repo's own TypedDicts, so a deny-list is enough.
+an account email; update titles go too, as redaction is by key. Other names and
+payloads stay in: a bug report needs them. Every value comes from this repo's
+own TypedDicts, so a deny-list is enough.
 """
 
 from __future__ import annotations

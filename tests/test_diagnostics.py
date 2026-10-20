@@ -31,6 +31,7 @@ from custom_components.gutcheck.const import (
     HIDE_DIAGNOSTIC_APPLIED_STORE_KEY,
     RECIPE_CONFIG_ENTRIES,
     RECIPE_HEALTH,
+    RECIPE_UPDATES,
 )
 from custom_components.gutcheck.diagnostics import async_get_config_entry_diagnostics
 from custom_components.gutcheck.recipes.applied_records import AppliedRecords
@@ -127,6 +128,27 @@ async def test_download_redacts_config_entry_titles_in_items_and_unsure(
     assert recipe["items"]["worth_fixing"] == [{**item, "title": REDACTED}]
     assert recipe["unsure"] == [{**unsure_item, "title": REDACTED}]
     assert "example.com" not in json.dumps(result)
+
+
+async def test_download_redacts_update_titles_too(
+    hass: HomeAssistant,
+    hass_client: ClientSessionGenerator,
+    mock_config_entry: MockConfigEntry,
+) -> None:
+    """Redaction is by key, so an update's title is hidden as well; its entity and versions still identify it."""
+    assert await async_setup_component(hass, "diagnostics", {})
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    item = {"entity_id": "update.hub_firmware", "latest_version": "2.0", "title": "Hub firmware"}
+    mock_config_entry.runtime_data.coordinators[RECIPE_UPDATES].async_set_updated_data(
+        {"items": {"routine": [item]}, "unsure": []}
+    )
+
+    result = await get_diagnostics_for_config_entry(hass, hass_client, mock_config_entry)
+
+    assert result["recipes"][RECIPE_UPDATES]["items"]["routine"] == [{**item, "title": REDACTED}]
 
 
 async def test_a_second_stored_credential_fails_this_test_until_redaction_is_reviewed(hass: HomeAssistant) -> None:
