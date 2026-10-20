@@ -1,8 +1,9 @@
 """Diagnostics download for Gut Check config entries.
 
-Only the API key is redacted. Names and payloads stay in: the user reads the
-file before sharing it, and a bug report needs them. Every value comes from
-this repo's own TypedDicts, so a deny-list is enough.
+Redacts the API key and every `title` key, since a config entry title is often
+an account email; update titles go too, as redaction is by key. Other names and
+payloads stay in: a bug report needs them. Every value comes from this repo's
+own TypedDicts, so a deny-list is enough.
 """
 
 from __future__ import annotations
@@ -17,11 +18,11 @@ from homeassistant.core import HomeAssistant
 if TYPE_CHECKING:
     from . import GutCheckConfigEntry
 
-TO_REDACT = {CONF_API_KEY}
+TO_REDACT = {CONF_API_KEY, "title"}
 
 
 async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: GutCheckConfigEntry) -> dict[str, Any]:
-    """Return a snapshot of one config entry with the API key redacted.
+    """Return a snapshot of one config entry with the API key and titles redacted.
 
     Nothing is awaited, so a download cannot race a recipe run.
     """

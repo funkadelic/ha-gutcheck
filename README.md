@@ -208,7 +208,7 @@ For each asked entity, recorder suggestions send its name, its device's name, ma
 
 To see exactly what was sent on the last completed run, open **Developer tools > States**, find the check's sensor, and look at its `last_payload` attribute. A run that went out as several requests shows one entry per request. A run that fails partway leaves the previous run's payload in place.
 
-The integration's three-dot menu also offers a diagnostics download. It replaces the API key with a redacted marker; everything else, your device and area names and the last payload among them, comes through as it is, so read the file before attaching it to an issue.
+The integration's three-dot menu also offers a diagnostics download. It replaces the API key and every title, other integrations' entry names among them, with a redacted marker; everything else, your device and area names and the last payload among them, comes through as it is, so read the file before attaching it to an issue.
 
 ## Reference
 
