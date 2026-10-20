@@ -1,0 +1,19 @@
+custom_components/gutcheck/manifest.json
+  s_d53ecc8424ba41::t_c2656fd60b00be 9-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ab8f70e2b516819d86caa4327e8fbb73b3d0dd96",
+  "prompts": {},
+  "sessions": {
+    "s_d53ecc8424ba41": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "534380ae-a792-4254-a82b-2246d2b6947e",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Norman Yee <155019+funkadelic@users.noreply.github.com>"
+    }
+  }
+}
