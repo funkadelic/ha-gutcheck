@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.14.6](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.5...v0.14.6) (2026-10-24)
+
+
+### Other Changes
+
+* bump home-assistant/actions/hassfest ([#104](https://github.com/funkadelic/ha-gutcheck/issues/104)) ([b0ca7e5](https://github.com/funkadelic/ha-gutcheck/commit/b0ca7e5371ee48e63bfa98566cb8aee940c4b5e8))
+* bump the pip group with 2 updates ([#105](https://github.com/funkadelic/ha-gutcheck/issues/105)) ([a63e445](https://github.com/funkadelic/ha-gutcheck/commit/a63e44533d23be6b4745ca9de1840a6d0e27b863))
+
 ## [0.14.5](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.4...v0.14.5) (2026-10-20)
 
 
