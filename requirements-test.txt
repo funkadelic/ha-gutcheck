@@ -2,6 +2,6 @@
 # version per release, so this line decides which HA the suite is tested
 # against. A ">=" floor would let pip resolve backward, silently testing
 # against an older HA than users run. Dependabot bumps it.
-pytest-homeassistant-custom-component==0.13.372
+pytest-homeassistant-custom-component==0.13.373
 mypy==2.4.0
-ruff==0.17.0
+ruff==0.17.1
