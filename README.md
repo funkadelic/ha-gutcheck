@@ -8,7 +8,7 @@
 [![Codecov](https://img.shields.io/codecov/c/github/funkadelic/ha-gutcheck?logo=codecov)](https://codecov.io/gh/funkadelic/ha-gutcheck)
 [![Release](https://img.shields.io/github/release/funkadelic/ha-gutcheck.svg)](https://github.com/funkadelic/ha-gutcheck/releases)
 [![License](https://img.shields.io/github/license/funkadelic/ha-gutcheck.svg)](LICENSE)
-[![HACS](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz/docs/faq/custom_repositories/)
+[![HACS](https://img.shields.io/badge/HACS-Default-blue.svg)](https://github.com/hacs/default)
 
 Gut Check gives your Home Assistant install a weekly checkup. It finds entities that stopped reporting, updates that might break something, and integrations that quietly failed to start. It also suggests fixes for loose ends: devices with no area, sensors with no type, and clutter on your dashboards. Jev, a decision model from TypeSafe AI, makes the judgment calls and says how sure it is, and Gut Check leaves alone anything it isn't sure about. Anything that needs you waits in **Settings > Repairs** for you to act on or ignore.
 
@@ -134,9 +134,7 @@ Jev can't write a reply, make up a new option, or tell Home Assistant to do anyt
 
 ## Install and set up
 
-1. HACS must already be installed; see [hacs.xyz](https://hacs.xyz) if it is not. Add this repository to HACS as a custom repository (category: Integration), then install Gut Check from HACS as usual:
-
-   `https://github.com/funkadelic/ha-gutcheck`
+1. HACS must already be installed; see [hacs.xyz](https://hacs.xyz) if it is not. Gut Check is in the default HACS store, so search for **Gut Check** in HACS (or use the button at the top of this page), click **Download**, then restart Home Assistant.
 
 2. Create a TypeSafe AI account and an API key at [console.typesafe.ai/keys](https://console.typesafe.ai/keys). The key is the only setup. There is no add-on or local model to run.
 3. Add the integration from **Settings > Devices & services** and paste the key. Gut Check tries it with one cheap question before creating the entry, so a wrong key is caught right away rather than at the first run.
