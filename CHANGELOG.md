@@ -3,6 +3,11 @@
 ## [0.14.6](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.5...v0.14.6) (2026-11-04)
 
 
+### What's new
+
+* Gut Check is now in the default HACS store, so you can find it by searching for Gut Check in HACS without adding a custom repository. Existing installs keep updating as before.
+
+
 ### Other Changes
 
 * bump home-assistant/actions/hassfest ([#104](https://github.com/funkadelic/ha-gutcheck/issues/104)) ([b0ca7e5](https://github.com/funkadelic/ha-gutcheck/commit/b0ca7e5371ee48e63bfa98566cb8aee940c4b5e8))
