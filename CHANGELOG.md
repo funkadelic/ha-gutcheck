@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.7](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.6...v0.14.7) (2026-11-05)
+
+
+### Other Changes
+
+* list gut check under the ai models category ([#103](https://github.com/funkadelic/ha-gutcheck/issues/103)) ([253984e](https://github.com/funkadelic/ha-gutcheck/commit/253984e9baf03aba5f5fcd43a8d783d6a5a674da))
+
 ## [0.14.6](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.5...v0.14.6) (2026-11-04)
 
 
