@@ -15,7 +15,7 @@ addopts = [
 # Capped below 4 because mutmut 3 rewrote this config format once already, and a
 # 4.x could invalidate the block below without failing loudly.
 [dependency-groups]
-mutation = ["mutmut>=3.8.0,<4"]
+mutation = ["mutmut>=3.8.1,<4"]
 
 # Mutation testing. mutmut mutates a copy of the source under ./mutants/ and runs
 # the suite from there, so the copy needs anything the tests open by path.
