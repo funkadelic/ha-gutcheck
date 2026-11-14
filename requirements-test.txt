@@ -4,4 +4,4 @@
 # against an older HA than users run. Dependabot bumps it.
 pytest-homeassistant-custom-component==0.13.375
 mypy==2.4.1
-ruff==0.17.3
+ruff==0.17.4
