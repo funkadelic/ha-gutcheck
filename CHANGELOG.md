@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.14.7](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.6...v0.14.7) (2026-11-14)
+
+
+### Other Changes
+
+* bump ruff from 0.17.3 to 0.17.4 in the pip group ([#115](https://github.com/funkadelic/ha-gutcheck/issues/115)) ([0046279](https://github.com/funkadelic/ha-gutcheck/commit/0046279a40a41e04d07186cfad99f433087cf019))
+* bump the actions group with 2 updates ([#112](https://github.com/funkadelic/ha-gutcheck/issues/112)) ([40ac01d](https://github.com/funkadelic/ha-gutcheck/commit/40ac01d6739eedd2de93f6f10fe4e0e8211992ce))
+* bump the actions group with 2 updates ([#116](https://github.com/funkadelic/ha-gutcheck/issues/116)) ([473c37c](https://github.com/funkadelic/ha-gutcheck/commit/473c37c82c644b0529909fb5f2e07d857cdcd5ce))
+* bump the pip group with 2 updates ([#113](https://github.com/funkadelic/ha-gutcheck/issues/113)) ([afca2cb](https://github.com/funkadelic/ha-gutcheck/commit/afca2cbd67b326d7f1d312dd24ddc18beebc92cb))
+* list gut check under the ai models category ([#103](https://github.com/funkadelic/ha-gutcheck/issues/103)) ([253984e](https://github.com/funkadelic/ha-gutcheck/commit/253984e9baf03aba5f5fcd43a8d783d6a5a674da))
+* update mutmut requirement from &lt;4,&gt;=3.8.0 to &gt;=3.8.1,&lt;4 ([#114](https://github.com/funkadelic/ha-gutcheck/issues/114)) ([88fae1a](https://github.com/funkadelic/ha-gutcheck/commit/88fae1a212927bda2068ba816229fd84f57ca069))
+
 ## [0.14.6](https://github.com/funkadelic/ha-gutcheck/compare/v0.14.5...v0.14.6) (2026-11-04)
 
 
